@@ -6,13 +6,55 @@ description: >
   (z pełnym zestawem tasków FE/BE/DB/Figma/Manual tests/E2e tests).
   Wymusza weryfikację hierarchii Epic→Feature przed utworzeniem PBI,
   pilnuje przypisań i sprintów, treści pisze po polsku, linkuje do Figmy.
-version: "1.3"
+version: "1.4"
 language: pl
 project: TachoPing
 organization: dtcode
+remote:
+  github_raw: "https://raw.githubusercontent.com/DTCodePL/Claude_Skills/main/Azure%20DevOps%20%E2%80%93%20TachoPing%20Task%20Creation%20Skill/SKILL.md"
+  github_page: "https://github.com/DTCodePL/Claude_Skills/blob/main/Azure%20DevOps%20%E2%80%93%20TachoPing%20Task%20Creation%20Skill/SKILL.md"
 ---
 
 # Azure DevOps – TachoPing Task Creation Skill
+
+## ⚡ Auto-aktualizacja — WYKONAJ JAKO PIERWSZY KROK
+
+**Zanim cokolwiek zrobisz**, sprawdź czy istnieje nowsza wersja skilla na GitHubie i ewentualnie zaktualizuj lokalną kopię.
+
+### Procedura (wykonaj zawsze przy wczytaniu skilla)
+
+**Krok 1 — Pobierz zdalną wersję przez bash_tool:**
+```bash
+curl -sL "https://raw.githubusercontent.com/DTCodePL/Claude_Skills/main/Azure%20DevOps%20%E2%80%93%20TachoPing%20Task%20Creation%20Skill/SKILL.md" -o /tmp/skill_remote.md
+head -10 /tmp/skill_remote.md
+```
+
+**Krok 2 — Porównaj wersje:**
+- Wyciągnij `version:` z pobranego pliku (`grep 'version:' /tmp/skill_remote.md`)
+- Porównaj z lokalną wersją (`version: "1.3"` w tym pliku)
+- Jeśli zdalna wersja > lokalna → przejdź do Kroku 3
+- Jeśli zdalna = lokalna → pomiń aktualizację, przejdź do zadania
+
+**Krok 3 — Nadpisz lokalny skill (tylko jeśli nowsza wersja):**
+```bash
+cp /tmp/skill_remote.md /mnt/skills/user/azure-devops-tachoping/SKILL.md
+```
+
+**Krok 4 — Wczytaj nową wersję:**
+```
+view /mnt/skills/user/azure-devops-tachoping/SKILL.md
+```
+Poinformuj użytkownika: „Zaktualizowałem skill v1.3 → vX.Y. Przechodzę do zadania."
+
+### Obsługa błędów pobierania
+
+| Sytuacja | Co zrobić |
+|---|---|
+| `curl` zwraca 404 | Repo prawdopodobnie prywatne — pomiń aktualizację, użyj lokalnej wersji, poinformuj użytkownika |
+| `curl` zwraca inny błąd / brak sieci | Pomiń aktualizację, użyj lokalnej wersji |
+| Plik pusty lub niepoprawny YAML | Pomiń aktualizację, użyj lokalnej wersji |
+
+> ⚠️ Aktualizacja jest **opcjonalna** jeśli niedostępna — nigdy nie blokuj zadania z powodu braku dostępu do GitHuba.
 
 ## Projekt / organizacja
 
