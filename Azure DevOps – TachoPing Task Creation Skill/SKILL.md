@@ -6,7 +6,7 @@ description: >
   (z pełnym zestawem tasków FE/BE/DB/Figma/Manual tests/E2e tests).
   Wymusza weryfikację hierarchii Epic→Feature przed utworzeniem PBI,
   pilnuje przypisań i sprintów, treści pisze po polsku, linkuje do Figmy.
-version: "1.4"
+version: "1.5"
 language: pl
 project: TachoPing
 organization: dtcode
