@@ -36,6 +36,10 @@ dostępność, Observable zamiast Promise itd.).
 - Po każdej implementacji: `npm run lint:fix` + `npm run format` (wymóg CLAUDE.md).
 - **Dev server:** `npm start` (= `ng serve --host 0.0.0.0`) → **http://localhost:4200**.
   Strony prawne: `/public/privacy`, `/public/cookies`, `/public/terms`.
+- **Viewporty testowe (stałe, obowiązkowe):** każdy test Playwright BEFORE i AFTER
+  uruchamiaj na **obu** rozdzielczościach:
+  - **mobile:** `360×520 px` (`browser_resize(width=360, height=520)`),
+  - **desktop:** `1280×720 px` (`browser_resize(width=1280, height=720)`).
 
 ## Narzędzia
 
@@ -83,10 +87,14 @@ występuje.
 - Upewnij się, że dev server działa (`npm start` w tle; poczekaj aż wstanie na
   `http://localhost:4200`). Backendowe ekrany wymagają działającego BE — jeśli strona
   zależy od BE, a go nie ma, zgłoś to i ustal z użytkownikiem.
-- `browser_navigate` na właściwą trasę, ustaw viewport (`browser_resize`) jeśli bug jest
-  responsywny (np. tabela na 360px).
-- Wykonaj asercje (`browser_evaluate`) i zrób screenshot (`browser_take_screenshot`) jako
-  dowód „przed". **Zapisz wynik baseline.**
+- `browser_navigate` na właściwą trasę. **Przetestuj na obu stałych viewportach**
+  (`browser_resize`): najpierw **mobile 360×520**, potem **desktop 1280×720**. Na każdym
+  viewporcie ponów nawigację/odświeżenie, jeśli układ zależy od szerokości.
+- Na **każdym** viewporcie wykonaj asercje (`browser_evaluate`) i zrób screenshot
+  (`browser_take_screenshot`) jako dowód „przed". **Zapisz wynik baseline osobno dla
+  mobile (360×520) i desktop (1280×720).**
+- Jeśli bug z natury dotyczy tylko jednej szerokości (np. czysto mobilny), i tak uruchom
+  asercję na obu viewportach — na drugim potwierdzasz brak problemu (baseline „zdrowy").
 - Jeśli buga **nie da się odtworzyć** (asercja „przed" nie potwierdza problemu) —
   zatrzymaj się i skonsultuj z użytkownikiem; nie naprawiaj na ślepo.
 
@@ -109,16 +117,19 @@ Jeśli po `lint:fix` zostają błędy — przeczytaj i napraw ręcznie, powtórz
 
 ### 6. Zweryfikuj fix w działającej aplikacji — Playwright (AFTER)
 
-**Obowiązkowe przed commitem.** Na tej samej trasie/viewporcie co krok 3 powtórz te same
-asercje i potwierdź, że bug **zniknął**.
+**Obowiązkowe przed commitem.** Na tej samej trasie i na **obu** viewportach co krok 3
+(**mobile 360×520** oraz **desktop 1280×720**) powtórz te same asercje i potwierdź, że bug
+**zniknął**.
 
 - Jeśli dev server był podniesiony, poczekaj na hot-reload (`browser_wait_for`) lub
   odśwież (`browser_navigate` ponownie).
-- Powtórz asercje (`browser_evaluate`) — teraz muszą zwracać stan oczekiwany (np. navy-700,
-  brak poziomego scrolla). Zrób screenshot „po" do porównania z baseline.
+- Dla **każdego** viewportu (`browser_resize` → 360×520, potem 1280×720) powtórz asercje
+  (`browser_evaluate`) — teraz muszą zwracać stan oczekiwany (np. navy-700, brak poziomego
+  scrolla). Zrób screenshot „po" na każdym viewporcie do porównania z odpowiednim baseline.
 - Sprawdź **brak regresji**: `browser_console_messages` (zero nowych błędów) i szybki rzut
   oka na sąsiednie ekrany dzielące te same komponenty (np. wszystkie 3 strony prawne).
-- **Jeśli asercja „po" nadal pokazuje buga — NIE commituj.** Wróć do kroku 4 i popraw.
+- **Jeśli asercja „po" na którymkolwiek viewporcie nadal pokazuje buga — NIE commituj.**
+  Wróć do kroku 4 i popraw.
 
 ### 7. Commit + push na main
 
@@ -189,6 +200,10 @@ Zasada: **zamień każdy punkt repro w mierzalną asercję** i sprawdź ją tym 
 przed i po fixie. Screenshot jest dowodem pomocniczym, ale werdykt daje `browser_evaluate`
 (deterministyczny), nie „oko".
 
+**Dwa obowiązkowe viewporty:** każdą asercję (BEFORE i AFTER) uruchamiaj na **mobile
+360×520** (`browser_resize(360, 520)`) i **desktop 1280×720** (`browser_resize(1280, 720)`).
+Trzymaj baseline i screenshot osobno dla każdego z nich.
+
 **Start serwera:** odpal `npm start` w tle i poczekaj aż odpowie `http://localhost:4200`,
 zanim wejdziesz `browser_navigate`. Po naprawie poczekaj na hot-reload przed asercją „po".
 
@@ -205,8 +220,8 @@ zanim wejdziesz `browser_navigate`. Po naprawie poczekaj na hot-reload przed ase
   () => { const t = document.querySelector('.cookie__table-wrap');
     return { scrollW: t.scrollWidth, clientW: t.clientWidth, overflows: t.scrollWidth > t.clientWidth }; }
   ```
-  (BEFORE: `overflows: true`; AFTER: `false`). Sprawdź też na mobile: `browser_resize`
-  do ~360px szerokości i powtórz.
+  (BEFORE: `overflows: true`; AFTER: `false`). Uruchom na obu stałych viewportach:
+  `browser_resize(360, 520)` (mobile) i `browser_resize(1280, 720)` (desktop), i powtórz.
 - **Spacing / rozmiary** — czytaj `getComputedStyle(el).marginBottom` / `fontSize` itp.
   i porównaj do wartości z Figmy.
 
@@ -224,9 +239,9 @@ zanim wejdziesz `browser_navigate`. Po naprawie poczekaj na hot-reload przed ase
 ## Checklista zamknięcia
 
 - [ ] Każdy punkt repro potwierdzony w kodzie (plik:linia).
-- [ ] **Playwright BEFORE:** asercja odtwarza buga w działającej aplikacji (+ screenshot).
+- [ ] **Playwright BEFORE:** asercja odtwarza buga na **mobile 360×520** i **desktop 1280×720** (+ screenshot każdy).
 - [ ] Poprawka zgodna z CLAUDE.md (i18n, kolory ze zmiennych, dostępność, Observable).
-- [ ] **Playwright AFTER:** ta sama asercja potwierdza brak buga; zero nowych błędów w konsoli.
+- [ ] **Playwright AFTER:** ta sama asercja na **mobile 360×520** i **desktop 1280×720** potwierdza brak buga; zero nowych błędów w konsoli.
 - [ ] `lint:fix` + `format` → zero błędów.
 - [ ] Zestage'owane TYLKO pliki tej naprawy; niepowiązane zmiany zgłoszone.
 - [ ] Commit `fix(scope): #<id> ...` + stopka Co-Authored-By; push na `main`.
