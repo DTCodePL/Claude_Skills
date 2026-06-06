@@ -155,8 +155,26 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
   ])
   ```
 - Task **„Retest"** — **bez zmian** (czeka na test).
-- (Opcjonalnie, zalecane) dodaj komentarz do Buga z podsumowaniem i hashem commita:
-  `wit_add_work_item_comment(workItemId=<bug>, project="TachoPing", comment="Naprawiono w <hash> na main: <co zmieniono>. Do retestu.")`
+- **Obowiązkowo** dodaj komentarz do Buga opisujący **co zostało naprawione** oraz **jak
+  to zretestować ręcznie**. Pisz **nietechnicznie** — tak, żeby tester (nie programista)
+  zrozumiał, co sprawdzić i jakiego efektu oczekiwać. Nie wklejaj kodu ani nazw
+  plików/zmiennych; opisz zachowanie aplikacji z punktu widzenia użytkownika. Hash commita
+  możesz dodać na końcu jako odnośnik. Użyj
+  `wit_add_work_item_comment(workItemId=<bug>, project="TachoPing", comment=...)`.
+
+  Szablon komentarza:
+
+  ```
+  Co zostało naprawione:
+  <1–3 zdania prostym językiem, co teraz działa poprawnie>
+
+  Jak zretestować ręcznie:
+  1. <krok po kroku: gdzie wejść, co kliknąć / jaki ekran otworzyć, jaki viewport>
+  2. <co należy zaobserwować — oczekiwany, poprawny efekt>
+  3. <ewentualnie: gdzie wcześniej był błąd, żeby tester wiedział na co patrzeć>
+
+  Naprawiono na main (commit <hash>).
+  ```
 
 ### 9. Podsumuj użytkownikowi
 
@@ -213,4 +231,5 @@ zanim wejdziesz `browser_navigate`. Po naprawie poczekaj na hot-reload przed ase
 - [ ] Zestage'owane TYLKO pliki tej naprawy; niepowiązane zmiany zgłoszone.
 - [ ] Commit `fix(scope): #<id> ...` + stopka Co-Authored-By; push na `main`.
 - [ ] Fix → Done; Bug → Ready for tests + przypisany do testera; Retest bez zmian.
+- [ ] **Komentarz do Buga dodany** — nietechniczny opis „co naprawiono" + „jak zretestować ręcznie".
 - [ ] Podsumowanie + instrukcja weryfikacji przekazane użytkownikowi.
