@@ -131,7 +131,7 @@ Jeśli po `lint:fix` zostają błędy — przeczytaj i napraw ręcznie, powtórz
 - **Jeśli asercja „po" na którymkolwiek viewporcie nadal pokazuje buga — NIE commituj.**
   Wróć do kroku 4 i popraw.
 
-### 7. Commit + push na main
+### 7. Commit + push na main -- zrób to tylko jeżeli wprost ci powiem, że masz pushować bezpośrednio na main
 
 > ⚠️ **Pułapka:** `npm run lint:fix` potrafi zmodyfikować **niepowiązane** pliki
 > (autofix). Sprawdź `git status` i **zestage'uj wyłącznie pliki, które świadomie
