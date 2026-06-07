@@ -5,7 +5,9 @@ description: >
   Użyj, gdy użytkownik poda link do work itema (np.
   https://dev.azure.com/DTCode/TachoPing/_workitems/edit/461) albo sam numer i poprosi
   o analizę/naprawę zgłoszenia. Skill pobiera work item i jego sub-taski (Fix/Retest),
-  weryfikuje czy błąd występuje w kodzie, odtwarza buga w działającej aplikacji przez
+  weryfikuje czy błąd występuje w kodzie (w razie potrzeby czyta dane z bazy przez MSSQL
+  MCP — tylko odczyt; zapis do bazy wyłącznie po wyraźnej zgodzie użytkownika),
+  odtwarza buga w działającej aplikacji przez
   Playwright (test BEFORE), implementuje poprawkę zgodnie z CLAUDE.md, potwierdza
   Playwrightem że bug zniknął (test AFTER), uruchamia lint:fix + format, commituje
   i pushuje na main, a następnie aktualizuje statusy w DevOps (Fix → Done,
@@ -52,6 +54,19 @@ dostępność, Observable zamiast Promise itd.).
 - **Playwright MCP** (`mcp__playwright__*`): `browser_navigate`, `browser_evaluate`,
   `browser_take_screenshot`, `browser_snapshot`, `browser_resize`, `browser_click`,
   `browser_wait_for`, `browser_console_messages`. Schematy doładuj przez `ToolSearch`.
+- **MSSQL MCP** (`mcp__mssql__execute_sql`) — dostęp do bazy danych TachoPing. Służy do
+  **odczytu danych** przy weryfikacji buga (krok 2) i potwierdzaniu fixa (krok 6) — np.
+  sprawdzenie stanu rekordów w `Users`, `Payments`, `PendingCheckouts`, subskrypcji itp.
+  Schemat doładuj przez `ToolSearch` (`select:mcp__mssql__execute_sql`).
+  - ✅ **Bez pytania dozwolone tylko odczyty** — wyłącznie `SELECT` (ewentualnie
+    `SELECT` w CTE). Nic, co zmienia stan bazy.
+  - ⛔ **Każda zmiana danych lub schematu wymaga wcześniejszej zgody użytkownika.** Zanim
+    wykonasz `INSERT`, `UPDATE`, `DELETE`, `MERGE` albo DDL (`ALTER`, `CREATE`, `DROP`,
+    `TRUNCATE`) — **zatrzymaj się i wprost zapytaj o akceptację** (`AskUserQuestion`),
+    podając dokładny zapytanie SQL i czego dotyczy. Nigdy nie modyfikuj bazy „przy okazji"
+    ani „żeby przyspieszyć".
+  - 🛈 Zmiany schematu i tak realizujemy przez **numerowane skrypty SQL**
+    (`TachoPingBE/Scripts/Script{NNNNN}...`, wymóg CLAUDE.md), a nie przez ten MCP.
 - `Bash`/`PowerShell` do git, `npm`. Edycja kodu zwykłymi narzędziami plikowymi.
 
 ## Procedura
@@ -71,6 +86,11 @@ dostępność, Observable zamiast Promise itd.).
 
 - Przeczytaj wskazane w repro pliki/komponenty (Grep/Glob/Read). **Potwierdź każdy punkt
   zgłoszenia faktem z kodu** (plik + linia). Nie zakładaj — sprawdź.
+- Jeśli repro dotyczy danych (np. „użytkownik nie ma aktywnej subskrypcji", „płatność się
+  nie zapisała", zła wartość w rekordzie, brak/duplikat wpisu) — **potwierdź stan w bazie
+  odczytem** (`mcp__mssql__execute_sql`, **tylko `SELECT`**). Pomaga to odróżnić bug w
+  kodzie od błędnych/seedowanych danych. **Nie modyfikuj bazy** — zapis tylko po pytaniu
+  (patrz reguła w „Narzędzia").
 - Jeśli repro odwołuje się do Figmy (node-id w URL): spróbuj `get_design_context` /
   `get_variable_defs` dla węzła. Gdy MCP zwróci „nothing selected", **poproś użytkownika,
   by zaznaczył węzeł w Figma desktop** (albo podał wartości), lub działaj wg wartości
@@ -126,6 +146,9 @@ Jeśli po `lint:fix` zostają błędy — przeczytaj i napraw ręcznie, powtórz
 - Dla **każdego** viewportu (`browser_resize` → 360×520, potem 1280×720) powtórz asercje
   (`browser_evaluate`) — teraz muszą zwracać stan oczekiwany (np. navy-700, brak poziomego
   scrolla). Zrób screenshot „po" na każdym viewporcie do porównania z odpowiednim baseline.
+- Jeśli fix dotyczy danych (zapis/aktualizacja/odczyt rekordu), potwierdź efekt **odczytem**
+  z bazy (`mcp__mssql__execute_sql`, **tylko `SELECT`**) — np. że rekord powstał albo ma
+  poprawną wartość. **Bez zapisów** do bazy z poziomu skilla (patrz reguła w „Narzędzia").
 - Sprawdź **brak regresji**: `browser_console_messages` (zero nowych błędów) i szybki rzut
   oka na sąsiednie ekrany dzielące te same komponenty (np. wszystkie 3 strony prawne).
 - **Jeśli asercja „po" na którymkolwiek viewporcie nadal pokazuje buga — NIE commituj.**
@@ -240,6 +263,7 @@ zanim wejdziesz `browser_navigate`. Po naprawie poczekaj na hot-reload przed ase
 
 - [ ] Każdy punkt repro potwierdzony w kodzie (plik:linia).
 - [ ] **Playwright BEFORE:** asercja odtwarza buga na **mobile 360×520** i **desktop 1280×720** (+ screenshot każdy).
+- [ ] Odczyty z bazy (jeśli były) tylko `SELECT`; żadnej zmiany danych/schematu bez wyraźnej zgody użytkownika.
 - [ ] Poprawka zgodna z CLAUDE.md (i18n, kolory ze zmiennych, dostępność, Observable).
 - [ ] **Playwright AFTER:** ta sama asercja na **mobile 360×520** i **desktop 1280×720** potwierdza brak buga; zero nowych błędów w konsoli.
 - [ ] `lint:fix` + `format` → zero błędów.
