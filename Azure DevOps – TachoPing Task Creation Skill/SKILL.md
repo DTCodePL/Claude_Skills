@@ -6,7 +6,7 @@ description: >
   (z pełnym zestawem tasków FE/BE/DB/Figma/Manual tests/E2e tests).
   Wymusza weryfikację hierarchii Epic→Feature przed utworzeniem PBI,
   pilnuje przypisań i sprintów, treści pisze po polsku, linkuje do Figmy.
-version: "1.5"
+version: "1.6"
 language: pl
 project: TachoPing
 organization: dtcode
@@ -31,7 +31,7 @@ head -10 /tmp/skill_remote.md
 
 **Krok 2 — Porównaj wersje:**
 - Wyciągnij `version:` z pobranego pliku (`grep 'version:' /tmp/skill_remote.md`)
-- Porównaj z lokalną wersją (`version: "1.3"` w tym pliku)
+- Porównaj z lokalną wersją (frontmatter `version:` w tym pliku)
 - Jeśli zdalna wersja > lokalna → przejdź do Kroku 3
 - Jeśli zdalna = lokalna → pomiń aktualizację, przejdź do zadania
 
@@ -44,7 +44,7 @@ cp /tmp/skill_remote.md /mnt/skills/user/azure-devops-tachoping/SKILL.md
 ```
 view /mnt/skills/user/azure-devops-tachoping/SKILL.md
 ```
-Poinformuj użytkownika: „Zaktualizowałem skill v1.3 → vX.Y. Przechodzę do zadania."
+Poinformuj użytkownika: „Zaktualizowałem skill v{stara} → v{nowa}. Przechodzę do zadania."
 
 ### Obsługa błędów pobierania
 
@@ -178,6 +178,107 @@ Każdy task: Typ = `Task`, Rodzic = ID PBI z kroku 3.
 8. Utwórz Task "Manual tests" (parent = PBI, sprint = Sprint 1)
 9. Utwórz Task "E2e tests"   (parent = PBI, sprint = E2e Sprint)
 ```
+
+---
+
+## Opis PBI — styl i treść
+
+### Dla kogo jest opis
+
+Opis w PBI jest przeznaczony **dla testera, który nie jest technicznym programistą**. Tester musi zrozumieć:
+- Co nowa funkcjonalność robi z perspektywy użytkownika
+- Jak ją przetestować ręcznie (co kliknąć, co powinno się stać)
+- Czego oczekiwać (co jest wynikiem poprawnego działania)
+
+> ⚠️ **Nigdy nie pisz opisu technicznego** — bez nazw klas, metod, endpointów API, nazw kolumn DB, nazw plików, architektury ani terminologii z kodu. Opis ma opisywać **zachowanie widoczne dla użytkownika**, nie implementację.
+
+### Struktura opisu PBI
+
+```html
+<h3>Co zostało zrobione</h3>
+<p>Krótkie zdanie podsumowujące cel funkcjonalności (1-2 zdania).</p>
+
+<h3>Jak to działa</h3>
+
+<h4>1. Krok / scenariusz pierwszy</h4>
+<p>Opis kroków jakie wykonuje użytkownik i co się wtedy dzieje.</p>
+<img src="..." style="max-width:100%;border:1px solid #e2e8f0;border-radius:8px;margin:12px 0;display:block;" />
+
+<h4>2. Krok / scenariusz drugi</h4>
+<p>Opis kolejnego scenariusza.</p>
+<img src="..." style="max-width:100%;" />
+```
+
+Przykłady dobrego i złego opisu:
+
+| ❌ ZŁE (techniczne) | ✅ DOBRE (dla testera) |
+|---|---|
+| „Dodano endpoint `PUT /owner/language` który zapisuje `LanguageId` do tabeli `Users`" | „Po kliknięciu Zapisz wybrany język jest zapamiętywany na koncie — po ponownym zalogowaniu na innym urządzeniu interfejs nadal wyświetla się w tym języku" |
+| „`AuthService.me()` synchronizuje język po zalogowaniu via `LanguageService.setLanguageById()`" | „Zaraz po zalogowaniu aplikacja automatycznie przełącza się na język zapisany na koncie, niezależnie od ustawień przeglądarki" |
+| „Komponent `LanguageBottomSheet` wstrzykuje `OwnerService` i wywołuje `updateLanguage()`" | „Na mobile: kliknij wiersz Język → pojawi się panel z listą języków → wybierz i kliknij Zapisz" |
+
+---
+
+## Screenshoty w opisie PBI — jak dodawać
+
+### Źródło screenshotów: wyłącznie Figma
+
+Screenshoty dołączane do opisu PBI **muszą pochodzić z Figmy** — nie z przeglądarki, nie z Playwright, nie z implementacji.
+
+Powód: Figma zawiera zaakceptowane mockupy, które tester ma weryfikować. Screenshot z implementacji pokazuje „jak jest", a nie „jak powinno być".
+
+### Procedura dodawania screenshotów
+
+**Krok 1 — Pobierz screenshot z Figmy**
+
+Używając narzędzia `get_screenshot` lub `use_figma` z Figma MCP pobierz PNG dla odpowiedniego node-id z projektu TachoPing (klucz pliku: `aF4IGcuZGCT2rgdl1o9E7g`).
+
+```
+get_screenshot(fileKey: "aF4IGcuZGCT2rgdl1o9E7g", nodeId: "14:4653")
+```
+
+Wynik to plik PNG (binarny lub base64). Zapisz go lokalnie do pliku tymczasowego.
+
+**Krok 2 — Wgraj PNG jako załącznik do ADO**
+
+Użyj ADO REST API (nie MCP — MCP nie obsługuje uploadu binarnych plików):
+
+```powershell
+$PAT   = "<token>"
+$B64   = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$PAT"))
+$hdrs  = @{ Authorization = "Basic $B64"; "Content-Type" = "application/octet-stream" }
+$bytes = [IO.File]::ReadAllBytes("C:\tmp\screen.png")
+$resp  = Invoke-WebRequest `
+  -Uri "https://dev.azure.com/DTCode/2588c384-a691-4407-b553-194b87829089/_apis/wit/attachments?fileName=screen.png&api-version=7.1" `
+  -Method Post -Headers $hdrs -Body $bytes -UseBasicParsing
+$url = ($resp.Content | ConvertFrom-Json).url
+```
+
+`$url` to czysty URL załącznika — np. `https://dev.azure.com/DTCode/2588c384-a691-4407-b553-194b87829089/_apis/wit/attachments/{guid}?fileName=screen.png`.
+
+> 🔑 PAT znajdziesz w `C:\Users\Damian\AppData\Local\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\claude_desktop_config.json` pod kluczem `PERSONAL_ACCESS_TOKEN` (wartość jest base64 — zdekoduj ją najpierw).
+
+**Krok 3 — Wstaw URL do opisu (czysty, bez enkodowania)**
+
+W HTML opisu używaj bezpośrednio zwróconego URL-a w atrybucie `src`. **Nigdy nie owijaj go cudzysłowami wewnątrz łańcucha ani nie URL-enkoduj:**
+
+```html
+<!-- ✅ POPRAWNIE -->
+<img src="https://dev.azure.com/DTCode/2588c384-a691-4407-b553-194b87829089/_apis/wit/attachments/abc-123?fileName=screen.png" style="max-width:100%;border:1px solid #e2e8f0;border-radius:8px;margin:12px 0;display:block;" />
+
+<!-- ❌ ŹLE — podwójne enkodowanie, cudzysłowy w URL -->
+<img src="%22https%3a//dev.azure.com/...%22" />
+```
+
+**Krok 4 — Dodaj opis z obrazkami przez `wit_update_work_item`**
+
+Przekaż HTML z czystymi URL-ami (Wzorzec 3). Sprawdź wynik — jeśli obrazki nie są widoczne, to URL jest nieprawidłowy.
+
+### Kiedy dodawać screenshoty
+
+- **Zawsze, gdy istnieją odpowiednie node-idy w Figmie** dla danej funkcjonalności.
+- Minimum jeden screenshot na PBI (chyba że funkcjonalność jest czysto backendowa i nie ma UI).
+- Preferowane: oddzielny screenshot dla widoku desktop i mobile (jeśli obie wersje istnieją w Figmie).
 
 ---
 
