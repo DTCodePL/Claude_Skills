@@ -68,6 +68,9 @@ dostępność, Observable zamiast Promise itd.).
   - 🛈 Zmiany schematu i tak realizujemy przez **numerowane skrypty SQL**
     (`TachoPingBE/Scripts/Script{NNNNN}...`, wymóg CLAUDE.md), a nie przez ten MCP.
 - `Bash`/`PowerShell` do git, `npm`. Edycja kodu zwykłymi narzędziami plikowymi.
+- **`gh` CLI** (GitHub) — do odczytu numeru builda deployu (krok 8, pole „Fix dostępny od
+  builda…"). Uruchamiaj w shellu z dostępem do sieci i zalogowanym `gh` — zwykle
+  **PowerShell**, bo Bash bywa w sandboxie bez sieci/DNS.
 
 ## Procedura
 
@@ -189,17 +192,43 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
   ])
   ```
 - Task **„Retest"** — **bez zmian** (czeka na test).
+- **Ustal numer builda do retestów (FE/BE)** — potrzebny do pierwszego punktu komentarza.
+  Numer builda = numer runa workflow **deployu** w danym repo, który zawiera Twój fix
+  (run wywołany Twoim push'em na `main`).
+  - **Repo i workflow deployu:**
+    - FE: `DTCodePL/TachoPingFE`, workflow `deploy.yml` („Build & Deploy to Production").
+    - BE: `DTCodePL/TachoPingBE`, workflow `deploy-mikrus.yml` („Deploy to mikr.us").
+  - **Jak ustalić numer** (przez `gh`, w shellu z siecią — patrz „Narzędzia"):
+    ```
+    gh run list --repo DTCodePL/TachoPingFE --workflow deploy.yml --limit 1 --json number,headSha,status
+    ```
+    - Jeśli `headSha` najnowszego runa **== hash Twojego commita fixa** → to **już jest**
+      numer builda z fixem; użyj go bez zmian.
+    - Jeśli najnowszy run pochodzi z **wcześniejszego** commita (Twój run jeszcze się nie
+      pojawił, bo push dopiero poszedł) → **numer builda = ostatni numer + 1**.
+    - ⚠️ Nie dodawaj „+1" na ślepo — po pushu Twój run deployu często **już istnieje**
+      (wtedy „ostatni + 1" daje błędny, zawyżony numer). Najpierw sprawdź `headSha`.
+    - Analogicznie dla BE (drugie repo/workflow).
+  - **Którą stronę podać:**
+    - Fix tylko w FE → `FE: <n>+`, `BE: N/D`.
+    - Fix tylko w BE → `BE: <n>+`, `FE: N/D`.
+    - Fix w obu repo → oba numery `<n>+`.
+    - Brak pusha (np. tylko commit lokalny / nic nie commitowano) → `FE: N/D` i `BE: N/D`
+      (build nieznany — zaznacz, że trzeba poczekać na deploy).
+  - Format: liczba z **plusem** (np. `FE: 65+`) — oznacza „ten build lub nowszy".
 - **Obowiązkowo** dodaj komentarz do Buga opisujący **co zostało naprawione** oraz **jak
   to zretestować ręcznie**. Pisz **nietechnicznie** — tak, żeby tester (nie programista)
   zrozumiał, co sprawdzić i jakiego efektu oczekiwać. Nie wklejaj kodu ani nazw
   plików/zmiennych; opisz zachowanie aplikacji z punktu widzenia użytkownika. Hash commita
-  możesz dodać na końcu jako odnośnik. Użyj
+  możesz dodać na końcu jako odnośnik. **Pierwszy punkt sekcji „Co zostało naprawione" MUSI
+  podać numer builda do retestów** (FE i BE, wg reguły wyżej). Użyj
   `wit_add_work_item_comment(workItemId=<bug>, project="TachoPing", comment=...)`.
 
   Szablon komentarza:
 
   ```
   Co zostało naprawione:
+  Fix dostępny od builda FE: <X>+ i BE: <Y>+   (użyj „N/D" dla strony, której fix nie dotyczył)
   <1–3 zdania prostym językiem, co teraz działa poprawnie>
 
   Jak zretestować ręcznie:
@@ -271,4 +300,5 @@ zanim wejdziesz `browser_navigate`. Po naprawie poczekaj na hot-reload przed ase
 - [ ] Commit `fix(scope): #<id> ...` + stopka Co-Authored-By; push na `main`.
 - [ ] Fix → Done; Bug → Ready for tests + przypisany do testera; Retest bez zmian.
 - [ ] **Komentarz do Buga dodany** — nietechniczny opis „co naprawiono" + „jak zretestować ręcznie".
+- [ ] Komentarz: **pierwszy punkt „Co zostało naprawione" podaje build do retestów** (`FE: <n>+` / `BE: <n>+`, `N/D` gdzie fix nie dotyczył danej strony; numer zweryfikowany przez `gh` wg `headSha`, bez ślepego „+1").
 - [ ] Podsumowanie + instrukcja weryfikacji przekazane użytkownikowi.
