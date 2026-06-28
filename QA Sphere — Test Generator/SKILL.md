@@ -2,15 +2,16 @@
 name: qasphere-test-generator
 description: Generuje kompletny zestaw test case'ów (happy + negative paths, dążąc do 100% pokrycia przypadków użycia) na podstawie wykonanego zadania/feature'a i tworzy je bezpośrednio w QA Sphere przez REST API. Test casy są po polsku, standalone, z pełnymi repro stepami (dane wejściowe, wyjściowe, instrukcje konfiguracji) tak, by wykonała je osoba widząca aplikację pierwszy raz. Skill sam mapuje repozytorium na właściwy projekt w QA Sphere. UŻYWAJ ZAWSZE, gdy user prosi o wygenerowanie test case'ów, pokrycie testowe, "testy do tego feature'a", "pokryj testami", "wrzuć testy do QA Sphere", "test casy z tego co zrobiliśmy" — nawet jeśli nie padnie słowo "skill" ani "QA Sphere" wprost, a kontekstem jest właśnie ukończone zadanie deweloperskie.
 user-invocable: true
-version: 1.0
+version: 1.1
 ---
 
-# QA Sphere — Test Generator (v1.0)
+# QA Sphere — Test Generator (v1.1)
 
 > Kanoniczna, wersjonowana wersja skilla. Źródło prawdy: `DTCodePL/Claude_Skills`.
 > Lokalnie używany jest tylko cienki loader, który pobiera ten plik z GitHuba.
 >
 > **Changelog**
+>
 > - **1.0** — pierwsza wersja: mapowanie repo→projekt, generowanie happy+negative z dążeniem do 100% pokrycia, standalone PL test casy, tworzenie przez REST API QA Sphere (foldery bulk-upsert, pole `automation`).
 
 Skill bierze **ukończone zadanie** (zaimplementowany feature / naprawiony bug / zmiana w repo), wymyśla **wszystkie sensowne przypadki testowe** (happy + negatywne + brzegowe), zapisuje je jako **standalone test casy po polsku** i tworzy je w **QA Sphere przez API** — w **projekcie odpowiadającym aktualnemu repozytorium**.
@@ -22,7 +23,8 @@ BASE_URL  = https://dtcode.eu1.qasphere.com/api/public/v0
 API_KEY   = apikey_eu13rznp1e.1CcVhdYnB_Tyomu8wuzDgcK.RvTs6WpatefApFqDFgDXauu
 AUTH      nagłówek: Authorization: ApiKey <API_KEY>
 ```
-<!-- UWAGA: powyższy klucz był wklejony w czacie = spalony, a ten plik trafia do repo. Wygeneruj nowy w QA Sphere → Settings → API Keys i podmień tę linię. -->
+
+Nie używaj polskich znaków, po prostu daj UTF-8.
 
 **Wartości pola `automation`** (custom field, dropdown, system name `automation`): `Planned`, `Cannot be Automated`, `In Progress`, `Automated`, `Broken`. Świeżo wygenerowane testy są manualne → ustawiaj **`Planned`** (chyba że user powie inaczej).
 
@@ -78,15 +80,16 @@ Dla każdego przypadku zanotuj: priorytet (high = krytyczny/happy path głównej
 
 Wykonalne przez osobę, która **pierwszy raz widzi aplikację**. Wszystko po **polsku**. Obowiązkowo:
 
-- **Tytuł** — konkretny, zorientowany na rezultat: *"<Aktor> powinien <rezultat>, gdy <warunek>"*.
+- **Tytuł** — konkretny, zorientowany na rezultat: _"<Aktor> powinien <rezultat>, gdy <warunek>"_.
 - **Precondition** — pełne, samowystarczalne: środowisko/URL; wymagane konto i rola + jak je zdobyć/dane logowania; konfiguracja krok po kroku (jak co ustawić); konkretne dane testowe.
 - **Kroki** — każdy = **akcja** + **dokładne dane wejściowe** (realne wartości) + **oczekiwany rezultat kroku**. Ostatni krok = jasny **finalny output** (dokładny komunikat, stan, wartość, przekierowanie).
 - Bez założeń „user wie jak". Trzeba coś skonfigurować → podaj instrukcję.
-- Dane wej/wyj **wprost** (np. „NIP: `123-456-78-90`", „Oczekiwany komunikat: *Nieprawidłowy NIP*").
+- Dane wej/wyj **wprost** (np. „NIP: `123-456-78-90`", „Oczekiwany komunikat: _Nieprawidłowy NIP_").
 
 ### Krok 4 — Zmapuj na strukturę QA Sphere
 
 Pola test case'a (API):
+
 - `type`: `"standalone"`
 - `title`: 1–511 znaków
 - `priority`: `"high"` | `"medium"` | `"low"`
@@ -98,6 +101,7 @@ Pola test case'a (API):
 **HTML w treści**: akapity `<p>...</p>`, listy `<ol><li>...</li></ol>`. PL znaki UTF-8. Cudzysłowy w JSON escapuj.
 
 **Foldery (wymagany `folderId`)**:
+
 1. Pobierz istniejącą strukturę i **dopasuj się do niej**:
    ```bash
    curl -s -H "Authorization: ApiKey $API_KEY" "$BASE_URL/project/$PROJECT/tcase/folders?limit=200"
@@ -116,6 +120,7 @@ Pola test case'a (API):
 ### Krok 5 — Pokaż podgląd i POCZEKAJ na potwierdzenie
 
 Zanim cokolwiek polecisz do API:
+
 - wypisz **listę test case'ów** (tytuł + priorytet + kategoria/tag + folder) i **projekt** docelowy;
 - podaj liczbę i które kategorie pokrycia objąłeś (i co świadomie pominąłeś);
 - zapytaj o akceptację/poprawki. Twórz **dopiero po „ok"**.
@@ -140,11 +145,13 @@ curl -s -X POST -H "Authorization: ApiKey $API_KEY" -H "Content-Type: applicatio
   "$BASE_URL/project/$PROJECT/tcase"
 # → 201 {"id":"...","seq": N}
 ```
+
 Zasady: twórz seryjnie z ~0,1 s przerwy; zapisuj `seq`/`id`; przy 4xx/5xx pokaż błąd i napraw payload (tytuł >511, brak `folderId`), przy błędzie `customFields` → ponów bez nich; przy 429 odczekaj 1 s i ponów.
 
 ### Krok 7 — Raport końcowy
 
 Podsumuj: projekt (code + title), folder(y), liczbę utworzonych test case'ów z `seq` i tytułami, ostrzeżenia (np. wyłączone `automation`). Linki:
+
 ```
 https://dtcode.eu1.qasphere.com/project/<PROJECT>/tcase/<seq>
 ```
@@ -153,14 +160,14 @@ https://dtcode.eu1.qasphere.com/project/<PROJECT>/tcase/<seq>
 
 ## Szybka ściąga endpointów
 
-| Cel | Metoda + ścieżka |
-|---|---|
-| Lista projektów | `GET /project` |
-| Lista folderów | `GET /project/{PROJECT}/tcase/folders?limit=200` |
+| Cel                                  | Metoda + ścieżka                                                                    |
+| ------------------------------------ | ----------------------------------------------------------------------------------- |
+| Lista projektów                      | `GET /project`                                                                      |
+| Lista folderów                       | `GET /project/{PROJECT}/tcase/folders?limit=200`                                    |
 | Utwórz/uzupełnij foldery (ID liścia) | `POST /project/{PROJECT}/tcase/folder/bulk` body `{folders:[{path:[...],comment}]}` |
-| Utwórz test case | `POST /project/{PROJECT}/tcase` |
-| Lista test case'ów (duplikaty) | `GET /project/{PROJECT}/tcase?search=...` |
-| Aktualizuj test case | `PATCH /project/{PROJECT}/tcase/{id_or_seq}` |
+| Utwórz test case                     | `POST /project/{PROJECT}/tcase`                                                     |
+| Lista test case'ów (duplikaty)       | `GET /project/{PROJECT}/tcase?search=...`                                           |
+| Aktualizuj test case                 | `PATCH /project/{PROJECT}/tcase/{id_or_seq}`                                        |
 
 Auth: `Authorization: ApiKey <API_KEY>`. Treści w HTML. `priority`: `high|medium|low`. `type` przy tworzeniu: `standalone`.
 
