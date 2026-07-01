@@ -2,16 +2,18 @@
 name: qasphere-test-generator
 description: Generuje kompletny zestaw test case'ów (happy + negative paths, dążąc do 100% pokrycia przypadków użycia) na podstawie wykonanego zadania/feature'a i tworzy je bezpośrednio w QA Sphere przez REST API. Test casy są po polsku, standalone, z pełnymi repro stepami (dane wejściowe, wyjściowe, instrukcje konfiguracji) tak, by wykonała je osoba widząca aplikację pierwszy raz. Skill sam mapuje repozytorium na właściwy projekt w QA Sphere. UŻYWAJ ZAWSZE, gdy user prosi o wygenerowanie test case'ów, pokrycie testowe, "testy do tego feature'a", "pokryj testami", "wrzuć testy do QA Sphere", "test casy z tego co zrobiliśmy" — nawet jeśli nie padnie słowo "skill" ani "QA Sphere" wprost, a kontekstem jest właśnie ukończone zadanie deweloperskie.
 user-invocable: true
-version: 1.1
+version: 1.2
 ---
 
-# QA Sphere — Test Generator (v1.1)
+# QA Sphere — Test Generator (v1.2)
 
 > Kanoniczna, wersjonowana wersja skilla. Źródło prawdy: `DTCodePL/Claude_Skills`.
 > Lokalnie używany jest tylko cienki loader, który pobiera ten plik z GitHuba.
 >
 > **Changelog**
 >
+> - **1.2** — foldery **zawsze** zagnieżdżane w folderze-korzeniu projektu (nigdy na najwyższym poziomie obok niego); doprecyzowanie budowy `path` i przykładu `folder/bulk`.
+> - **1.1** — loader pobierający kanoniczną wersję skilla z GitHuba (raw URL); logika trzymana wyłącznie w repo `DTCodePL/Claude_Skills`.
 > - **1.0** — pierwsza wersja: mapowanie repo→projekt, generowanie happy+negative z dążeniem do 100% pokrycia, standalone PL test casy, tworzenie przez REST API QA Sphere (foldery bulk-upsert, pole `automation`).
 
 Skill bierze **ukończone zadanie** (zaimplementowany feature / naprawiony bug / zmiana w repo), wymyśla **wszystkie sensowne przypadki testowe** (happy + negatywne + brzegowe), zapisuje je jako **standalone test casy po polsku** i tworzy je w **QA Sphere przez API** — w **projekcie odpowiadającym aktualnemu repozytorium**.
@@ -102,18 +104,35 @@ Pola test case'a (API):
 
 **Foldery (wymagany `folderId`)**:
 
+> ⚠️ **Nowe foldery ZAWSZE zagnieżdżaj w folderze-korzeniu projektu.** Każda tworzona ścieżka
+> (`path`) MUSI zaczynać się od tytułu **folderu-korzenia projektu** — pozycji najwyższego poziomu
+> reprezentującej cały projekt (zwykle nazwanej jak projekt/produkt, np. `Ustawożerca`). **Nigdy**
+> nie twórz folderu na najwyższym poziomie **obok** korzenia projektu — to rozbija strukturę drzewa
+> (QA Sphere nie ma DELETE w API, więc takiego błędu nie da się łatwo cofnąć).
+
 1. Pobierz istniejącą strukturę i **dopasuj się do niej**:
    ```bash
    curl -s -H "Authorization: ApiKey $API_KEY" "$BASE_URL/project/$PROJECT/tcase/folders?limit=200"
    ```
-2. Rekomendacja: folder `["<Moduł/Feature>"]`, kategorię (happy/negatywny/walidacja) oznaczaj **tagiem**. Jeśli projekt ma własną konwencję folderów — trzymaj się jej.
-3. Utwórz/uzupełnij ścieżkę (idempotentnie), odbierz `folderId` (ostatni ID = liść):
+2. **Ustal folder-korzeń projektu `ROOT`**: z powyższej listy weź pozycję najwyższego poziomu
+   (rodzic = katalog główny drzewa, np. `parentId: 0`) o tytule odpowiadającym projektowi
+   (porównaj z `title` z `GET /project`). Zapamiętaj jego **dokładny tytuł** — ze znakami
+   diakrytycznymi tak, jak jest zapisany (np. `Ustawożerca` z `ż`) — aby dopasować istniejący
+   folder zamiast tworzyć duplikat. Gdy korzenia jeszcze nie ma → będzie to pierwszy segment
+   ścieżki (utworzy się automatycznie). Gdy jest kilku kandydatów najwyższego poziomu i wybór jest
+   niejednoznaczny → **zapytaj usera**.
+3. Rekomendacja ścieżki: `[ROOT, "<Moduł>", "<Feature>"]` (minimum `[ROOT, "<Moduł/Feature>"]`).
+   Kategorię (happy/negatywny/walidacja) oznaczaj **tagiem**. Jeśli projekt ma własną konwencję
+   podfolderów — trzymaj się jej, ale **zawsze pod `ROOT`**.
+4. Utwórz/uzupełnij ścieżkę (idempotentnie), odbierz `folderId` (**ostatni** ID w zwróconej tablicy = liść):
    ```bash
    curl -s -X POST -H "Authorization: ApiKey $API_KEY" -H "Content-Type: application/json" \
-     -d '{"folders":[{"path":["Ustawienia konta"],"comment":"<p>Testy modułu ustawień</p>"}]}' \
+     -d '{"folders":[{"path":["Ustawożerca","Ustawienia konta"],"comment":"<p>Testy modułu ustawień</p>"}]}' \
      "$BASE_URL/project/$PROJECT/tcase/folder/bulk"
-   # → {"ids":[[123]]}  → folderId = 123
+   # → {"ids":[[1,123]]}  → folderId = 123 (ostatni w tablicy = liść; pierwszy to ROOT)
    ```
+   > Pominięcie `ROOT` na początku `path` (np. `path:["Ustawienia konta"]`) utworzy folder na
+   > najwyższym poziomie, **obok** projektu — **to błąd**. Zawsze prefiksuj ścieżkę tytułem `ROOT`.
 
 **Pole `automation` (warunkowo)**: custom fieldy muszą istnieć w projekcie. W dtcode pole `automation` istnieje. Domyślnie dodawaj `"customFields":{"automation":{"value":"Planned"}}`; jeśli `POST` zwróci 400 przez nieznany/wyłączony custom field → **ponów bez `customFields`** i zaznacz to w raporcie.
 
@@ -164,7 +183,7 @@ https://dtcode.eu1.qasphere.com/project/<PROJECT>/tcase/<seq>
 | ------------------------------------ | ----------------------------------------------------------------------------------- |
 | Lista projektów                      | `GET /project`                                                                      |
 | Lista folderów                       | `GET /project/{PROJECT}/tcase/folders?limit=200`                                    |
-| Utwórz/uzupełnij foldery (ID liścia) | `POST /project/{PROJECT}/tcase/folder/bulk` body `{folders:[{path:[...],comment}]}` |
+| Utwórz/uzupełnij foldery (ID liścia) | `POST /project/{PROJECT}/tcase/folder/bulk` body `{folders:[{path:[ROOT,...],comment}]}` (ścieżka zawsze od korzenia projektu) |
 | Utwórz test case                     | `POST /project/{PROJECT}/tcase`                                                     |
 | Lista test case'ów (duplikaty)       | `GET /project/{PROJECT}/tcase?search=...`                                           |
 | Aktualizuj test case                 | `PATCH /project/{PROJECT}/tcase/{id_or_seq}`                                        |
@@ -178,3 +197,4 @@ Auth: `Authorization: ApiKey <API_KEY>`. Treści w HTML. `priority`: `high|mediu
 - Dane wej/wyj **konkretne**, nie placeholdery.
 - **Nie twórz** niczego przed potwierdzeniem projektu (Krok 1) i akceptacją podglądu (Krok 5).
 - Dąż do **pełnego pokrycia** — przejdź każdą kategorię z Kroku 2 i jawnie zaznacz pominięcia.
+- Nowe foldery **zawsze** pod folderem-korzeniem projektu — `path` zaczyna się od tytułu `ROOT` (nigdy folder na najwyższym poziomie obok projektu).
