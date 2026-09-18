@@ -1,0 +1,9 @@
+services:
+  teams-transcript-bridge:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "40002:8080"
+    volumes:
+      - ./secrets:/app/secrets:ro
