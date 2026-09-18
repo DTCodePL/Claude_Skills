@@ -5,10 +5,11 @@ description: >
   podstawie linku lub numeru Azure DevOps — od Plan Mode (z makietami Figmy
   linkowanymi wprost, nie opisywanymi), przez wykonanie w modelu: sesja
   główna Opus max = architekt, dyspozytor i walidator etapów (nigdy
-  wykonawca) / linie wykonawcze rozdzielone proporcjonalnie do pul (Sonnet
-  domyślnie, Spark i Terra jako sloty, Luna lekkie) / niezależny recenzent
-  Codex, przez zlecony audyt SCSS pod kątem Bootstrapa i deduplikacji, aż po
-  bramę mojego potwierdzenia i dopiero wtedy domknięcie w ADO (commit/push,
+  wykonawca) / linie wykonawcze w stałej kolejności Claude → Spark → Codex
+  (Sonnet do Figmy/MCP, Spark do wszystkiego tekstowego bez limitu slotów,
+  Codex tylko recenzja i research) / niezależny recenzent Codex, przez
+  zlecony audyt SCSS pod kątem Bootstrapa i deduplikacji, aż po bramę mojego
+  potwierdzenia i dopiero wtedy domknięcie w ADO (commit/push,
   statusy tasków deweloperskich, PBI → Ready for tests, przypisanie do
   testera). Na starcie, tuż po zatwierdzeniu planu, PBI/Bug i taski
   przewidziane do wykonania idą na In Progress. Obejmuje też naprawę Bugów —
@@ -17,7 +18,7 @@ description: >
   link lub numer Epic/Feature/PBI/Task/Bug
   z Azure DevOps projektu Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie
   i/lub naprawienie go — nawet jeśli nie padnie słowo "skill".
-version: '4.0'
+version: '5.0'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -87,10 +88,13 @@ Zanim zlecisz jakikolwiek kod, wejdź w Plan Mode i ustal:
 - Jeżeli w PBI albo w Figmie brakuje specyfikacji potrzebnej do decyzji,
   **zatrzymaj się i zapytaj** zamiast zgadywać.
 - **Bilans obciążenia silników** jako obowiązkowy element planu: tabela
-  „etap → brief → linia" plus liczba ciężkich briefów per silnik. Sprawdzian
-  przed pokazaniem planu: jeśli Claude (`wykonawca`) ma mniej ciężkich
-  briefów niż Codex, albo Spark dostał cokolwiek zależnego od Figmy, plan
-  jest zroutowany źle — popraw, zanim go pokażesz.
+  „etap → brief → linia" plus liczba briefów per silnik. Sprawdzian przed
+  pokazaniem planu — plan jest zroutowany źle, gdy zachodzi cokolwiek z:
+  Codex ma w planie coś poza recenzją Sol i researchem Terry; Spark dostał
+  cokolwiek zależnego od Figmy; jakikolwiek brief w całości tekstowy poszedł
+  na Sonneta, choć Spark nie zgłosił limitu. Popraw, zanim go pokażesz.
+  Nie prosisz o odczyt `/usage` — kolejność Claude → Spark → Codex jest
+  stała, a linia zmienia się dopiero po komunikacie o limicie z silnika.
 - **Gdy work item to Bug**, plan ma dodatkowo wskazać **test, który udowodni
   błąd**: jego rodzaj (spec Vitest / test xunit / Playwright, gdy błąd widać
   tylko w przeglądarce), plik i nazwę, dokładne kroki odtworzenia zamienione
@@ -145,51 +149,57 @@ Główny wątek nigdy nie jest wykonawcą tego, co da się zlecić:
 
 Dobór linii do zadania (pełna tabela z effortami, progami ciśnienia
 i uzasadnieniem liczbowym: globalny `~/.claude/CLAUDE.md`; ta tabela jest jej
-zastosowaniem do tego skilla). **Rozdział jest proporcjonalny z góry, nie
-reaktywny**: w każdym etapie planu najpierw wypełniasz po jednym ciężkim
-slocie Sparka i Terry, a **cała reszta ciężkich briefów idzie na Sonneta
-`wykonawca`** — Claude ma największą pulę i ma ją nieść, nie czekać na
-przelew.
+zastosowaniem do tego skilla). **Kolejność Claude → Spark → Codex, wg
+rodzaju pracy, nie wg procentów**: brief, który potrzebuje MCP (Figma, ADO,
+Playwright) albo pętli lint/test/build u wykonawcy → Sonnet `wykonawca`;
+brief w całości tekstowy, ciężki czy lekki → **Spark, bez limitu slotów**
+(sekwencyjnie, jeden na raz w repo); pojedynczy drobiazg → `mechanik`.
+**Codex w planie etapu to tylko recenzja Sol i research Terry** — Terra
+i Luna implementują wyłącznie jako przelew po komunikacie o limicie
+z Claude'a albo Sparka. O `/usage` nie prosisz.
 
 | Zadanie w planie                                                                                                                                                                                                                                                                                                                                                                                                                      | Linia                                                                                                            |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | decyzje, brief, WCAG/tokeny, walidacja dowodów, triaż recenzji, domknięcie ADO                                                                                                                                                                                                                                                                                                                                                        | **sesja główna — Opus `max`** (mózg operacji; nigdy nie pisze kodu ani testów)                                   |
-| **ciężki brief FE lub BE** (feature, ekran, slice C# z testami) — **domyślnie**                                                                                                                                                                                                                                                                                                                                                       | agent **`wykonawca`** (Sonnet `high`) — bez limitu wielkości; w BE czyta `.claude/CLAUDE.md` (kopia `AGENTS.md`) |
-| **1 ciężki brief na etap**, ale tylko taki, który spełnia **wszystkie trzy**: zero zależności od Figmy (spec w całości tekstowa), weryfikacja po stronie architekta wystarczy (Spark w WSL nie ma Node ani .NET — pisze na ślepo), duży kontekst **repo**: refaktor przekrojowy, audyt, hoisting, infrastruktura FE (sesja, guardy, trasy, interceptory, DTO, store). **Nic takiego w etapie → slot pusty**, nie wciska się mu ekranu | **Spark** `xhigh` — **maks. 1 na okno 5 h**                                                                      |
-| **1 ciężki brief na etap**: drugi co do wielkości, FE lub BE                                                                                                                                                                                                                                                                                                                                                                          | **Codex** `gpt-5.6-terra` `xhigh` — **maks. 1 na okno 5 h**                                                      |
+| **brief z Figmą, ADO, Playwrightem albo pętlą lint/test/build u wykonawcy** (ekran z makiet, feature z dowodem w przeglądarce) — **domyślnie dla wszystkiego, czego nie da się opisać samym tekstem**                                                                                                                                                                                                                                                                                                                                                      | agent **`wykonawca`** (Sonnet `high`) — bez limitu wielkości; w BE czyta `.claude/CLAUDE.md` (kopia `AGENTS.md`) |
+| **każdy brief, ciężki czy lekki, spełniający oba warunki**: zero zależności od Figmy (spec w całości tekstowa) i weryfikacja po stronie architekta wystarczy (Spark w WSL nie ma Node ani .NET — pisze na ślepo, lint/test/build robisz Ty). Ciężkie: slice BE w C#, infrastruktura FE (sesja, guardy, trasy, interceptory, DTO, store), refaktor przekrojowy, hoisting, audyt (1M). Lekkie: ≤ 5 plików bez MCP, klucze i18n hurtem, masówka > 10 plików. **Bez limitu slotów**, sekwencyjnie — linia pusta tylko wtedy, gdy w etapie nie ma nic tekstowego; ekranu się jej nie wciska | **Spark** `xhigh` (ciężkie) / `high` (lekkie wg gotowej spec)                                                    |
+| **przelew awaryjny** — wyłącznie po komunikacie o limicie z Claude'a albo Sparka, nigdy w planie etapu; porcje ≤ 5 plików                                                                                                                                                                                                                                                                                                             | **Codex** `gpt-5.6-terra` `xhigh` (ciężkie) / `gpt-5.6-luna` `xhigh` (lekkie, masówka)                            |
 | zadanie z Figma/ADO przez MCP, z kontekstem sesji                                                                                                                                                                                                                                                                                                                                                                                     | agent **`wykonawca`** (Sonnet `high`) — tylko Claude ma te MCP                                                   |
 | speci Vitest / AXE / xunit; czerwony test do Buga                                                                                                                                                                                                                                                                                                                                                                                     | agent **`tester`** (Sonnet `medium`)                                                                             |
-| klucz i18n × 2, rename, przeniesienie pliku — pojedynczo                                                                                                                                                                                                                                                                                                                                                                              | agent **`mechanik`** (Haiku `low`)                                                                               |
-| lekkie briefy ≤ 5 plików bez MCP; masówka > 10 plików lub > ~30 edycji                                                                                                                                                                                                                                                                                                                                                                | **Codex** `gpt-5.6-luna` `xhigh` — bez limitu (250–2000 wiadomości / 5 h)                                        |
+| klucz i18n × 2, rename, przeniesienie pliku — pojedynczo; masówka w porcjach, gdy Spark zgłosił limit                                                                                                                                                                                                                                                                                                                                                                              | agent **`mechanik`** (Haiku `low`)                                                                               |
 | fakty z repo przed decyzją                                                                                                                                                                                                                                                                                                                                                                                                            | agent **`zwiadowca`** (Haiku `low`, tylko odczyt)                                                                |
 | delegowany audyt kontrastu / fokusu / tokenów                                                                                                                                                                                                                                                                                                                                                                                         | agent **`audytor-a11y`** (Opus `high`)                                                                           |
 | recenzja diffu etapu przed bramą — **1 na etap**                                                                                                                                                                                                                                                                                                                                                                                      | **Codex** `-Mode review`, `gpt-5.6-sol` `high`                                                                   |
 | research trendów UI/UX, weryfikacja API biblioteki (Faza 1)                                                                                                                                                                                                                                                                                                                                                                           | **Codex** `gpt-5.6-terra` `medium`                                                                               |
 
 Przykład dla planu o 4 etapach, każdy z FE + BE: etap 0 — infrastruktura FE
-(sesja, guardy, trasy, interceptory) Spark, ekran z makiet Sonnet, BE Sonnet;
-etap 1 — FE z makiet Sonnet, BE Terra, slot Sparka pusty; etap 2 — hoisting
-komponentu Spark, ekrany Sonnet, BE Sonnet, klucze i18n Luna; etap 3 — BE
-Terra, FE Sonnet. Codex dostaje 2 ciężkie + 4 recenzje zamiast 8; Claude
-niesie ekrany (ma Figma MCP i pętlę lint/test/build); Spark 2 briefy
-tekstowe. Dwa plany, które były zroutowane błędnie (2026-09-16): pierwszy —
-Claude tylko plan i testy, Codex 8 ciężkich; drugi — Spark dostał ekrany
-„bo 16 ramek Figmy", których nie widzi, więc architekt musiałby przepisać
-makiety do tekstu, a potem Sonnet naprawiać kod pisany bez lintu.
+(sesja, guardy, trasy, interceptory) Spark, slice BE Spark, ekran z makiet
+Sonnet; etap 1 — FE z makiet Sonnet, BE Spark, klucze i18n Spark `high`;
+etap 2 — hoisting komponentu Spark, ekrany Sonnet, BE Spark; etap 3 — BE
+Spark, FE Sonnet. Codex dostaje 4 recenzje Sol i research — zero
+implementacji; Claude niesie ekrany (ma Figma MCP i pętlę lint/test/build);
+Spark niesie każdy brief tekstowy, a Ty po każdym uruchamiasz lint/test/build
+z rezerwą na 2–3 korekty. Trzy plany, które były zroutowane błędnie:
+Claude tylko plan i testy, Codex 8 ciężkich (2026-09-16); Spark dostał
+ekrany „bo 16 ramek Figmy", których nie widzi, więc architekt musiałby
+przepisać makiety do tekstu, a potem Sonnet naprawiać kod pisany bez lintu
+(2026-09-16); Spark 1 slot na okno, Terra i Luna implementują — Spark stał
+na < 1 % tygodnia, Codex wyczerpywał widełki (2026-09-18, powód tej wersji).
 
 Pułapki, które w tym skillu kosztowały najwięcej:
 
 - **Gołe `Agent` z samym `model` dziedziczy effort sesji (`max`).** Subagenta
   Claude'a wywołujesz wyłącznie jako nazwanego agenta z listy wyżej — tylko
   definicja agenta niesie `effort`.
-- **Przelew po fakcie to za późno.** Tabela z „Spark domyślnie, Claude gdy
-  Spark > 70 %" routowała wszystko poza Claude, aż inne okna padały w środku
-  etapu. Sloty Sparka (1) i Terry (1) na okno 5 h wypełniasz z góry, resztę
-  ciężkich briefów oddajesz Sonnetowi. „Spark, bo tani" dla czwartego
-  feature'a w oknie i „Terra, bo czyta AGENTS.md" (Claude też czyta — kopię
-  w `.claude/CLAUDE.md`) to fałszywe uzasadnienia. Przed pierwszą dyspozycją
-  w zadaniu wieloetapowym poproś o jeden odczyt `/usage` i stosuj progi
-  ciśnienia z globalnego `CLAUDE.md`.
+- **Progi procentowe nie działają, bo ich nie widzisz.** Tabela z „Spark
+  1 slot, Terra 1 slot, Luna lekkie" wymagała odczytu `/usage` od
+  użytkownika i i tak dała Sparka na < 1 % tygodnia przy wyczerpywanym
+  Codexie (2026-09-18). Kolejność Claude → Spark → Codex jest stała i zależy
+  od rodzaju pracy; jedynym sygnałem do zmiany linii jest komunikat
+  o limicie z silnika (rate-limit w sesji, błąd wrappera) — wtedy Spark →
+  Sonnet, Claude → Terra/Luna w porcjach ≤ 5 plików, i meldujesz zmianę
+  jednym zdaniem. „Terra, bo czyta AGENTS.md" (Claude też czyta — kopię
+  w `.claude/CLAUDE.md`) i „Luna, bo tania" to fałszywe uzasadnienia.
 - **Brief dla Sparka nie może wymagać transkrypcji makiet.** Spark nie ma
   Figma MCP, a w WSL nie ma Node'a ani .NET — dostaje wyłącznie zadania
   opisane w całości tekstem (nazwy, sygnatury, reguły), a lint/test/build po
@@ -232,8 +242,9 @@ Gdy work item to **Bug**, kolejność jest obowiązkowa i niezmienna:
    z powodu buga, nie z powodu literówki w teście czy brakującego providera —
    i wkleja wynik (nazwa testu, komunikat asercji) do raportu. Ty sprawdzasz,
    że czerwień pochodzi z buga.
-2. **Dopiero potem łatka — osobny brief do `wykonawca` (albo Luny, gdy
-   ≤ 5 plików) z zakazem edycji pliku testu.** Zmienia się kod produkcyjny,
+2. **Dopiero potem łatka — osobny brief do Sparka, gdy spec łatki jest
+   tekstowa, albo do `wykonawca`, gdy potrzebny jest MCP lub dowód
+   w przeglądarce — z zakazem edycji pliku testu.** Zmienia się kod produkcyjny,
    nie test. Jeśli wykonawca zgłosi, że test źle opisał oczekiwane
    zachowanie, wracasz do kroku 1 z poprawionym briefem dla testera **przed**
    łatką — nigdy „dostrajanie” testu pod gotową łatkę.
@@ -303,7 +314,7 @@ Co robisz z wynikiem — **triaż, nie posłuszeństwo** (skill
    wypisujesz z jednym zdaniem dlaczego; nie naprawiasz ich.
 2. Defekty wracają **do tej samej linii, która pisała kod** (Spark do Sparka,
    `wykonawca` do `wykonawcy`) jako brief korekty — nie łatasz sam. Wyjątek:
-   slot Sparka w tym oknie już zajęty → korekta na `wykonawca`.
+   Spark zgłosił limit → korekta na `wykonawca`.
 3. Po korekcie **nie zlecasz drugiej recenzji Sol** — weryfikujesz poprawkę
    dowodem (diff + lint + testy). Druga runda tylko wtedy, gdy korekta
    dotknęła > ~5 plików albo zmieniła kształt API.

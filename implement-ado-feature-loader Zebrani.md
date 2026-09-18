@@ -5,10 +5,11 @@ description: >
   podstawie linku lub numeru Azure DevOps — od Plan Mode (z makietami Figmy
   linkowanymi wprost, nie opisywanymi), przez wykonanie w modelu: sesja
   główna Opus max = architekt, dyspozytor i walidator etapów (nigdy
-  wykonawca) / linie wykonawcze rozdzielone proporcjonalnie do pul (Sonnet
-  domyślnie, Spark i Terra jako sloty, Luna lekkie) / niezależny recenzent
-  Codex, przez zlecony audyt SCSS pod kątem Bootstrapa i deduplikacji, aż po
-  bramę mojego potwierdzenia i dopiero wtedy domknięcie w ADO (commit/push,
+  wykonawca) / linie wykonawcze w stałej kolejności Claude → Spark → Codex
+  (Sonnet do Figmy/MCP, Spark do wszystkiego tekstowego bez limitu slotów,
+  Codex tylko recenzja i research) / niezależny recenzent Codex, przez
+  zlecony audyt SCSS pod kątem Bootstrapa i deduplikacji, aż po bramę mojego
+  potwierdzenia i dopiero wtedy domknięcie w ADO (commit/push,
   statusy tasków deweloperskich, PBI → Ready for tests, przypisanie do
   testera). Na starcie, tuż po zatwierdzeniu planu, PBI/Bug i taski
   przewidziane do wykonania idą na In Progress. Obejmuje też naprawę Bugów —
@@ -59,9 +60,11 @@ procedurę faza po fazie:
   bilans obciążenia silników; dla Buga — test, który udowodni błąd,
 - **Faza 1b — otwarcie w ADO**: PBI/Bug i taski przewidziane do wykonania
   → `In Progress`, nieadekwatne → `Rejected` z komentarzem,
-- **Faza 2 — rozdział briefów**: sloty Spark (1) i Terra (1) na okno 5 h,
-  reszta ciężkich na `wykonawca` (Sonnet), lekkie na Lunę, testy na
-  `tester`, drobiazgi na `mechanik`a, fakty z repo od `zwiadowcy`,
+- **Faza 2 — rozdział briefów** w stałej kolejności Claude → Spark → Codex:
+  Figma/MCP/pętla u wykonawcy na `wykonawca` (Sonnet), wszystko tekstowe
+  na Sparka bez limitu slotów, Codex tylko recenzja i research; testy na
+  `tester`, drobiazgi na `mechanik`a, fakty z repo od `zwiadowcy`; bez
+  odczytów `/usage` — linia zmienia się po komunikacie o limicie,
 - **Faza 3 — walidacja etapów** dowodem (diff, lint/test/build, zrzuty 2×2);
   dla Buga czerwony test → łatka → ten sam test zielony,
 - **Faza 4 / 4b — audyt SCSS** (Bootstrap, deduplikacja) i **recenzja Codex
