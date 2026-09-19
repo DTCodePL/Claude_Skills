@@ -12,7 +12,7 @@ description: >
   mostka — parsowanie lokalnego pliku .vtt pobranego ręcznie z Teams.
   UŻYWAJ ZAWSZE, gdy user chce notatkę, podsumowanie lub listę zadań ze
   spotkania Microsoft Teams — nawet jeśli nie padnie słowo skill.
-version: '1.0'
+version: '1.1'
 language: pl
 organization: DTCode
 remote:
@@ -47,7 +47,7 @@ Select-String -Path "$env:TEMP\teams-notatki-remote.md" -Pattern "version:" | Se
 ```
 
 **Krok 2 — porównaj wersje:** wyciągnięte `version:` z pobranego pliku vs.
-frontmatter tego pliku (`version: '1.0'`). Zdalna wyższa → użyj treści
+frontmatter tego pliku (`version: '1.1'`). Zdalna wyższa → użyj treści
 pobranego pliku jako źródła prawdy do reszty zadania. Równa → kontynuuj z tym
 plikiem. Nie da się pobrać (404, brak sieci, plik pusty) → poinformuj o tym i
 kontynuuj z tą lokalną kopią (nie blokuj zadania z powodu braku sieci — to
@@ -114,6 +114,9 @@ plik → .vtt**) i wskaże jego ścieżkę — dalej idziesz do `parse-vtt` (pat
 - W wiadomości jest link Teams (`teams.microsoft.com/meet/...` albo
   `.../l/meetup-join/...`) albo gołe 12–15 cyfr ID spotkania (ewentualnie ze
   spacjami) → `resolve --link "<link albo cyfry>"`.
+- W wiadomości jest link `teams.microsoft.com/l/meetingrecap?...` (link
+  „Podsumowanie” — działa też dla połączeń 1:1 z czatu, które nie mają
+  zdarzenia w kalendarzu) → `resolve --link "<link>"`.
 - Inaczej wyprowadź `--date` / `--time` / `--title` z języka naturalnego:
   - „dziś” / „wczoraj” / „w piątek” — **nie zgaduj dnia tygodnia**: sprawdź
     dzisiejszą datę systemową komendą `date` (bash) albo `Get-Date`
@@ -145,12 +148,23 @@ identyfikacji zawsze bierz wartości z JSON-a, nigdy z obciętego tekstu).
 - Kandydat z `"transcripts": []` → wyjaśnij, że transkrypcja pojawia się kilka
   minut po zakończeniu spotkania i tylko wtedy, gdy była włączona; zaproponuj
   ponowienie za chwilę albo plik `.vtt`.
+- Kandydat ma `kind`: `onlineMeeting` to zwykłe spotkanie, `adhocCall` to
+  połączenie z czatu; dla `adhocCall` `subject` może być `null`.
 
 ### 3.4 Pobranie transkrypcji
 
 ```bash
 python /tmp/teams-notatki/scripts/bridge.py transcript \
   --account "<account.id>" --meeting "<meetingId>" \
+  --out /tmp/teams-notatki/transkrypcja.md
+```
+
+Gdy wybrany kandydat ma `kind == "onlineMeeting"` → `transcript --meeting`
+(jak wyżej); gdy `kind == "adhocCall"` → `transcript --call "<callId>"`:
+
+```bash
+python /tmp/teams-notatki/scripts/bridge.py transcript \
+  --account "<account.id>" --call "<callId>" \
   --out /tmp/teams-notatki/transkrypcja.md
 ```
 
@@ -184,7 +198,8 @@ twarde, bez wyjątków:
 - **Organizator** w nagłówku szablonu to imię i nazwisko — jeśli masz je z
   kroku 3.3 (`organizer.name` z wyniku `resolve`), użyj go; plik transkrypcji
   z `bridge.py` niesie tylko `organizerId` (identyfikator), nie imię i
-  nazwisko (patrz `references/api.md`).
+  nazwisko (patrz `references/api.md`). Dla `adhocCall` `organizer.name` też
+  pochodzi z `resolve`.
 
 ### 3.6 Wynik
 
@@ -204,5 +219,6 @@ rozmowie** — nawet do debugowania.
 | `meeting_not_found`            | Spotkanie spoza kont Damiana/Piotra albo z innego tenanta          | Zaproponuj plik `.vtt` pobrany ręcznie z Teams                            |
 | `transcript_access_disabled`   | Administrator wyłączył dostęp do transkrypcji w Teams Admin Center | Poinformuj użytkownika — to decyzja administracyjna, nie błąd skilla      |
 | `transcript_not_found`         | Spotkanie jest, transkrypcja jeszcze niedostępna                   | Zaproponuj odczekanie kilku minut albo plik `.vtt`                        |
+| `graph_forbidden` przy linku recap | Aplikacja nie ma uprawnienia `CallTranscripts.Read.All` (patrz `bridge/README.md`) | Poinformuj użytkownika i poproś Damiana o zgodę administratora w Entra |
 | brak Pythona na urządzeniu     | Nie da się uruchomić `bridge.py`                                   | Fallback na `curl` wg `references/api.md`                                 |
 | mostek nie odpowiada (sieć)    | `health` zwrócił kod ≠ 0, komunikat mówi o błędzie połączenia      | Zaproponuj plik `.vtt` + `parse-vtt` (patrz 3.1 i 3.4 wyżej)              |

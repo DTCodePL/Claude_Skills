@@ -74,6 +74,17 @@ docker compose up -d --build
   Stary token przestaje działać natychmiast po restarcie — nie ma okresu przejściowego z dwoma
   aktywnymi tokenami dla jednego wołającego, jeśli stary wpis zostanie usunięty.
 
+## Uprawnienia Graph
+
+Aplikacja Entra mostka wymaga (po dodaniu w Entra potrzebna zgoda administratora):
+
+- `OnlineMeetings.Read.All` — odczyt spotkań (`onlineMeetings`)
+- `OnlineMeetingTranscript.Read.All` — transkrypcje spotkań planowanych
+- `Calendars.Read` — podgląd kalendarza (`calendarView`) w resolve po dacie
+- **`CallTranscripts.Read.All`** (nowe, 2026-09-19) — transkrypcje połączeń
+  ad hoc (`/users/{id}/adhocCalls/…`); bez niego resolve po linku
+  „Podsumowanie” i `GET /calls/…/transcript` zwracają błąd dostępu
+
 ## Kontrakt API
 
 Wspólne:

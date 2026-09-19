@@ -64,6 +64,10 @@ Akceptowane formy `link`:
 - `https://teams.microsoft.com/meet/391328174033204?p=...`
 - `https://teams.microsoft.com/l/meetup-join/...`
 - gołe cyfry ID spotkania, mogą być ze spacjami (np. `391 328 174 033 204`)
+- `https://teams.microsoft.com/l/meetingrecap?...&callId=...` — link
+  „Podsumowanie” z Teams, także dla połączeń 1:1 z czatu (ad hoc bez zdarzenia
+  w kalendarzu); mostek bierze z niego `callId` (obowiązkowe), `organizerId`
+  i temat/czas z `fileUrl` (opcjonalne)
 
 ### Tryb: po dacie/tytule
 
@@ -89,7 +93,9 @@ Akceptowane formy `link`:
 {
   "candidates": [
     {
+      "kind": "onlineMeeting",
       "meetingId": "MSoxNjZm...",
+      "callId": null,
       "account": {"label": "Damian", "upn": "damian@dtcode.pl", "id": "16d8f2b0-..."},
       "subject": "Status projektu",
       "start": "2026-09-18T10:00:00Z",
@@ -108,6 +114,11 @@ Akceptowane formy `link`:
 
 - Maksymalnie 10 kandydatów, sortowane po `start` malejąco (najnowsze pierwsze).
 - `transcripts: []` — spotkanie istnieje, transkrypcji (jeszcze) nie ma.
+- `kind` to `onlineMeeting` (spotkanie planowane) albo `adhocCall`
+  (połączenie 1:1 / grupowe z czatu). Dla `adhocCall` `callId` niesie
+  identyfikator połączenia, a `meetingId`, `joinMeetingId` i `joinWebUrl` są
+  `null`; `subject` pochodzi z nazwy nagrania z linku „Podsumowanie” i może
+  być `null`.
 
 ### Błędy
 
@@ -155,7 +166,9 @@ odpowiada temu `--data-urlencode` albo ręczne `%2A` / `%3D`).
 ```json
 {
   "meeting": {
+    "kind": "onlineMeeting",
     "meetingId": "MSoxNjZm...",
+    "callId": null,
     "subject": "Status projektu",
     "start": "2026-09-18T10:00:00Z",
     "end": "2026-09-18T10:30:00Z",
@@ -207,6 +220,80 @@ curl -sS "https://teamsnotes.tojest.dev/meetings/16d8f2b0-.../MSoxNjZm.../transc
 ```bash
 curl -sS "https://teamsnotes.tojest.dev/meetings/16d8f2b0-.../MSoxNjZm.../transcript?format=vtt" \
   -H "Authorization: Bearer 362a87cf8e5d6560e80f074082667f9569cf0073f4768c43"
+```
+
+---
+
+## `GET /calls/{account.id}/{callId}/transcript`
+
+Transkrypcja połączenia ad hoc (1:1 / grupowego z czatu) — odpowiednik
+endpointu spotkań dla `kind: "adhocCall"`.
+
+Query opcjonalny: `?transcriptId=…` (konkretna transkrypcja) i `&format=vtt`
+(zamiast domyślnego JSON, zwraca `text/vtt` z surową treścią VTT).
+
+`callId` to GUID z linku „Podsumowanie” (`meetingrecap`) albo z pola `callId`
+kandydata `adhocCall` z `/meetings/resolve`.
+
+### Odpowiedź `200` (domyślnie, JSON)
+
+```json
+{
+  "meeting": {
+    "kind": "adhocCall",
+    "meetingId": null,
+    "callId": "a16d2948-...",
+    "subject": null,
+    "start": "2026-09-19T10:20:00Z",
+    "end": "2026-09-19T10:25:00Z",
+    "organizerId": "16d8f2b0-...",
+    "joinMeetingId": null
+  },
+  "transcript": {
+    "id": "...",
+    "createdDateTime": "2026-09-19T10:20:07Z",
+    "endDateTime": "2026-09-19T10:25:00Z",
+    "language": "pl-PL",
+    "speakers": ["Damian Dziura", "Piotr Tuński"],
+    "segments": [
+      {"start": "00:00:07.153", "end": "00:00:08.593", "speaker": "Damian Dziura", "text": "..."}
+    ],
+    "vtt": "WEBVTT\n\n..."
+  }
+}
+```
+
+**Uwaga:** obiekt `meeting` tu ma tylko `organizerId` (identyfikator), **nie**
+imię i nazwisko organizatora — to jest tylko w `organizer.name` z odpowiedzi
+`/meetings/resolve`. Jeśli potrzebujesz imienia i nazwiska w finalnej notatce,
+weź je z wcześniejszego wyniku `resolve`, nie z `transcript`.
+
+### Odpowiedź z `format=vtt`
+
+`Content-Type: text/vtt`, ciało to surowy plik VTT (pole `vtt` z wersji JSON).
+
+### Błędy
+
+| HTTP | `code`                | Znaczenie                                          |
+| ---- | ---------------------- | --------------------------------------------------- |
+| 404  | `transcript_not_found`  | Połączenie istnieje, transkrypcji (jeszcze) brak     |
+| 404  | `meeting_not_found`     | Nie znaleziono połączenia                           |
+| 400  | `unknown_account`       | `account.id` nie odpowiada żadnemu skonfigurowanemu kontu |
+| 401  | `unauthorized`          | Token nieaktualny/niepoprawny                       |
+| 502  | `transcript_access_disabled` / `graph_forbidden` / `graph_error` | jak wyżej |
+
+**curl (JSON):**
+
+```bash
+curl -sS "https://teamsnotes.tojest.dev/calls/16d8f2b0-.../a16d2948-.../transcript" \
+  -H "Authorization: Bearer [REDACTED]"
+```
+
+**curl (VTT):**
+
+```bash
+curl -sS "https://teamsnotes.tojest.dev/calls/16d8f2b0-.../a16d2948-.../transcript?format=vtt" \
+  -H "Authorization: Bearer [REDACTED]"
 ```
 
 ---

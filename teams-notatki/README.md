@@ -111,6 +111,13 @@ python scripts/bridge.py --help
 python scripts/bridge.py resolve --help
 ```
 
+Transkrypcję połączenia ad hoc (1:1 z czatu, link „Podsumowanie”) pobiera
+`transcript --call`:
+
+```bash
+python scripts/bridge.py transcript --account <id> --call <callId> --out transkrypcja.md
+```
+
 Zmienne środowiskowe `TEAMS_NOTATKI_URL` / `TEAMS_NOTATKI_TOKEN` nadpisują
 stałe wbudowane w skrypt — przydatne do testów na innym mostku, nic nie
 wymaga ich ustawienia w normalnym użyciu.

@@ -17,6 +17,7 @@ from meetings import (
     MeetingNotFoundError,
     TranscriptNotFoundError,
     UnknownAccountError,
+    fetch_adhoc_transcript,
     fetch_transcript,
     parse_link,
     resolve_by_date_title,
@@ -153,6 +154,12 @@ def build_handler(settings: Settings, client: GraphClient) -> type[BaseHTTPReque
                     status = self._handle_transcript(segments[1], segments[2], query_string)
                     return
 
+                if len(segments) == 4 and segments[0] == "calls" and segments[3] == "transcript":
+                    if method != "GET":
+                        raise ApiError(405, "method_not_allowed", "Metoda niedozwolona")
+                    status = self._handle_call_transcript(segments[1], segments[2], query_string)
+                    return
+
                 raise ApiError(404, "not_found", "Nieznana ścieżka")
             except ApiError as exc:
                 status = exc.status
@@ -212,16 +219,24 @@ def build_handler(settings: Settings, client: GraphClient) -> type[BaseHTTPReque
             raise ApiError(400, "bad_request", "Podaj pole link albo date/title")
 
         def _handle_transcript(self, account_id: str, meeting_id: str, query_string: str) -> int:
+            return self._fetch_and_send_transcript(account_id, meeting_id, query_string, fetch_transcript)
+
+        def _handle_call_transcript(self, account_id: str, call_id: str, query_string: str) -> int:
+            return self._fetch_and_send_transcript(account_id, call_id, query_string, fetch_adhoc_transcript)
+
+        def _fetch_and_send_transcript(self, account_id: str, object_id: str, query_string: str, fetch_fn) -> int:
             params = urllib.parse.parse_qs(query_string, keep_blank_values=True)
             transcript_id = params.get("transcriptId", [None])[0]
             fmt = params.get("format", [None])[0]
 
             try:
-                result = fetch_transcript(client, settings, account_id, meeting_id, transcript_id)
+                result = fetch_fn(client, settings, account_id, object_id, transcript_id)
             except UnknownAccountError as exc:
                 raise ApiError(400, "unknown_account", str(exc)) from exc
             except TranscriptNotFoundError as exc:
                 raise ApiError(404, "transcript_not_found", str(exc)) from exc
+            except MeetingNotFoundError as exc:
+                raise ApiError(404, "meeting_not_found", str(exc)) from exc
             except GraphError as exc:
                 not_found = ("meeting_not_found", "Nie znaleziono spotkania o podanym identyfikatorze")
                 status_code, code, message = graph_error_response(exc, not_found=not_found)

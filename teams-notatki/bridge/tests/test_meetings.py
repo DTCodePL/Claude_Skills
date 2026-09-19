@@ -1,6 +1,7 @@
 import json
 import sys
 import unittest
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 from zoneinfo import ZoneInfo
@@ -305,6 +306,7 @@ class ResolveByDateTitleTests(unittest.TestCase):
                 _json_response({"value": [meeting]}),
             )
         transport.rule(lambda u: u.endswith("/transcripts"), _json_response({"value": []}))
+        transport.rule(lambda u: "getAllTranscripts" in u, _json_response({"value": []}))
 
     def test_title_filter_matches_regardless_of_case_and_polish_diacritics(self):
         account = Account("Damian", "damian@x.pl", "acc-damian")
@@ -354,6 +356,7 @@ class ResolveByDateTitleTests(unittest.TestCase):
         }
         transport = RoutedTransport()
         transport.rule(lambda u: "/calendarView?" in u, _json_response({"value": [event]}))
+        transport.rule(lambda u: "getAllTranscripts" in u, _json_response({"value": []}))
 
         candidates, skipped = meetings.resolve_by_date_title(_client(transport), settings, "2026-09-18", None, None, 0)
         self.assertEqual(candidates, [])
@@ -402,6 +405,401 @@ class GraphErrorMappingTests(unittest.TestCase):
         self.assertEqual(status, 502)
         self.assertEqual(code, "graph_error")
         self.assertIn("timed out after 30s", message)
+
+
+def _adhoc_item(
+    transcript_id: str,
+    call_id: str,
+    created: str,
+    ended: str,
+    organizer_id: str | None = "16d86420-7e4e-49f1-818d-76e5d2a099d0",
+) -> dict:
+    item: dict = {
+        "id": transcript_id,
+        "meetingId": None,
+        "callId": call_id,
+        "contentCorrelationId": "7cc3ae2a-0000-0000-0000-000000000000",
+        "transcriptContentUrl": "https://graph.microsoft.com/v1.0/users/x/adhocCalls/y/transcripts/z/content",
+        "createdDateTime": created,
+        "endDateTime": ended,
+    }
+    if organizer_id is not None:
+        item["meetingOrganizer"] = {"user": {"id": organizer_id, "displayName": None, "tenantId": "tenant"}}
+    return item
+
+
+_RECAP_LINK = (
+    "https://teams.microsoft.com/l/meetingrecap?"
+    "driveId=b%21hz5Uabc&driveItemId=0124GBabc"
+    "&sitePath=https%3A%2F%2Fdtcode342-my.sharepoint.com%2F%3Av%3A%2Fg%2Fpersonal%2Fabc"
+    "&fileUrl=https%3A%2F%2Fdtcode342-my.sharepoint.com%2Fpersonal%2Fdamian_dziura_dtcode_pl"
+    "%2FDocuments%2FNagrania%2FPo%C5%82%C4%85czenie+z+Piotr+Tu%C5%84ski-20260919_122000-Transkrypcja+spotkania.mp4%3Fweb%3D1"
+    "&threadId=19%3A16d86420-7e4e-49f1-818d-76e5d2a099d0_28dea859-afcd-4aca-8376-6d457eb3273d%40unq.gbl.spaces"
+    "&organizerId=16d86420-7e4e-49f1-818d-76e5d2a099d0"
+    "&tenantId=bd513bba-9c10-4393-9616-a237c0ba7bf2"
+    "&callId=a16d2948-e3f1-4e16-8dc1-eaf4edad4c14"
+    "&threadType=OneOnOneChat&meetingType=Unknown&subType=RecapSharingLink_RecapCore&recapType=ODSPTranscript"
+)
+
+
+class ParseRecapLinkTests(unittest.TestCase):
+    def test_full_recap_link_extracts_call_organizer_subject_and_time(self):
+        query = meetings.parse_link(_RECAP_LINK)
+        self.assertEqual(query.kind, "adhocCall")
+        self.assertEqual(query.value, "a16d2948-e3f1-4e16-8dc1-eaf4edad4c14")
+        self.assertEqual(query.organizer_id, "16d86420-7e4e-49f1-818d-76e5d2a099d0")
+        self.assertEqual(query.subject, "Połączenie z Piotr Tuński")
+        self.assertEqual(query.recorded_at_local, datetime(2026, 9, 19, 12, 20, 0))
+
+    def test_recap_link_without_file_url_has_no_subject_or_time(self):
+        link = "https://teams.microsoft.com/l/meetingrecap?callId=a16d2948-e3f1-4e16-8dc1-eaf4edad4c14&organizerId=16d86420-7e4e-49f1-818d-76e5d2a099d0"
+        query = meetings.parse_link(link)
+        self.assertEqual(query.kind, "adhocCall")
+        self.assertEqual(query.value, "a16d2948-e3f1-4e16-8dc1-eaf4edad4c14")
+        self.assertEqual(query.organizer_id, "16d86420-7e4e-49f1-818d-76e5d2a099d0")
+        self.assertIsNone(query.subject)
+        self.assertIsNone(query.recorded_at_local)
+
+    def test_recap_link_without_call_id_raises_invalid_link_error(self):
+        link = "https://teams.microsoft.com/l/meetingrecap?organizerId=16d86420-7e4e-49f1-818d-76e5d2a099d0"
+        with self.assertRaises(meetings.InvalidLinkError):
+            meetings.parse_link(link)
+
+    def test_recap_link_with_malformed_call_id_raises_invalid_link_error(self):
+        link = "https://teams.microsoft.com/l/meetingrecap?callId=nie-guid"
+        with self.assertRaises(meetings.InvalidLinkError):
+            meetings.parse_link(link)
+
+
+class AdhocGetAllPathTests(unittest.TestCase):
+    def test_path_with_window_matches_exact_string(self):
+        path = meetings._adhoc_get_all_path(
+            "acc-damian",
+            datetime(2026, 9, 17, 22, tzinfo=timezone.utc),
+            datetime(2026, 9, 18, 22, tzinfo=timezone.utc),
+        )
+        self.assertEqual(
+            path,
+            "/users/acc-damian/adhocCalls/getAllTranscripts("
+            "userId='acc-damian',startDateTime=2026-09-17T22:00:00Z,endDateTime=2026-09-18T22:00:00Z)",
+        )
+
+    def test_path_without_window_lists_user_only(self):
+        self.assertEqual(
+            meetings._adhoc_get_all_path("acc-damian", None, None),
+            "/users/acc-damian/adhocCalls/getAllTranscripts(userId='acc-damian')",
+        )
+
+
+class ResolveAdhocByLinkTests(unittest.TestCase):
+    _CALL_ID = "a16d2948-e3f1-4e16-8dc1-eaf4edad4c14"
+    _ORGANIZER_ID = "16d86420-7e4e-49f1-818d-76e5d2a099d0"
+
+    def _settings(self) -> Settings:
+        damian = Account("Damian", "damian@x.pl", "acc-damian")
+        organizer = Account("Organizator", "org@x.pl", self._ORGANIZER_ID)
+        return _settings([damian, organizer])
+
+    def _link_query(self, **overrides) -> meetings.LinkQuery:
+        params = {
+            "organizer_id": self._ORGANIZER_ID,
+            "subject": "Połączenie z Piotr Tuński",
+            "recorded_at_local": None,
+        }
+        params.update(overrides)
+        return meetings.LinkQuery("adhocCall", self._CALL_ID, **params)
+
+    def test_organizer_account_is_asked_first(self):
+        settings = self._settings()
+        item = _adhoc_item("t1", self._CALL_ID, "2026-09-19T10:20:00Z", "2026-09-19T10:25:00Z", self._ORGANIZER_ID)
+        transport = RoutedTransport()
+        transport.rule(lambda u: "getAllTranscripts" in u, _json_response({"value": [item]}))
+
+        candidate, accounts_tried = meetings.resolve_by_link(_client(transport), settings, self._link_query())
+
+        self.assertEqual(candidate["kind"], "adhocCall")
+        self.assertEqual(candidate["callId"], self._CALL_ID)
+        self.assertEqual(candidate["account"]["id"], self._ORGANIZER_ID)
+        self.assertEqual(candidate["subject"], "Połączenie z Piotr Tuński")
+        self.assertIn(self._ORGANIZER_ID, transport.calls[0])
+        self.assertEqual(accounts_tried, 1)
+
+    def test_filters_by_call_id_when_response_lists_several_calls(self):
+        settings = self._settings()
+        other = _adhoc_item("t-other", "11111111-2222-3333-4444-555555555555", "2026-09-19T10:20:00Z", "2026-09-19T10:25:00Z")
+        wanted = _adhoc_item("t-wanted", self._CALL_ID, "2026-09-19T11:20:00Z", "2026-09-19T11:25:00Z")
+        transport = RoutedTransport()
+        transport.rule(lambda u: "getAllTranscripts" in u, _json_response({"value": [other, wanted]}))
+
+        candidate, _ = meetings.resolve_by_link(
+            _client(transport), settings, self._link_query(organizer_id=None)
+        )
+
+        self.assertEqual(candidate["callId"], self._CALL_ID)
+        self.assertEqual(candidate["transcripts"], [
+            {"id": "t-wanted", "createdDateTime": "2026-09-19T11:20:00Z", "endDateTime": "2026-09-19T11:25:00Z"}
+        ])
+
+    def test_follows_odata_next_link(self):
+        settings = self._settings()
+        next_url = "https://graph.microsoft.com/v1.0/users/x/adhocCalls/getAllTranscripts?$skip=1"
+        wanted = _adhoc_item("t-wanted", self._CALL_ID, "2026-09-19T11:20:00Z", "2026-09-19T11:25:00Z")
+        transport = RoutedTransport()
+        transport.rule(
+            lambda u: "getAllTranscripts" in u and "$skip" not in u,
+            _json_response({"value": [], "@odata.nextLink": next_url}),
+        )
+        transport.rule(lambda u: u == next_url, _json_response({"value": [wanted]}))
+
+        candidate, _ = meetings.resolve_by_link(
+            _client(transport), settings, self._link_query(organizer_id=None)
+        )
+
+        self.assertEqual(candidate["transcripts"][0]["id"], "t-wanted")
+
+    def test_recorded_time_selects_plus_minus_one_day_window(self):
+        settings = self._settings()
+        transport = RoutedTransport()
+        transport.rule(lambda u: "getAllTranscripts" in u, _json_response({"value": []}))
+
+        with self.assertRaises(meetings.MeetingNotFoundError):
+            meetings.resolve_by_link(
+                _client(transport),
+                settings,
+                self._link_query(recorded_at_local=datetime(2026, 9, 19, 12, 20, 0)),
+            )
+
+        # 2026-09-19 12:20 w Europe/Warsaw (CEST) = 10:20 UTC; okno ±1 dzień.
+        self.assertIn("startDateTime=2026-09-18T10:20:00Z", transport.calls[0])
+        self.assertIn("endDateTime=2026-09-20T10:20:00Z", transport.calls[0])
+
+    def test_no_hit_on_any_account_raises_meeting_not_found(self):
+        settings = self._settings()
+        transport = RoutedTransport()
+        transport.rule(lambda u: "getAllTranscripts" in u, _json_response({"value": []}))
+
+        with self.assertRaises(meetings.MeetingNotFoundError) as ctx:
+            meetings.resolve_by_link(_client(transport), settings, self._link_query())
+
+        message = str(ctx.exception)
+        self.assertIn(self._CALL_ID, message)
+        self.assertIn("CallTranscripts.Read.All", message)
+        self.assertIn("Damian", message)
+
+    def test_graph_400_on_first_account_falls_through_to_next_account(self):
+        settings = self._settings()
+        wanted = _adhoc_item("t-wanted", self._CALL_ID, "2026-09-19T11:20:00Z", "2026-09-19T11:25:00Z")
+        transport = RoutedTransport()
+        transport.rule(
+            lambda u: "getAllTranscripts" in u and "acc-damian" in u,
+            _error_response(400, "BadRequest", "nieprawidłowe zapytanie"),
+        )
+        transport.rule(
+            lambda u: "getAllTranscripts" in u and self._ORGANIZER_ID in u,
+            _json_response({"value": [wanted]}),
+        )
+
+        candidate, accounts_tried = meetings.resolve_by_link(
+            _client(transport), settings, self._link_query(organizer_id=None)
+        )
+
+        self.assertEqual(accounts_tried, 2)
+        self.assertEqual(candidate["account"]["id"], self._ORGANIZER_ID)
+
+
+class ResolveByDateTitleAdhocTests(unittest.TestCase):
+    def _settings(self) -> Settings:
+        return _settings([Account("Damian", "damian@x.pl", "acc-damian")])
+
+    def _calendar_event(self, subject: str, start_iso: str, meet_id: str) -> dict:
+        return {
+            "subject": subject,
+            "start": {"dateTime": start_iso, "timeZone": "UTC"},
+            "end": {"dateTime": start_iso, "timeZone": "UTC"},
+            "organizer": {"emailAddress": {"name": "Ktoś Tam", "address": "ktos@x.pl"}},
+            "isOnlineMeeting": True,
+            "onlineMeeting": {"joinUrl": f"https://teams.microsoft.com/meet/{meet_id}"},
+            "body": {"content": ""},
+        }
+
+    def _transport_with(self, events: list[dict], adhoc: list[dict]) -> RoutedTransport:
+        meeting = _online_meeting("meeting-111", "111111111", "https://x", organizer_id="nobody")
+        transport = RoutedTransport()
+        transport.rule(lambda u: "/calendarView?" in u, _json_response({"value": events}))
+        transport.rule(lambda u: "getAllTranscripts" in u, _json_response({"value": adhoc}))
+        transport.rule(lambda u: "'111111111'" in u, _json_response({"value": [meeting]}))
+        transport.rule(lambda u: u.endswith("/transcripts"), _json_response({"value": []}))
+        return transport
+
+    def test_date_returns_calendar_and_adhoc_candidates_sorted_descending(self):
+        settings = self._settings()
+        events = [self._calendar_event("Spotkanie planowane", "2026-09-18T08:00:00.0000000", "111111111")]
+        adhoc = [
+            _adhoc_item("t-adhoc", "a16d2948-e3f1-4e16-8dc1-eaf4edad4c14", "2026-09-18T12:00:00Z", "2026-09-18T12:05:00Z")
+        ]
+        transport = self._transport_with(events, adhoc)
+
+        candidates, _skipped = meetings.resolve_by_date_title(
+            _client(transport), settings, "2026-09-18", None, None, 0
+        )
+
+        self.assertEqual(len(candidates), 2)
+        self.assertEqual(candidates[0]["kind"], "adhocCall")
+        self.assertEqual(candidates[1]["kind"], "onlineMeeting")
+        self.assertGreater(candidates[0]["start"], candidates[1]["start"])
+        self.assertIsNone(candidates[0]["subject"])
+
+    def test_title_filters_adhoc_candidates_out(self):
+        settings = self._settings()
+        events = [self._calendar_event("Status projektu", "2026-09-18T08:00:00.0000000", "111111111")]
+        adhoc = [
+            _adhoc_item("t-adhoc", "a16d2948-e3f1-4e16-8dc1-eaf4edad4c14", "2026-09-18T12:00:00Z", "2026-09-18T12:05:00Z")
+        ]
+        transport = self._transport_with(events, adhoc)
+
+        candidates, _skipped = meetings.resolve_by_date_title(
+            _client(transport), settings, "2026-09-18", None, "status projektu", 0
+        )
+
+        self.assertEqual(len(candidates), 1)
+        self.assertEqual(candidates[0]["kind"], "onlineMeeting")
+
+    def test_title_only_mode_never_calls_get_all_transcripts(self):
+        settings = self._settings()
+        events = [self._calendar_event("Status projektu", "2026-09-18T08:00:00.0000000", "111111111")]
+        transport = self._transport_with(events, [])
+
+        candidates, _skipped = meetings.resolve_by_date_title(
+            _client(transport), settings, None, None, "status projektu", 0
+        )
+
+        self.assertEqual(len(candidates), 1)
+        self.assertFalse(any("getAllTranscripts" in url for url in transport.calls))
+
+    def test_same_call_id_from_two_accounts_is_deduplicated(self):
+        damian = Account("Damian", "damian@x.pl", "acc-damian")
+        piotr = Account("Piotr", "piotr@x.pl", "acc-piotr")
+        settings = _settings([damian, piotr])
+        item = _adhoc_item("t-adhoc", "a16d2948-e3f1-4e16-8dc1-eaf4edad4c14", "2026-09-18T12:00:00Z", "2026-09-18T12:05:00Z")
+        transport = RoutedTransport()
+        transport.rule(lambda u: "/calendarView?" in u, _json_response({"value": []}))
+        transport.rule(lambda u: "getAllTranscripts" in u, _json_response({"value": [item]}))
+
+        candidates, _skipped = meetings.resolve_by_date_title(
+            _client(transport), settings, "2026-09-18", None, None, 0
+        )
+
+        self.assertEqual(len(candidates), 1)
+        self.assertEqual(candidates[0]["account"]["id"], "acc-damian")
+
+
+_VTT_ADHOC = (
+    "WEBVTT\n"
+    "\n"
+    "00:00:07.153 --> 00:00:08.593\n"
+    "<v Damian Dziura>Cześć, słyszymy się?</v>\n"
+)
+
+_METADATA_ADHOC = (
+    "WEBVTT\n"
+    "\n"
+    "00:00:07.153 --> 00:00:08.593\n"
+    '{"speakerName": "Damian Dziura", "spokenText": "Cześć.", '
+    '"spokenLanguage": "pl-pl", "startDateTime": "2026-09-18T09:36:35.0000000Z", '
+    '"endDateTime": "2026-09-18T09:36:36.0000000Z"}\n'
+)
+
+
+class FetchAdhocTranscriptTests(unittest.TestCase):
+    _CALL_ID = "a16d2948-e3f1-4e16-8dc1-eaf4edad4c14"
+    _ACCOUNT_ID = "16d86420-7e4e-49f1-818d-76e5d2a099d0"
+
+    def _settings(self) -> Settings:
+        return _settings([Account("Damian", "damian@x.pl", self._ACCOUNT_ID)])
+
+    def _transport(self, adhoc: list[dict], metadata_ok: bool = True) -> RoutedTransport:
+        transport = RoutedTransport()
+        transport.rule(lambda u: "getAllTranscripts" in u, _json_response({"value": adhoc}))
+        transport.rule(
+            lambda u: "/transcripts/" in u and u.endswith("/content?$format=text/vtt"),
+            (200, _VTT_ADHOC.encode("utf-8"), {"Content-Type": "text/vtt"}),
+        )
+        if metadata_ok:
+            transport.rule(
+                lambda u: u.endswith("/metadataContent"),
+                (200, _METADATA_ADHOC.encode("utf-8"), {"Content-Type": "text/vtt"}),
+            )
+        else:
+            transport.rule(
+                lambda u: u.endswith("/metadataContent"),
+                _error_response(500, "InternalError", "brak metadanych"),
+            )
+        transport.rule(
+            lambda u: f"/adhocCalls/{self._CALL_ID}/transcripts/" in u,
+            _json_response({
+                "id": "t-meta",
+                "callId": self._CALL_ID,
+                "createdDateTime": "2026-09-18T12:00:00Z",
+                "endDateTime": "2026-09-18T12:05:00Z",
+                "meetingOrganizer": {"user": {"id": self._ACCOUNT_ID}},
+            }),
+        )
+        return transport
+
+    def test_without_transcript_id_selects_newest(self):
+        settings = self._settings()
+        adhoc = [
+            _adhoc_item("t-old", self._CALL_ID, "2026-09-18T12:00:00Z", "2026-09-18T12:01:00Z"),
+            _adhoc_item("t-new", self._CALL_ID, "2026-09-18T12:03:00Z", "2026-09-18T12:05:00Z"),
+        ]
+        result = meetings.fetch_adhoc_transcript(
+            _client(self._transport(adhoc)), settings, self._ACCOUNT_ID, self._CALL_ID, None
+        )
+
+        self.assertEqual(result["transcript"]["id"], "t-new")
+        self.assertEqual(result["meeting"]["kind"], "adhocCall")
+        self.assertEqual(result["meeting"]["callId"], self._CALL_ID)
+        self.assertIsNone(result["meeting"]["meetingId"])
+        self.assertIsNone(result["meeting"]["subject"])
+        self.assertEqual(result["transcript"]["language"], "pl-pl")
+        self.assertEqual(result["transcript"]["speakers"], ["Damian Dziura"])
+
+    def test_with_transcript_id_uses_metadata_endpoint(self):
+        settings = self._settings()
+        transport = self._transport([])
+        result = meetings.fetch_adhoc_transcript(
+            _client(transport), settings, self._ACCOUNT_ID, self._CALL_ID, "t-meta"
+        )
+
+        self.assertEqual(result["transcript"]["id"], "t-meta")
+        self.assertEqual(result["meeting"]["start"], "2026-09-18T12:00:00Z")
+        self.assertEqual(result["meeting"]["end"], "2026-09-18T12:05:00Z")
+        self.assertEqual(result["meeting"]["organizerId"], self._ACCOUNT_ID)
+        self.assertTrue(any(url.endswith("/transcripts/t-meta") for url in transport.calls))
+
+    def test_metadata_content_error_means_language_none(self):
+        settings = self._settings()
+        adhoc = [_adhoc_item("t-new", self._CALL_ID, "2026-09-18T12:03:00Z", "2026-09-18T12:05:00Z")]
+        result = meetings.fetch_adhoc_transcript(
+            _client(self._transport(adhoc, metadata_ok=False)), settings, self._ACCOUNT_ID, self._CALL_ID, None
+        )
+
+        self.assertIsNone(result["transcript"]["language"])
+        self.assertEqual(result["transcript"]["speakers"], ["Damian Dziura"])
+
+    def test_missing_transcripts_raise_transcript_not_found(self):
+        settings = self._settings()
+        with self.assertRaises(meetings.TranscriptNotFoundError):
+            meetings.fetch_adhoc_transcript(
+                _client(self._transport([])), settings, self._ACCOUNT_ID, self._CALL_ID, None
+            )
+
+    def test_unknown_account_raises_unknown_account_error(self):
+        settings = self._settings()
+        with self.assertRaises(meetings.UnknownAccountError):
+            meetings.fetch_adhoc_transcript(
+                _client(self._transport([])), settings, "nieznane-konto", self._CALL_ID, None
+            )
 
 
 if __name__ == "__main__":

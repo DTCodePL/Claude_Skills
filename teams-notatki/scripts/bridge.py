@@ -9,6 +9,7 @@ Komendy:
   resolve --date YYYY-MM-DD [--time HH:MM] [--title "..."] [--window-days N]
   resolve --title "..."                     — szuka po dacie/godzinie/tytule
   transcript --account <guid> --meeting <id> [--transcript-id <id>] [--out <ścieżka>]
+  transcript --account <guid> --call <callId> [--transcript-id <id>] [--out <ścieżka>]
   parse-vtt --file <plik.vtt> --out <ścieżka.md>   — tryb awaryjny, bez mostka
 
 Konfiguracja (bez wymaganego setupu — działa "z pudełka"):
@@ -262,7 +263,13 @@ def render_markdown(meeting, transcript) -> str:
     meeting = meeting or {}
     transcript = transcript or {}
 
-    subject = meeting.get("subject") or "(brak tytułu)"
+    is_adhoc = meeting.get("kind") == "adhocCall"
+    if meeting.get("subject"):
+        subject = meeting["subject"]
+    elif is_adhoc:
+        subject = "(połączenie ad hoc)"
+    else:
+        subject = "(brak tytułu)"
     date_line = _format_date_range(meeting.get("start"), meeting.get("end"))
 
     # Uwaga: endpoint /transcript zwraca tylko `organizerId` (nie imię i nazwisko) —
@@ -286,6 +293,10 @@ def render_markdown(meeting, transcript) -> str:
         "",
         f"**Data:** {date_line}  ",
         f"**Organizator:** {organizer_line}  ",
+    ]
+    if is_adhoc:
+        header_lines.append(f"**Połączenie (callId):** {meeting.get('callId') or '(brak)'}  ")
+    header_lines += [
         f"**Mówcy:** {', '.join(speakers) if speakers else '(brak)'}  ",
         f"**Język:** {language}",
         "",
@@ -418,16 +429,22 @@ def _format_candidate_line(index: int, candidate: dict) -> str:
     else:
         end_str = "??:??"
 
-    subject = candidate.get("subject") or "(brak tytułu)"
     organizer = (candidate.get("organizer") or {}).get("name") or "nieznany"
     transcripts_count = len(candidate.get("transcripts") or [])
     account_id = (candidate.get("account") or {}).get("id") or ""
-    meeting_id = candidate.get("meetingId") or ""
+    if candidate.get("kind") == "adhocCall":
+        subject = candidate.get("subject") or "(połączenie ad hoc)"
+        call_id = candidate.get("callId") or ""
+        id_part = f"połączenie ad hoc · callId: {_truncate(call_id, 8)}"
+    else:
+        subject = candidate.get("subject") or "(brak tytułu)"
+        meeting_id = candidate.get("meetingId") or ""
+        id_part = f"meetingId={_truncate(meeting_id)}"
 
     return (
         f"{index}. {date_str} {start_str}–{end_str} ({tz_label}) | {subject} | "
         f"organizator: {organizer} | transkrypcje: {transcripts_count} | "
-        f"konto={_truncate(account_id)}  meetingId={_truncate(meeting_id)}"
+        f"konto={_truncate(account_id)}  {id_part}"
     )
 
 
@@ -501,7 +518,10 @@ def _write_transcript_output(out_path, meeting, transcript, markdown) -> None:
 
 
 def cmd_transcript(args) -> int:
-    path = f"/meetings/{quote(args.account, safe='')}/{quote(args.meeting, safe='')}/transcript"
+    if getattr(args, "call", None):
+        path = f"/calls/{quote(args.account, safe='')}/{quote(args.call, safe='')}/transcript"
+    else:
+        path = f"/meetings/{quote(args.account, safe='')}/{quote(args.meeting, safe='')}/transcript"
     query = {}
     if args.transcript_id:
         query["transcriptId"] = args.transcript_id
@@ -587,10 +607,13 @@ def parse_args(argv):
 
     p_transcript = sub.add_parser(
         "transcript",
-        help="Pobiera transkrypcję spotkania (GET /meetings/{account}/{meeting}/transcript).",
+        help="Pobiera transkrypcję spotkania (GET /meetings/{account}/{meeting}/transcript) "
+        "albo połączenia ad hoc (GET /calls/{account}/{call}/transcript).",
     )
     p_transcript.add_argument("--account", required=True, help="account.id z wyniku resolve.")
-    p_transcript.add_argument("--meeting", required=True, help="meetingId z wyniku resolve.")
+    target = p_transcript.add_mutually_exclusive_group(required=True)
+    target.add_argument("--meeting", help="meetingId z wyniku resolve (spotkanie planowane).")
+    target.add_argument("--call", help="callId z wyniku resolve (połączenie ad hoc z czatu).")
     p_transcript.add_argument("--transcript-id", dest="transcript_id", help="ID konkretnej transkrypcji.")
     p_transcript.add_argument("--out", help="Ścieżka zapisu: .md / .json / .vtt. Bez --out: .md na stdout.")
     _add_format_args(p_transcript)

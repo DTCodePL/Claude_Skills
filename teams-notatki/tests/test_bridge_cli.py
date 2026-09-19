@@ -335,6 +335,90 @@ class ParseVttEquivalenceTests(EnvVarCleanupMixin, unittest.TestCase):
         self.assertIn("Piotr Tuński", content_parse_vtt)
 
 
+class AdhocCallTranscriptTests(EnvVarCleanupMixin, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.tmpdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmpdir.cleanup)
+
+    def _adhoc_payload(self):
+        return {
+            "meeting": {
+                "kind": "adhocCall",
+                "meetingId": None,
+                "callId": "a16d2948-e3f1-4e16-8dc1-eaf4edad4c14",
+                "subject": None,
+                "start": "2026-09-19T10:20:00Z",
+                "end": "2026-09-19T10:25:00Z",
+                "organizerId": "16d86420-7e4e-49f1-818d-76e5d2a099d0",
+                "joinMeetingId": None,
+            },
+            "transcript": {
+                "id": "t1",
+                "createdDateTime": "2026-09-19T10:20:07Z",
+                "endDateTime": "2026-09-19T10:25:00Z",
+                "language": "pl-PL",
+                "speakers": ["Damian Dziura"],
+                "segments": [
+                    {"start": "00:00:07.153", "end": "00:00:08.593", "speaker": "Damian Dziura", "text": "Cześć,"},
+                ],
+                "vtt": "WEBVTT\n\n00:00:07.153 --> 00:00:08.593\n<v Damian Dziura>Cześć,</v>\n",
+            },
+        }
+
+    def test_transcript_call_builds_calls_path(self):
+        out_path = os.path.join(self.tmpdir.name, "test.md")
+        stub = StubTransport([make_response(200, self._adhoc_payload())])
+        code, _out, _err = run_main(
+            ["transcript", "--account", "acc-id", "--call", "a16d2948-e3f1-4e16-8dc1-eaf4edad4c14", "--out", out_path],
+            transport=stub,
+        )
+
+        self.assertEqual(code, 0)
+        self.assertIn("/calls/acc-id/a16d2948-e3f1-4e16-8dc1-eaf4edad4c14/transcript", stub.calls[0]["url"])
+        with open(out_path, "r", encoding="utf-8") as handle:
+            content = handle.read()
+        self.assertIn("(połączenie ad hoc)", content)
+        self.assertIn("**Połączenie (callId):** a16d2948-e3f1-4e16-8dc1-eaf4edad4c14", content)
+
+    def test_meeting_and_call_together_is_usage_error(self):
+        code, _out, err = run_main(
+            ["transcript", "--account", "acc", "--meeting", "m1", "--call", "c1"],
+            transport=StubTransport([]),
+        )
+        self.assertEqual(code, 1)
+        self.assertIn("BŁĄD", err)
+
+
+class ResolveTextAdhocRenderingTests(EnvVarCleanupMixin, unittest.TestCase):
+    def test_text_mode_renders_adhoc_candidate(self):
+        payload = {
+            "candidates": [
+                {
+                    "kind": "adhocCall",
+                    "meetingId": None,
+                    "callId": "a16d2948-e3f1-4e16-8dc1-eaf4edad4c14",
+                    "account": {"label": "Damian", "upn": "damian@dtcode.pl", "id": "16d8f2b0-0000-0000-0000-000000000000"},
+                    "subject": None,
+                    "start": "2026-09-19T10:20:00Z",
+                    "end": "2026-09-19T10:25:00Z",
+                    "organizer": {"name": "Damian Dziura", "email": "damian@dtcode.pl"},
+                    "organizerId": "16d8f2b0-0000-0000-0000-000000000000",
+                    "joinMeetingId": None,
+                    "joinWebUrl": None,
+                    "transcripts": [{"id": "t1", "createdDateTime": "2026-09-19T10:20:07Z", "endDateTime": "2026-09-19T10:20:30Z"}],
+                }
+            ],
+            "skipped_without_teams_link": 0,
+        }
+        stub = StubTransport([make_response(200, payload)])
+        code, out, _err = run_main(["resolve", "--title", "cokolwiek", "--text"], transport=stub)
+
+        self.assertEqual(code, 0)
+        self.assertIn("(połączenie ad hoc)", out)
+        self.assertIn("połączenie ad hoc · callId: a16d2948…", out)
+
+
 class ExitCodeTests(EnvVarCleanupMixin, unittest.TestCase):
     def test_unauthorized_exits_4(self):
         stub = StubTransport(

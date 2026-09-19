@@ -21,6 +21,9 @@ _MEET_LINK_IN_BODY_RE = re.compile(r"https://teams\.microsoft\.com/meet/(\d{9,20
 _MEETUP_JOIN_LINK_IN_BODY_RE = re.compile(
     r"https://teams\.microsoft\.com/l/meetup-join/[^\s\"'<>]+", re.IGNORECASE
 )
+_RECAP_RE = re.compile(r"teams\.microsoft\.com/l/meetingrecap\?", re.IGNORECASE)
+_GUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.IGNORECASE)
+_RECORDING_NAME_RE = re.compile(r"^(?P<subject>.+?)-(?P<stamp>\d{8}_\d{6})-")
 _ISO_RE = re.compile(
     r"^(?P<date>\d{4}-\d{2}-\d{2})T(?P<time>\d{2}:\d{2}:\d{2})(?P<frac>\.\d+)?(?P<tz>Z|[+-]\d{2}:\d{2})?$"
 )
@@ -60,8 +63,11 @@ class UnknownAccountError(Exception):
 
 @dataclass(frozen=True)
 class LinkQuery:
-    kind: str  # "joinMeetingId" | "joinWebUrl"
+    kind: str  # "joinMeetingId" | "joinWebUrl" | "adhocCall"
     value: str
+    organizer_id: str | None = None  # tylko adhocCall
+    subject: str | None = None  # tylko adhocCall, z fileUrl
+    recorded_at_local: datetime | None = None  # tylko adhocCall, naiwny czas lokalny z fileUrl
 
 
 # --------------------------------------------------------------------------------------
@@ -164,10 +170,44 @@ def _encode_meetup_join_url(raw: str) -> str:
     return f"{base}?{'&'.join(encoded_params)}"
 
 
+def _parse_recap_link(candidate: str) -> LinkQuery:
+    """Rozpoznaje link „Podsumowanie” (meetingrecap) z połączenia ad hoc z czatu."""
+
+    params = urllib.parse.parse_qs(urllib.parse.urlsplit(candidate).query)
+    call_id = (params.get("callId") or [None])[0]
+    if not call_id or not _GUID_RE.match(call_id):
+        raise InvalidLinkError("link recap bez poprawnego callId")
+
+    organizer_raw = (params.get("organizerId") or [None])[0]
+    organizer_id = organizer_raw.lower() if organizer_raw and _GUID_RE.match(organizer_raw) else None
+
+    subject: str | None = None
+    recorded_at_local: datetime | None = None
+    file_url = (params.get("fileUrl") or [None])[0]
+    if file_url:
+        # parse_qs zamienił już '+' na spacje i odkodował %XX — nie dekoduj ponownie.
+        name = urllib.parse.urlsplit(file_url).path.rsplit("/", 1)[-1]
+        match = _RECORDING_NAME_RE.match(name)
+        if match:
+            subject = match.group("subject").strip() or None
+            recorded_at_local = datetime.strptime(match.group("stamp"), "%Y%m%d_%H%M%S")
+
+    return LinkQuery(
+        "adhocCall",
+        call_id.lower(),
+        organizer_id=organizer_id,
+        subject=subject,
+        recorded_at_local=recorded_at_local,
+    )
+
+
 def parse_link(link: str) -> LinkQuery:
     """Rozpoznaje formę linku/identyfikatora Teams. Rzuca InvalidLinkError, gdy nierozpoznana."""
 
     candidate = link.strip()
+    if _RECAP_RE.search(candidate):
+        return _parse_recap_link(candidate)
+
     digits_only = candidate.replace(" ", "")
     if _MEET_ID_RE.match(digits_only):
         return LinkQuery("joinMeetingId", digits_only)
@@ -277,11 +317,162 @@ def _lookup_online_meeting(
 
 
 # --------------------------------------------------------------------------------------
+# Połączenia ad hoc (1:1 / grupowe z czatu) — powierzchnia adhocCalls
+# --------------------------------------------------------------------------------------
+
+
+def _adhoc_get_all_path(account_id: str, start_utc: datetime | None, end_utc: datetime | None) -> str:
+    parts = [f"userId='{account_id}'"]
+    if start_utc is not None:
+        parts.append(f"startDateTime={start_utc.strftime('%Y-%m-%dT%H:%M:%SZ')}")
+    if end_utc is not None:
+        parts.append(f"endDateTime={end_utc.strftime('%Y-%m-%dT%H:%M:%SZ')}")
+    return f"/users/{account_id}/adhocCalls/getAllTranscripts({','.join(parts)})"
+
+
+def _fetch_adhoc_transcripts(
+    client: GraphClient, account_id: str, start_utc: datetime | None, end_utc: datetime | None
+) -> list[dict]:
+    """Pobiera transkrypcje ad hoc konta (z obsługą stronicowania), znormalizowane do wspólnego kształtu."""
+
+    next_path: str | None = _adhoc_get_all_path(account_id, start_utc, end_utc)
+    normalized: list[dict] = []
+    pages = 0
+    while next_path and pages < 20:
+        pages += 1
+        data, _ = client.get(next_path)
+        items = data.get("value", []) if isinstance(data, dict) else []
+        for item in items:
+            call_id = item.get("callId")
+            if not call_id:
+                continue
+            organizer = (item.get("meetingOrganizer") or {}).get("user") or {}
+            normalized.append(
+                {
+                    "id": item["id"],
+                    "callId": str(call_id).lower(),
+                    "createdDateTime": format_utc(item["createdDateTime"]),
+                    "endDateTime": format_utc(item["endDateTime"]),
+                    "organizerId": organizer.get("id"),
+                }
+            )
+        next_path = data.get("@odata.nextLink") if isinstance(data, dict) else None
+    return normalized
+
+
+def _group_adhoc_by_call(transcripts: list[dict]) -> list[dict]:
+    """Grupuje znormalizowane transkrypcje ad hoc po callId; wynik posortowany po starcie malejąco."""
+
+    groups: dict[str, list[dict]] = {}
+    for item in transcripts:
+        groups.setdefault(item["callId"], []).append(item)
+
+    result: list[dict] = []
+    for call_id, items in groups.items():
+        starts = [item["createdDateTime"] for item in items]
+        ends = [item["endDateTime"] for item in items]
+        organizer_id = next((item["organizerId"] for item in items if item.get("organizerId")), None)
+        result.append(
+            {
+                "callId": call_id,
+                "start": min(starts),
+                "end": max(ends),
+                "organizerId": organizer_id,
+                "transcripts": sorted(
+                    (
+                        {
+                            "id": item["id"],
+                            "createdDateTime": item["createdDateTime"],
+                            "endDateTime": item["endDateTime"],
+                        }
+                        for item in items
+                    ),
+                    key=lambda entry: entry["createdDateTime"],
+                ),
+            }
+        )
+    result.sort(key=lambda group: group["start"], reverse=True)
+    return result
+
+
+def _adhoc_candidate(account: Account, settings: Settings, group: dict, subject: str | None) -> dict:
+    """Buduje kandydata resolve dla połączenia ad hoc (kształt jak dla spotkań + kind/callId)."""
+
+    organizer = {"name": None, "email": None}
+    matched = _account_by_id(settings, group.get("organizerId"))
+    if matched is not None:
+        organizer = {"name": matched.label, "email": matched.upn}
+
+    return {
+        "kind": "adhocCall",
+        "meetingId": None,
+        "callId": group["callId"],
+        "account": {"label": account.label, "upn": account.upn, "id": account.id},
+        "subject": subject,
+        "start": group["start"],
+        "end": group["end"],
+        "organizer": organizer,
+        "organizerId": group.get("organizerId"),
+        "joinMeetingId": None,
+        "joinWebUrl": None,
+        "transcripts": group["transcripts"],
+    }
+
+
+def _adhoc_not_found_message(call_id: str, accounts: list[Account]) -> str:
+    labels = ", ".join(account.label for account in accounts) if accounts else "skonfigurowanych kont"
+    return (
+        f"Połączenie ad hoc {call_id} nie ma transkrypcji widocznej z kont ({labels}) "
+        "— transkrypcja pojawia się kilka minut po zakończeniu połączenia; jeśli minęło więcej, "
+        "sprawdź uprawnienie CallTranscripts.Read.All aplikacji. Transkrypcję można podać ręcznie jako plik .vtt."
+    )
+
+
+def _resolve_adhoc_by_link(
+    client: GraphClient, settings: Settings, link_query: LinkQuery
+) -> tuple[dict, int]:
+    """Resolve połączenia ad hoc po linku recap: filtr po callId po stronie mostka."""
+
+    accounts = list(settings.accounts)
+    if link_query.organizer_id is not None:
+        matching = [a for a in accounts if a.id.lower() == link_query.organizer_id.lower()]
+        ordered = matching + [a for a in accounts if a.id.lower() != link_query.organizer_id.lower()]
+    else:
+        ordered = accounts
+
+    if link_query.recorded_at_local is not None:
+        recorded_utc = link_query.recorded_at_local.replace(tzinfo=settings.timezone).astimezone(timezone.utc)
+        start_utc: datetime | None = recorded_utc - timedelta(days=1)
+        end_utc: datetime | None = recorded_utc + timedelta(days=1)
+    else:
+        start_utc, end_utc = None, None
+
+    accounts_tried = 0
+    for account in ordered:
+        accounts_tried += 1
+        try:
+            items = _fetch_adhoc_transcripts(client, account.id, start_utc, end_utc)
+        except GraphError as exc:
+            if exc.status == 400:
+                # Tak jak w _lookup_online_meeting: 400 to „brak trafienia w tym koncie”.
+                continue
+            raise
+        hits = [item for item in items if item["callId"] == link_query.value]
+        if hits:
+            group = _group_adhoc_by_call(hits)[0]
+            return _adhoc_candidate(account, settings, group, link_query.subject), accounts_tried
+    raise MeetingNotFoundError(_adhoc_not_found_message(link_query.value, ordered))
+
+
+# --------------------------------------------------------------------------------------
 # Resolve po linku
 # --------------------------------------------------------------------------------------
 
 
 def resolve_by_link(client: GraphClient, settings: Settings, link_query: LinkQuery) -> tuple[dict, int]:
+    if link_query.kind == "adhocCall":
+        return _resolve_adhoc_by_link(client, settings, link_query)
+
     meeting, account, accounts_tried = _lookup_online_meeting(client, list(settings.accounts), link_query)
     fields = _extract_meeting_fields(meeting)
     organizer_id = fields.pop("organizerId")
@@ -294,7 +485,9 @@ def resolve_by_link(client: GraphClient, settings: Settings, link_query: LinkQue
     transcripts = _fetch_transcripts_summary(client, account.id, fields["meetingId"])
 
     candidate = {
+        "kind": "onlineMeeting",
         "meetingId": fields["meetingId"],
+        "callId": None,
         "account": {"label": account.label, "upn": account.upn, "id": account.id},
         "subject": fields["subject"],
         "start": fields["start"],
@@ -405,7 +598,9 @@ def resolve_by_date_title(
 
         candidates.append(
             {
+                "kind": "onlineMeeting",
                 "meetingId": fields["meetingId"],
+                "callId": None,
                 "account": {"label": account.label, "upn": account.upn, "id": account.id},
                 "subject": fields["subject"],
                 "start": fields["start"],
@@ -416,6 +611,24 @@ def resolve_by_date_title(
                 "transcripts": transcripts,
             }
         )
+
+    if date_str is not None and not title:
+        # Połączenia ad hoc nie mają tematu ani zdarzenia w kalendarzu — dokładamy je
+        # jako kandydatów w tym samym oknie czasu (tylko w trybie z datą).
+        seen_calls = {c["callId"] for c in candidates if c.get("callId")}
+        for account in settings.accounts:
+            items = _fetch_adhoc_transcripts(client, account.id, start_utc, end_utc)
+            for group in _group_adhoc_by_call(items):
+                if group["callId"] in seen_calls:
+                    continue
+                seen_calls.add(group["callId"])
+                if time_str and not _within_time_window(
+                    parse_graph_datetime(group["start"]), date_str, time_str, settings.timezone
+                ):
+                    continue
+                candidates.append(_adhoc_candidate(account, settings, group, None))
+        candidates.sort(key=lambda c: c["start"], reverse=True)
+        candidates = candidates[:_MAX_CANDIDATES]
 
     return candidates, skipped
 
@@ -491,7 +704,9 @@ def fetch_transcript(
 
     return {
         "meeting": {
+            "kind": "onlineMeeting",
             "meetingId": fields["meetingId"],
+            "callId": None,
             "subject": fields["subject"],
             "start": fields["start"],
             "end": fields["end"],
@@ -502,6 +717,93 @@ def fetch_transcript(
             "id": transcript_id,
             "createdDateTime": format_utc(chosen["createdDateTime"]),
             "endDateTime": format_utc(chosen["endDateTime"]),
+            "language": language,
+            "speakers": speakers,
+            "segments": [
+                {"start": s.start, "end": s.end, "speaker": s.speaker, "text": s.text} for s in segments
+            ],
+            "vtt": vtt_text,
+        },
+    }
+
+
+def fetch_adhoc_transcript(
+    client: GraphClient,
+    settings: Settings,
+    account_id: str,
+    call_id: str,
+    transcript_id: str | None,
+) -> dict:
+    """Pobiera transkrypcję połączenia ad hoc (powierzchnia adhocCalls). Kształt jak fetch_transcript."""
+
+    account = _account_by_id(settings, account_id)
+    if account is None:
+        raise UnknownAccountError(f"{account_id!r} nie jest jednym ze skonfigurowanych BRIDGE_ACCOUNTS")
+
+    call_id = call_id.lower()
+    if transcript_id is None:
+        items = [item for item in _fetch_adhoc_transcripts(client, account_id, None, None) if item["callId"] == call_id]
+        if not items:
+            raise TranscriptNotFoundError(
+                "Połączenie ad hoc nie ma transkrypcji — Teams udostępnia ją kilka minut po "
+                "zakończeniu połączenia i tylko gdy transkrypcja była włączona"
+            )
+        chosen = max(items, key=lambda item: parse_graph_datetime(item["createdDateTime"]))
+        tid = chosen["id"]
+        start = chosen["createdDateTime"]
+        end = chosen["endDateTime"]
+        organizer_id = chosen.get("organizerId")
+    else:
+        try:
+            meta, _ = client.get(f"/users/{account_id}/adhocCalls/{call_id}/transcripts/{transcript_id}")
+        except GraphError as exc:
+            if exc.status == 404:
+                raise TranscriptNotFoundError(
+                    f"nie znaleziono transkrypcji {transcript_id!r} dla tego połączenia"
+                ) from exc
+            raise
+        meta = meta if isinstance(meta, dict) else {}
+        tid = meta.get("id") or transcript_id
+        start = format_utc(meta["createdDateTime"])
+        end = format_utc(meta["endDateTime"])
+        organizer_id = ((meta.get("meetingOrganizer") or {}).get("user") or {}).get("id")
+
+    vtt_text, _ = client.get(
+        f"/users/{account_id}/adhocCalls/{call_id}/transcripts/{tid}/content?$format=text/vtt",
+        raw=True,
+    )
+
+    language: str | None = None
+    try:
+        metadata_text, _ = client.get(
+            f"/users/{account_id}/adhocCalls/{call_id}/transcripts/{tid}/metadataContent",
+            raw=True,
+        )
+        language = _extract_language(metadata_text)
+    except GraphError:
+        language = None
+
+    segments = parse_vtt(vtt_text)
+    speakers: list[str] = []
+    for segment in segments:
+        if segment.speaker and segment.speaker not in speakers:
+            speakers.append(segment.speaker)
+
+    return {
+        "meeting": {
+            "kind": "adhocCall",
+            "meetingId": None,
+            "callId": call_id,
+            "subject": None,
+            "start": start,
+            "end": end,
+            "organizerId": organizer_id,
+            "joinMeetingId": None,
+        },
+        "transcript": {
+            "id": tid,
+            "createdDateTime": start,
+            "endDateTime": end,
             "language": language,
             "speakers": speakers,
             "segments": [

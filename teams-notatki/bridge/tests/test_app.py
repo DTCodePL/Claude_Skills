@@ -299,5 +299,107 @@ class TranscriptNotFoundTests(_ServerTestCase):
         self.assertEqual(json.loads(raw)["error"]["code"], "transcript_not_found")
 
 
+_CALL_ID = "a16d2948-e3f1-4e16-8dc1-eaf4edad4c14"
+
+
+def _adhoc_route(url: str) -> str:
+    if "getAllTranscripts" in url:
+        return "adhoc_list"
+    if re.search(r"/transcripts/[^/]+/content\?\$format=text/vtt$", url):
+        return "content"
+    if url.endswith("/metadataContent"):
+        return "metadata"
+    if re.search(r"/adhocCalls/[^/]+/transcripts/[^/]+$", url):
+        return "adhoc_meta"
+    return "unknown"
+
+
+def _adhoc_item_payload() -> dict:
+    return {
+        "id": "ktViz-adhoc-1",
+        "meetingId": None,
+        "callId": _CALL_ID,
+        "createdDateTime": "2026-09-18T12:00:00Z",
+        "endDateTime": "2026-09-18T12:05:00Z",
+        "meetingOrganizer": {"user": {"id": _ACCOUNT.id, "displayName": None, "tenantId": "tenant"}},
+    }
+
+
+def _stub_transport_adhoc(url, headers):
+    kind = _adhoc_route(url)
+    if kind == "adhoc_list":
+        return 200, json.dumps({"value": [_adhoc_item_payload()]}).encode("utf-8"), {"Content-Type": "application/json"}
+    if kind == "adhoc_meta":
+        return 200, json.dumps(_adhoc_item_payload()).encode("utf-8"), {"Content-Type": "application/json"}
+    if kind == "content":
+        return 200, _VTT_TEXT.encode("utf-8"), {"Content-Type": "text/vtt"}
+    if kind == "metadata":
+        return 200, _METADATA_TEXT.encode("utf-8"), {"Content-Type": "text/vtt"}
+    raise AssertionError(f"nieobsłużone żądanie testowe: {url}")
+
+
+def _stub_transport_adhoc_empty(url, headers):
+    if _adhoc_route(url) == "adhoc_list":
+        return 200, json.dumps({"value": []}).encode("utf-8"), {"Content-Type": "application/json"}
+    raise AssertionError(f"nieobsłużone żądanie testowe: {url}")
+
+
+class AdhocCallTranscriptFlowTests(_ServerTestCase):
+    transport = staticmethod(_stub_transport_adhoc)
+
+    def test_call_transcript_json_matches_context_vtt_content(self):
+        status, _ct, raw = self._request(
+            "GET", f"/calls/{_ACCOUNT.id}/{_CALL_ID}/transcript", headers=self._auth_headers()
+        )
+        self.assertEqual(status, 200)
+        payload = json.loads(raw)
+        self.assertEqual(payload["meeting"]["kind"], "adhocCall")
+        self.assertEqual(payload["meeting"]["callId"], _CALL_ID)
+        self.assertIsNone(payload["meeting"]["meetingId"])
+        transcript = payload["transcript"]
+        self.assertEqual(transcript["id"], "ktViz-adhoc-1")
+        self.assertEqual(transcript["language"], "pl-pl")
+        self.assertEqual(transcript["speakers"], ["Damian Dziura"])
+        self.assertEqual(transcript["vtt"], _VTT_TEXT)
+
+    def test_call_transcript_format_vtt_returns_raw_text(self):
+        status, content_type, raw = self._request(
+            "GET",
+            f"/calls/{_ACCOUNT.id}/{_CALL_ID}/transcript?format=vtt",
+            headers=self._auth_headers(),
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(content_type, "text/vtt; charset=utf-8")
+        self.assertEqual(raw.decode("utf-8"), _VTT_TEXT)
+
+    def test_call_transcript_with_transcript_id_uses_metadata_endpoint(self):
+        status, _ct, raw = self._request(
+            "GET",
+            f"/calls/{_ACCOUNT.id}/{_CALL_ID}/transcript?transcriptId=ktViz-adhoc-1",
+            headers=self._auth_headers(),
+        )
+        self.assertEqual(status, 200)
+        payload = json.loads(raw)
+        self.assertEqual(payload["transcript"]["id"], "ktViz-adhoc-1")
+
+    def test_call_transcript_unknown_account_id_is_400(self):
+        status, _ct, raw = self._request(
+            "GET", f"/calls/not-a-configured-account/{_CALL_ID}/transcript", headers=self._auth_headers()
+        )
+        self.assertEqual(status, 400)
+        self.assertEqual(json.loads(raw)["error"]["code"], "unknown_account")
+
+
+class AdhocCallTranscriptNotFoundTests(_ServerTestCase):
+    transport = staticmethod(_stub_transport_adhoc_empty)
+
+    def test_empty_adhoc_list_is_404_transcript_not_found(self):
+        status, _ct, raw = self._request(
+            "GET", f"/calls/{_ACCOUNT.id}/{_CALL_ID}/transcript", headers=self._auth_headers()
+        )
+        self.assertEqual(status, 404)
+        self.assertEqual(json.loads(raw)["error"]["code"], "transcript_not_found")
+
+
 if __name__ == "__main__":
     unittest.main()

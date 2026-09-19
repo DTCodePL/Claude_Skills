@@ -35,3 +35,7 @@ Later phases add a protected MCP-facing API, store the Microsoft client credenti
 - Polityka `Grant-CsApplicationAccessPolicy` nadana globalnie (tenant = dwie osoby); polityka Exchange na kalendarze pominięta z tej samej przyczyny.
 - Uwierzytelnianie aplikacji certyfikatem (klucz prywatny tylko na VPS), nie kluczem tajnym.
 - Decyzja właściciela: token mostka jest wbudowany w `scripts/bridge.py` (zero konfiguracji na urządzeniu) — patrz `teams-notatki/README.md`, rotacja.
+
+## Aneks 2026-09-19 — połączenia ad hoc
+
+Połączenia ad hoc z czatu Teams (1:1 albo grupowe, bez zaproszenia w kalendarzu) nie są widoczne jako `onlineMeeting`, więc dotychczasowy lookup po linku ich nie znajdował. Microsoft Graph obsługuje je osobną powierzchnią `adhocCalls` (v1.0): lista transkrypcji przez `getAllTranscripts` w kontekście użytkownika, metadane i treść VTT per `callId`/`transcriptId`. Wymaga ona nowego uprawnienia aplikacyjnego `CallTranscripts.Read.All` (ze zgodą administratora w Entra), odrębnego od `OnlineMeetingTranscript.Read.All`. Połączenie identyfikuje link „Podsumowanie” (`teams.microsoft.com/l/meetingrecap?...&callId=...`), z którego mostek bierze `callId`, opcjonalny `organizerId` oraz temat i czas z nazwy nagrania (`fileUrl`). Zdecydowano filtrować transkrypcje po `callId` po stronie mostka na wynikach `getAllTranscripts`, zamiast wołać listę transkrypcji per połączenie — ta w praktyce zwraca `501 NotImplemented`.
