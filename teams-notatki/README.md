@@ -84,6 +84,7 @@ teams-notatki/
     bridge.py                 ← CLI (stdlib, Python >= 3.10)
   references/
     szablon-notatki.md        ← szablon notatki ze spotkania
+    szablon-spisu-zmian.md    ← szablon spisu zmian (ADO / QA Sphere / Figma / dokumentacja) po notatce
     api.md                    ← kontrakt API mostka + przykłady curl (fallback)
   tests/
     test_bridge_cli.py        ← unittest, stub transportu, bez sieci

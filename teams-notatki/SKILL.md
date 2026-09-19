@@ -4,15 +4,17 @@ description: >
   Tworzy notatki po polsku ze spotkań Microsoft Teams na podstawie transkrypcji,
   przez mostek HTTPS teamsnotes.tojest.dev (Damian/Piotr, DTCode).
   Wyzwalacze: „notatki ze spotkania”, „transkrypcja Teams”, link
-  teams.microsoft.com/meet/... albo .../l/meetup-join/..., „spotkanie w piątek /
-  wczoraj / o 10”, „podsumuj spotkanie”, „co ustaliliśmy na spotkaniu”.
+  teams.microsoft.com/meet/..., .../l/meetup-join/... albo .../l/meetingrecap?...
+  (link „Podsumowanie”, także z połączenia 1:1), „spotkanie w piątek /
+  wczoraj / o 10”, „podsumuj spotkanie”, „co ustaliliśmy na spotkaniu”,
+  „jakie PBI / test case'y / makiety / dokumenty wynikają ze spotkania”.
   Rozwiązuje spotkanie po linku albo po dacie/godzinie/tytule, pobiera
   transkrypcję, renderuje notatkę wg szablonu (podsumowanie, decyzje, zadania,
   otwarte pytania, następne kroki) ze znacznikami czasu. Ma tryb awaryjny bez
   mostka — parsowanie lokalnego pliku .vtt pobranego ręcznie z Teams.
   UŻYWAJ ZAWSZE, gdy user chce notatkę, podsumowanie lub listę zadań ze
   spotkania Microsoft Teams — nawet jeśli nie padnie słowo skill.
-version: '1.1'
+version: '1.2'
 language: pl
 organization: DTCode
 remote:
@@ -47,7 +49,7 @@ Select-String -Path "$env:TEMP\teams-notatki-remote.md" -Pattern "version:" | Se
 ```
 
 **Krok 2 — porównaj wersje:** wyciągnięte `version:` z pobranego pliku vs.
-frontmatter tego pliku (`version: '1.1'`). Zdalna wyższa → użyj treści
+frontmatter tego pliku (`version: '1.2'`). Zdalna wyższa → użyj treści
 pobranego pliku jako źródła prawdy do reszty zadania. Równa → kontynuuj z tym
 plikiem. Nie da się pobrać (404, brak sieci, plik pusty) → poinformuj o tym i
 kontynuuj z tą lokalną kopią (nie blokuj zadania z powodu braku sieci — to
@@ -55,10 +57,11 @@ tylko sprawdzenie aktualności, nie krok krytyczny).
 
 ## 2. Zasoby
 
-Skill potrzebuje, obok tego `SKILL.md`, trzech plików:
+Skill potrzebuje, obok tego `SKILL.md`, czterech plików:
 
 - `scripts/bridge.py`
 - `references/szablon-notatki.md`
+- `references/szablon-spisu-zmian.md`
 - `references/api.md`
 
 Jeżeli ich nie ma (loader na urządzeniu pobrał tylko `SKILL.md`), pobierz je
@@ -71,6 +74,7 @@ do „Przebiegu”**:
 mkdir -p /tmp/teams-notatki/scripts /tmp/teams-notatki/references
 curl -sL "https://raw.githubusercontent.com/DTCodePL/Claude_Skills/main/teams-notatki/scripts/bridge.py" -o /tmp/teams-notatki/scripts/bridge.py
 curl -sL "https://raw.githubusercontent.com/DTCodePL/Claude_Skills/main/teams-notatki/references/szablon-notatki.md" -o /tmp/teams-notatki/references/szablon-notatki.md
+curl -sL "https://raw.githubusercontent.com/DTCodePL/Claude_Skills/main/teams-notatki/references/szablon-spisu-zmian.md" -o /tmp/teams-notatki/references/szablon-spisu-zmian.md
 curl -sL "https://raw.githubusercontent.com/DTCodePL/Claude_Skills/main/teams-notatki/references/api.md" -o /tmp/teams-notatki/references/api.md
 ```
 
@@ -81,6 +85,7 @@ New-Item -ItemType Directory -Force "$env:TEMP\teams-notatki\scripts" | Out-Null
 New-Item -ItemType Directory -Force "$env:TEMP\teams-notatki\references" | Out-Null
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/DTCodePL/Claude_Skills/main/teams-notatki/scripts/bridge.py" -OutFile "$env:TEMP\teams-notatki\scripts\bridge.py"
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/DTCodePL/Claude_Skills/main/teams-notatki/references/szablon-notatki.md" -OutFile "$env:TEMP\teams-notatki\references\szablon-notatki.md"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/DTCodePL/Claude_Skills/main/teams-notatki/references/szablon-spisu-zmian.md" -OutFile "$env:TEMP\teams-notatki\references\szablon-spisu-zmian.md"
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/DTCodePL/Claude_Skills/main/teams-notatki/references/api.md" -OutFile "$env:TEMP\teams-notatki\references\api.md"
 ```
 
@@ -210,6 +215,67 @@ powiedz, gdzie plik wylądował. Nie zapisuj surowej transkrypcji poza katalogie
 tymczasowym, chyba że użytkownik wyraźnie o to poprosi („daj mi też
 transkrypcję”). **Nigdy nie wypisuj tokenu ani nagłówka `Authorization` w
 rozmowie** — nawet do debugowania.
+
+### 3.7 Spis zmian w systemach (ADO · QA Sphere · Figma · Dokumentacja)
+
+Notatka to nie koniec. Gdy spotkanie dotyczy produktu DTCode (w transkrypcji
+pada Zebrani / TachoPing / UstawoŻerca albo ich funkcje), **po pokazaniu
+notatki przygotuj spis zmian** wg `references/szablon-spisu-zmian.md`: dla
+każdego z czterech systemów cztery listy — **do utworzenia / do zaktualizowania /
+do usunięcia / już istnieje bez zmian**. Spotkanie bez produktu (rozmowa organizacyjna, prywatna) →
+napisz jedno zdanie, że spisu nie ma, i zakończ.
+
+**To jest propozycja, nie wykonanie.** Nie tworzysz, nie edytujesz i nie
+usuwasz niczego w żadnym z systemów. Wykonanie następuje dopiero po
+zatwierdzeniu przez użytkownika, każdą pozycję właściwym skillem:
+`azure-devops-<produkt>` (ADO), `qasphere-test-generator` (QA Sphere),
+`figma-use` (Figma), edycja plików w katalogu dokumentacji. Tu tylko
+inwentaryzujesz.
+
+Skąd bierzesz stan istniejący (odczyt, nigdy zapis):
+
+| System | Narzędzie | Co sprawdzasz |
+| --- | --- | --- |
+| Azure DevOps | MCP `azure-devops`: `search_workitem`, `wit_query`, `wit_work_item` (projekt z `azure-devops-<produkt>`) | czy PBI/Bug o tym temacie już istnieje, jego stan i rodzica (Feature/Epic) |
+| QA Sphere | REST `GET .../project`, `.../tcase/folders`, `.../tcase` (klucz i adres w `qasphere-test-generator`) | czy test case na ten scenariusz już jest, w którym folderze |
+| Figma | MCP Figma: `get_metadata` / `search_design_system` na pliku produktu (klucz pliku w skillu `<produkt>-design`) | czy ramka/komponent istnieje, na której stronie |
+| Dokumentacja | `Grep`/`Glob` w `d:\projects\DTCode\Dokumentacja\<Produkt>` | który dokument opisuje temat i jaki ma `status` w front matter |
+
+Reguły spisu — te same co dla notatki, plus:
+
+- **Pozycja rodzi się wyłącznie z sekcji „Decyzje” albo „Zadania” notatki**
+  i ma jej znacznik `[MM:SS]`. Otwarte pytanie nie jest pozycją. Zdanie
+  z „ewentualnie / może / kiedyś / do rozważenia” też nie — to opcja, nie
+  decyzja; wymień je jednym wierszem pod spisem jako „Pominięte (opcje bez
+  decyzji)”, żeby nie zginęło.
+- **Zadanie z notatki, które w systemie już jest 1:1** (ten sam zakres, nic
+  do zmiany) → lista „już istnieje bez zmian” z identyfikatorem i stanem.
+  Nie wciskaj go do „do zaktualizowania” z opisem „brak zmian” i nie pomijaj
+  — to, że backlog już to ma, jest najważniejszym wynikiem tego kroku.
+- „Do zaktualizowania” i „do usunięcia” wymagają identyfikatora istniejącego
+  artefaktu (`#id` ADO, `seq` QA Sphere, nazwa węzła Figmy, ścieżka pliku)
+  **odczytanego z systemu**, nie z pamięci. Nie znalazłeś → pozycja idzie do
+  „do utworzenia” z dopiskiem „(nie znaleziono istniejącego: szukałem X)”.
+- „Do utworzenia” w ADO podaje rodzica znalezionego w hierarchii: dla PBI
+  Feature, dla Buga **PBI (user story), którego dotyczy** — brak pasującego
+  rodzica → „brak — zaproponuj” z nazwą, nie wymyślony numer.
+- Dokumentacji się nie kasuje — „do usunięcia” oznacza zmianę `status` na
+  `wycofany`. Test case'ów w QA Sphere też nie (API nie ma `DELETE`) — pozycja
+  mówi, na jaki test case go nadpisać.
+- Brak narzędzia (w Codexie i Sparku nie ma MCP ADO ani Figmy; brak klucza
+  QA Sphere) **albo odpowiedź narzędzia sprzeczna z innym źródłem** (np.
+  Figma `get_metadata` zwraca 2 strony, a PBI linkują makiety na innych) →
+  spis dla tego systemu robisz z samej notatki, bez kolumn z identyfikatorami,
+  i wpisujesz go w sekcji „Nie dało się zweryfikować” z powodem. Nie
+  zgadujesz identyfikatorów i nie wnioskujesz „nie istnieje” z niepełnej
+  odpowiedzi. Dla Figmy pytaj o konkretne strony/węzły (ID z linków w PBI
+  albo ze skilla `<produkt>-design`), nie o korzeń pliku.
+- Pusta lista → „brak”. Spis z samymi „brak” w trzech systemach jest
+  poprawnym wynikiem, jeśli spotkanie dotyczyło jednego.
+
+Wynik: pokaż spis w rozmowie pod notatką. Zapis do pliku na tych samych
+zasadach co notatka (`YYYY-MM-DD-<slug>-spis-zmian.md`). Na końcu jedno
+zdanie: „Które pozycje wykonać?” — i czekasz.
 
 ## 4. Typowe błędy
 
