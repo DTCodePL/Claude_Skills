@@ -59,7 +59,8 @@ procedurę faza po fazie:
   PrimeNG przed własnym CSS, grid Bootstrapa; enumy zamiast union types;
   bilans obciążenia silników; dla Buga — test, który udowodni błąd,
 - **Faza 1b — otwarcie w ADO**: PBI/Bug i taski przewidziane do wykonania
-  → `In Progress`, nieadekwatne → `Rejected` z komentarzem,
+  → `In Progress`, nieadekwatne → `Rejected` z komentarzem, marker zużycia
+  tokenów (`token-report.py start`),
 - **Faza 2 — rozdział briefów** w stałej kolejności Claude → Spark → Codex:
   Figma/MCP/pętla u wykonawcy na `wykonawca` (Sonnet), wszystko tekstowe
   na Sparka bez limitu slotów, Codex tylko recenzja i research; testy na
@@ -72,7 +73,8 @@ procedurę faza po fazie:
 - **Faza 5 — brama potwierdzenia**: stop i czekanie na decyzję usera,
 - **Faza 6 — domknięcie**: commit/push z numerem PBI, taski deweloperskie
   → `Done`/`Rejected`, komentarz pieczętujący Buga, PBI/Bug → `Ready for
-  tests`, przypisanie do testera.
+  tests`, przypisanie do testera, raport zużycia tokenów per silnik i model
+  (`token-report.py report`).
 
 **3. Obsługa błędu pobierania** — jeśli `curl` zwróci 404, nie ma sieci albo plik
 jest pusty/niepoprawny:

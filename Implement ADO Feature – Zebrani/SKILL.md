@@ -18,7 +18,7 @@ description: >
   link lub numer Epic/Feature/PBI/Task/Bug
   z Azure DevOps projektu Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie
   i/lub naprawienie go — nawet jeśli nie padnie słowo "skill".
-version: '5.0'
+version: '5.1'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -115,6 +115,13 @@ Jeden `mcp__azure-devops__wit_work_item_write` `action: update_batch`:
    `E2e tests` (dla Buga `Retest`) zostają nietknięte — to praca testera.
 3. **Taski wypisane w planie jako nieadekwatne → `Rejected`** z komentarzem
    uzasadniającym z planu (`wit_work_item_comment_write` przed zmianą stanu).
+4. **Marker zużycia tokenów.** Tuż po batchu ADO uruchom
+   `python $env:USERPROFILE\.claude\bin\token-report.py start --task <numer PBI/Buga> --title "<tytuł work itemu>"`
+   (PowerShell). Marker w `~/.claude/worker-status/tasks/<numer>.json`
+   wyznacza początek liczenia i listę sesji Claude'a; przy wznowieniu
+   zadania w nowej sesji (po `/clear`, w nowym oknie) wywołaj to samo
+   polecenie ponownie — dopisze bieżącą sesję, nie zresetuje startu.
+   Bez markera raport z Fazy 6 nie ma czego policzyć.
 
 Przed zapisem zweryfikuj nazwę stanu przez `mcp__azure-devops__wit_work_item`
 `action: get_type` dla każdego typu (`Task`, `Product Backlog Item`, `Bug`) —
@@ -390,3 +397,11 @@ Wykonaj w tej kolejności:
    `action: update_batch`, jednym wywołaniem na wszystkie PBI/taski naraz,
    gdzie to możliwe. **Zweryfikuj przez zwróconą treść odpowiedzi API** —
    deklaracja sukcesu nie jest dowodem, dopiero zwrócony stan pola jest.
+7. **Raport zużycia tokenów — ostatnia rzecz w komunikacie końcowym.**
+   Uruchom `python $env:USERPROFILE\.claude\bin\token-report.py report --task <numer>`
+   i wklej obie tabele bez zmian (per silnik → per model → sumy; szczegóły
+   per rola/brief) wraz ze stopką. Raport liczy z zapisów na dysku
+   (transkrypty Claude'a, rollouty Codexa, sesje muse) — nie szacuj, nie
+   pytaj o `/usage`. Ostrzeżenia `⚠` z raportu przepisz dosłownie. Sumy
+   pokazują kolumny cache osobno: surowa suma jest w większości odczytem
+   cache'u i bez podziału nic nie mówi o koszcie.
