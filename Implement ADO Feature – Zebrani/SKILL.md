@@ -18,7 +18,7 @@ description: >
   link lub numer Epic/Feature/PBI/Task/Bug
   z Azure DevOps projektu Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie
   i/lub naprawienie go — nawet jeśli nie padnie słowo "skill".
-version: '5.1'
+version: '5.2'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -313,6 +313,20 @@ wskazuje na to repo). Jedna wiadomość Sol na feature; `high` jest tu
 świadomym wydatkiem — recenzja to praca, w której reasoning znajduje to,
 czego `medium` nie widzi — a nie darmowym dodatkiem: waga wiadomości
 Codexa rośnie z effortem.
+
+**Druga opinia Astry — tylko przy diffie o najwyższej stawce.** Gdy diff
+dotyka uwierzytelniania i sesji, płatności (Stripe), PIN-u sprzedawcy albo
+migracji danych, **po** recenzji Sol zlecasz dodatkowo jedną recenzję
+`gpt-6-astra` na `max` (ta sama komenda, `-Model gpt-6-astra -Effort max`,
+`-Title "Recenzja Astra PBI #<numer>"`). Astra **uzupełnia** Sol, nigdy go
+nie zastępuje, i nigdy nie jest rutyną — to „ostatnie sięgnięcie" z tabeli
+ról (widełki Plusa 5–45 wiadomości / 5 h). Wyłącznie `max`: na AA
+Intelligence Index Astra `max` ma ~53 pkt przy ~3,3 $/zadanie wobec Sol
+`max` ~47 przy ~2 $ — przewagę kupuje się tylko pełnym effortem, a `low`/
+`medium` to cena tokenu Astry bez tej przewagi. Znaleziska obu recenzji
+triażujesz razem (punkt 1 poniżej); w raporcie przed bramą zaznaczasz, co
+znalazła tylko Astra. Kryterium stawki wpisujesz do planu (Faza 1), nie
+decydujesz o nim po fakcie.
 
 Co robisz z wynikiem — **triaż, nie posłuszeństwo** (skill
 `superpowers:receiving-code-review` obowiązuje):
