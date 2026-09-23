@@ -6,8 +6,10 @@ description: >
   linkowanymi wprost, nie opisywanymi), przez wykonanie w modelu: sesja
   główna Opus max = architekt, dyspozytor i walidator etapów (nigdy
   wykonawca) / linie wykonawcze w stałej kolejności Claude → Spark → Codex
-  (Sonnet do Figmy/MCP, Spark do wszystkiego tekstowego bez limitu slotów,
-  Codex tylko recenzja i research) / niezależny recenzent Codex, przez
+  (Sonnet do Figmy/MCP, Spark do wszystkiego tekstowego bez limitu slotów
+  i na próbę do recenzji kodu Sonneta, Gemini na próbę do researchu i recenzji
+  kodu Sparka, Codex do recenzji kodu Sparka, trudnego researchu i bramki
+  Astry) / recenzent z innej rodziny niż autor, przez
   zlecony audyt SCSS pod kątem Bootstrapa i deduplikacji, aż po bramę mojego
   potwierdzenia i dopiero wtedy domknięcie w ADO (commit/push,
   statusy tasków deweloperskich, PBI → Ready for tests, przypisanie do
@@ -63,13 +65,17 @@ procedurę faza po fazie:
   tokenów (`token-report.py start`),
 - **Faza 2 — rozdział briefów** w stałej kolejności Claude → Spark → Codex:
   Figma/MCP/pętla u wykonawcy na `wykonawca` (Sonnet), wszystko tekstowe
-  na Sparka bez limitu slotów, Codex tylko recenzja i research; testy na
+  na Sparka bez limitu slotów (na próbę też recenzje kodu Sonneta i audyt
+  SCSS), Gemini na próbę — research i recenzja kodu Sparka, Codex —
+  recenzja kodu Sparka, trudny research i bramka Astry; testy na
   `tester`, drobiazgi na `mechanik`a, fakty z repo od `zwiadowcy`; bez
   odczytów `/usage` — linia zmienia się po komunikacie o limicie,
 - **Faza 3 — walidacja etapów** dowodem (diff, lint/test/build, zrzuty 2×2);
   dla Buga czerwony test → łatka → ten sam test zielony,
-- **Faza 4 / 4b — audyt SCSS** (Bootstrap, deduplikacja) i **recenzja Codex
-  `sol`** z triażem, nie posłuszeństwem,
+- **Faza 4 / 4b — audyt SCSS** (Bootstrap, deduplikacja) i **recenzja
+  z innej rodziny niż autor diffu** (Sol, Spark albo Gemini, przy
+  feature'ze wysokiej stawki bramka końcowa Astry) z triażem, nie
+  posłuszeństwem,
 - **Faza 5 — brama potwierdzenia**: stop i czekanie na decyzję usera,
 - **Faza 6 — domknięcie**: commit/push z numerem PBI, taski deweloperskie
   → `Done`/`Rejected`, komentarz pieczętujący Buga, PBI/Bug → `Ready for

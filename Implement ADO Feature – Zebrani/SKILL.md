@@ -6,8 +6,10 @@ description: >
   linkowanymi wprost, nie opisywanymi), przez wykonanie w modelu: sesja
   główna Opus max = architekt, dyspozytor i walidator etapów (nigdy
   wykonawca) / linie wykonawcze w stałej kolejności Claude → Spark → Codex
-  (Sonnet do Figmy/MCP, Spark do wszystkiego tekstowego bez limitu slotów,
-  Codex tylko recenzja i research) / niezależny recenzent Codex, przez
+  (Sonnet do Figmy/MCP, Spark do wszystkiego tekstowego bez limitu slotów
+  i na próbę do recenzji kodu Sonneta, Gemini na próbę do researchu i recenzji
+  kodu Sparka, Codex do recenzji kodu Sparka, trudnego researchu i bramki
+  Astry) / recenzent z innej rodziny niż autor, przez
   zlecony audyt SCSS pod kątem Bootstrapa i deduplikacji, aż po bramę mojego
   potwierdzenia i dopiero wtedy domknięcie w ADO (commit/push,
   statusy tasków deweloperskich, PBI → Ready for tests, przypisanie do
@@ -18,7 +20,7 @@ description: >
   link lub numer Epic/Feature/PBI/Task/Bug
   z Azure DevOps projektu Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie
   i/lub naprawienie go — nawet jeśli nie padnie słowo "skill".
-version: '5.2'
+version: '5.3'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -55,7 +57,7 @@ brama → ADO) robi wyłącznie cztery rzeczy:
    zrzuty 2×2, odsyła korekty do tej samej linii. Raport wykonawcy nigdy nie
    jest dowodem.
 4. **Otwiera i domyka w ADO** — po zatwierdzeniu planu ustawia `In Progress`
-   (Faza 1b); na końcu triażuje recenzję Sol, prowadzi bramę potwierdzenia,
+   (Faza 1b); na końcu triażuje recenzje (Sol, Spark, bramka Astry), prowadzi bramę potwierdzenia,
    robi commit/push i statusy końcowe (jedyne MCP do ADO ma Claude).
 
 **Sesja główna nie pisze kodu, nie pisze testów, nie przepisuje po wykonawcy
@@ -90,11 +92,16 @@ Zanim zlecisz jakikolwiek kod, wejdź w Plan Mode i ustal:
 - **Bilans obciążenia silników** jako obowiązkowy element planu: tabela
   „etap → brief → linia" plus liczba briefów per silnik. Sprawdzian przed
   pokazaniem planu — plan jest zroutowany źle, gdy zachodzi cokolwiek z:
-  Codex ma w planie coś poza recenzją Sol i researchem Terry; Spark dostał
-  cokolwiek zależnego od Figmy; jakikolwiek brief w całości tekstowy poszedł
-  na Sonneta, choć Spark nie zgłosił limitu. Popraw, zanim go pokażesz.
+  Codex ma w planie coś poza recenzją diffów Sparka, trudnym researchem
+  i bramką końcową Astry; recenzent któregoś etapu jest z tej samej rodziny
+  co autor diffu; Spark dostał cokolwiek zależnego od Figmy; jakikolwiek
+  brief w całości tekstowy poszedł na Sonneta, choć Spark nie zgłosił
+  limitu. Popraw, zanim go pokażesz.
   Nie prosisz o odczyt `/usage` — kolejność Claude → Spark → Codex jest
   stała, a linia zmienia się dopiero po komunikacie o limicie z silnika.
+- **Bramka końcowa Astry** — plan mówi wprost, czy feature jest wysokiej
+  stawki (lista w Fazie 4b), i jeśli tak, przewiduje jedną recenzję Astry
+  `max` całego diffu po recenzjach etapów.
 - **Gdy work item to Bug**, plan ma dodatkowo wskazać **test, który udowodni
   błąd**: jego rodzaj (spec Vitest / test xunit / Playwright, gdy błąd widać
   tylko w przeglądarce), plik i nazwę, dokładne kroki odtworzenia zamienione
@@ -163,30 +170,42 @@ brief w całości tekstowy, ciężki czy lekki → **Spark, bez limitu slotów,
 równolegle** — jak subagenci Claude'a: rozłączne zbiory plików, zakaz
 `git`/`npm`/`dotnet` w briefie, każdy brief osobnym wywołaniem wrappera
 w tle (nie `Start-Job`); pojedynczy drobiazg → `mechanik`.
-**Codex w planie etapu to tylko recenzja Sol i research Terry** — Terra
-i Luna implementują wyłącznie jako przelew po komunikacie o limicie
-z Claude'a albo Sparka. O `/usage` nie prosisz.
+**Codex w planie etapu to tylko recenzja diffów Sparka, trudny research
+i bramka końcowa Astry** — Sol i Luna implementują wyłącznie jako przelew
+po komunikacie o limicie z Claude'a albo Sparka. Tańszy token GPT-6 niczego
+tu nie zmienia: widełki Codexa (Sol 15–150 wiadomości / 5 h) są nadal
+najmniejsze w łańcuchu. Recenzje diffów Sonneta i audyt SCSS idą na Sparka,
+a research rutynowy i — równolegle z Solem — recenzja kodu Sparka na Gemini
+(Antigravity CLI `agy`, wyłącznie odczyt) — próba od 2026-09-23 z kryteriami
+w regule 13 globalnego `CLAUDE.md`. O `/usage` nie prosisz.
 
 | Zadanie w planie                                                                                                                                                                                                                                                                                                                                                                                                                      | Linia                                                                                                            |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | decyzje, brief, WCAG/tokeny, walidacja dowodów, triaż recenzji, domknięcie ADO                                                                                                                                                                                                                                                                                                                                                        | **sesja główna — Opus `max`** (mózg operacji; nigdy nie pisze kodu ani testów)                                   |
 | **brief z Figmą, ADO, Playwrightem albo pętlą lint/test/build u wykonawcy** (ekran z makiet, feature z dowodem w przeglądarce) — **domyślnie dla wszystkiego, czego nie da się opisać samym tekstem**                                                                                                                                                                                                                                                                                                                                                      | agent **`wykonawca`** (Sonnet `high`) — bez limitu wielkości; w BE czyta `.claude/CLAUDE.md` (kopia `AGENTS.md`) |
 | **każdy brief, ciężki czy lekki, spełniający oba warunki**: zero zależności od Figmy (spec w całości tekstowa) i weryfikacja po stronie architekta wystarczy (Spark w WSL nie ma Node ani .NET — pisze na ślepo, lint/test/build robisz Ty). Ciężkie: slice BE w C#, infrastruktura FE (sesja, guardy, trasy, interceptory, DTO, store), refaktor przekrojowy, hoisting, audyt (1M). Lekkie: ≤ 5 plików bez MCP, klucze i18n hurtem, masówka > 10 plików. **Bez limitu slotów, równolegle** (rozłączne pliki, zakaz `git`/`npm`/`dotnet` w briefie, osobne wywołania wrappera w tle) — linia pusta tylko wtedy, gdy w etapie nie ma nic tekstowego; ekranu się jej nie wciska | **Spark** `xhigh` (ciężkie) / `high` (lekkie wg gotowej spec)                                                    |
-| **przelew awaryjny** — wyłącznie po komunikacie o limicie z Claude'a albo Sparka, nigdy w planie etapu; porcje ≤ 5 plików                                                                                                                                                                                                                                                                                                             | **Codex** `gpt-5.6-terra` `xhigh` (ciężkie) / `gpt-5.6-luna` `xhigh` (lekkie, masówka)                            |
+| **przelew awaryjny** — wyłącznie po komunikacie o limicie z Claude'a albo Sparka, nigdy w planie etapu; porcje ≤ 5 plików                                                                                                                                                                                                                                                                                                             | **Codex** `gpt-6-sol` `high` (ciężkie) / `gpt-6-luna` `xhigh` (lekkie, masówka)                                   |
 | zadanie z Figma/ADO przez MCP, z kontekstem sesji                                                                                                                                                                                                                                                                                                                                                                                     | agent **`wykonawca`** (Sonnet `high`) — tylko Claude ma te MCP                                                   |
 | speci Vitest / AXE / xunit; czerwony test do Buga                                                                                                                                                                                                                                                                                                                                                                                     | agent **`tester`** (Sonnet `medium`)                                                                             |
 | klucz i18n × 2, rename, przeniesienie pliku — pojedynczo; masówka w porcjach, gdy Spark zgłosił limit                                                                                                                                                                                                                                                                                                                                                                              | agent **`mechanik`** (Haiku `low`)                                                                               |
 | fakty z repo przed decyzją                                                                                                                                                                                                                                                                                                                                                                                                            | agent **`zwiadowca`** (Haiku `low`, tylko odczyt)                                                                |
 | delegowany audyt kontrastu / fokusu / tokenów                                                                                                                                                                                                                                                                                                                                                                                         | agent **`audytor-a11y`** (Opus `high`)                                                                           |
-| recenzja diffu etapu przed bramą — **1 na etap**                                                                                                                                                                                                                                                                                                                                                                                      | **Codex** `-Mode review`, `gpt-5.6-sol` `high`                                                                   |
-| research trendów UI/UX, weryfikacja API biblioteki (Faza 1)                                                                                                                                                                                                                                                                                                                                                                           | **Codex** `gpt-5.6-terra` `medium`                                                                               |
+| recenzja diffu etapu — **kod Sparka**, 1 na etap                                                                                                                                                                                                                                                                                                                                                                                      | **Codex** `-Mode review`, `gpt-6-sol` `high`; na próbę równolegle **Gemini** `gemini-3.8-flash-high`              |
+| recenzja diffu etapu — **kod Sonneta albo Codexa z przelewu**, 1 na etap                                                                                                                                                                                                                                                                                                                                                              | **Spark** `xhigh`, brief tylko do odczytu — próba: do jej rozstrzygnięcia równolegle Sol `high` na całym diffie  |
+| bramka końcowa feature'a wysokiej stawki — **1 na feature**, po recenzjach etapów (Faza 4b)                                                                                                                                                                                                                                                                                                                                           | **Codex** `-Mode review`, `gpt-6-astra` `max`                                                                    |
+| research trendów UI/UX, weryfikacja API biblioteki (Faza 1)                                                                                                                                                                                                                                                                                                                                                                           | **Gemini** `gemini-3.8-flash-high` — próba; zapas: **Codex** `gpt-6-sol` `medium`                                |
+| research trudny — źródło, do którego Gemini nie dotarł, albo portal za JS-em (EUR-Lex, ISAP)                                                                                                                                                                                                                                                                                                                                         | **Codex** `gpt-6-sol` `high`                                                                                     |
+| audyt SCSS przed bramą (Faza 4)                                                                                                                                                                                                                                                                                                                                                                                                       | **Spark** `xhigh`, tylko odczyt — próba                                                                          |
 
 Przykład dla planu o 4 etapach, każdy z FE + BE: etap 0 — infrastruktura FE
 (sesja, guardy, trasy, interceptory) Spark, slice BE Spark, ekran z makiet
 Sonnet; etap 1 — FE z makiet Sonnet, BE Spark, klucze i18n Spark `high`;
 etap 2 — hoisting komponentu Spark, ekrany Sonnet, BE Spark; etap 3 — BE
-Spark, FE Sonnet. Codex dostaje 4 recenzje Sol i research — zero
-implementacji; Claude niesie ekrany (ma Figma MCP i pętlę lint/test/build);
+Spark, FE Sonnet. Codex dostaje recenzje diffów Sparka i — przy feature'ze
+wysokiej stawki — jedną bramkę Astry na końcu; Spark oprócz kodu recenzuje
+ekrany Sonneta, Gemini robi research i na próbę recenzuje kod Sparka — zero
+implementacji na Codexie; Claude
+niesie ekrany (ma Figma MCP i pętlę lint/test/build);
 Spark niesie każdy brief tekstowy — briefy jednego etapu równolegle, o ile
 nie dotykają tych samych plików — a Ty po nich uruchamiasz lint/test/build
 z rezerwą na 2–3 korekty. Trzy plany, które były zroutowane błędnie:
@@ -207,9 +226,10 @@ Pułapki, które w tym skillu kosztowały najwięcej:
   Codexie (2026-09-18). Kolejność Claude → Spark → Codex jest stała i zależy
   od rodzaju pracy; jedynym sygnałem do zmiany linii jest komunikat
   o limicie z silnika (rate-limit w sesji, błąd wrappera) — wtedy Spark →
-  Sonnet, Claude → Terra/Luna w porcjach ≤ 5 plików, i meldujesz zmianę
-  jednym zdaniem. „Terra, bo czyta AGENTS.md" (Claude też czyta — kopię
-  w `.claude/CLAUDE.md`) i „Luna, bo tania" to fałszywe uzasadnienia.
+  Sonnet, Claude → Sol/Luna w porcjach ≤ 5 plików, i meldujesz zmianę
+  jednym zdaniem. „Codex, bo czyta AGENTS.md" (Claude też czyta — kopię
+  w `.claude/CLAUDE.md`), „Luna, bo tania" i „Sol, bo od GPT-6 kosztuje tyle
+  co Terra" to fałszywe uzasadnienia.
 - **Brief dla Sparka nie może wymagać transkrypcji makiet.** Spark nie ma
   Figma MCP, a w WSL nie ma Node'a ani .NET — dostaje wyłącznie zadania
   opisane w całości tekstem (nazwy, sygnatury, reguły), a lint/test/build po
@@ -220,6 +240,15 @@ Pułapki, które w tym skillu kosztowały najwięcej:
 - **Start każdego subagenta Claude'a to ~58 k tokenów promptu.** Drobiazgi
   (kilka kluczy i18n, dwa rename'y) idą w jednym briefie do jednego
   `mechanik`a, nie w pięciu wywołaniach.
+- **„Astra zawsze, byle na niższym effortcie" to fałszywa oszczędność.**
+  Ok. 80 % kosztu recenzji to czytanie kodu (wejście po cenie Astry, 5×
+  Sola), reasoning ~9 % — Astra `low` (Intelligence Index 45,8) daje poziom
+  Sparka `xhigh` (45,1) za cenę Astry. Jedna recenzja Astry `max` całego
+  PBI #2137 zjadła 66 pkt okna 5 h i 10 % tygodnia Codexa; dlatego raz na
+  feature, na końcu, nie na etap.
+- **Recenzent z tej samej rodziny co autor to nie recenzja.** Spark nie
+  recenzuje kodu Sparka, Sol — kodu Codexa, a Fable nie recenzuje wcale
+  (rodzina Sonneta i Opusa).
 
 ## Faza 3 — Implementacja etapu (linie wykonują, sesja główna waliduje)
 
@@ -227,14 +256,16 @@ Implementację wykonują linie z Fazy 2 wg briefów — **sesja główna nie pis
 kodu**. Jej robota w tej fazie to walidacja dowodów po każdym briefie: diff,
 `npm run lint` / `npm test` / `npm run build` (FE) albo `dotnet build` /
 `dotnet test` (BE), zrzuty 2×2 (360×530 i 1280×720, Light i Dark). Zrzuty
-dostarcza `wykonawca` (ma Playwright MCP) albo Terra (ma Playwright); Spark
+dostarcza `wykonawca` (ma Playwright MCP) albo Codex na przelewie (ma
+Playwright); Spark
 nie ma żadnego MCP i nie uruchomi lint/test/build w WSL — po jego briefie
 całą weryfikację robisz Ty, z rezerwą na 2–3 drobne korekty.
 
 Gdy coś wizualnego po korekcie nadal wygląda źle albo jest tylko przybliżone
 „na oko" (np. odstęp liczony z tokenu paddingu zamiast z realnego renderu),
 **nie zlecasz kolejnej rundy prób i błędów** — zlecasz research właściwej
-techniki (Terra `medium`) i dopiero potem brief korekty z konkretną metodą.
+techniki (Gemini, próba; zapas Sol `medium`) i dopiero potem brief korekty
+z konkretną metodą.
 
 Weryfikacja wizualna zawsze w prawdziwej przeglądarce (dev server), zgodnie
 z CLAUDE.md · FE · Finishing Every Implementation — jsdom/AXE nie dowodzi
@@ -277,10 +308,13 @@ domyślna droga.
 
 ## Faza 4 — Audyt SCSS przed zgłoszeniem gotowości
 
-Zanim zgłosisz zadanie jako gotowe do mojej akceptacji, zlecasz agentowi
-`wykonawca` przegląd **wszystkich zmodyfikowanych plików SCSS** wg poniższych
-kryteriów (brief: lista plików z `git diff --name-only`, kryteria dosłownie,
-raport „co zastąpić / co wydzielić / co zostawić i dlaczego"). Decyzję
+Zanim zgłosisz zadanie jako gotowe do mojej akceptacji, zlecasz **Sparkowi**
+(`xhigh`, próba od 2026-09-23 — wcześniej `wykonawca`) przegląd **wszystkich
+zmodyfikowanych plików SCSS** wg poniższych kryteriów (brief: lista plików
+z `git diff --name-only` — Spark nie uruchamia gita, listę dajesz Ty —
+kryteria dosłownie, zakaz modyfikacji plików, raport „co zastąpić / co
+wydzielić / co zostawić i dlaczego" na stdout; po przebiegu `git status`).
+Gdy raport pominie plik z listy, audyt wraca na `wykonawca`. Decyzję
 o wydzieleniu mixinu albo komponentu podejmujesz Ty, na podstawie raportu —
 nie czytasz sam każdego SCSS. Kryteria:
 
@@ -294,39 +328,75 @@ nie czytasz sam każdego SCSS. Kryteria:
   wygląd — np. ta sama nakładka rozwijanej listy) — osobny współdzielony
   komponent Angulara, nie tylko style.
 
-## Faza 4b — Recenzja niezależna (Codex `sol`, przed bramą)
+## Faza 4b — Recenzja niezależna (przed bramą)
 
-Autor nie recenzuje sam siebie. Po samoaudycie SCSS, a **przed** zgłoszeniem
-gotowości, zlecasz przegląd niescommitowanego diffu recenzentowi z innej
-rodziny modeli niż wykonawca:
+Autor nie recenzuje sam siebie: po samoaudycie SCSS, a **przed**
+zgłoszeniem gotowości, zlecasz przegląd niescommitowanego diffu etapu
+recenzentowi **z innej rodziny modeli niż autor diffu** (reguła 13
+globalnego `CLAUDE.md`):
+
+| Autor diffu                            | Recenzent                                          |
+| -------------------------------------- | -------------------------------------------------- |
+| Spark                                  | Codex `-Mode review`, `gpt-6-sol` `high`; na **próbę** równolegle Gemini `gemini-3.8-flash-high` |
+| Sonnet (`wykonawca`), Codex z przelewu | Spark `xhigh`, brief tylko do odczytu — **próba**  |
+| cały feature wysokiej stawki           | dodatkowo bramka końcowa Astry `max` (niżej)       |
+
+Fable nie recenzuje — ta sama rodzina co Sonnet i Opus.
+
+**Sol:**
 
 ```powershell
 $env:USERPROFILE\.claude\bin\worker-run.ps1 `
   -Engine codex -Mode review `
   -Repo D:\projects\DTCode\ZebraniFE `
-  -Model gpt-5.6-sol -Effort high `
+  -Model gpt-6-sol -Effort high `
   -Title "Recenzja PBI #<numer>"
 ```
 
 (bez `-BriefFile` wrapper sam dokleja `--uncommitted`; dla ZebraniBE `-Repo`
-wskazuje na to repo). Jedna wiadomość Sol na feature; `high` jest tu
+wskazuje na to repo). Jedna wiadomość Sola na etap; `high` jest tu
 świadomym wydatkiem — recenzja to praca, w której reasoning znajduje to,
 czego `medium` nie widzi — a nie darmowym dodatkiem: waga wiadomości
-Codexa rośnie z effortem.
+Codexa rośnie z effortem. Etap mieszany (pliki Sparka i Sonneta): po próbie
+Sol dostaje `-BriefFile` z listą plików Sparka jako instrukcją przeglądu
+(wtedy wrapper nie dokleja `--uncommitted`), a Spark — pliki Sonneta.
 
-**Druga opinia Astry — tylko przy diffie o najwyższej stawce.** Gdy diff
-dotyka uwierzytelniania i sesji, płatności (Stripe), PIN-u sprzedawcy albo
-migracji danych, **po** recenzji Sol zlecasz dodatkowo jedną recenzję
-`gpt-6-astra` na `max` (ta sama komenda, `-Model gpt-6-astra -Effort max`,
-`-Title "Recenzja Astra PBI #<numer>"`). Astra **uzupełnia** Sol, nigdy go
-nie zastępuje, i nigdy nie jest rutyną — to „ostatnie sięgnięcie" z tabeli
-ról (widełki Plusa 5–45 wiadomości / 5 h). Wyłącznie `max`: na AA
-Intelligence Index Astra `max` ma ~53 pkt przy ~3,3 $/zadanie wobec Sol
-`max` ~47 przy ~2 $ — przewagę kupuje się tylko pełnym effortem, a `low`/
-`medium` to cena tokenu Astry bez tej przewagi. Znaleziska obu recenzji
-triażujesz razem (punkt 1 poniżej); w raporcie przed bramą zaznaczasz, co
-znalazła tylko Astra. Kryterium stawki wpisujesz do planu (Faza 1), nie
-decydujesz o nim po fakcie.
+**Spark:** wrapper nie ma dla niego trybu `review`, a Spark nie uruchamia
+gita — diff plików Sonneta (`git diff HEAD -- <pliki>`) i listę nowych plików
+wklejasz do briefu wg szablonu „Recenzja przez Sparka" z `external-workers`;
+`-Repo` to repozytorium, więc Spark czyta `AGENTS.md` i dowolne pliki dla
+kontekstu. Po przebiegu `git status` — recenzja niczego nie zmienia.
+
+**Gemini:** `worker-run.ps1 -Engine gemini` (model domyślny
+`gemini-3.8-flash-high`), brief wg szablonu „Recenzja przez Gemini"
+z `external-workers`: diff plików Sparka wklejony do briefu, **wszystkie
+ścieżki bezwzględne**, `AGENTS.md` wskazany do przeczytania wprost (w trybie
+bez interfejsu nie ładuje się sam), zakaz poleceń powłoki. Uprawnienia
+Antigravity dopuszczają tylko odczyt `D:\projects\DTCode` i stron WWW, więc
+recenzja z definicji niczego nie zmienia.
+
+**Próba (od 2026-09-23):** przez trzy najbliższe etapy Sol recenzuje jak
+dotąd cały diff, a równolegle Spark — pliki Sonneta, Gemini — pliki Sparka.
+Po triażu zapisujesz w pamięci porównanie na tych plikach — wspólne / tylko
+próbowany / tylko Sol, z priorytetem; kryterium przejęcia jest w regule 13.
+
+**Bramka końcowa Astry — raz na feature wysokiej stawki.** Gdy feature
+dotyka uwierzytelniania i sesji, płatności (Stripe), PIN-u sprzedawcy,
+migracji danych, naliczania pieczątek i nagród, jednorazowych kodów albo
+limitów prób, **po** recenzjach etapów i ich poprawkach, a przed bramą
+potwierdzenia, zlecasz jedną recenzję całego niescommitowanego diffu
+feature'a (ta sama komenda, `-Model gpt-6-astra -Effort max`,
+`-Title "Bramka Astra PBI #<numer>"`). Astra **uzupełnia** recenzje etapów,
+nigdy ich nie zastępuje. Wyłącznie `max`: ~80 % kosztu recenzji to czytanie
+kodu, więc niższy effort daje cenę Astry bez jej przewagi (Astra `low` ≈
+Spark `xhigh` w Intelligence Index). Koszt jest realny — bramka całego
+PBI #2137 zjadła 66 pkt okna 5 h i 10 % tygodnia Codexa — i się opłacił:
+po dwóch recenzjach Sola znalazła pięć realnych defektów (podwójny POST,
+pominięte odświeżenie kart, `retryAfterSeconds` poza zakresem, zawieszone
+żądanie po błędzie ładowania nakładki, brak sprawdzenia roli klienta).
+Znaleziska triażujesz razem z recenzjami etapów; w raporcie przed bramą
+zaznaczasz, co znalazła tylko Astra. Kryterium stawki wpisujesz do planu
+(Faza 1), nie decydujesz o nim po fakcie.
 
 Co robisz z wynikiem — **triaż, nie posłuszeństwo** (skill
 `superpowers:receiving-code-review` obowiązuje):
@@ -339,7 +409,7 @@ Co robisz z wynikiem — **triaż, nie posłuszeństwo** (skill
 2. Defekty wracają **do tej samej linii, która pisała kod** (Spark do Sparka,
    `wykonawca` do `wykonawcy`) jako brief korekty — nie łatasz sam. Wyjątek:
    Spark zgłosił limit → korekta na `wykonawca`.
-3. Po korekcie **nie zlecasz drugiej recenzji Sol** — weryfikujesz poprawkę
+3. Po korekcie **nie zlecasz drugiej recenzji** — weryfikujesz poprawkę
    dowodem (diff + lint + testy). Druga runda tylko wtedy, gdy korekta
    dotknęła > ~5 plików albo zmieniła kształt API.
 4. Do raportu przed bramą dołączasz: liczbę znalezisk w każdej klasie
