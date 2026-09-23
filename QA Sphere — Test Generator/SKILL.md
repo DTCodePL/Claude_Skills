@@ -2,16 +2,21 @@
 name: qasphere-test-generator
 description: Generuje kompletny zestaw test case'ów (happy + negative paths, dążąc do 100% pokrycia przypadków użycia) na podstawie wykonanego zadania/feature'a i tworzy je bezpośrednio w QA Sphere — przez serwer MCP `qasphere`, a w środowisku bez MCP przez REST API. Test casy są po polsku, standalone, z pełnymi repro stepami (dane wejściowe, wyjściowe, instrukcje konfiguracji) tak, by wykonała je osoba widząca aplikację pierwszy raz. Skill sam mapuje repozytorium na właściwy projekt w QA Sphere. UŻYWAJ ZAWSZE, gdy user prosi o wygenerowanie test case'ów, pokrycie testowe, "testy do tego feature'a", "pokryj testami", "wrzuć testy do QA Sphere", "test casy z tego co zrobiliśmy" — nawet jeśli nie padnie słowo "skill" ani "QA Sphere" wprost, a kontekstem jest właśnie ukończone zadanie deweloperskie.
 user-invocable: true
-version: 1.3
+version: 1.4
 ---
 
-# QA Sphere — Test Generator (v1.3)
+# QA Sphere — Test Generator (v1.4)
 
 > Kanoniczna, wersjonowana wersja skilla. Źródło prawdy: `DTCodePL/Claude_Skills`.
 > Lokalnie używany jest tylko cienki loader, który pobiera ten plik z GitHuba.
 >
 > **Changelog**
 >
+> - **1.4** — dwie pułapki zmierzone przy pushu PBI #2273 (2026-09-23, `ZEB/751–765` + aktualizacje 525, 693, 709,
+>   729, 749): **blok ```` ``` ```` wewnątrz listy numerowanej ją rozbija** (dalsze pozycje wypadają z `<ol>`, kolejna
+>   lista startuje od „1.") — skrypty idą pod listę, podpisane, a pozycje listy się do nich odwołują (recepta w 4c);
+>   **`update_test_case` odrzuca kroki skopiowane z odczytu** (`unexpected additional properties ["type" "version" "id"
+>   "isLatest"]`) — przed aktualizacją przytnij kroki i precondition do pól wejściowych (Krok 6.4).
 > - **1.3** — transport przeniesiony z `curl`+REST na **serwer MCP `qasphere`** (QA Sphere 26W36
 >   „Osnova"). Kroki 1, 4, 6 i ściąga mówią intencjami narzędzi MCP; nowy **Krok 0** wybiera
 >   transport, a REST zostaje jako **transport zapasowy** dla środowisk bez MCP. Treść przez MCP
@@ -161,6 +166,7 @@ Wykonalne przez osobę, która **pierwszy raz widzi aplikację**. Wszystko po **
 - Akapity i bloki oddzielaj **pojedynczym `\n`** — każdy `\n` to nowy `<p>`. **Pusta linia (`\n\n`) daje pusty akapit `<p></p>`** (zbędny odstęp w podglądzie) — nie używaj jej między akapitami.
 - Listy: `1.` / `-` w kolejnych liniach. **Po ostatniej pozycji listy pusta linia jest konieczna** — bez niej następny akapit wkleja się do ostatniego `<li>` jako `<br>`. Przed listą pojedynczy `\n` wystarcza.
 - Wyróżnienia: `**pogrubienie**` → `<strong>`, `*kursywa*` → `<em>`, `` `kod` `` → `<code>`, blok ```` ``` ```` (pojedynczy `\n` przed i po) → `<pre><code>` — to odpowiednik `<pre>` z v1.2 na dane wieloliniowe (JSON, SQL). Gołe URL-e autolinkują się.
+- **Blok ```` ``` ```` nie może stać wewnątrz listy numerowanej** (zmierzone 2026-09-23 na `ZEB/765`): blok zaraz po pozycji listy zamyka `<ol>`, następna pozycja renderuje się jako zwykły akapit „3. …", a jeszcze następna jako nowa lista od „1.". Skrypty i dane wieloliniowe dawaj **pod listą** (pusta linia po ostatniej pozycji), podpisane — np. „Skrypt **A** — odczyt kodu:" i blok — a w pozycjach listy odwołuj się do nich po podpisie („odczytaj skryptem **A** (poniżej)"). W krokach zamiast bloków używaj `data` z `format`. Kontrola po utworzeniu: `get_test_case(richTextFormat: "html")` — precondition ma **jedną** `<ol>` z kompletem `<li>`.
 - `„"`, `—`, `…` i ogonki przechodzą; `"` wraca w odczycie HTML jako `&#34;` — nieszkodliwe.
 
 Przykład jednego payloadu (Markdown):
@@ -263,6 +269,7 @@ Zanim cokolwiek polecisz do QA Sphere:
    - `5xx` → ponów raz, potem zatrzymaj się i zgłoś, ile utworzono.
 4. **Nie ma narzędzia delete.** Pomyłkę naprawia `update_test_case(projectCode, tcaseOrLegacyId: "<seq>", ...)`:
    - `steps`, `tags`, `requirements`, `links` to **pełna podmiana** — wysyłaj kompletne listy (kroki razem z `data`, inaczej dane przepadną);
+   - **kroki i precondition wzięte z odczytu przytnij do pól wejściowych.** `get_test_case` i `list_test_cases` zwracają w krokach pola tylko do odczytu (`id`, `type`, `version`, `isLatest`), a `update_test_case` odrzuca całe wywołanie: `validating /properties/steps/items: unexpected additional properties ["type" "version" "id" "isLatest"]` (zmierzone 2026-09-23). Krok = `description`, `expected`, `data` (albo samo `sharedStepId`); pozycja `data` = `type`, `text`, `label`, `format`, `url`, `file`; precondition = `{text}` albo `{sharedPreconditionId}`. Walidacja pada **przed** zapisem — nic nie zmienia się częściowo, wystarczy poprawić argumenty i ponowić;
    - `customFields` to merge po kluczach; `title`, `priority`, `precondition` zmieniają się pojedynczo;
    - **nigdy nie wysyłaj `parameterValues`** (dotyczy szablonów; pusta tablica kasuje wygenerowane przypadki) ani `type`;
    - każdy update podbija `version` i nadaje krokom **nowe `id`** — nie opieraj logiki na `id` kroków.
@@ -289,7 +296,7 @@ https://dtcode.eu1.qasphere.com/project/<PROJECT>/tcase/<seq>
 | Utwórz test case                     | `create_test_case(projectCode, folderId, type, title, priority, precondition, steps, tags, requirements?, links?, customFields?)` → `{id, seq}` | `POST /project/{P}/tcase`                                    |
 | Duplikaty / co już jest              | `list_test_cases(projectCode, search?, folders?, tags?, include?: ["path","steps",…], limit ≤ 100)` · `count_test_cases(…)` | `GET /project/{P}/tcase?search=…`                            |
 | Odczyt jednego                       | `get_test_case(projectCode, tcase: "<seq>", richTextFormat?: "html")`                          | `GET /project/{P}/tcase/{seq}`                               |
-| Napraw pomyłkę                       | `update_test_case(projectCode, tcaseOrLegacyId: "<seq>", …)` — pełna podmiana list             | `PATCH /project/{P}/tcase/{seq}` (bez `type`)                |
+| Napraw pomyłkę                       | `update_test_case(projectCode, tcaseOrLegacyId: "<seq>", …)` — pełna podmiana list; kroki z odczytu bez `id`/`type`/`version`/`isLatest` | `PATCH /project/{P}/tcase/{seq}` (bez `type`)                |
 | Wgraj plik (załącznik)               | **brak** — bajty tylko przez REST; przez MCP idzie sama referencja w `steps[].data[].file` (4d) | `POST /file` (multipart, pole `file`) · `POST /file/batch`   |
 | Usuń test case / folder              | **brak** — napraw przez `update_test_case`                                                     | **brak** (`DELETE` → 404)                                    |
 
