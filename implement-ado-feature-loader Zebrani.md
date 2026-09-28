@@ -4,14 +4,16 @@ description: >
   Planowanie i pełna implementacja feature'a / PBI / taska Zebrani.pl na
   podstawie linku lub numeru Azure DevOps — od Plan Mode (z makietami Figmy
   linkowanymi wprost, nie opisywanymi), przez wykonanie w modelu: sesja
-  główna Opus max = architekt, dyspozytor i walidator etapów (sama nigdy
-  nie pisze kodu ani testów — implementacja na poziomie Opusa idzie do
-  subagenta wykonawca-opus) / linie wykonawcze: briefy wysokiej stawki
-  i za trudne dla Sonneta na wykonawca-opus (Opus xhigh, także ich ekrany
-  z Figmy), pozostałe ekrany z Figmy i briefy z kontekstem sesji wyłącznie
-  na wykonawca (Sonnet high), każdy brief bez Figmy i spoza wysokiej stawki
-  na Sparka (xhigh/high, -Access write, bez limitu slotów), w fali resztę
-  także na Gemini (agy, -Access write, nigdy wysoka stawka ani Figma);
+  główna Opus xhigh (od 2026-09-28) = architekt, dyspozytor i walidator
+  etapów (sama nigdy nie pisze kodu ani testów — implementacja na poziomie
+  Opusa idzie do subagenta wykonawca-opus) / linie wykonawcze: pliki niosące
+  niezmiennik wysokiej stawki i briefy za trudne dla Sonneta na wykonawca-opus
+  (Opus xhigh; ekrany, szablony, style i i18n tych funkcji idą na wykonawca),
+  pozostałe ekrany z Figmy i briefy z kontekstem sesji wyłącznie na wykonawca
+  (Sonnet high), każdy brief bez Figmy i spoza wysokiej stawki domyślnie
+  na Sparka i Gemini (xhigh/high, -Access write, bez limitu slotów Sparka;
+  Gemini nigdy wysokiej stawki ani Figmy; Sonnet dostaje tekstowy brief
+  dopiero gdy obie linie są w fali zajęte albo zgłosiły limit);
   research na Sola, Codex w planie tylko do trudnego researchu i bramki
   Astry / recenzent zawsze z innej rodziny niż autor (diff Sparka → Gemini,
   diff Sonneta/Opusa/Codexa/Gemini → Spark, Sol tylko na limit; P0/P1 do
@@ -59,7 +61,7 @@ cat /tmp/implement_ado_feature_zebrani_skill.md
 **2. Wykonaj zadanie ściśle według pobranej treści** — to ona zawiera aktualną
 procedurę faza po fazie:
 
-- **rola sesji głównej** — Opus `max` jako architekt, dyspozytor
+- **rola sesji głównej** — Opus `xhigh` (od 2026-09-28) jako architekt, dyspozytor
   i walidator; sama nigdy nie pisze kodu ani testów (implementacja
   na poziomie Opusa idzie do subagenta `wykonawca-opus`),
 - **Faza 1 — Plan Mode po polsku**: makiety Figmy linkowane, nie opisywane;
@@ -69,17 +71,20 @@ procedurę faza po fazie:
   → `In Progress`, nieadekwatne → `Rejected` z komentarzem, marker zużycia
   tokenów (`token-report.py start`),
 - **Faza 2 — fale i rozdział briefów** w stałej kolejności
-  Claude → Spark → Codex: wysoka stawka i briefy za trudne dla Sonneta
-  na `wykonawca-opus` (Opus xhigh, także ich ekrany z Figmy), pozostałe
-  ekrany z Figmy i briefy z kontekstem sesji wyłącznie na `wykonawca`
-  (Sonnet), każdy brief bez Figmy i spoza wysokiej stawki na Sparka
-  bez limitu slotów, w fali resztę także na Gemini (nigdy wysoka stawka
-  ani Figma); research rutynowy i trudny na Sola, Codex w planie tylko
-  do trudnego researchu i bramki Astry; testy na `tester`, drobiazgi na
+  Claude → Spark → Codex: pliki niosące niezmiennik wysokiej stawki
+  i briefy za trudne dla Sonneta na `wykonawca-opus` (Opus xhigh; ekrany,
+  szablony, style i i18n tych funkcji idą na `wykonawca`), ekrany z Figmy
+  (także wysokiej stawki) i briefy z kontekstem sesji wyłącznie na `wykonawca`
+  (Sonnet, jeden brief = jedna warstwa), każdy brief bez Figmy i spoza wysokiej
+  stawki domyślnie na Sparka bez limitu slotów i na Gemini (nigdy wysoka stawka
+  ani Figma; Sonnet tekstowy brief dopiero gdy obie linie zajęte albo z limitem);
+  research rutynowy i trudny na Sola, Codex w planie tylko
+  do trudnego researchu i bramki Astry (przelew wyłącznie po blokadzie hooka
+  na CZERWONYM albo po limicie Sparka); testy na `tester`, drobiazgi na
   `mechanik`a, fakty z repo od `zwiadowcy`; tory poboczne (Figma,
   dokumentacja, ADO, briefy kolejnej fali) ruszają równolegle, gdy tylko
   decyzja, od której zależą, jest ustalona; bez odczytów `/usage` —
-  linia zmienia się po komunikacie o limicie,
+  procentów pilnuje hook, blokada z hooka to zmiana linii,
 - **Faza 3 — walidacja fal** dowodem (diff, lint/test/build, zrzuty 2×2),
   raz na falę; dla Buga czerwony test → łatka → ten sam test zielony,
 - **Faza 4 / 4b — audyt SCSS** na Sparku (Bootstrap, deduplikacja; próba
