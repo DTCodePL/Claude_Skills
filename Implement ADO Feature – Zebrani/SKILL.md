@@ -26,7 +26,7 @@ description: >
   poda link lub numer Epic/Feature/PBI/Task/Bug
   z Azure DevOps projektu Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie
   i/lub naprawienie go — nawet jeśli nie padnie słowo "skill".
-version: '5.4'
+version: '5.5'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -42,6 +42,12 @@ Ten plik jest **źródłem prawdy** procedury — repozytoria projektu
 `implement-ado-feature-zebrani`, który pobiera tę treść z GitHuba (tak samo
 jak `azure-devops-zebrani` / `fix-devops-bug-zebrani` /
 `qasphere-test-generator`). Zmiany w procedurze rób tutaj, nigdy w loaderze.
+Loader (wzorzec: `implement-ado-feature-loader Zebrani.md`) jest celowo
+**neutralny silnikowo** — nie wymienia silników, modeli ani effortów, bo jego
+streszczenie routingu rozjeżdżało się z tym plikiem przy każdej zmianie
+(2026-09-28: loader w ZebraniFE wciąż mówił „Opus `max`”, „Gemini do
+researchu”, „Codex recenzuje Sparka” i nie znał `wykonawca-opus`). Zmiana
+routingu = ten plik + globalny `~/.claude/CLAUDE.md`; loadera nie ruszasz.
 Skill zakłada, że w repo projektu obowiązuje `.claude/CLAUDE.md` (w ZebraniBE
 kopia jako `AGENTS.md`) — nie duplikuj jego zasad w brifach dla subagentów,
 tylko cytuj/linkuj właściwą sekcję ("a subagent does not inherit project
@@ -109,13 +115,17 @@ Zanim zlecisz jakikolwiek kod, wejdź w Plan Mode i ustal:
   liczba briefów per silnik. Sprawdzian
   przed pokazaniem planu — plan jest zroutowany źle, gdy zachodzi cokolwiek
   z: brief wysokiej stawki (lista w Fazie 4b, pliki niosące niezmiennik)
-  nie idzie na `wykonawca-opus`; ekran z Figmy idzie na kogokolwiek poza
-  `wykonawca` (także ekran funkcji wysokiej stawki);
-  Spark albo Gemini dostały cokolwiek zależnego od Figmy; Gemini dostała
-  brief wysokiej stawki albo research; Codex ma w planie implementację albo
-  coś poza trudnym researchem, recenzją zastępczą i bramką końcową Astry;
-  recenzent któregoś etapu jest z tej samej rodziny co autor diffu.
-  Popraw, zanim go pokażesz.
+  nie idzie na `wykonawca-opus`; `wykonawca-opus` dostał cokolwiek poza
+  plikami niosącymi niezmiennik i briefem za trudnym dla Sonneta (ekran,
+  szablon, styl, i18n, wolumen); ekran z Figmy idzie na kogokolwiek poza
+  `wykonawca` (także ekran funkcji wysokiej stawki); brief tekstowy (bez
+  Figmy, spoza wysokiej stawki) idzie na Sonneta, choć Spark albo Gemini
+  mają w tej fali miejsce; brief obejmuje więcej niż jedną warstwę
+  (reguła 15); Spark albo Gemini dostały cokolwiek zależnego od Figmy;
+  Gemini dostała brief wysokiej stawki albo research; Codex ma w planie
+  implementację albo coś poza trudnym researchem, recenzją zastępczą
+  i bramką końcową Astry; recenzent któregoś etapu jest z tej samej rodziny
+  co autor diffu. Popraw, zanim go pokażesz.
   Nie prosisz o odczyt `/usage` ani nie pilnujesz procentów — robi to hook
   `~/.claude/bin/limity-hook.mjs` (linia `[limity Claude]` przy każdym poleceniu;
   ŻÓŁTY tylko ostrzega, CZERWONY blokuje każdego subagenta Claude'a poza
@@ -197,8 +207,10 @@ po kodzie:
 - **dokumentacja produktowa** (`d:\projects\DTCode\Dokumentacja\Zebrani`,
   osobne repo, własny `AGENTS.md`, `status` w front matter) → Spark albo
   Gemini;
-- **ADO** (nowe taski, komentarze, opisy) → Ty sam albo wykonawca z MCP ADO
-  przy większej porcji;
+- **ADO** (nowe taski, komentarze, opisy) → Ty sam; większa porcja to brief
+  tekstowy → Spark albo Gemini (oba mają MCP ADO od 2026-09-24), agent
+  `wykonawca` tylko wtedy, gdy obie te linie są w fali zajęte albo zgłosiły
+  limit;
 - **briefy kolejnej fali**, które od tej decyzji zależą.
 
 Czekają wyłącznie na decyzję, którą odzwierciedlają — nie na koniec etapu
@@ -265,11 +277,11 @@ bez wklejonego diffu.
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | decyzje, brief, WCAG/tokeny, walidacja dowodów, triaż recenzji, domknięcie ADO                                                                                                                                                                                                                                                                                                                                                        | **sesja główna — Opus `xhigh`** (od 2026-09-28; mózg operacji; nigdy nie pisze kodu ani testów — implementacja na poziomie Opusa idzie do `wykonawca-opus`) |
 | **pliki niosące niezmiennik wysokiej stawki** (uwierzytelnianie i sesja, płatności Stripe, PIN sprzedawcy, migracje danych, naliczanie pieczątek i nagród, jednorazowe kody, limity prób: handlery, walidatory i zapytania BE, migracje; guardy, interceptory, store sesji i logika przepływu FE — ekrany, szablony, style i i18n tych funkcji idą do `wykonawca`) albo **brief za trudny dla Sonneta** (współbieżność, niezmienniki bezpieczeństwa, logika przekrojowa z cichym błędem) — nie wolumen                                                                                                                                                                        | agent **`wykonawca-opus`** (Opus `xhigh`, od 2026-09-25); diff recenzuje Spark                                   |
-| **ekrany z makiet Figmy (także ekrany, szablony, style i i18n funkcji wysokiej stawki) i briefy z kontekstem sesji** — **wyłącznie ta linia**, jeden brief = jedna warstwa (reguła 15); briefy tekstowe (ADO, Playwright, pętla lint/test) tylko wtedy, gdy Spark i Gemini są w tej fali zajęte albo zgłosiły limit; w BE czyta `.claude/CLAUDE.md` (kopia `AGENTS.md`)                                                                                                                                                                                                                                                        | agent **`wykonawca`** (Sonnet `high`) — linia Figmy i kontekstu sesji                                          |
+| **ekrany z makiet Figmy (także ekrany, szablony, style i i18n funkcji wysokiej stawki) i briefy z kontekstem sesji** — **wyłącznie ta linia**, jeden brief = jedna warstwa (reguła 15); briefy tekstowe (ADO, Playwright, pętla lint/test) tylko wtedy, gdy Spark i Gemini są w tej fali zajęte albo zgłosiły limit; w BE czyta `.claude/CLAUDE.md` (kopia `AGENTS.md`)                                                                                                                                                                                                                                                        | agent **`wykonawca`** (Sonnet 5.5 `high`) — linia Figmy i kontekstu sesji                                      |
 | **każdy brief bez Figmy i spoza wysokiej stawki**, ciężki czy lekki. Ciężkie: slice BE w C#, infrastruktura FE (guardy, trasy, interceptory, DTO, store), refaktor przekrojowy, hoisting, audyt (1M). Lekkie: ≤ 5 plików, klucze i18n hurtem, masówka > 10 plików. Od 2026-09-24 z `-Access write` (domyślnie): Node z Windows przez interop (pętla lint/test na własnych plikach) oraz MCP ADO, Playwright, Angular, QA Sphere, Mikrus. **Bez limitu slotów, w fali równolegle** (rozłączne pliki, zakaz gita zmieniającego stan i `npm install` w briefie, osobne wywołania wrappera w tle) | **Spark** `xhigh` (ciężkie) / `high` (lekkie wg gotowej spec)                                                    |
 | **wykonawca w fali** (od 2026-09-24, zostaje) — razem ze Sparkiem domyślna linia briefów tekstowych (od 2026-09-28), w tym weryfikacja w przeglądarce; briefy tekstowe spoza wysokiej stawki, z zapisem i pętlą lint/test natywnie na Windows oraz MCP ADO, Playwright, Angular, QA Sphere, Mikrus; **nigdy brief wysokiej stawki, nigdy Figma** (OAuth nierozwiązany); brief: ścieżki bezwzględne, `AGENTS.md` do przeczytania wprost, szablony w `external-workers` | **Gemini** `agy`, `gemini-3.8-flash-high`, `-Access write`                                                       |
 | **przelew awaryjny** — wyłącznie po blokadzie hooka na CZERWONYM albo po komunikacie o limicie Sparka, nigdy w planie etapu; porcje ≤ 5 plików                                                                                                                                                                                                                                                                                                        | **Codex** `gpt-6-sol` `high` (ciężkie) / `gpt-6-luna` `xhigh` (lekkie, masówka)                                   |
-| speci Vitest / AXE / xunit; czerwony test do Buga                                                                                                                                                                                                                                                                                                                                                                                     | agent **`tester`** (Sonnet `medium`)                                                                             |
+| speci Vitest / AXE / xunit; czerwony test do Buga                                                                                                                                                                                                                                                                                                                                                                                     | agent **`tester`** (Sonnet 5.5 `medium`)                                                                         |
 | klucz i18n × 2, rename, przeniesienie pliku — pojedynczo; masówka w porcjach, gdy Spark zgłosił limit                                                                                                                                                                                                                                                                                                                                                                              | agent **`mechanik`** (Haiku `low`)                                                                               |
 | fakty z repo przed decyzją                                                                                                                                                                                                                                                                                                                                                                                                            | agent **`zwiadowca`** (Haiku `low`, tylko odczyt)                                                                |
 | delegowany audyt kontrastu / fokusu / tokenów                                                                                                                                                                                                                                                                                                                                                                                         | agent **`audytor-a11y`** (Opus `high`)                                                                           |
@@ -298,13 +310,16 @@ build) z rezerwą na 2–3 korekty, potem recenzje krzyżowe. Najwyżej ~4 brief
 na falę. Ocena po 3 etapach: czas etapu, poprawki po walidacji fali
 i defekty z recenzji — per silnik-autor, na brief; gdy briefy Gemini
 wymagają więcej poprawek niż Sparka i Sonneta, przedstawiasz to
-użytkownikowi, zamiast samemu zdejmować linię. Trzy plany, które były
+użytkownikowi, zamiast samemu zdejmować linię. Cztery plany, które były
 zroutowane błędnie:
 Claude tylko plan i testy, Codex 8 ciężkich (2026-09-16); Spark dostał
 ekrany „bo 16 ramek Figmy", których nie widzi, więc architekt musiałby
 przepisać makiety do tekstu, a potem Sonnet naprawiać kod pisany bez lintu
 (2026-09-16); Spark 1 slot na okno, Terra i Luna implementują — Spark stał
-na < 1 % tygodnia, Codex wyczerpywał widełki (2026-09-18, powód tej wersji).
+na < 1 % tygodnia, Codex wyczerpywał widełki (2026-09-18); Opus
+implementował ekrany FE (44 % kosztu `wykonawca-opus`), a Sonnet briefy
+tekstowe, które Spark i Gemini uniosłyby na osobnych pulach — cztery limity
+okna 5 h w trzy dni (2026-09-26…28, powód routingu z 2026-09-28).
 
 Pułapki, które w tym skillu kosztowały najwięcej:
 
@@ -328,7 +343,8 @@ Pułapki, które w tym skillu kosztowały najwięcej:
   (meldujesz to użytkownikowi), briefy tekstowe na Sparka lub Gemini, briefy
   z Figmą na Sola `high` w porcjach ≤ 5 plików (z linkami do makiet zamiast
   MCP, albo czekają, gdy reset jest bliżej niż godzina), testy i mechanika na
-  Lunę `xhigh`;
+  Lunę `xhigh`; **Claude CZERWONY i Spark z limitem** → Sol `medium`
+  w porcjach ≤ 5 plików, reszta czeka na najbliższe okno;
   **Spark zgłasza limit** (błąd wrappera) → jego briefy na Sonneta albo
   `mechanik`a w porcjach; **Codex zgłasza limit** → trudny research i bramka
   Astry czekają; **Gemini zgłasza limit** (albo trzykrotny 503) → jego briefy
@@ -373,6 +389,20 @@ nie subagent Claude'a (reguła 15 — zrzuty stron szybko puchną w kontekście)
 albo Codex na przelewie własnym Playwrightem;
 po briefie wykonawcy całą weryfikację robisz Ty, z rezerwą na 2–3 drobne
 korekty.
+
+**Raport przekazania zamiast raportu końcowego** (reguła 15, strażnik
+kontekstu od 2026-09-28). Hook `~/.claude/bin/kontekst-hook.mjs` każe
+subagentowi Claude'a przy 300 tys. kontekstu (Haiku: 120 tys.) domknąć
+bieżącą jednostkę pracy i oddać raport przekazania, a przy 450 tys. (Haiku:
+160 tys.) nie zaczynać nowej. Taki raport walidujesz jak każdy wynik — diff
+tego, co zrobione — a resztę zlecasz **świeżemu agentowi tej samej linii**:
+pierwotny brief + raport przekazania (decyzje i pułapki dosłownie) + „nie
+powtarzaj zrobionego, zacznij od sprawdzenia stanu poleceniem X”. Nie
+wznawiasz starego agenta przez `SendMessage` — jego długi kontekst to
+właśnie koszt, przed którym chroni strażnik. W ocenie fal liczysz rundy
+korekty briefów z kontynuacją osobno od briefów bez niej. Workerów
+zewnętrznych (Spark, Gemini, Codex) strażnik nie widzi — ich pilnuje podział
+briefu na jedną warstwę.
 
 Gdy coś wizualnego po korekcie nadal wygląda źle albo jest tylko przybliżone
 „na oko" (np. odstęp liczony z tokenu paddingu zamiast z realnego renderu),

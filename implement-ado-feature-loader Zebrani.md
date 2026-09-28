@@ -3,29 +3,18 @@ name: implement-ado-feature-zebrani
 description: >
   Planowanie i pełna implementacja feature'a / PBI / taska Zebrani.pl na
   podstawie linku lub numeru Azure DevOps — od Plan Mode (z makietami Figmy
-  linkowanymi wprost, nie opisywanymi), przez wykonanie w modelu: sesja
-  główna Opus xhigh (od 2026-09-28) = architekt, dyspozytor i walidator
-  etapów (sama nigdy nie pisze kodu ani testów — implementacja na poziomie
-  Opusa idzie do subagenta wykonawca-opus) / linie wykonawcze: pliki niosące
-  niezmiennik wysokiej stawki i briefy za trudne dla Sonneta na wykonawca-opus
-  (Opus xhigh; ekrany, szablony, style i i18n tych funkcji idą na wykonawca),
-  pozostałe ekrany z Figmy i briefy z kontekstem sesji wyłącznie na wykonawca
-  (Sonnet high), każdy brief bez Figmy i spoza wysokiej stawki domyślnie
-  na Sparka i Gemini (xhigh/high, -Access write, bez limitu slotów Sparka;
-  Gemini nigdy wysokiej stawki ani Figmy; Sonnet dostaje tekstowy brief
-  dopiero gdy obie linie są w fali zajęte albo zgłosiły limit);
-  research na Sola, Codex w planie tylko do trudnego researchu i bramki
-  Astry / recenzent zawsze z innej rodziny niż autor (diff Sparka → Gemini,
-  diff Sonneta/Opusa/Codexa/Gemini → Spark, Sol tylko na limit; P0/P1 do
-  obalenia jednym poleceniem), przez audyt SCSS na Sparku, aż po bramę
-  potwierdzenia i domknięcie w ADO (commit/push, statusy tasków
-  deweloperskich, PBI → Ready for tests, przypisanie do testera).
-  Na starcie, po zatwierdzeniu planu, PBI/Bug i taski do wykonania idą na
-  In Progress. Obejmuje też Bugi — test-first: czerwony test, łatka, ten
-  sam test zielony. UŻYWAJ ZAWSZE, gdy user
-  poda link lub numer Epic/Feature/PBI/Task/Bug
-  z Azure DevOps projektu Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie
-  i/lub naprawienie go — nawet jeśli nie padnie słowo "skill".
+  linkowanymi wprost, nie opisywanymi), przez otwarcie w ADO (PBI/Bug
+  i taski do wykonania → In Progress), wykonanie etapami w falach briefów
+  rozdzielanych na linie wykonawcze wg routingu z globalnego CLAUDE.md
+  (sesja główna = architekt, dyspozytor i walidator — nigdy wykonawca),
+  audyt SCSS i recenzję z innej rodziny modeli niż autor diffu, aż po bramę
+  potwierdzenia użytkownika i domknięcie w ADO (commit/push, statusy tasków
+  deweloperskich, PBI → Ready for tests, przypisanie do testera). Obejmuje
+  też Bugi — test-first: czerwony test, łatka, ten sam test zielony. Cienki
+  loader: pełną procedurę pobiera z GitHuba. UŻYWAJ ZAWSZE, gdy user poda
+  link lub numer Epic/Feature/PBI/Task/Bug z Azure DevOps projektu
+  Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie i/lub naprawienie
+  go — nawet jeśli nie padnie słowo "skill".
 user-invocable: true
 version: loader
 language: pl
@@ -45,6 +34,13 @@ fale i rozdział briefów na linie wykonawcze, walidacja fal, audyt SCSS,
 recenzja niezależna, brama potwierdzenia, domknięcie w ADO) jest trzymana
 na GitHubie i to ona jest źródłem prawdy.
 
+**Loader jest celowo neutralny silnikowo** — nie wymienia silników, modeli,
+effortów ani przydziału briefów do linii. Jego streszczenie routingu
+rozjeżdżało się ze źródłem przy każdej zmianie (2026-09-28: kopia w repo
+wciąż mówiła „Opus `max`”, „Gemini do researchu” i nie znała
+`wykonawca-opus`). Routing bierzesz wyłącznie z pobranej treści
+i z globalnego `~/.claude/CLAUDE.md` — nie z tego pliku ani z pamięci.
+
 ## Krok obowiązkowy — pobierz i zastosuj wersję z GitHuba
 
 Zanim zaplanujesz lub zaczniesz implementować jakikolwiek Epic / Feature /
@@ -59,44 +55,11 @@ cat /tmp/implement_ado_feature_zebrani_skill.md
 ```
 
 **2. Wykonaj zadanie ściśle według pobranej treści** — to ona zawiera aktualną
-procedurę faza po fazie:
-
-- **rola sesji głównej** — Opus `xhigh` (od 2026-09-28) jako architekt, dyspozytor
-  i walidator; sama nigdy nie pisze kodu ani testów (implementacja
-  na poziomie Opusa idzie do subagenta `wykonawca-opus`),
-- **Faza 1 — Plan Mode po polsku**: makiety Figmy linkowane, nie opisywane;
-  PrimeNG przed własnym CSS, grid Bootstrapa; enumy zamiast union types;
-  bilans obciążenia silników; dla Buga — test, który udowodni błąd,
-- **Faza 1b — otwarcie w ADO**: PBI/Bug i taski przewidziane do wykonania
-  → `In Progress`, nieadekwatne → `Rejected` z komentarzem, marker zużycia
-  tokenów (`token-report.py start`),
-- **Faza 2 — fale i rozdział briefów** w stałej kolejności
-  Claude → Spark → Codex: pliki niosące niezmiennik wysokiej stawki
-  i briefy za trudne dla Sonneta na `wykonawca-opus` (Opus xhigh; ekrany,
-  szablony, style i i18n tych funkcji idą na `wykonawca`), ekrany z Figmy
-  (także wysokiej stawki) i briefy z kontekstem sesji wyłącznie na `wykonawca`
-  (Sonnet, jeden brief = jedna warstwa), każdy brief bez Figmy i spoza wysokiej
-  stawki domyślnie na Sparka bez limitu slotów i na Gemini (nigdy wysoka stawka
-  ani Figma; Sonnet tekstowy brief dopiero gdy obie linie zajęte albo z limitem);
-  research rutynowy i trudny na Sola, Codex w planie tylko
-  do trudnego researchu i bramki Astry (przelew wyłącznie po blokadzie hooka
-  na CZERWONYM albo po limicie Sparka); testy na `tester`, drobiazgi na
-  `mechanik`a, fakty z repo od `zwiadowcy`; tory poboczne (Figma,
-  dokumentacja, ADO, briefy kolejnej fali) ruszają równolegle, gdy tylko
-  decyzja, od której zależą, jest ustalona; bez odczytów `/usage` —
-  procentów pilnuje hook, blokada z hooka to zmiana linii,
-- **Faza 3 — walidacja fal** dowodem (diff, lint/test/build, zrzuty 2×2),
-  raz na falę; dla Buga czerwony test → łatka → ten sam test zielony,
-- **Faza 4 / 4b — audyt SCSS** na Sparku (Bootstrap, deduplikacja; próba
-  trwa) i **recenzja z innej rodziny niż autor diffu** (diff Sparka →
-  Gemini, diff Sonneta/Opusa/Codexa/Gemini → Spark, Sol tylko gdy właściwy
-  recenzent ma limit; przy feature'ze wysokiej stawki bramka końcowa Astry)
-  z triażem, nie posłuszeństwem,
-- **Faza 5 — brama potwierdzenia**: stop i czekanie na decyzję usera,
-- **Faza 6 — domknięcie**: commit/push z numerem PBI, taski deweloperskie
-  → `Done`/`Rejected`, komentarz pieczętujący Buga, PBI/Bug → `Ready for
-  tests`, przypisanie do testera, raport zużycia tokenów per silnik i model
-  (`token-report.py report`).
+procedurę faza po fazie: rolę sesji głównej, Fazę 1 (Plan Mode po polsku,
+z kontrolą routingu planu), 1b (otwarcie w ADO), 2 (fale i rozdział
+briefów), 3 (walidacja fal; dla Buga test-first), 4 / 4b (audyt SCSS
+i recenzja niezależna), 5 (brama potwierdzenia) i 6 (domknięcie w ADO
+i raport zużycia tokenów).
 
 **3. Obsługa błędu pobierania** — jeśli `curl` zwróci 404, nie ma sieci albo plik
 jest pusty/niepoprawny:
@@ -107,4 +70,7 @@ jest pusty/niepoprawny:
 
 > ⚠️ Nie utrzymuj logiki zadań w tym pliku i nie próbuj go „aktualizować"
 > lokalnie. Wszystkie zmiany w procedurze rób w repozytorium na GitHubie —
-> loader zawsze pobierze najnowszą wersję.
+> loader zawsze pobierze najnowszą wersję. Wzorzec loadera:
+> `Claude_Skills/implement-ado-feature-loader Zebrani.md`; kopie
+> w `ZebraniFE` i `ZebraniBE` (`.claude/skills/implement-ado-feature-zebrani/SKILL.md`)
+> są z nim identyczne bajt w bajt.
