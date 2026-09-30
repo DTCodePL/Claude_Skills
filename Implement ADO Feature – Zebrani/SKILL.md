@@ -26,7 +26,7 @@ description: >
   poda link lub numer Epic/Feature/PBI/Task/Bug
   z Azure DevOps projektu Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie
   i/lub naprawienie go — nawet jeśli nie padnie słowo "skill".
-version: '5.7'
+version: '5.8'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -293,6 +293,12 @@ Sparka na Gemini (reguła 13, stan po rozstrzygnięciu z 2026-09-23);
 audyt SCSS na Sparka (próba trwa). O `/usage` nie prosisz i procentów nie
 pilnujesz — robi to hook (reguła 2); dla Sparka, Codexa i Gemini sygnałem
 jest błąd limitu z wrappera.
+
+Liczby do doboru modeli (Intelligence Index, Coding Index, ceny) bierzesz
+z API Artificial Analysis: `GET https://artificialanalysis.ai/api/v2/data/llms/models`,
+nagłówek `x-api-key: aa_BfuEueOGzcOvOENaiuiavHwaGvVNhrYK` — każdy effort to
+osobny rekord (rekord bez przyrostka = `max`), koszt zadania indeksu tylko na
+stronie modelu (`artificialanalysis.ai/models/<slug>`).
 
 Brief krótki = tani (reguła 15, od 2026-09-28 — 54–81 % kosztu każdej linii
 Claude'a to ponowne czytanie kontekstu przy każdym wywołaniu narzędzia):
