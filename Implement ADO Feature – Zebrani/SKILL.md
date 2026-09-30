@@ -26,7 +26,7 @@ description: >
   poda link lub numer Epic/Feature/PBI/Task/Bug
   z Azure DevOps projektu Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie
   i/lub naprawienie go — nawet jeśli nie padnie słowo "skill".
-version: '5.9'
+version: '5.10'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -377,8 +377,9 @@ Pułapki, które w tym skillu kosztowały najwięcej:
   albo czekają, krytyczny przechodzi ze znacznikiem `[konieczny: powód]`
   (meldujesz to użytkownikowi), briefy tekstowe na Sparka lub Gemini, briefy
   z Figmą na Sola `high` w porcjach ≤ 5 plików (z linkami do makiet zamiast
-  MCP, albo czekają, gdy reset jest bliżej niż godzina), testy i mechanika na
-  Lunę `xhigh`; **Claude CZERWONY i Spark z limitem** → Sol `medium`
+  MCP, albo czekają, gdy reset jest bliżej niż godzina), testy na Sola
+  `low` (Luna jest poniżej Sonneta 5.5 `medium`), mechanika na Lunę `xhigh`;
+  **Claude CZERWONY i Spark z limitem** → Sol `medium`
   w porcjach ≤ 5 plików, reszta czeka na najbliższe okno;
   **Spark zgłasza limit** (błąd wrappera) → jego briefy na Sonneta albo
   `mechanik`a w porcjach; **Codex zgłasza limit** → trudny research i bramka
