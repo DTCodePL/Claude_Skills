@@ -26,7 +26,7 @@ description: >
   poda link lub numer Epic/Feature/PBI/Task/Bug
   z Azure DevOps projektu Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie
   i/lub naprawienie go — nawet jeśli nie padnie słowo "skill".
-version: '5.6'
+version: '5.7'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -87,10 +87,37 @@ więcej niż robota. `xhigh` sesji (od 2026-09-28 — `max` to przerost formy na
 treścią) jest po to, żeby decyzje i walidacja były najlepsze w całym łańcuchu
 — nie po to, żeby tym effortem pisać komponenty.
 
+## Dokumentacja produktowa — źródło prawdy, nigdy pomijana
+
+Dokumentacja produktowa (`d:\projects\DTCode\Dokumentacja\Zebrani`) jest
+**źródłem prawdy (SoT)** zachowania, napisów, reguł biznesowych i decyzji
+Zebrani.pl. Kod, testy, przypadki QA Sphere i makiety idą za nią — nigdy
+odwrotnie. **Nie wolno o niej zapomnieć ani jej pominąć w żadnym zadaniu**,
+także w refaktorze i w Bugu:
+
+- **Faza 1** — plan ma obowiązkowy punkt „Dokumentacja”: dokumenty, z których
+  wynika zakres (id, ścieżka, `status`), i każda zmiana dokumentacji, której
+  zadanie wymaga — albo wprost „bez zmian” z uzasadnieniem. Plan bez tego
+  punktu jest niekompletny.
+- **Fazy 2–4** — każda decyzja, która zmienia zachowanie, napis albo regułę
+  albo rozstrzyga coś, czego dokument nie mówi, trafia do dokumentacji w tym
+  samym zadaniu (tor poboczny tej samej fali). Dokument `zatwierdzony`
+  zmieniasz datowaną rewizją zatwierdzoną przez właściciela. Zachowanie
+  zastane w kodzie, którego dokument nie opisuje albo któremu przeczy,
+  dopisujesz tak samo albo zgłaszasz właścicielowi do rozstrzygnięcia —
+  nigdy nie przemilczasz.
+- **Faza 5** — raport bramy ma punkt „Dokumentacja”: co zmieniono (plik,
+  sekcja) albo dlaczego bez zmian.
+- **Faza 6** — dokumentacja idzie commitem do repo `Dokumentacja` razem
+  z kodem, z numerem PBI/Buga w gałęzi i w commicie. **Zadanie
+  z nieaktualną dokumentacją nie jest skończone** — nie zamykasz go w ADO.
+
 ## Faza 1 — Plan (Plan Mode, po polsku)
 
 Zanim zlecisz jakikolwiek kod, wejdź w Plan Mode i ustal:
 
+- **Dokumentacja (źródło prawdy)** — punkt obowiązkowy planu, patrz sekcja
+  „Dokumentacja produktowa — źródło prawdy, nigdy pomijana”.
 - **Makiety z Figmy.** Pobierz makiety pod linkami podanymi w opisie PBI i w
   planie odwołuj się do nich linkami/node-id, nigdy własnym opisem "na oko"
   — UI ma być 1:1 zgodne z Figmą. Do rzeczy, których Figma nie pokazuje
@@ -206,7 +233,8 @@ po kodzie:
 - **makiety w Figmie** → `wykonawca` (ma Figma MCP; Spark i Gemini nie);
 - **dokumentacja produktowa** (`d:\projects\DTCode\Dokumentacja\Zebrani`,
   osobne repo, własny `AGENTS.md`, `status` w front matter) → Spark albo
-  Gemini;
+  Gemini; **obowiązkowo przy każdej zmianie zachowania, napisu, reguły albo
+  decyzji** — to źródło prawdy, nigdy pomijane;
 - **ADO** (nowe taski, komentarze, opisy) → Ty sam; większa porcja to brief
   tekstowy → Spark albo Gemini (oba mają MCP ADO od 2026-09-24), agent
   `wykonawca` tylko wtedy, gdy obie te linie są w fali zajęte albo zgłosiły
@@ -577,6 +605,10 @@ Po zakończeniu implementacji **ZATRZYMAJ SIĘ i czekaj na moje potwierdzenie**.
 Nie ruszaj statusów w ADO (poza `In Progress` z Fazy 1b, które już stoi) ani
 nie commituj samodzielnie na tym etapie.
 
+Raport bramy zawiera punkt **„Dokumentacja”**: zmienione pliki i sekcje
+dokumentacji produktowej albo uzasadnienie „bez zmian”. Bez niego brama
+nie jest gotowa.
+
 - Jeśli zgłoszę poprawki → wprowadź je → wróć do tej samej bramy.
 - Jeśli potwierdzę, że jest OK → przejdź do Fazy 6.
 
@@ -585,7 +617,9 @@ nie commituj samodzielnie na tym etapie.
 Wykonaj w tej kolejności:
 
 1. **Commit i push** na `main` — numer PBI w branchu i w commicie
-   (CLAUDE.md · Git Workflow). `git add` **jawnie, tylko pliki z briefów
+   (CLAUDE.md · Git Workflow). Dokumentację produktową commitujesz
+   i pushujesz w tym samym kroku w repo `Dokumentacja` — nigdy „później”.
+   `git add` **jawnie, tylko pliki z briefów
    tego zadania** — w drzewie bywa cudza praca w toku z równoległej sesji,
    nigdy `git add -A`.
 2. **Statusy tasków deweloperskich** PBI (FE/BE/DB itd. — nie Manual
