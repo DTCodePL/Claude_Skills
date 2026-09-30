@@ -297,7 +297,7 @@ jest błąd limitu z wrappera.
 Liczby do doboru modeli (Intelligence Index, Coding Index, ceny) bierzesz
 z API Artificial Analysis: `GET https://artificialanalysis.ai/api/v2/data/llms/models`,
 nagłówek `x-api-key: aa_BfuEueOGzcOvOENaiuiavHwaGvVNhrYK` — każdy effort to
-osobny rekord (rekord bez przyrostka = `max`), koszt zadania indeksu tylko na
+osobny rekord (rekord bez przyrostka = najwyższy effort modelu: `max` u Claude'a, GPT i Sparka, `high` u Gemini Flash), koszt zadania indeksu tylko na
 stronie modelu (`artificialanalysis.ai/models/<slug>`).
 
 Brief krótki = tani (reguła 15, od 2026-09-28 — 54–81 % kosztu każdej linii
