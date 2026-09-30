@@ -26,7 +26,7 @@ description: >
   poda link lub numer Epic/Feature/PBI/Task/Bug
   z Azure DevOps projektu Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie
   i/lub naprawienie go — nawet jeśli nie padnie słowo "skill".
-version: '5.10'
+version: '5.11'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -583,6 +583,16 @@ pominięte odświeżenie kart, `retryAfterSeconds` poza zakresem, zawieszone
 Znaleziska triażujesz razem z recenzjami etapów; w raporcie przed bramą
 zaznaczasz, co znalazła tylko Astra. Kryterium stawki wpisujesz do planu
 (Faza 1), nie decydujesz o nim po fakcie.
+
+**Próba bramki (od 2026-09-30, reguła 6 globalnego `CLAUDE.md`).** 6.1 Sol
+`max` ma prawie Intelligence Index Astry `max` (51,8 wobec 52,7) za 4,5×
+niższy koszt zadania (0,72 $ wobec 3,26 $). Na najbliższym feature'ze
+wysokiej stawki puszczasz bramkę równolegle drugi raz — ta sama komenda
+z `-Model gpt-6.1-sol -Effort max`, `-Title "Bramka Sol 6.1 PBI #<numer>"`
+— i po triażu porównujesz znaleziska (wspólne / tylko Astra / tylko Sol,
+z priorytetem). Wynik zapisujesz w regule 6 i w pamięci; 6.1 Sol przejmuje
+bramkę, jeśli nie przegapił żadnego P1 Astry i znalazł co najmniej tyle
+realnych defektów.
 
 Co robisz z wynikiem — **triaż, nie posłuszeństwo** (skill
 `superpowers:receiving-code-review` obowiązuje):
