@@ -26,7 +26,7 @@ description: >
   poda link lub numer Epic/Feature/PBI/Task/Bug
   z Azure DevOps projektu Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie
   i/lub naprawienie go — nawet jeśli nie padnie słowo "skill".
-version: '5.11'
+version: '5.14'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -168,6 +168,10 @@ Zanim zlecisz jakikolwiek kod, wejdź w Plan Mode i ustal:
   tylko w przeglądarce), plik i nazwę, dokładne kroki odtworzenia zamienione
   na asercje oraz oczekiwany wynik po naprawie. Bez tego punktu plan buga jest
   niekompletny — patrz Faza 3, „Bug: test first”.
+- **SemVer i dostępność (komentarz z Fazy 6).** Dla każdego zmienionego repo
+  aplikacji: wybrany bump (`major` / `minor` / `patch` / `none`),
+  jednozdaniowe uzasadnienie z diffa oraz para stare→nowe z podglądu skryptu.
+  Numeru nie zgadujesz — arytmetykę liczy skrypt.
 
 ## Faza 1b — Otwarcie w ADO (po zatwierdzeniu planu, przed pierwszym briefem)
 
@@ -486,6 +490,19 @@ koloru) to wyjątek do **zgłoszenia i uzasadnienia** w planie — wtedy dowodem
 są zrzuty BEFORE/AFTER w macierzy 2×2 z `fix-devops-bug-zebrani`, ale nie
 domyślna droga.
 
+## SemVer — niezależne wersje FE/BE (od 5.12, korekta 5.13)
+
+Każde zmienione repo aplikacji (`ZebraniFE`, `ZebraniBE`) dostaje w tym zadaniu niezależny bump SemVer. Poziom wybierasz Ty na podstawie faktycznego diffa, nigdy wyłącznie po typie work itemu w ADO: `major` — breaking contract / usunięte publiczne zachowanie; `minor` — kompatybilna nowa funkcja; `patch` — fix, security, performance, refaktor/build zmieniający artefakt; `none` — sama dokumentacja/testy bez zmian artefaktu. Z całej zmiany bierzesz najwyższy poziom. Uzasadnienie (poziom + które zmiany go wymuszają) wpisujesz do planu (Faza 1) i raportu bramy (Faza 5); o decyzję pytasz tylko przy rzeczywiście niejasnej kompatybilności — nigdy rutynowo o numer.
+
+Arytmetykę liczy deterministyczny skrypt stdlib (kwalifikacja semantyczna jest Twoja — skrypt nie wykrywa breaking change z diffa): `scripts/release_version.py` — pełna lokalna ścieżka Windows: `D:\projects\DTCode\Claude_Skills\Implement ADO Feature – Zebrani\scripts\release_version.py` (w briefach i wywołaniach podawaj zawsze pełną, żeby uruchomienie z cwd repo aplikacji nie było niejednoznaczne) — `--repo` absolutny katalog `--work-item` numer `--bump major|minor|patch|none` [`--initial X.Y.Z`] [`--write`]; bez `--write` tylko podgląd, nic nie zmienia.
+
+- Źródło: `version.json` (`{"version":"X.Y.Z","lastRelease":{"workItem":2290,"baseVersion":"X.Y.Z","bump":"minor"}}`; strikt `X.Y.Z` bez zer wiodących, bez prerelease/build). Brak `version.json` w istniejącym repo to jednorazowe ustalenie `--initial` — honoruj już podaną decyzję startową (FE/BE: `1.0.0`); inicjalizacja zapisuje pierwsze wydanie tego work itemu (`version`=base, `bump:"none"`, `initialized:true`), a powtórzenie tego samego work itemu z dowolnym bumpem zostaje przy tej wersji, bez dodatkowego bumpa. Inny work item gubi `initialized` i bumpuje normalnie od bieżącej wersji.
+- Powtórzenie tego samego PBI (poza markerem inicjalizującym) przelicza od `baseVersion` (upgrade patch→minor/major przed wydaniem możliwy, downgrade nigdy); inne PBI startuje od bieżącej wersji. `none` nie rusza markera ani plików. Niespójny lub nieprawidłowy zapis to błąd bez zapisu.
+- Idempotencja PBI chroni przygotowanie przed wydaniem: po opublikowaniu wersji każda dalsza zmiana artefaktu wymaga nowego wydania / nowego work itemu, nigdy nadpisania opublikowanego `X.Y.Z`. Przed wydaniem zwaliduj aktualną bazę repo i rozbieżności równoległej pracy — bez automatycznego zgadywania konfliktów. Skrypt nie sprawdza zdalnego opublikowania.
+- FE: `package.json` + `package-lock.json` (top `version` i `packages[""].version`); BE: jawny `<Version>X.Y.Z</Version>` w pierwszym `PropertyGroup` w `ZebraniBE/ZebraniBE.csproj`, bez ruszania `PackageReference Version` i reszty XML. Niepoprawny XML, warunkowy pierwszy `PropertyGroup`, warunkowy `<Version>`, wiele `<Version>` albo `<Version>` poza pierwszym `PropertyGroup` to błąd bez zapisu. Repo rozpoznane po plikach; brak albo niejednoznaczność to błąd. Zapis atomowy pojedynczych plików — to nie transakcja FS, więc skrypt weryfikuje każdy plik po zapisie. Bez gita, tagów i `npm`.
+- Kolejność: podgląd po stabilizacji zakresu, zapis **przed** quality gates i końcową bramą, przez delegowanego wykonawcę (brief tekstowy na domyślnej linii — sesja główna nie pisze). Wersja, bump, ID PBI i manifesty muszą opisywać ten sam artefakt; pliki wersji wchodzą do commita Fazy 6 jak reszta plików zadania. Brak zgody na commit/push nie blokuje lokalnego przygotowania wersji.
+- Deploy/restart/rollback nie robią bumpa; rollback pokazuje wersję obrazu. Numeru tego skilla tym narzędziem nie podbijasz.
+
 ## Faza 4 — Audyt SCSS przed zgłoszeniem gotowości
 
 Zanim zgłosisz zadanie jako gotowe do mojej akceptacji, zlecasz **Sparkowi**
@@ -623,8 +640,11 @@ Nie ruszaj statusów w ADO (poza `In Progress` z Fazy 1b, które już stoi) ani
 nie commituj samodzielnie na tym etapie.
 
 Raport bramy zawiera punkt **„Dokumentacja”**: zmienione pliki i sekcje
-dokumentacji produktowej albo uzasadnienie „bez zmian”. Bez niego brama
-nie jest gotowa.
+dokumentacji produktowej albo uzasadnienie „bez zmian” — oraz punkt
+**„SemVer”**: bump z uzasadnieniem i pary stare→nowe per zmienione repo
+(z podglądu/zapisu skryptu). Gdy commit/push nie jest autoryzowany, raport
+niesie też gotowy tekst komentarza dostępności (wypełniony szablon z Fazy 6,
+pkt 4) — bez ogłaszania publikacji. Bez tych punktów brama nie jest gotowa.
 
 - Jeśli zgłoszę poprawki → wprowadź je → wróć do tej samej bramy.
 - Jeśli potwierdzę, że jest OK → przejdź do Fazy 6.
@@ -636,6 +656,10 @@ Wykonaj w tej kolejności:
 1. **Commit i push** na `main` — numer PBI w branchu i w commicie
    (CLAUDE.md · Git Workflow). Dokumentację produktową commitujesz
    i pushujesz w tym samym kroku w repo `Dokumentacja` — nigdy „później”.
+   Do commita wchodzą jawnie także pliki wersji z procedury SemVer:
+   `version.json` oraz manifesty zmienionych repo (FE: `package.json`
+   i `package-lock.json`; BE: `ZebraniBE/ZebraniBE.csproj`) — jak reszta
+   plików zadania.
    `git add` **jawnie, tylko pliki z briefów
    tego zadania** — w drzewie bywa cudza praca w toku z równoległej sesji,
    nigdy `git add -A`.
@@ -675,17 +699,60 @@ Wykonaj w tej kolejności:
    zaszedł wyjątek z Fazy 3 (błąd niełapalny testem), komentarz mówi to
    wprost i niesie zrzuty BEFORE/AFTER zamiast wyniku testu.
 
-4. **Stan PBI / Buga → "Ready for tests".** Przed zapisem zweryfikuj dokładną
+4. **Komentarz dostępności wersji — obowiązkowy, do SAMEGO PBI albo Buga,
+   po autoryzowanym commicie/pushu, PRZED zmianą stanu na `Ready for tests`.**
+   Dla Buga nie piszesz drugiego komentarza — sekcję dostępności dopisujesz
+   do komentarza pieczętującego z pkt 3. Bez autoryzacji commit/push NIE
+   ogłaszasz publikacji ani NIE wysyłasz tego komentarza — wypełniony szablon
+   odkładasz do raportu bramy (Faza 5). Bram autoryzacji ten punkt nie zmienia.
+
+   Szablon — pola w `<…>` to placeholdery do wypełnienia danymi tego zadania,
+   NIE gotowe fakty:
+
+   ```text
+   Dostępność funkcji / poprawki:
+   - FE: od <SemVer zawierający zmianę>; commit <pełny SHA>.
+   - BE: od <SemVer zawierający zmianę>; commit <pełny SHA>.
+   Weryfikacja PRE — <czas odczytu UTC>:
+   - FE wdrożony: <SemVer + SHA + build/run> albo "niezweryfikowane / niewdrożone".
+   - BE wdrożony: <SemVer + SHA + build/run> albo "niezweryfikowane / niewdrożone".
+   - Odczyt: https://pre.zebrani.pl/version.json i https://pre.zebrani.pl/api/version; w UI pasek/stopka FE · BE (dopiero gdy endpointy/UI istnieją — przed ich implementacją jawnie brak mechanizmu).
+   - Warunek rozpoczęcia retestu: live zawiera commit funkcji/fix po obu wymaganych stronach; numer i commit porównane do komentarza; FE w otwartej karcie może być starszy niż aktualny endpoint — odświeżyć i sprawdzić wersję ZAŁADOWANEGO FE.
+   ```
+
+   Zasady wypełniania:
+
+   - Wersję dostępności bierzesz z `version.json` COMMITOWANEGO/wybudowanego
+     artefaktu, nigdy z bieżącego lokalnego HEAD po dalszych zmianach.
+     Zmieniona strona dostaje zawsze konkretny nowy numer. Jawnie rozróżniasz
+     wersję zawierającą zmianę od wersji LIVE.
+   - Strona niezmieniona w tym zadaniu: „bez zmian w tym zadaniu; wymagana
+     `<potwierdzona wersja kontraktu>`" — tylko gdy wersja kontraktu jest
+     naprawdę ustalona; w przeciwnym razie „bez zmian w tym zadaniu; wersja
+     bazowa nieustalona". Nigdy nie wymyślasz nowego numeru ani „dowolna".
+   - Samo `SemVer live >= docelowej` to NIE dowód dostępności (inne branche,
+     rollback, rebuild, różna historia). Dowodem jest dokładny docelowy SHA
+     albo zweryfikowane zawieranie docelowego commita przez live SHA
+     (ancestry) + zgodność manifestu z artefaktem. Bez weryfikacji ancestry
+     wpisujesz „dostępność niepotwierdzona", nigdy PASS.
+   - Brak deployu albo odczyt niepotwierdzający nowej pary NIE blokuje
+     `Ready for tests` (po autoryzacji, wg dotychczasowego procesu) — ale
+     komentarz mówi wprost, że retest jest zablokowany do wdrożenia.
+     Automatycznego deployu nie dodajesz ani nie domagasz się uprawnień do niego.
+   - Wersje FE/BE są niezależne i mogą się różnić — tester porównuje
+     wymagania osobno, per strona.
+
+5. **Stan PBI / Buga → "Ready for tests".** Przed zapisem zweryfikuj dokładną
    nazwę stanu dla typu work itemu (`Task`, `Product Backlog Item` i `Bug`
    mogą się różnić) przez `mcp__azure-devops__wit_work_item`
    `action: get_type`, żeby nie trafić błędem API na literówkę w nazwie stanu.
-5. **Przypisanie PBI / Buga** (`System.AssignedTo`) na testera — **Piotr
+6. **Przypisanie PBI / Buga** (`System.AssignedTo`) na testera — **Piotr
    Tuński**, `Piotr.Tunski@DTCode.pl`.
-6. Zmiany 2, 4 i 5 rób przez `mcp__azure-devops__wit_work_item_write`
+7. Zmiany 2, 5 i 6 rób przez `mcp__azure-devops__wit_work_item_write`
    `action: update_batch`, jednym wywołaniem na wszystkie PBI/taski naraz,
    gdzie to możliwe. **Zweryfikuj przez zwróconą treść odpowiedzi API** —
    deklaracja sukcesu nie jest dowodem, dopiero zwrócony stan pola jest.
-7. **Raport zużycia tokenów — ostatnia rzecz w komunikacie końcowym.**
+8. **Raport zużycia tokenów — ostatnia rzecz w komunikacie końcowym.**
    Uruchom `python $env:USERPROFILE\.claude\bin\token-report.py report --task <numer>`
    i wklej obie tabele bez zmian (per silnik → per model → sumy; szczegóły
    per rola/brief) wraz ze stopką. Raport liczy z zapisów na dysku
