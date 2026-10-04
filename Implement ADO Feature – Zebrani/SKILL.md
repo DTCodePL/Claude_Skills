@@ -18,7 +18,7 @@ description: >
   poda link lub numer Epic/Feature/PBI/Task/Bug z Azure DevOps projektu
   Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie i/lub naprawienie go
   — nawet jeśli nie padnie słowo "skill".
-version: '5.16'
+version: '5.17'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -167,7 +167,8 @@ Zanim zlecisz jakikolwiek kod, wejdź w Plan Mode i ustal:
 - **Scenariusz weryfikacji w przeglądarce** (`browser-check`, od 5.16):
   plik JSON w scratchpadzie sesji — specyfikacja odbioru, którą piszesz
   w planie jak kryteria akceptacji, nie test w repo produktu (E2E prowadzi
-  kto inny); nie zastępuje czerwonego testu Buga z Fazy 3. `matrix`: trasy
+  kto inny); nie zastępuje czerwonego testu Buga z Fazy 3, poza jej
+  wyjątkiem przeglądarkowym. `matrix`: trasy
   zmienione przez feature × 360×530 i 1280×720 × Light/Dark, z `waitFor`
   na elemencie gotowości. `flows` (opcjonalnie, 2–5 przejść): cel
   nazywający drogę słowami interfejsu (Jev czyta dosłownie), `forbidden`
@@ -181,10 +182,13 @@ Zanim zlecisz jakikolwiek kod, wejdź w Plan Mode i ustal:
   co najwyżej ekran bez akcji nieodwracalnej. Feature bez zmian UI:
   scenariusz pomijasz z uzasadnieniem w planie.
 - **Gdy work item to Bug**, plan ma dodatkowo wskazać **test, który udowodni
-  błąd**: jego rodzaj (spec Vitest / test xunit / Playwright, gdy błąd widać
-  tylko w przeglądarce), plik i nazwę, dokładne kroki odtworzenia zamienione
-  na asercje oraz oczekiwany wynik po naprawie. Bez tego punktu plan buga jest
-  niekompletny — patrz Faza 3, „Bug: test first”.
+  błąd**: jego rodzaj (spec Vitest / test xunit — nigdy test E2E w kodzie
+  repo), plik i nazwę, dokładne kroki odtworzenia zamienione na asercje oraz
+  oczekiwany wynik po naprawie. Błąd widoczny wyłącznie w prawdziwej
+  przeglądarce dowodzisz odtworzeniem Playwrightem (artefakt sesji, nie test
+  w kodzie) — wyjątek przeglądarkowy z Fazy 3; plan wskazuje wtedy jego
+  wariant (interaktywny / czysto wizualny). Bez tego punktu plan buga jest niekompletny —
+  patrz Faza 3, „Bug: test first”.
 - **SemVer i dostępność (komentarz z Fazy 6).** Dla każdego zmienionego repo
   aplikacji: wybrany bump (`major` / `minor` / `patch` / `none`),
   jednozdaniowe uzasadnienie z diffa oraz para stare→nowe z podglądu skryptu.
@@ -538,8 +542,9 @@ Gdy work item to **Bug**, kolejność jest obowiązkowa i niezmienna:
 1. **Najpierw test, który udowadnia błąd — osobny brief testowy.**
    Wykonawcę i recenzenta kwalifikujesz i wybierasz wg Fazy 2 (nazwany
    `tester` pozostaje kandydatem z własnym modelem i effortem).
-   Zautomatyzowany test (spec Vitest / test xunit; Playwright tylko wtedy,
-   gdy błąd jest widoczny wyłącznie w prawdziwej przeglądarce) odtwarzający
+   Zautomatyzowany test (spec Vitest / test xunit; **nigdy test E2E
+   Playwright w kodzie repo** — E2E prowadzi kto inny, decyzja użytkownika
+   z 2026-10-04; błąd widoczny tylko w przeglądarce → wyjątek niżej) odtwarzający
    dokładnie scenariusz ze zgłoszenia i asertujący **zachowanie poprawne**.
    Tester uruchamia go na kodzie bez poprawki — **musi być czerwony**, i to
    z powodu buga, nie z powodu literówki w teście czy brakującego providera —
@@ -564,10 +569,37 @@ Gdy work item to **Bug**, kolejność jest obowiązkowa i niezmienna:
    pieczętującego Buga w ADO (Faza 6, pkt 3).
 
 Nigdy jeden brief „napisz test i napraw" — to dwa briefy do dwóch linii,
-a Ty porównujesz oba wyniki, nie deklarację. Błąd niemożliwy do złapania żadnym testem (np. czysto wizualny odcień
-koloru) to wyjątek do **zgłoszenia i uzasadnienia** w planie — wtedy dowodem
-są zrzuty BEFORE/AFTER w macierzy 2×2 z `fix-devops-bug-zebrani`, ale nie
-domyślna droga.
+a Ty porównujesz oba wyniki, nie deklarację.
+
+**Wyjątek przeglądarkowy.** Błąd, którego nie złapie spec Vitest ani test
+xunit (widoczny wyłącznie w prawdziwej przeglądarce), **zgłaszasz
+i uzasadniasz** w planie. Dowodem jest wtedy odtworzenie w przeglądarce
+Playwrightem — artefakt sesji, nie test w kodzie — z tymi samymi
+gwarancjami co test:
+
+- **Dwie ręce.** Dowód BEFORE/AFTER i łatka to osobne briefy dla różnych
+  wykonawców; autor łatki nie wykonuje ani nie edytuje dowodu. Łatka powstaje
+  dopiero po przyjętym BEFORE.
+- **Błąd interaktywny** (nakładka, nawigacja, formularz): scenariusz
+  `browser-check` z Fazy 1 z asercją zachowania poprawnego, uruchamiany przez
+  Ciebie. Za BEFORE uznajesz wyłącznie `FAIL` / `MAX_STEPS` — niespełnioną
+  asercję ze spisanym `actual`; każdy inny status lub powód (`TIMEOUT`,
+  `OFF_ORIGIN`, `ACTION_ERROR`, `ERROR`, `NEED_FALLBACK`, `LOOP`), błąd
+  logowania i `artifactError` to wada przebiegu, nie dowód.
+  AFTER to PASS z `passedWithoutActions: false` na **niezmienionym**
+  scenariuszu: skrót (`Get-FileHash -Algorithm SHA256`) zapisujesz przy
+  BEFORE i porównujesz przed uznaniem AFTER — rozjazd unieważnia dowód
+  i wracasz do BEFORE. Dane z BEFORE nie mogą z góry spełniać asercji AFTER
+  (osobne `testData` albo sprzątnięcie).
+- **Błąd czysto wizualny** (np. odcień koloru — asercje `browser-check` nie
+  sprawdzają stylu): worker z Playwright MCP wykonuje **wyłącznie kroki 3
+  (BEFORE) i 6 (AFTER)** procedury `fix-devops-bug-zebrani` — macierz 2×2,
+  mierzalna asercja przez `browser_evaluate` (wyliczony styl wobec tokenu),
+  spisane wartości i sparowane zrzuty — na `baseUrl` podanym w briefie, bez
+  jej kroków 5, 7 i 8 (`lint:fix`, `format`, commit, deploy); BEFORE i AFTER
+  z tymi samymi asercjami.
+- Część błędu, którą da się złapać testem jednostkowym, nadal dostaje
+  czerwony test w repo.
 
 ## SemVer — niezależne wersje FE/BE (od 5.12, korekta 5.13)
 
@@ -824,8 +856,11 @@ Wykonaj w tej kolejności:
 
    Bez tego komentarza nie przechodzisz do pkt 4 — tester ma wiedzieć, co
    dokładnie chroni tę naprawę i gdzie to znaleźć, bez czytania diffu. Jeśli
-   zaszedł wyjątek z Fazy 3 (błąd niełapalny testem), komentarz mówi to
-   wprost i niesie zrzuty BEFORE/AFTER zamiast wyniku testu.
+   zaszedł wyjątek przeglądarkowy z Fazy 3, komentarz mówi to wprost
+   i zamiast testu podaje: kroki odtworzenia, nazwę i skrót SHA-256
+   scenariusza albo asercje workera MCP, wartości BEFORE (FAIL) i AFTER
+   (PASS), zrzuty BEFORE/AFTER, kto dowodził, a kto łatał, wynik całego
+   pakietu (`npm test` / `dotnet test` — liczby) oraz hash commita.
 
 4. **Komentarz dostępności wersji — obowiązkowy, do SAMEGO PBI albo Buga,
    po autoryzowanym commicie/pushu, PRZED zmianą stanu na `Ready for tests`.**
