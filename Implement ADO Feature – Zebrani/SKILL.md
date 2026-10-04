@@ -18,7 +18,7 @@ description: >
   poda link lub numer Epic/Feature/PBI/Task/Bug z Azure DevOps projektu
   Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie i/lub naprawienie go
   — nawet jeśli nie padnie słowo "skill".
-version: '5.15'
+version: '5.16'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -61,8 +61,9 @@ brama → ADO) robi wyłącznie cztery rzeczy:
    (subagenci Claude'a w tle + wrapper w tle) — razem z torami pobocznymi
    (Figma, dokumentacja, ADO, briefy kolejnej fali), gdy tylko decyzja,
    od której zależą, jest ustalona (Faza 2, „Tory poboczne").
-3. **Waliduje raz na falę** — czyta diff, uruchamia lint/test/build, ogląda
-   zrzuty 2×2, odsyła korekty do tej samej linii. Raport wykonawcy nigdy nie
+3. **Waliduje raz na falę** — czyta diff, uruchamia lint/test/build
+   i `browser-check` (zrzuty 2×2, przejścia scenariusza), ogląda zrzuty,
+   odsyła korekty do tej samej linii. Raport wykonawcy nigdy nie
    jest dowodem.
 4. **Otwiera i domyka w ADO** — po zatwierdzeniu planu ustawia `In Progress`
    (Faza 1b); na końcu triażuje recenzje (Gemini, Spark, Sol, bramka Astry),
@@ -163,6 +164,22 @@ Zanim zlecisz jakikolwiek kod, wejdź w Plan Mode i ustal:
 - **Bramka końcowa Astry** — plan mówi wprost, czy feature jest wysokiej
   stawki (lista w Fazie 4b), i jeśli tak, przewiduje jedną recenzję Astry
   `max` całego diffu po recenzjach etapów.
+- **Scenariusz weryfikacji w przeglądarce** (`browser-check`, od 5.16):
+  plik JSON w scratchpadzie sesji — specyfikacja odbioru, którą piszesz
+  w planie jak kryteria akceptacji, nie test w repo produktu (E2E prowadzi
+  kto inny); nie zastępuje czerwonego testu Buga z Fazy 3. `matrix`: trasy
+  zmienione przez feature × 360×530 i 1280×720 × Light/Dark, z `waitFor`
+  na elemencie gotowości. `flows` (opcjonalnie, 2–5 przejść): cel
+  nazywający drogę słowami interfejsu (Jev czyta dosłownie), `forbidden`
+  dla akcji nieodwracalnych i asercje **efektu** (wartość po zapisie,
+  `within` dla elementów powtarzalnych, URL po `pathname`), których stan
+  wyjściowy nie spełnia, nie samego komunikatu. `testData` wyłącznie
+  syntetyczne — trafia do Jev jawnie (w tekście strony maskowane są tylko
+  sekrety, e-maile i telefony; reszta też idzie do Jev).
+  Akcje z zapisem w obszarach z listy high-stakes Fazy 4b nie idą do
+  `flows` — ich dowodem są testy jednostkowe i integracyjne; w przeglądarce
+  co najwyżej ekran bez akcji nieodwracalnej. Feature bez zmian UI:
+  scenariusz pomijasz z uzasadnieniem w planie.
 - **Gdy work item to Bug**, plan ma dodatkowo wskazać **test, który udowodni
   błąd**: jego rodzaj (spec Vitest / test xunit / Playwright, gdy błąd widać
   tylko w przeglądarce), plik i nazwę, dokładne kroki odtworzenia zamienione
@@ -463,9 +480,29 @@ Implementację wykonują linie z Fazy 2 wg briefów — **sesja główna nie pis
 kodu**. Jej robota w tej fazie to walidacja dowodów raz na falę: diff,
 `npm run lint` / `npm test` / `npm run build` (FE) albo `dotnet build` /
 `dotnet test` (BE), zrzuty 2×2 (360×530 i 1280×720, Light i Dark). Dowód
-w przeglądarce dostarcza wybrana per brief linia z dostępem do Playwright
-(Spark, Gemini lub Codex po potwierdzeniu narzędzia), nie subagent Claude'a
-(reguła 15 — zrzuty stron szybko puchną w kontekście).
+w przeglądarce dajesz sam narzędziem **`browser-check`**
+(`D:\projects\DTCode\Claude_Skills\browser-check`, `README.md` i `FLOWS.md`):
+FE (`npx ng serve --port 4300`) i BE (`dotnet run --launch-profile http`
+w `ZebraniBE\ZebraniBE`) uruchamiasz sam w tle — gdy nie wstają lokalnie,
+zatrzymujesz się i zgłaszasz brak dowodu. Potem `node browser-check.mjs
+<bezwzględna ścieżka scenariusza> --out <katalog w scratchpadzie>`
+z `BC_LOGIN`/`BC_PASSWORD` (konta demo), gdy scenariusz loguje, i kluczem
+`TYPESAFE_API_KEY` ze zmiennych użytkownika, gdy ma `flows`
+(`[Environment]::GetEnvironmentVariable('TYPESAFE_API_KEY','User')`, nigdy
+nie wypisywany). Exit 0 nie dowodzi czystości: oglądasz PNG i czytasz
+`consoleErrors`, `pageErrors`, `failedRequests` w `report.json`; PASS
+z `passedWithoutActions` to wada scenariusza (asercje spełnione na starcie).
+Wynik inny niż PASS triażujesz z raportu: defekt aplikacji → korekta do
+autora; wada scenariusza (cel, asercja, lokator) → poprawka i powtórka;
+`ERROR`, `TIMEOUT` lub `artifactError` → jedna powtórka. Worker z Playwright
+MCP — wybrana per brief linia (Spark, Gemini lub Codex po potwierdzeniu
+narzędzia), nie subagent Claude'a (reguła 15 — zrzuty stron szybko puchną
+w kontekście) — wchodzi przy `NEED_FALLBACK`, `LOOP`, `MAX_STEPS`, FAIL,
+którego raport nie wyjaśnia, wyniku powtarzającym się po powtórce albo
+dla interakcji spoza scenariusza. Jego brief podaje przejście, stan
+wyjściowy, ustalenia raportu, `forbidden` scenariusza, zakaz akcji
+nieodwracalnych i akcji z zapisem z listy high-stakes Fazy 4b, a także
+własną kartę i `location.href` przed każdym zrzutem.
 Po każdej fali całą weryfikację robisz Ty, z rezerwą na 2–3 drobne korekty,
 i odbierasz niezależną recenzję z Fazy 4b.
 
