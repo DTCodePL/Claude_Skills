@@ -1,0 +1,124 @@
+{
+  "baseUrl": "http://localhost:4300",
+  "timeoutMs": 600000,
+  "settleMs": 400,
+  "browser": {
+    "channel": "chrome",
+    "headless": true
+  },
+  "login": {
+    "url": "/logowanie",
+    "fields": [
+      {
+        "label": "E-mail lub numer telefonu",
+        "value": "${env:BC_LOGIN}"
+      },
+      {
+        "target": {
+          "label": "Hasło"
+        },
+        "value": "${env:BC_PASSWORD}"
+      }
+    ],
+    "submit": {
+      "role": "button",
+      "name": "Zaloguj się"
+    },
+    "successUrl": "**/panel/**",
+    "viewport": "desktop"
+  },
+  "theme": {
+    "toggle": {
+      "role": "button",
+      "name": "Przełącz motyw"
+    },
+    "toggleByViewport": {
+      "mobile": [
+        {
+          "role": "button",
+          "name": "Menu użytkownika"
+        },
+        {
+          "role": "switch",
+          "name": "Ciemny motyw"
+        }
+      ]
+    },
+    "darkClass": "app-dark",
+    "settleMs": 900
+  },
+  "viewports": [
+    {
+      "name": "mobile",
+      "width": 360,
+      "height": 530
+    },
+    {
+      "name": "desktop",
+      "width": 1280,
+      "height": 720
+    }
+  ],
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "matrix": [],
+  "flows": [
+    {
+      "name": "kod-karty",
+      "viewport": "desktop",
+      "startPath": "/panel/programy",
+      "waitFor": {
+        "role": "heading",
+        "name": "Programy",
+        "exact": true
+      },
+      "goal": "Rozwiń kartę programu Piekarnia i pokaż kod karty dla sprzedawcy",
+      "assertions": [
+        {
+          "target": {
+            "text": "Pokaż ten kod sprzedawcy"
+          },
+          "within": {
+            "css": "[role=\"dialog\"]:has-text(\"Piekarnia\")"
+          },
+          "state": "visible"
+        }
+      ]
+    },
+    {
+      "name": "kod-nagrody-piekarnia",
+      "viewport": "desktop",
+      "startPath": "/panel/programy",
+      "waitFor": {
+        "role": "heading",
+        "name": "Programy",
+        "exact": true
+      },
+      "goal": "Odbierz nagrodę w programie Piekarnia, aby pokazać kod sprzedawcy",
+      "assertions": [
+        {
+          "target": {
+            "text": "Pokaż ten kod sprzedawcy"
+          },
+          "within": {
+            "css": "[role=\"dialog\"]:has-text(\"Piekarnia\")"
+          },
+          "state": "visible"
+        }
+      ]
+    }
+  ],
+  "flowDefaults": {
+    "forbidden": [
+      {
+        "text": "Wyloguj",
+        "exact": true
+      },
+      {
+        "text": "Usuń"
+      }
+    ]
+  }
+}

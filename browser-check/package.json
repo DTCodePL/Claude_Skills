@@ -1,0 +1,12 @@
+{
+  "name": "browser-check",
+  "version": "1.0.0",
+  "description": "Deterministic screenshot matrix and jev-driven acceptance flows for local app checks",
+  "scripts": {},
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@typesafe-ai/sdk": "^0.6.0",
+    "playwright": "^1.63.0"
+  }
+}
