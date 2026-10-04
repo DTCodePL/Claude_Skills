@@ -1,0 +1,262 @@
+{
+  "baseUrl": "http://localhost:4300",
+  "timeoutMs": 600000,
+  "settleMs": 400,
+  "browser": {
+    "channel": "chrome",
+    "headless": true
+  },
+  "login": {
+    "url": "/logowanie",
+    "fields": [
+      {
+        "label": "E-mail lub numer telefonu",
+        "value": "${env:BC_LOGIN}"
+      },
+      {
+        "target": {
+          "label": "Hasło"
+        },
+        "value": "${env:BC_PASSWORD}"
+      }
+    ],
+    "submit": {
+      "role": "button",
+      "name": "Zaloguj się"
+    },
+    "successUrl": "**/panel/**",
+    "viewport": "desktop"
+  },
+  "theme": {
+    "toggle": {
+      "role": "button",
+      "name": "Przełącz motyw"
+    },
+    "toggleByViewport": {
+      "mobile": [
+        {
+          "role": "button",
+          "name": "Menu użytkownika"
+        },
+        {
+          "role": "switch",
+          "name": "Ciemny motyw"
+        }
+      ]
+    },
+    "darkClass": "app-dark",
+    "settleMs": 900
+  },
+  "viewports": [
+    {
+      "name": "mobile",
+      "width": 360,
+      "height": 530
+    },
+    {
+      "name": "desktop",
+      "width": 1280,
+      "height": 720
+    }
+  ],
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "matrix": [],
+  "flows": [
+    {
+      "name": "ustawienia-przez-menu",
+      "viewport": "desktop",
+      "startPath": "/panel/programy",
+      "waitFor": {
+        "role": "heading",
+        "name": "Programy",
+        "exact": true
+      },
+      "goal": "Otwórz ustawienia konta użytkownika",
+      "assertions": [
+        {
+          "url": "**/panel/ustawienia/konto"
+        },
+        {
+          "target": {
+            "role": "heading",
+            "name": "Ustawienia",
+            "exact": true
+          },
+          "state": "visible"
+        },
+        {
+          "target": {
+            "role": "heading",
+            "name": "Dane konta",
+            "exact": true
+          },
+          "state": "visible"
+        }
+      ]
+    },
+    {
+      "name": "ustawienia-przez-menu-mobile",
+      "viewport": "mobile",
+      "startPath": "/panel/programy",
+      "waitFor": {
+        "role": "heading",
+        "name": "Programy",
+        "exact": true
+      },
+      "goal": "Otwórz ustawienia konta użytkownika",
+      "assertions": [
+        {
+          "url": "**/panel/ustawienia/konto"
+        },
+        {
+          "target": {
+            "role": "heading",
+            "name": "Ustawienia",
+            "exact": true
+          },
+          "state": "visible"
+        },
+        {
+          "target": {
+            "role": "heading",
+            "name": "Dane konta",
+            "exact": true
+          },
+          "state": "visible"
+        }
+      ]
+    },
+    {
+      "name": "dodaj-sprzedawce-bez-zapisu",
+      "viewport": "desktop",
+      "startPath": "/panel/biznes/sprzedawcy",
+      "waitFor": {
+        "role": "heading",
+        "name": "Sprzedawcy",
+        "exact": true
+      },
+      "goal": "Otwórz formularz dodawania sprzedawcy i wpisz imię, nazwisko i numer telefonu z danych testowych. Nie zatwierdzaj formularza.",
+      "testData": {
+        "firstName": "Jan",
+        "lastName": "Testowy",
+        "phone": "509123456"
+      },
+      "forbidden": [
+        {
+          "css": "[role=\"dialog\"] button:has-text(\"Dodaj sprzedawcę\"), [aria-modal=\"true\"] button:has-text(\"Dodaj sprzedawcę\")"
+        }
+      ],
+      "assertions": [
+        {
+          "target": {
+            "label": "Imię",
+            "exact": true
+          },
+          "within": {
+            "role": "dialog",
+            "name": "Dodaj sprzedawcę",
+            "exact": true
+          },
+          "value": "Jan"
+        },
+        {
+          "target": {
+            "label": "Nazwisko",
+            "exact": true
+          },
+          "within": {
+            "role": "dialog",
+            "name": "Dodaj sprzedawcę",
+            "exact": true
+          },
+          "value": "Testowy"
+        },
+        {
+          "target": {
+            "label": "Telefon",
+            "exact": true
+          },
+          "within": {
+            "role": "dialog",
+            "name": "Dodaj sprzedawcę",
+            "exact": true
+          },
+          "value": "509123456",
+          "match": "digits"
+        }
+      ]
+    },
+    {
+      "name": "nazwa-lokalu",
+      "viewport": "desktop",
+      "startPath": "/panel/ustawienia/program",
+      "waitFor": {
+        "role": "heading",
+        "name": "Ustawienia",
+        "exact": true
+      },
+      "goal": "Zmień nazwę lokalu na wartość z danych testowych i zapisz zmiany",
+      "testData": {
+        "venueName": "Cukiernia BC-Test"
+      },
+      "assertions": [
+        {
+          "target": {
+            "text": "Zapisaliśmy informacje o programie."
+          },
+          "state": "visible"
+        },
+        {
+          "target": {
+            "label": "Nazwa lokalu",
+            "exact": true
+          },
+          "value": "Cukiernia BC-Test"
+        }
+      ]
+    },
+    {
+      "name": "nazwa-lokalu-przywroc",
+      "viewport": "desktop",
+      "startPath": "/panel/ustawienia/program",
+      "waitFor": {
+        "role": "heading",
+        "name": "Ustawienia",
+        "exact": true
+      },
+      "goal": "Zmień nazwę lokalu na wartość z danych testowych i zapisz zmiany",
+      "testData": {
+        "venueName": "Program demonstracyjny"
+      },
+      "assertions": [
+        {
+          "target": {
+            "text": "Zapisaliśmy informacje o programie."
+          },
+          "state": "visible"
+        },
+        {
+          "target": {
+            "label": "Nazwa lokalu",
+            "exact": true
+          },
+          "value": "Program demonstracyjny"
+        }
+      ]
+    }
+  ],
+  "flowDefaults": {
+    "forbidden": [
+      {
+        "text": "Wyloguj",
+        "exact": true
+      },
+      {
+        "text": "Usuń"
+      }
+    ]
+  }
+}

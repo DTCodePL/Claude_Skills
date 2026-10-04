@@ -1,0 +1,53 @@
+{
+  "baseUrl": "http://localhost:4300",
+  "timeoutMs": 600000,
+  "settleMs": 400,
+  "browser": { "channel": "chrome", "headless": true },
+  "login": {
+    "url": "/logowanie",
+    "fields": [
+      { "label": "E-mail lub numer telefonu", "value": "${env:BC_LOGIN}" },
+      { "target": { "label": "Hasło" }, "value": "${env:BC_PASSWORD}" }
+    ],
+    "submit": { "role": "button", "name": "Zaloguj się" },
+    "successUrl": "**/panel/**",
+    "viewport": "desktop"
+  },
+  "theme": {
+    "toggle": { "role": "button", "name": "Przełącz motyw" },
+    "toggleByViewport": {
+      "mobile": [
+        { "role": "button", "name": "Menu użytkownika" },
+        { "role": "switch", "name": "Ciemny motyw" }
+      ]
+    },
+    "darkClass": "app-dark",
+    "settleMs": 900
+  },
+  "viewports": [
+    { "name": "mobile", "width": 360, "height": 530 },
+    { "name": "desktop", "width": 1280, "height": 720 }
+  ],
+  "themes": ["light", "dark"],
+  "matrix": [
+    {
+      "name": "programy",
+      "path": "/panel/programy",
+      "waitFor": { "role": "heading", "name": "Programy", "exact": true },
+      "steps": [
+        { "action": "click", "target": { "role": "button", "name": "Menu użytkownika" }, "optional": true }
+      ]
+    },
+    {
+      "name": "sprzedawcy",
+      "path": "/panel/biznes/sprzedawcy",
+      "waitFor": { "role": "heading", "name": "Sprzedawcy", "exact": true }
+    },
+    {
+      "name": "ustawienia-konta",
+      "path": "/panel/ustawienia/konto",
+      "waitFor": { "role": "heading", "name": "Ustawienia", "exact": true }
+    }
+  ],
+  "flows": []
+}
