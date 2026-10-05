@@ -808,6 +808,176 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak stwierdzonych
 - Wymagane testy i dowody: bilans plików i nazw skryptem, brak klatek tymczasowych w repo, `.gitattributes` uzupełniony o `*.mp4` jako binarny. Wniosek do briefów: zakazać wprost operacji na procesach i uchwytach systemowych oraz plików roboczych w repo; niemożność usunięcia katalogu zgłaszać w raporcie
 
+### 2370-D (trzy rewizje dokumentacji produktowej) — 2026-10-05
+- Archetyp: dokumentacja produktowa / rewizje zatwierdzonych dokumentów
+- Stawka: średnia (źródło prawdy dla funkcji wysokiej stawki)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `high`, `-Access write`
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read`
+- Dopuszczone alternatywy: Gemini write (recenzent Spark); Claude `wykonawca` (Sonnet 5.5 `high`)
+- Powód wyboru: tekstowy brief bez Figmy; lokalnie 1603-D przyjęte po 1 rundzie
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark i Gemini nieznany (brak odczytu zapasu, 2026-10-05 ok. 17:00)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty
+- Rundy korekt: 1
+- Czas do akceptacji: ok. 30 min (17:04 → ok. 17:35)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 4×P1 (sprzeczności fokusu na wąskim ekranie, awarii operatora, wejść do nakładki, karty programów) — potwierdzone, poprawione 7 punktami korekty; 0 fałszywych
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: diff trzech plików, kontrola front matter i dat rewizji przez architekta
+
+### 2370-FE-i18n (klucze pl+en wariantu zaległości) — 2026-10-05
+- Archetyp: Frontend i18n
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `high`, `-Access write`
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read`
+- Dopuszczone alternatywy: Gemini write (recenzent Spark); `mechanik` (Haiku `low`) — odrzucony przy ~40 kluczach z odmianą
+- Powód wyboru: jak 1603-FE-1 (1 runda)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark i Gemini nieznany (2026-10-05 ok. 17:00)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: wymagane korekty
+- Rundy korekt: 1
+- Czas do akceptacji: ok. 30 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1×P1 (odwrócony podmiot w ogólnym komunikacie EN) + 1×P2 potwierdzone, 2×P3 częściowo; dodatkowo odmiana liczebnika poprawiona przez architekta w korekcie; 0 fałszywych P0/P1
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: parytet liści pl/en, prettier, `git diff --numstat` (tylko dopiski)
+
+### 2370-FE-1 (przepływ płatności zaległości, serwis i DTO — niezmiennik płatności) — 2026-10-05
+- Archetyp: Frontend / logika przepływu płatności
+- Stawka: wysoka (high-stakes)
+- Niepewność: wysoka
+- Wykonawca (linia / model / native effort): Claude / Opus 5.5 / `xhigh` (`wykonawca-opus`), korekta świeżym agentem tej samej linii
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh`, `-Access read` (dwie recenzje: przebiegu i korekty)
+- Dopuszczone alternatywy: brak dla autora (pliki niezmiennika); recenzent alt. Gemini `flash-high`
+- Powód wyboru: twarda bramka high-stakes; lokalnie 1603-FE-5
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook ŻÓŁTY, 2026-10-05 ok. 17:00); Spark nieznany
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: wymagane korekty (recenzja „niepoprawny”)
+- Rundy korekt: 1
+- Czas do akceptacji: ok. 1 h (17:04 → ok. 18:05)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2×P1 (równoległe POST z dwóch instancji nakładki; `crypto.randomUUID` na nieszyfrowanym hoście), 2×P2, 3×P3 — potwierdzone, K1–K7; recenzja korekty 1×P3 (nieosiągalne, odnotowane); 0 fałszywych
+- Defekty po odbiorze: bramka FE (Spark `max`): 1×P2 (brak przeładowania abonamentu po `Paid` z odpytywania przy wejściu spoza `Arrears`) + 1×P3 (komentarz 409 zamiast 422) w `arrears-payment-flow.ts` → G-FE-1
+- Wymagane testy i dowody: Vitest przepływu (brak podwójnego POST, nowy `attemptId`, 3DS i odpytywanie, straż generacji), pełne FE 4329/4329
+
+### 2370-FE-2a (wariant nakładki zaległości z Figmy) — 2026-10-05
+- Archetyp: Frontend UI / Figma
+- Stawka: średnia (ekran funkcji high-stakes bez niezmiennika)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`), z Figma MCP
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh`, `-Access read`
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` z potwierdzonym Figma MCP (odrzucony — pula Plus na bramkę); recenzent alt. Gemini `flash-high`
+- Powód wyboru: ekran z makiety; próba A/B zakończona (3:3) — linia Sonnet wg kryterium
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook ŻÓŁTY, 2026-10-05 ok. 17:40); Spark nieznany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty (recenzja „niepoprawny” 0,8)
+- Rundy korekt: 1 (wspólna korekta FE-2, K1–K5 i K10)
+- Czas do akceptacji: ok. 50 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1×P1 (fokus po „Zmień abonament” w stanie wyniku), 1×P2, 2×P3 — potwierdzone; 0 fałszywych
+- Defekty po odbiorze: bramka FE (Spark `max`): 2×P3 (akcje w trakcie animacji zamykania; „Zmień” metodę gubi szkic danych do faktury) w `change-subscription.ts` → G-FE-1
+- Wymagane testy i dowody: specy komponentów i AXE wariantu, `browser-check` matrix 2×2 dla `PastDue` i `Unpaid` (16/16, 0 błędów konsoli/sieci, zrzuty obejrzane)
+
+### 2370-FE-2b (Ustawienia: „Opłać teraz”, przekazanie nakładek) — 2026-10-05
+- Archetyp: Frontend UI / okablowanie
+- Stawka: średnia
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read`
+- Dopuszczone alternatywy: recenzent alt. Spark `xhigh` (zajęty FE-2a)
+- Powód wyboru: UI bez niezmiennika, kontekst sesji; rozłączne pliki z FE-2a
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook ŻÓŁTY, 2026-10-05 ok. 17:40); Gemini nieznany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty
+- Rundy korekt: 1 (wspólna korekta FE-2, K6–K9)
+- Czas do akceptacji: ok. 50 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1×P2, 3×P3 potwierdzone; Gemini zmyślił cytat z `AGENTS.md` („każdy serwis, pipe, funkcja pomocnicza… ma .spec.ts”) — odrzucony jako uzasadnienie, test i tak dopisany (K10)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: spec przekazania nakładek i fokusu; `browser-check` (wąski ekran: arkusz „Abonament” z „Opłać teraz”)
+
+### 2370-BE-1 (stan efektywny, odczyt zaległości, GET, strażnicy — łańcuch 1 → 1a → 1a2 → 1a3 → 1b → 1b2) — 2026-10-05
+- Archetyp: Backend / integracja operatora płatności i strażnicy
+- Stawka: wysoka (high-stakes)
+- Niepewność: wysoka
+- Wykonawca (linia / model / native effort): Claude / Opus 5.5 / `xhigh` (`wykonawca-opus`), sekwencyjnie
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh`, `-Access read` (1a+1a2; 1a3+1b)
+- Dopuszczone alternatywy: brak dla autora; recenzent alt. Gemini `flash-high`
+- Powód wyboru: płatności = niezmiennik; lokalnie 1603-BE 0–4 rund
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook ŻÓŁTY, 17:00–18:40); Spark nieznany (pierwsza recenzja 1a padła, ponowienie OK)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: BE-1 i BE-1a — strażnik kontekstu (~303 k / 322 k), BE-1b — 301 k po 2 plikach; przekazania przyjęte, reszta świeżymi agentami
+- Rundy korekt: 0 rund korekty kodu po recenzjach (P2/P3 przeszły do briefów testów 1b3a/b); 3 przekazania kontekstu
+- Czas do akceptacji: ok. 2 h 10 min (17:04 → ok. 19:15) bez testów uzupełniających
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1a+1a2 — 1×P1 odrzucone (błąd bazy → 500 spójny z innymi odczytami), 1×P2 odrzucone (podwójny odczyt bez skutku), reszta P2/P3 do testów; 1a3+1b — 3×P2, 2×P3 potwierdzone → testy; 1 P3 (strażnik bez identyfikatorów) do PBI #2694
+- Defekty po odbiorze: bramka BE (Spark `max`): 1×P1 (kontrola okresu przed żywą kontrolą zaległości — przy prawdziwej zaległości zawsze `PERIOD_NOT_CURRENT`) → G-BE-1; 1×P3 (`pm_…` w `ToString`) → G-BE-1; 1×P2 (zaległość bez otwartej faktury) → ryzyko w PBI #2694
+- Wymagane testy i dowody: xunit z SQL (5156 → 5234), testy uzupełniające 1b3a–d (5234 → 5375), po G-BE-1 5456
+
+### 2370-BE-2 (POST zapłaty zaległości — łańcuch 2 → 2a → 2b → 2c) — 2026-10-05
+- Archetyp: Backend / obciążenie karty, idempotencja
+- Stawka: krytyczna
+- Niepewność: wysoka
+- Wykonawca (linia / model / native effort): Claude / Opus 5.5 / `xhigh` (`wykonawca-opus`)
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh`, `-Access read` (2a, 2b, 2c osobno)
+- Dopuszczone alternatywy: brak dla autora; recenzent alt. Gemini `flash-high`
+- Powód wyboru: obciążenie karty = twarda bramka
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (ŻÓŁTY) do ok. 19:40, potem zablokowany (CZERWONY 85 %, hook, 19:45); Spark nieznany
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: BE-2 — strażnik kontekstu przy 307 k bez kodu (rozpoznanie zjadło kontekst); podział na 2a/2b/2c z faktami z rozpoznania w briefach — każdy przyjęty za pierwszym razem
+- Rundy korekt: 0 dla 2a/2b/2c (uwagi z recenzji 2a → pkt 9–10 briefu 2c; 2b → K-a/K-b jednolinijkowe przez architekta i testy; 2c → brief testów 1b3c)
+- Czas do akceptacji: ok. 1 h 20 min od podziału (18:52 → ok. 20:00)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2a — 3×P3 potwierdzone; 2b — 1×P1 obniżone (celowa decyzja BE-1b, nieaktualny komentarz → K-b), 4×P2 (1 odrzucone — kolejność, reszta do testów/K-a), 2×P3; 2c — „poprawny” 0,8, 4×P3 (luki w testach) potwierdzone → 1b3c
+- Defekty po odbiorze: bramka BE (Spark `max`): 2×P3 (fałszywe 402 przy wyścigu z auto-ponowieniem operatora; 502 zamiast 409 przy odłączonej metodzie) → ryzyka w PBI #2694
+- Wymagane testy i dowody: build 0/0, pełne xunit z SQL 5234/5234/0; mutacje potwierdzone przez wykonawcę (17 czerwonych w 12 testach); ręczny POST na lokalnej atrapie (409/409/400/400/200 PAID, 1 linia dziennika bez sekretu)
+
+### 2370-FE-3 (audyt SCSS i mixiny) — 2026-10-05
+- Archetyp: Refaktoring / SCSS
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): audyt Spark `xhigh` `-Access read`; mixiny Spark / `muse-spark-1.3-contributor` / `high`, `-Access write`
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read`
+- Dopuszczone alternatywy: Gemini write (recenzent Spark)
+- Powód wyboru: jak 1603-A-1; wyrocznia = bajtowo identyczny CSS 8 konsumentów (`scss-snapshot.mjs`)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark i Gemini nieznany (2026-10-05 ok. 18:50)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano kod; recenzja zaproponowała 3 uproszczenia
+- Rundy korekt: 1
+- Czas do akceptacji: ok. 25 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 4×P2, 2×P3 — 3 przyjęte (pozorne abstrakcje, komentarz), reszta odrzucona; pierwsza recenzja Gemini padła (brief bez zdania „nie masz powłoki”)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: wyrocznia 8× IDENTYCZNY, stylelint/prettier, build FE
+
+### 2370-BE-1b3 (testy uzupełniające po recenzjach, 3a/3b/3c/3d) — 2026-10-05
+- Archetyp: Testy / xunit niezmiennika płatności (strażnicy zaległości, zapłata zaległości)
+- Stawka: wysoka (testy przypinają niezmiennik; kod produkcyjny bez zmian)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `medium` (`tester`), cztery osobne briefy
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh`, `-Access read` (3a, 3b, 3c osobno)
+- Dopuszczone alternatywy: wykonawca `wykonawca` Sonnet `high`; recenzent alt. Gemini `flash-high`
+- Powód wyboru: testy według istniejących wzorców z nazwanymi scenariuszami i mutacjami — rola `tester`; produkcja niezmieniona (skróty plików przed = po)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (ŻÓŁTY po resecie okna, hook, ok. 20:00); Spark nieznany
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: 3a, 3b, 3c przyjęte za pierwszym razem (5234 → 5316 → 5368 → 5375); każda recenzja dała drobne uwagi do kolejnego briefu; 3d przyjęty za pierwszym razem (5375/5375, mutacja: 10 czerwonych z 106, skrót produkcji przed = po; recenzją innej rodziny dla 3d jest bramka BE — zmiana to 6 asercji/docstringów)
+- Rundy korekt: 0 na brief (uwagi recenzji → kolejny brief, nie poprawka)
+- Czas do akceptacji: ok. 2 h 30 min dla całego łańcucha 3a–3d (ok. 20:00 → 22:35), z czego 3d ok. 4 min wykonania
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 3a — „poprawny” 0,8, 6×P3 (5 potwierdzonych → R-b…R-e; „zbędny `using`” FAŁSZYWE — tester odmówił słusznie, typ z tej przestrzeni użyty); 3b — „niepoprawny warunkowo” 0,85, 1×P2 potwierdzone (kolejność strażnik → zaległość nieprzypięta), ale proponowana poprawka częściowo błędna (`DoesNotContain` także dla dryfu — odrzucone), 2×P3 potwierdzone → 3d; 3c — „poprawny” 0,9, 5×P3: 2 potwierdzone → 3d, `Times.Never` dla innej faktury odrzucone, kolejność pól JSON i poziomy logowania → ryzyko w raporcie
+- Defekty po odbiorze: testy nie złapały P1 z bramki BE (scenariusze z przyszłym okresem) — przypięte dopiero w G-BE-1
+- Wymagane testy i dowody: build `--no-incremental` 0/0, pełne xunit z SQL po każdym briefie, mutacje potwierdzone przez wykonawcę, skróty plików produkcyjnych sprawdzone przez architekta
+
+### 2370-G (bramka końcowa) — 2026-10-05
+- Uwaga procesowa: pierwsze podejście Astry FE (168 s) zatrzymało się na klauzuli STOP — brief architekta podawał błędny kontrakt strażników („`SUBSCRIPTION_CHANGE_UNAVAILABLE` z powodem” zamiast własnego kodu `SUBSCRIPTION_IN_ARREARS`); Astra sprawdziła kod BE i testy API, zgłosiła rozjazd briefu, nie zgłosiła fałszywego defektu. Poprawka briefu i ponowienie.
+- Podejście 2 Astry FE padło po 363 s na limicie Plusa („try again at Oct 6th 3:11 AM”), bez raportu → Codex `zablokowany` (rollout, 2026-10-05 22:44); bramka czeka, bez obniżenia modelu/effortu (reguła 6).
+- Decyzja właściciela (2026-10-05 ok. 23:00): „Astra max na Plusie to idiotyzm” → reguła 6 na stałe: bramka = `gpt-6.1-sol` `max`; dla tej funkcji jednorazowo Spark `max` (Codex zablokowany do 03:11).
+- Archetyp: Recenzja / bramka końcowa high-stakes (cały diff, osobno FE 88 i BE 132 pozycje)
+- Stawka: krytyczna · Niepewność: średnia
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access read`, diff w briefie (bez powłoki), FE ∥ BE
+- Dopuszczone alternatywy: Sol 6.1 `max` po 03:11 (nowa reguła); brak innej w tej chwili
+- Sygnał dostępności: Codex zablokowany (rollout, 22:44, reset 03:11); Spark nieznany (równolegle sesja BeautyEffect)
+- Pewność decyzji: średnia (Spark recenzował większość fal tej funkcji — mniej świeże oko)
+- Wynik: FE 604 s — „wymaga poprawek” 0,85: 1×P2 (brak przeładowania abonamentu po `Paid` z odpytywania przy wejściu spoza `Arrears`) + 3×P3 (akcje w animacji zamykania, „Zmień” gubi szkic faktury, kłamliwy komentarz 409/422) — wszystkie potwierdzone → G-FE-1; BE 708 s — „wymaga poprawek” 0,85: 1×P1 POTWIERDZONE (strażnik okresu przed żywą kontrolą zaległości → przy prawdziwej zaległości zawsze `PERIOD_NOT_CURRENT`, bo baza nie przesuwa okresu do #2473; wariant zaległy z endpointów zmiany nieosiągalny w produkcji; testy miały przyszły okres) → G-BE-1; 1×P2 (zaległość bez otwartej faktury — strażnicy blokują, GET/POST „brak zaległości”) → ryzyko + zakres #2694; 3×P3: `pm_…` w `ToString` → G-BE-1, fałszywe 402 przy wyścigu z auto-ponowieniem i 502 przy odpiętej metodzie → ryzyka #2694. Fałszywych P0/P1: 0.
+- Wartość bramki: P1 przeoczyły wszystkie recenzje fal (Spark ×5, architekt) — błąd przekrojowy strażnik × brak lustra okresu.
+- G-FE-1 (poprawki FE): `wykonawca-opus` Opus `xhigh`, 1 przebieg, ok. 11 min, 243 k tokenów; 4 poprawki + 6 testów, 5 mutacji czerwonych; walidacja architekta: lint/format/build 0, testy 4335/4335; recenzja Spark `xhigh` read — „poprawny” 0,85, 1×P3 (podwójny GET przy bezpośrednim `PAID` — świadomie przyjęte w briefie). Rundy korekt: 0 (komentarz klasy dopisał architekt — 1 linia).
+- G-BE-1 (poprawki BE): `wykonawca-opus` Opus `xhigh`, 1 przebieg, ok. 18 min, 321 k tokenów (powyżej miękkiego progu 300 k — domknął bez przekazania); P1 (kolejność dostępność → zaległość u operatora → okres, `EnsurePeriodCurrent`) + P3 (`ToString` bez `pm_`), 79 nowych przypadków, mutacje: A 65 czerwonych, B 1; walidacja architekta: build `--no-incremental` 0/0, 5456/5456/0; recenzja Spark `xhigh` read — „poprawny” 0,9, bez znalezisk. Rundy korekt: 0.
+- Defekty po odbiorze: brak do bramy potwierdzenia; właściciel przyjął bez uwag (2026-10-05), deploy PRE zweryfikowany 21:49 UTC: FE 1.2.0 `1a2021c`, BE 1.2.0 `2f60f15` (dokładne SHA).
+- Wymagane testy i dowody: FE 4335/4335 + lint/format/build; BE 5456/5456/0 z SQL; browser-check sprzed poprawek (8/8 × 2) — poprawki nie dotykają ekranu Ustawień.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
