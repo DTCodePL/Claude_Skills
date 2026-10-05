@@ -672,6 +672,142 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak
 - Wymagane testy i dowody: przerwana → `CANCELLED` i sesja wygaszona; zapłata kartą testową → C1–C7 PASS (kwota sesji = PaymentIntent = wiersz płatności = faktura `PENDING`; `quantity` = liczba miejsc); harmonogram dwufazowy i `release`
 
+### BE-1 (BeautyEffect: migawki źródeł E1–E2 i szkielet dokumentacji S1) — 2026-10-05
+- Archetyp: dokumentacja produktu — ekstrakcja źródeł i szkielet repo dokumentacji
+- Stawka: niska–średnia (materiał dowodowy dla dalszych fal)
+- Niepewność: średnia (Booksy za JS-em, stara strona z szablonu sieci)
+- Wykonawca (linia / model / native effort): E1 Spark / `muse-spark-1.3-contributor` / `high`; E2 Spark / `xhigh` (Booksy, Playwright MCP); S1 Gemini / `gemini-3.8-flash-high`
+- Recenzent (linia / model / native effort): architekt (kontrola linków i front matter skryptem); merytorycznie w recenzjach fal 2a/2b
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` (Playwright niepotwierdzony)
+- Powód wyboru: rozłączne cele, Playwright MCP u Sparka, osobne pule; Claude ŻÓŁTY
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook ŻÓŁTY), zewnętrzni nieznany — 2026-10-05 ok. 17:05
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano po walidacji architekta
+- Rundy korekt: brak osobnych; drobne usterki migawek wyszły w recenzjach fal (słowo cyrylicą w migawce Booksy, poprawione przez architekta)
+- Czas do akceptacji: w ramach fali 1 (ok. 20 min)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy
+- Defekty po odbiorze: 1 drobny (znak cyrylicy w migawce Spark)
+- Wymagane testy i dowody: skrypt linków/ID/front matter; odczyt migawek
+
+### BE-R1 (BeautyEffect: research wyświetlania postów IG/FB) — 2026-10-05
+- Archetyp: research techniczny
+- Stawka: średnia (decyzja o bezobsługowości strony)
+- Niepewność: wysoka (API Meta, zasady osadzania)
+- Wykonawca (linia / model / native effort): R1 Codex / `gpt-6.1-sol` / `high`; R1b Spark / `xhigh` z Playwright MCP (odczyt na żywo)
+- Recenzent (linia / model / native effort): architekt — zestawienie dwóch niezależnych rodzin
+- Dopuszczone alternatywy: Gemini `high` (miękki sygnał negatywny z 2026-09-24)
+- Powód wyboru: dwie rodziny dla krzyżowej kontroli źródeł; Spark z przeglądarką
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): nieznany (wrappery), 2026-10-05 17:11
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano; wnioski zgodne (statyczne odnośniki domyślnie, Graph API tylko przy stałej opiece technicznej)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 25 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: URL-e przy twierdzeniach, wyrywkowe sprawdzenie
+
+### BE-2a (BeautyEffect: produkt, wymagania, integracje, dokumenty prawne + recenzje i korekty) — 2026-10-05
+- Archetyp: dokumentacja produktu — redakcja z migawek
+- Stawka: średnia (dokumenty prawne i zasady wizyt widoczne dla klientek)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): B-PROD Spark `xhigh`; B-WP-INT Gemini `flash-high`; B-PRAWO Spark `high`; korekty K-A Spark `xhigh`, K-B Gemini `flash-high`
+- Recenzent (linia / model / native effort): R-2a-A Codex `gpt-6.1-sol` `high` (tylko odczyt, autor Spark); R-2a-B Spark `xhigh` `-Access read` (autor Gemini)
+- Dopuszczone alternatywy: Codex jako autor (pula Plus oszczędzana na research)
+- Powód wyboru: rozłączne zbiory plików, recenzent innej rodziny per autor; Claude ŻÓŁTY
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook), zewnętrzni nieznany — 2026-10-05 17:26
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty u obu autorów
+- Rundy korekt: 1 (K-A, K-B)
+- Czas do akceptacji: ok. 50 min od startu fali
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone m.in. twierdzenie bez pokrycia o dominacji telefonów i brak warunkowości regulaminu; odrzucone: P1 „motyw ciemny bez decyzji” (standard FE + decyzja właściciela), P3 rzekoma niezgodność ID
+- Defekty po odbiorze: 1 nieoznaczone założenie (tryb aktualizacji danych salonu) — zneutralizowane przez architekta
+- Wymagane testy i dowody: skrypt linków/ID; grep cen, „24/7”, „bezpłatn”
+
+### BE-2b (BeautyEffect: specyfikacje stron — powłoka, główna, informacyjne, oferta, strony medyczne + recenzje i korekty) — 2026-10-05
+- Archetyp: dokumentacja interfejsu (treść dosłowna, bez opisu wyglądu)
+- Stawka: średnia; wyższa dla stron z elementem medycznym (obietnice efektu, przeciwwskazania)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): B-UI-1a i 2a Spark `xhigh`; B-UI-1b Gemini `flash-high`; B-UI-2b Codex `gpt-6.1-sol` `high`; korekty K2-A Spark, K2-B Gemini, K2-C Codex (ci sami autorzy)
+- Recenzent (linia / model / native effort): R-2b-A Gemini `flash-high` `-Access read` (autor Spark); R-2b-B i R-2b-C Spark `xhigh` `-Access read` (autorzy Gemini, Codex)
+- Dopuszczone alternatywy: Codex jako recenzent Sparka/Gemini (pula Plus zajęta autorstwem 2b i researchem)
+- Powód wyboru: stawka stron medycznych → Codex `high`; reszta rozłącznie na Spark/Gemini
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook), zewnętrzni nieznany — 2026-10-05 18:10
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: korekty u wszystkich; najwięcej faktów spoza migawek u Gemini (lista oczekujących, „stylistka”, „sterylne”, ważność kart Booksy, porady przed wizytą), u Sparka P0 przy pedicure, u Codexa brak reguły publikacji niekompletnych opisów medycznych (zero obietnic efektu)
+- Rundy korekt: 1 + drobne poprawki architekta (liczby w spisie punktów regulaminu, odwołania do nazw briefów w dokumentach, dwa zdania)
+- Czas do akceptacji: ok. 45 min od startu fali
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone P0/P1 we wszystkich trzech zestawach; R-2b-A Gemini za pierwszym razem padł (próba polecenia powłoki w trybie odczytu) — ponowienie z zakazem powłoki i pełnymi ścieżkami przeszło; jeden P0 wynikał z błędu briefu architekta (prośba o treść nieistniejącego wariantu)
+- Defekty po odbiorze: Gemini w raporcie przywołał nieistniejącą kwestię otwartą (tylko raport, nie pliki)
+- Wymagane testy i dowody: skrypt linków/ID (0 martwych na 119 plików); grep cen, danych salonu, „Wam”, cyrylicy, odwołań do briefów
+
+### BE-RK (BeautyEffect: research kolorystyki — dowody i rynek) — 2026-10-05
+- Archetyp: research (przegląd dowodów z oceną siły; skan rynku z odczytem kolorów z kodu stron)
+- Stawka: średnia (tożsamość wizualna, decyzja właściciela)
+- Niepewność: wysoka (brak badań dla grupy docelowej i rezerwacji)
+- Wykonawca (linia / model / native effort): R-K1 Codex / `gpt-6.1-sol` / `xhigh`; R-K2 Spark / `muse-spark-1.3-contributor` / `xhigh`
+- Recenzent (linia / model / native effort): architekt — wyrywkowa weryfikacja źródeł (WebAIM Million 2026, zmienne CSS K Studio) i krzyżowanie wniosków dwóch rodzin
+- Dopuszczone alternatywy: Gemini `high` do skanu rynku
+- Powód wyboru: rozłączne pytania (dowody / rynek), dwie rodziny; Codex `xhigh` przy ocenie siły dowodów
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): nieznany (wrappery), 2026-10-05 18:05
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano; R-K2 z jawnymi lukami (brak Playwright w przebiegu → część kolorów CTA „nie odczytano”, 403 u części serwisów)
+- Rundy korekt: 0
+- Czas do akceptacji: R-K1 ok. 38 min, R-K2 ok. 35 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): sprawdzone próbki zgodne; architekt dodał wniosek pominięty przez R-K2 (kierunek „śliwka + greige” to paleta jedynego lokalnego konkurenta z własną stroną)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: URL przy każdym twierdzeniu, metoda odczytu HEX, kontrast WCAG policzony skryptem architekta (3 kierunki × 40 par, 0 niespełnionych)
+
+### BE-3 (BeautyEffect: identyfikacja wizualna + system kolorów; wspólny standard struktury dokumentacji) — 2026-10-05
+- Archetyp: dokumentacja produktowa z liczbami (tabele HEX/kontrastów przepisane z generatora architekta) + decyzja przekrojowa dla wielu repo dokumentacji
+- Stawka: średnia (tożsamość wizualna; decyzja wiążąca wszystkie projekty)
+- Niepewność: niska (decyzje i liczby podane w briefie)
+- Wykonawca (linia / model / native effort): K3-A Spark / `muse-spark-1.3-contributor` / `xhigh`; K3-B Gemini / `gemini-3.8-flash-high`; korekty K3-A2 Spark / `high`, K3-B2 Gemini / `gemini-3.8-flash-high`
+- Recenzent (linia / model / native effort): R-3 Codex / `gpt-6.1-sol` / `high` (`-Mode review`, obie rodziny autorów różne od Codexa)
+- Dopuszczone alternatywy: K3-A — Gemini `high`; K3-B — Spark `xhigh`; R-3 — Spark `xhigh` tylko dla części Gemini
+- Powód wyboru: rozłączne pliki (projekt / wspólne + Zebrani), równolegle; jeden recenzent spoza obu rodzin autorów zamiast dwóch
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude zablokowany (hook CZERWONY, 5 h ~88 %), Spark/Gemini/Codex nieznany (wrappery), 2026-10-05 17:35
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano z poprawkami; liczby HEX/kontrastów zgodne z tabelami (sprawdzone skryptem)
+- Rundy korekt: 1 (K3-A2 1,5 min, K3-B2 5 min)
+- Czas do akceptacji: ok. 20 min (K3-A 6 min, K3-B 3 min, R-3 6 min, korekty)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 5 × P2 potwierdzone, 0 odrzuconych — sprzeczność „śliwka tylko w CTA” z tłem sekcji `sliwka-50/950`; brak `zrodlo`/`referencyjny` w instrukcji Zebrani; przesadzone „jedyny salon z własną stroną” (błąd architekta przeniesiony do DEC); niespójne ID historycznej DEC; wspólna DEC rozstrzygała model kopii instrukcji bez decyzji właściciela
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: skrypt linków/ID (0 martwych), porównanie skryptowe HEX/kontrastów z tabelami generatora, diff słowny plików Zebrani (tylko dopisania)
+
+### BE-4 (BeautyEffect: rozstrzygnięcia KO — opisy medyczne z Booksy, zasady wizyt, dane firmy, domena) — 2026-10-05
+- Archetyp: wprowadzenie decyzji właściciela w wiele powiązanych dokumentów (przeniesienie treści 1:1 ze źródła + wycofanie dokumentu i jego odnośników)
+- Stawka: średnia (treści publiczne, dane firmy, zasady kaucji)
+- Niepewność: niska (decyzje dosłowne)
+- Wykonawca (linia / model / native effort): K4-A i K4-B Spark / `muse-spark-1.3-contributor` / `xhigh`; korekta K4-C Spark / `high`
+- Recenzent (linia / model / native effort): R-4 Codex / `gpt-6.1-sol` / `high` (`-Mode review`)
+- Dopuszczone alternatywy: wykonawca — Gemini `high` (zajęty K5 na tym samym repo); recenzent — Gemini `-Access read` (zajęty)
+- Powód wyboru: dwa rozłączne zbiory plików na jednej linii równolegle; recenzent spoza rodziny autora, z dobrym wynikiem R-3 na tej samej dokumentacji
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude zablokowany (hook CZERWONY, 5 h 88–92 %), Spark/Codex nieznany (wrappery), 2026-10-05 17:44
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano z poprawkami; architekt przed recenzją dopisał 2 brakujące spójności (wyjątek od zakazu obietnic w UI-OFERTA, nieaktualne odwołanie w PB-UMOWIENIE-WIZYTY)
+- Rundy korekt: 1 (K4-C, 7,5 min)
+- Czas do akceptacji: ok. 30 min (K4-A 7,6 min, K4-B 9 min, R-4 7,4 min, K4-C 7,5 min)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 7 × P2 + 1 × P3 potwierdzone, 0 odrzuconych — zasady VIP tylko z Instagrama mimo „Booksy jedynym źródłem”; „Regulamin” w stopce 3 stron; sprzeczny stan karty e-mail; pominięte „znaczące spóźnienie” z Booksy; warunki włosów uogólnione na Afro&loki; skróty zmieniające sens bez oznaczenia do akceptacji; niezaznaczone zakazy sprzed rozstrzygnięcia KO; kotwice ASCII do nagłówków z polskimi literami (skrypt architekta znalazł łącznie 26 martwych kotwic, recenzent wskazał 4 typy)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: skrypt linków/ID (0 martwych), nowy skrypt kotwic wg slugów GitHub (96 sprawdzonych, 0 martwych), grep VIP/Regulamin/warunkowości e-maila
+
+### BE-5 (BeautyEffect: porządek 185 zdjęć i filmów salonu + inwentarz) — 2026-10-05
+- Archetyp: praca na plikach binarnych z oglądem obrazów (klasyfikacja, nazwy, duplikaty, inwentarz z tekstem alternatywnym)
+- Stawka: średnia (wizerunek osób — oznaczenie twarzy decyduje o potrzebie zgody)
+- Niepewność: średnia (klasyfikacja z oglądu)
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` (multimodalny ogląd; sam rozdzielił pracę na 6 podagentów)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — architekt: walidacja skryptowa (155 zdjęć + 29 filmów + 1 duplikat = 185, nazwy 1:1 z dyskiem, linki, tekst alternatywny ≤ 120 znaków, próbka wierszy); odstępstwo od reguły 13, bo recenzja wymagałaby ponownego oglądu 184 plików — złagodzone dopiskiem w obu README, że oznaczenia twarzy i tekstu są pomocnicze i wymagają sprawdzenia przy wyborze pliku do publikacji
+- Dopuszczone alternatywy: Spark `xhigh` (ogląd obrazów niepotwierdzony w tym wrapperze), Codex `gpt-6.1-sol` (porcje ≤ 5 plików — nieekonomiczne przy 185 plikach)
+- Powód wyboru: multimodalność i duży wolumen plików na puli niezależnej od zablokowanego Claude'a
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude zablokowany (CZERWONY), Gemini nieznany (wrapper), 2026-10-05 17:51
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: przerwany przez architekta po ok. 20 min — wszystkie pliki przeniesione, inwentarze gotowe w katalogu roboczym, KO-WERSJA-JEZYKOWA rozstrzygnięta, ale worker utknął na usuwaniu pustego `photos/` blokowanego przez własny proces i zaczął wyliczać systemowe uchwyty (`ntdll`, `DuplicateHandle`) oraz próbował zmienić nazwę katalogu — ryzyko ingerencji w cudze procesy poza briefem; zostawił też plik roboczy w `Dokumentacja/tmp/` poza zakresem
+- Rundy korekt: 0 (architekt dokończył mechanicznie: kopia inwentarzy 1:1, wpis w KO-MATERIALY-OD-WLASCICIELA, usunięcie pliku roboczego; `photos/` zniknął po zatrzymaniu workera)
+- Czas do akceptacji: ok. 35 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy (brak recenzji innej rodziny — patrz wyżej)
+- Defekty po odbiorze: brak stwierdzonych
+- Wymagane testy i dowody: bilans plików i nazw skryptem, brak klatek tymczasowych w repo, `.gitattributes` uzupełniony o `*.mp4` jako binarny. Wniosek do briefów: zakazać wprost operacji na procesach i uchwytach systemowych oraz plików roboczych w repo; niemożność usunięcia katalogu zgłaszać w raporcie
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
