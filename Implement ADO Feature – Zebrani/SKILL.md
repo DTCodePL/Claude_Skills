@@ -12,13 +12,13 @@ description: >
   i wiarygodnego sygnału dostępności. Codex jest pełnoprawnym kandydatem
   bez czekania na limit innej linii. Zachowuje ograniczenia high-stakes,
   dostęp do Figmy, reguły skilli pomocniczych, niezależność rodziny recenzenta
-  i końcową bramkę Astra/Sol. Na starcie, po zatwierdzeniu planu, PBI/Bug
+  i końcową bramkę Sol `max`. Na starcie, po zatwierdzeniu planu, PBI/Bug
   i taski do wykonania idą na In Progress. Obejmuje też Bugi — test-first:
   czerwony test, łatka, ten sam test zielony. UŻYWAJ ZAWSZE, gdy user
   poda link lub numer Epic/Feature/PBI/Task/Bug z Azure DevOps projektu
   Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie i/lub naprawienie go
   — nawet jeśli nie padnie słowo "skill".
-version: '5.17'
+version: '5.18'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -66,7 +66,7 @@ brama → ADO) robi wyłącznie cztery rzeczy:
    odsyła korekty do tej samej linii. Raport wykonawcy nigdy nie
    jest dowodem.
 4. **Otwiera i domyka w ADO** — po zatwierdzeniu planu ustawia `In Progress`
-   (Faza 1b); na końcu triażuje recenzje (Gemini, Spark, Sol, bramka Astry),
+   (Faza 1b); na końcu triażuje recenzje (Gemini, Spark, Sol, bramka końcowa),
    prowadzi bramę potwierdzenia, robi commit/push i statusy końcowe (MCP do
    ADO mają też Spark i Gemini; Figmę — Claude i Codex).
 
@@ -161,9 +161,9 @@ Zanim zlecisz jakikolwiek kod, wejdź w Plan Mode i ustal:
   rzeczywiste komunikaty limitu innych linii. Nie szacujesz procentu limitu
   na podstawie braku danych ani historii przydziałów. Blokada lub rzeczywiste
   niepowodzenie wymaga ponownej kwalifikacji wg Fazy 2, nie stałego fallbacku.
-- **Bramka końcowa Astry** — plan mówi wprost, czy feature jest wysokiej
-  stawki (lista w Fazie 4b), i jeśli tak, przewiduje jedną recenzję Astry
-  `max` całego diffu po recenzjach etapów.
+- **Bramka końcowa** — plan mówi wprost, czy feature jest wysokiej
+  stawki (lista w Fazie 4b), i jeśli tak, przewiduje recenzję 6.1 Sola
+  `max` całego diffu po recenzjach etapów (osobno FE i BE, sekwencyjnie).
 - **Scenariusz weryfikacji w przeglądarce** (`browser-check`, od 5.16):
   plik JSON w scratchpadzie sesji — specyfikacja odbioru, którą piszesz
   w planie jak kryteria akceptacji, nie test w repo produktu (E2E prowadzi
@@ -311,7 +311,7 @@ odrzuć pary model–native effort niespełniające choć jednego twardego warun
 - wykonawca musi móc bezpiecznie zapisywać i weryfikować własne pliki;
   recenzent działa tylko do odczytu, ma kompetencje do stawki i zakresu
   oraz pochodzi z innej rodziny niż autor (Faza 4b). Niezależność końcowej
-  bramki Astra/Sol dotyczy plików niosących niezmiennik high-stakes: te
+  bramki Sol (rodzina Codex) dotyczy plików niosących niezmiennik high-stakes: te
   zawsze pisze `wykonawca-opus` (wyjątek CZERWONEGO: Spark `xhigh`), więc
   bramka z rodziny Codex jest wobec nich niezależna. Codex może pisać
   briefy bez niezmiennika w funkcji high-stakes (ekrany, szablony, style,
@@ -336,7 +336,8 @@ dobór natywnego effortu.
 Codex jest pełnoprawnym kandydatem do kwalifikujących się briefów już
 w planie — nie czeka na limit innej linii. Działa jednak na ChatGPT Plus,
 czyli najmniejszej puli (bramka Astra `max` na PBI #2137 zjadła ~66 pkt okna
-5 h i ~10 % tygodnia): przy każdej kwalifikacji Codexa liczysz zużycie jego
+5 h i ~10 % tygodnia, na PBI #2370 wyczerpała okno po 6 min — stąd bramka
+na Solu): przy każdej kwalifikacji Codexa liczysz zużycie jego
 puli (bez długich przebiegów i effortów nieuzasadnionych briefem). Sygnał
 puli Codexa jest zwykle `nieznany` (wrapper nie podaje zapasu) — nie
 szacujesz procentu z historii ani z ceny. W funkcji high-stakes przy sygnale
@@ -400,7 +401,7 @@ bez wklejonego diffu.
 | `zwiadowca` — Haiku `low` | fakty z repo przed decyzją | tylko odczyt |
 | `audytor-a11y` — Opus `high` | delegowany audyt kontrastu/fokusu/tokenów | audyt, nie przejęcie implementacji |
 | QA Sphere — autor Spark `xhigh`; Gemini `-Access write`, gdy Spark zajęty albo z limitem | plik podglądu wg `qasphere-test-generator` | recenzja: plik Sparka → Gemini `-Access read`, plik Gemini → Spark `-Access read`; publikacja/poprawki/weryfikacja przez architekta skryptem `qas.py`; sesja nie pisze przypadków i nie woła `create_test_case` / `update_test_case` |
-| bramka końcowa — `gpt-6-astra` `max` + próba `gpt-6.1-sol` `max` | cały feature high-stakes po recenzjach fal | istniejąca bramka i eksperyment z Fazy 4b; niezależna wobec plików niosących niezmiennik (pisze je Opus); nie zastępują recenzji fal, także dla plików bez niezmiennika pisanych przez Codex |
+| bramka końcowa — `gpt-6.1-sol` `max` (od 2026-10-05, zamiast Astry) | cały feature high-stakes po recenzjach fal, osobno FE i BE, sekwencyjnie | bramka z Fazy 4b; niezależna wobec plików niosących niezmiennik (pisze je Opus); nie zastępuje recenzji fal, także dla plików bez niezmiennika pisanych przez Codex |
 
 **Preferencje jakościowe — nie hard gates.** Dotychczasowe wyniki recenzji
 Spark/Gemini, researchu Sola i audytu SCSS Sparka są wskazówkami do kroku 2.
@@ -447,7 +448,7 @@ Pułapki, które w tym skillu kosztowały najwięcej:
   do Sparka `xhigh` (nigdy do Gemini, Sonneta ani Codexa) albo czeka;
   ten wyjątek nie otwiera high-stakes na Codexa. Figma nadal wymaga
   rzeczywistego dostępu, testy właściwego oracle, recenzja innej rodziny.
-  Bramka Astra/Sol zachowuje własne modele i efforty; jej limit nie
+  Bramka Sol `max` zachowuje własny model i effort; jej limit nie
   dopuszcza słabszej bramki. Gemini po trzykrotnym 503 traktujesz jako
   rzeczywiste niepowodzenie linii i ponownie kwalifikujesz kandydatów.
   Jeśli nie ma bezpiecznej dostępnej linii, **zatrzymaj zadanie i zgłoś
@@ -464,16 +465,16 @@ Pułapki, które w tym skillu kosztowały najwięcej:
 - **Start każdego subagenta Claude'a to ~58 k tokenów promptu.** Drobiazgi
   (kilka kluczy i18n, dwa rename'y) idą w jednym briefie do jednego
   `mechanik`a, nie w pięciu wywołaniach.
-- **„Astra zawsze, byle na niższym effortcie" to fałszywa oszczędność.**
-  Ok. 80 % kosztu recenzji to czytanie kodu (wejście po cenie Astry, 5×
-  Sola), reasoning ~9 % — Astra `low` (Intelligence Index 45,8) daje poziom
-  Sparka `xhigh` (45,1) za cenę Astry. Jedna recenzja Astry `max` całego
-  PBI #2137 zjadła 66 pkt okna 5 h i 10 % tygodnia Codexa; dlatego raz na
-  feature, na końcu, nie na etap.
+- **Effort nie jest dźwignią kosztu recenzji, model i wybór diffu są.**
+  Ok. 80 % kosztu recenzji to czytanie kodu (wejście), reasoning ~9 % —
+  stąd bramka na 6.1 Solu `max` (token 5× tańszy niż Astry), raz na
+  feature, na końcu, nie na etap. Astra `max` wyczerpywała okno 5 h Plusa
+  jednym przebiegiem (PBI #2137: 66 pkt okna i 10 % tygodnia; PBI #2370:
+  limit po 6 min).
 - **Recenzent z tej samej rodziny co autor to nie recenzja.** Spark nie
   recenzuje kodu Sparka, Gemini — kodu Gemini, Sol — kodu Codexa, a Fable
   nie recenzuje wcale (rodzina Sonneta i Opusa). Nie dublujesz recenzentów
-  równolegle poza zachowaną próbą Astra/Sol. Wybór recenzenta per brief
+  równolegle. Wybór recenzenta per brief
   zawsze przechodzi kwalifikację. Brief wymaga sprawdzenia scenariusza
   P0/P1 przed zgłoszeniem, a Ty obalasz każde P0/P1 jednym poleceniem
   przed poprawką.
@@ -707,39 +708,41 @@ i stron WWW, więc recenzja z definicji niczego nie zmienia.
 DomSztukiFE ×2) wspierał recenzje Spark/Gemini. To preferencja do
 weryfikowania w rejestrze, nie wyłączność ani warunek limitu dla Sola.
 
-**Bramka końcowa Astry — raz na feature wysokiej stawki.** Gdy feature
+**Bramka końcowa — `gpt-6.1-sol` `max`, raz na feature wysokiej stawki
+(od 2026-10-05; wcześniej Astra).** Gdy feature
 dotyka uwierzytelniania i sesji, płatności (Stripe), PIN-u sprzedawcy,
 migracji danych, naliczania pieczątek i nagród, jednorazowych kodów albo
 limitów prób, **po** recenzjach etapów i ich poprawkach, a przed bramą
-potwierdzenia, zlecasz jedną recenzję całego niescommitowanego diffu
-feature'a (ta sama komenda, `-Model gpt-6-astra -Effort max`,
-`-Title "Bramka Astra PBI #<numer>"`). Astra **uzupełnia** recenzje etapów,
-nigdy ich nie zastępuje. Jej niezależność dotyczy plików niosących
+potwierdzenia, zlecasz recenzję całego niescommitowanego diffu
+feature'a (ta sama komenda, `-Model gpt-6.1-sol -Effort max`,
+`-Title "Bramka Sol PBI #<numer> FE|BE"`) — osobno na każde repozytorium,
+**sekwencyjnie**, każde w całości w jednym przebiegu. Brief przez
+`-BriefFile` (niestandardowe instrukcje; zakres: `git diff HEAD` +
+`git status --porcelain -uall`) — sprawdź w nim kontrakt FE ↔ BE z kodem,
+bo błędna przesłanka zatrzymuje recenzję na klauzuli STOP. Bramka
+**uzupełnia** recenzje etapów, nigdy ich nie zastępuje. Jej niezależność dotyczy plików niosących
 niezmiennik high-stakes (pisze je `wykonawca-opus`, w wyjątku CZERWONEGO
 Spark `xhigh`); briefy bez niezmiennika, także pisane przez Codex, mają
 niezależność z recenzji fali z rodziny innej niż Codex — bramka czyta
 cały diff funkcji w jednym przebiegu (recenzji nie dzielisz na porcje
 ≤ 5 plików, te dotyczą implementacji/testów Codexa), ale dla nich nie
-zastępuje recenzji fali. Wyłącznie `max`: ~80 % kosztu recenzji to czytanie
-kodu, więc niższy effort daje cenę Astry bez jej przewagi (Astra `low` ≈
-Spark `xhigh` w Intelligence Index). Koszt jest realny — bramka całego
-PBI #2137 zjadła 66 pkt okna 5 h i 10 % tygodnia Codexa — i się opłacił:
-po dwóch recenzjach Sola znalazła pięć realnych defektów (podwójny POST,
-pominięte odświeżenie kart, `retryAfterSeconds` poza zakresem, zawieszone
-żądanie po błędzie ładowania nakładki, brak sprawdzenia roli klienta).
-Znaleziska triażujesz razem z recenzjami etapów; w raporcie przed bramą
-zaznaczasz, co znalazła tylko Astra. Kryterium stawki wpisujesz do planu
-(Faza 1), nie decydujesz o nim po fakcie.
+zastępuje recenzji fali. Wyłącznie `max`, bez obniżania po limicie:
+limit Codexa blokuje bramkę do resetu. Bramka raz na feature się opłaca —
+na PBI #2137, po dwóch recenzjach Sola, ówczesna bramka (Astra) znalazła
+pięć realnych defektów (podwójny POST, pominięte odświeżenie kart,
+`retryAfterSeconds` poza zakresem, zawieszone żądanie po błędzie ładowania
+nakładki, brak sprawdzenia roli klienta). Znaleziska triażujesz razem
+z recenzjami etapów; w raporcie przed bramą zaznaczasz, co znalazła tylko
+bramka. Kryterium stawki wpisujesz do planu (Faza 1), nie decydujesz o nim
+po fakcie.
 
-**Próba bramki (od 2026-09-30, reguła 6 globalnego `CLAUDE.md`).** 6.1 Sol
-`max` ma prawie Intelligence Index Astry `max` (51,8 wobec 52,7) za 4,5×
-niższy koszt zadania (0,72 $ wobec 3,26 $). Na najbliższym feature'ze
-wysokiej stawki puszczasz bramkę równolegle drugi raz — ta sama komenda
-z `-Model gpt-6.1-sol -Effort max`, `-Title "Bramka Sol 6.1 PBI #<numer>"`
-— i po triażu porównujesz znaleziska (wspólne / tylko Astra / tylko Sol,
-z priorytetem). Wynik zapisujesz w regule 6 i w pamięci; 6.1 Sol przejmuje
-bramkę, jeśli nie przegapił żadnego P1 Astry i znalazł co najmniej tyle
-realnych defektów.
+**Dlaczego nie Astra (decyzja właściciela 2026-10-05, reguła 6 globalnego
+`CLAUDE.md`).** `gpt-6-astra` `max` nie mieści się w ChatGPT Plus (widełki
+5–45 wiadomości / 5 h wobec 15–160 Sola 6.1): bramka Astra ∥ Sol na 195
+plikach BE (PBI #1603) padła po 13 min, a sama Astra na 88 plikach FE
+(PBI #2370) — po 6 min, obie bez raportu. 6.1 Sol `max` ma prawie
+Intelligence Index Astry `max` (51,8 wobec 52,7) za 4,5× niższy koszt
+zadania. Próba Astra/Sol z 2026-09-30 jest zamknięta jako niewykonalna.
 
 Co robisz z wynikiem — **triaż, nie posłuszeństwo** (skill
 `superpowers:receiving-code-review` obowiązuje):
@@ -804,7 +807,7 @@ pkt 4) — bez ogłaszania publikacji. Bez tych punktów brama nie jest gotowa.
 Raport potwierdza też recenzję i odbiór dowodów każdej fali, spełnienie
 ograniczeń routingu oraz wpisy istotnych briefów do rejestru (albo
 uzasadnione mechaniczne pominięcia); dla high-stakes zawiera wynik
-niezmienionej bramki końcowej i obowiązującego eksperymentu Astra/Sol.
+niezmienionej bramki końcowej (6.1 Sol `max`).
 
 - Jeśli zgłoszę poprawki → wprowadź je → wróć do tej samej bramy.
 - Jeśli potwierdzę, że jest OK → przejdź do Fazy 6.
