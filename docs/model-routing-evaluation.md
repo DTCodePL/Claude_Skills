@@ -808,6 +808,40 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak stwierdzonych
 - Wymagane testy i dowody: bilans plików i nazw skryptem, brak klatek tymczasowych w repo, `.gitattributes` uzupełniony o `*.mp4` jako binarny. Wniosek do briefów: zakazać wprost operacji na procesach i uchwytach systemowych oraz plików roboczych w repo; niemożność usunięcia katalogu zgłaszać w raporcie
 
+### BE-6 (BeautyEffectFE: szkielet workspace Angular 22 + recenzja + korekta) — 2026-10-05
+- Archetyp: szkielet projektu FE na wzór istniejącego repo (konfiguracja, core, powłoka, pierwsza strona, testy AXE)
+- Stawka: średnia (fundament wszystkich briefów FE; licencja PrimeUI jako sekret)
+- Niepewność: niska–średnia (wzorzec ZebraniFE, nowe decyzje: tylko `public/`, tylko `pl`)
+- Wykonawca (linia / model / native effort): FE-W1 Spark / `muse-spark-1.3-contributor` / `xhigh`; korekta K-FE1 Spark / `high`
+- Recenzent (linia / model / native effort): R-FE1 Codex / `gpt-6.1-sol` / `high` (`-Mode review`) — po nieudanym Gemini `gemini-3.8-flash-high` `-Access read` (429, limit indywidualny, reset ok. 10 min)
+- Dopuszczone alternatywy: wykonawca — Codex `gpt-6.1-sol` (porcje ≤ 5 plików, nieekonomiczne dla szkieletu ~60 plików), `wykonawca` Sonnet (Claude ŻÓŁTY); recenzent — Gemini (zablokowany 429)
+- Powód wyboru: duży wolumen plików na puli niezależnej od Claude'a, pętla lint/test przez interop; recenzent spoza rodziny autora
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (ŻÓŁTY, tydzień 69 %), Spark/Codex nieznany (wrappery), Gemini zablokowany (429) 2026-10-05 20:16
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano z poprawkami; architekt sam: `npm install`, `prettier --write` na 5 plikach, sonda reguły importów w obie strony
+- Rundy korekt: 1 (K-FE1, 4 min)
+- Czas do akceptacji: ok. 45 min (FE-W1 14,6 min, R-FE1 3,1 min, K-FE1 4 min, walidacja)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 5 × P2 potwierdzone, 0 odrzuconych — brak `license` w `providePrimeNG`; klucz `ERRORS.UNEXPECTED` nieobecny w `pl.json`; brak polskich tekstów PrimeNG; loader SSR czyta `dist` przed `src` w trybie deweloperskim; ścieżki loadera zależne od `process.cwd()` (odziedziczone ze wzorca)
+- Defekty po odbiorze: brak; K-FE1 słusznie zgłosił 2 błędne założenia briefu (wierna kopia `primeng-translation.ts` nie kompiluje się bez `LanguageMode`; kopia nie daje polskich „Tak/Nie” w `confirm`) — przyjęte
+- Wymagane testy i dowody: `npm run lint`, `format:check`, `npm test` (7/7), `npm run build` (prerender `/`), sonda `no-restricted-imports` (3 poziomy i przekroczenie obszaru → błąd)
+
+### BE-7 (BeautyEffect: research typografii i wyglądu strony beauty — dowody, rynek, trendy 2026) — 2026-10-05
+- Archetyp: research z adresem przy każdym twierdzeniu (dowody/normy vs przegląd rynku), równolegle 4 briefy
+- Stawka: średnia (podstawa kierunku wizualnego i wyboru krojów przez właściciela)
+- Niepewność: wysoka (trendy, brak danych lokalnych)
+- Wykonawca (linia / model / native effort): R-T1 Codex / `gpt-6.1-sol` / `xhigh`; R-T2 Spark / `muse-spark-1.3-contributor` / `xhigh`; R-W1 Codex / `gpt-6.1-sol` / `high`; R-W2 Gemini / `gemini-3.8-flash-high`
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — architekt: kontrola wszystkich 49 adresów R-W1 (43 × 200, 6 blokuje boty), 3/3 twierdzeń próbki R-W1, 3/3 stron próbki R-W2 w kodzie (kroje, Booksy, Boulevard); odstępstwo od reguły 13 dla researchu referencyjnego bez wpływu na decyzje
+- Dopuszczone alternatywy: R-W2 — Codex (pula Plus, już 2 briefy), Spark (zajęty R-T2); R-T1/R-W1 — Gemini (negatywny sygnał researchu z 2026-09-24)
+- Powód wyboru: rozdział „dowody/normy” (Codex — dotąd rzetelne adresy) od „przeglądu wizualnego wielu stron” (Gemini/Spark — wolumen); cztery pule równolegle
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (ŻÓŁTY), Spark/Codex/Gemini nieznany (wrappery), 2026-10-05 20:00
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: R-T1 i R-T2 słusznie ZATRZYMANE na błędnym założeniu briefu („odbiorczynie głównie na telefonie” — dokumenty mówią: udział nieznany; brak kierunku DomSztuki w dokumentach; niezgodny front matter) — architekt poprawił 4 briefy i założył KO-KIERUNEK-WIZUALNY; R-W2 zaakceptowany z adnotacją (zmyślone HEX palety w sekcji kierunków); R-W1 zaakceptowany bez uwag; R-T2 bez Playwright MCP (kroje z deklarowanego `font-family`, nie z obliczonych stylów)
+- Rundy korekt: 1 (ponowienie R-T1/R-T2 po zatrzymaniu; R-W2 — adnotacja architekta zamiast korekty)
+- Czas do akceptacji: ok. 40 min (R-T1 1 + 11,5 min, R-T2 1,4 + 11,3 min, R-W2 13,8 min, R-W1 19 min, kontrola)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy (brak recenzji innej rodziny); znalezisko architekta: R-W2 sekcja 6 — HEX i numery odcieni sprzeczne z AT-SYSTEM-KOLOROW-UI (P2, adnotacja w dokumencie)
+- Defekty po odbiorze: brak stwierdzonych
+- Wymagane testy i dowody: front matter i linki skryptem, status HTTP wszystkich adresów R-W1, próbki twierdzeń. Wniosek: klauzula STOP zadziałała 2/2 na błędzie architekta; Gemini w przeglądzie wizualnym rzetelny co do stron, ale dopisuje własne wartości palety — brief ma zabraniać podawania HEX spoza dokumentu
+
 ### 2370-D (trzy rewizje dokumentacji produktowej) — 2026-10-05
 - Archetyp: dokumentacja produktowa / rewizje zatwierdzonych dokumentów
 - Stawka: średnia (źródło prawdy dla funkcji wysokiej stawki)
@@ -977,6 +1011,448 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - G-BE-1 (poprawki BE): `wykonawca-opus` Opus `xhigh`, 1 przebieg, ok. 18 min, 321 k tokenów (powyżej miękkiego progu 300 k — domknął bez przekazania); P1 (kolejność dostępność → zaległość u operatora → okres, `EnsurePeriodCurrent`) + P3 (`ToString` bez `pm_`), 79 nowych przypadków, mutacje: A 65 czerwonych, B 1; walidacja architekta: build `--no-incremental` 0/0, 5456/5456/0; recenzja Spark `xhigh` read — „poprawny” 0,9, bez znalezisk. Rundy korekt: 0.
 - Defekty po odbiorze: brak do bramy potwierdzenia; właściciel przyjął bez uwag (2026-10-05), deploy PRE zweryfikowany 21:49 UTC: FE 1.2.0 `1a2021c`, BE 1.2.0 `2f60f15` (dokładne SHA).
 - Wymagane testy i dowody: FE 4335/4335 + lint/format/build; BE 5456/5456/0 z SQL; browser-check sprzed poprawek (8/8 × 2) — poprawki nie dotykają ekranu Ustawień.
+
+### BE-8 (BeautyEffect: podglądy wyglądu do wyboru przez właściciela — M-1, część 1 B-1/B-1b/B-1c) — 2026-10-05
+- Archetyp: samodzielna strona HTML z podglądem wariantów (przełączniki opcji, oba motywy, komputer/telefon) na prawdziwych zdjęciach i filmie salonu; materiał do decyzji właściciela, nie kod produktu
+- Stawka: średnia (właściciel wybiera kierunek wizualny z podglądu — błąd podglądu = zła decyzja albo stracona runda)
+- Niepewność: wysoka (gust właściciela, nastrój dopiero doprecyzowywany w trakcie)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh` (wszystkie cztery)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór wizualny architekta (zrzuty Playwright MCP, klatki filmu); odstępstwo od reguły 13 dla materiału podglądowego bez kodu produktu
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` (pula Plus, później zablokowana limitem); Gemini `high` (bez wcześniejszych wyników przy stronach podglądu); Claude `wykonawca` (pula ŻÓŁTA, koszt kontekstu)
+- Powód wyboru: duży jednoplikowy HTML/CSS bez Figmy, tani token Sparka, wcześniejsze dobre wyniki Sparka przy stronach statycznych
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (ŻÓŁTY, hook), Spark nieznany (wrapper), 2026-10-05 20:30
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: M-1 (33 min) odrzucony przez właściciela — brief architekta kazał „opowiadać historię” jak DomSztuki, a właściciel chciał z DomSztuki tylko proces wyboru i poziom wykonania (błąd briefu, nie wykonawcy); B-1 i B-1b zatrzymane przez architekta po kolejnych uwagach właściciela o nastroju („za ciemno i ponuro”, „radosny… premium”); B-1c (21 min) zaakceptowany po poprawkach architekta
+- Rundy korekt: 3 zmiany briefu wywołane uwagami właściciela + drobne poprawki architekta w B-1c
+- Czas do akceptacji: ok. 1 h 10 min od M-1 do pokazania B-1c
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy (brak recenzji innej rodziny)
+- Defekty po odbiorze: 3 wykryte dopiero po uwagach właściciela do części 1 — jednostki `vw` w skalowanym podglądzie telefonu (ogromny H1, łuk filmu poza osią), film w otwarciu z czarno-białym ujęciem i twardymi cięciami (zasób przygotował architekt bez sprawdzenia klatek)
+- Wymagane testy i dowody: zrzuty wszystkich stanów przełączników w obu motywach i na obu ekranach. Wniosek: w podglądach ze skalowaniem brief wymaga jednostek kontenera (`cqi`, `container-type`), nie `vw`; architekt ogląda klatki filmu (jasność, kolor, styki) przed wpisaniem go do briefu; cytaty właściciela o nastroju wchodzą do briefu dosłownie
+
+### BE-9 (BeautyEffect: research R-W3 — nagłówki sekcji, rozdzielenie sekcji, ciemny motyw, logo w nagłówku) — 2026-10-05
+- Archetyp: research z adresem przy każdym twierdzeniu + gotowe opcje N/S/C/L do podglądu, z kontrastem WCAG wyliczonym wzorem
+- Stawka: średnia (opcje idą wprost do podglądu i wyboru właściciela; kolory muszą trzymać ograniczenia AT-SYSTEM-KOLOROW-UI)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): plan Codex / `gpt-6.1-sol` / `high` → po komunikacie limitu Plusa ponowna kwalifikacja: Spark / `muse-spark-1.3-contributor` / `xhigh` (485 s)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — kontrola architekta (adresy, kontrast skryptem, zgodność z AT); odstępstwo od reguły 13 dla researchu referencyjnego
+- Dopuszczone alternatywy: Gemini `high` (negatywny sygnał researchu z 2026-09-24); Codex zablokowany do 2026-10-06 03:11
+- Powód wyboru: Codex — dotąd najrzetelniejsze adresy; po limicie Spark (ma sieć, dobre wyniki przy opcjach z liczbami)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex zablokowany (komunikat limitu wrappera, 2026-10-05 21:50), Spark nieznany, Claude ostrzegawczy (ŻÓŁTY)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowany z 1 poprawką adresu (404 NN/g, poprawiony z adnotacją)
+- Rundy korekt: 0 (poprawka adresu i uzupełnienia przy B-2 zrobił architekt)
+- Czas do akceptacji: ok. 25 min (przebieg 8 min + kontrola)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): znaleziska architekta: część opcji (akcent nagłówków w śliwce, powierzchnie śliwka 900/950 w C-2/C-4, stopka w C-1) wykracza poza ograniczenia AT-SYSTEM-KOLOROW-UI, a research tego nie oznaczył (P2 — odnotowane w KO-KIERUNEK-WIZUALNY); brak kontrastu odnośników na jasnych pasach (4,20 / 3,92 / 4,42 — P2, rozwiązane w briefie B-2)
+- Defekty po odbiorze: brak stwierdzonych
+- Wymagane testy i dowody: status HTTP adresów, kontrast kluczowych par skryptem. Wniosek: brief researchu z opcjami kolorów wymaga tabeli „opcja × ograniczenie dokumentu” i kontrastu na każdej powierzchni, na której stoi tekst lub odnośnik
+
+### BE-10 (BeautyEffect: podgląd części 1b — dopracowanie wariantu A, grupy N/S/C/L) — 2026-10-05…06
+- Archetyp: jak BE-8 (samodzielny HTML podglądu), z czterema grupami opcji łączonymi dowolnie i poprawkami po uwagach właściciela (film, środek na telefonie)
+- Stawka: średnia
+- Niepewność: średnia (opcje z researchu BE-9, wartości podane w briefie co do piksela i prymitywu palety)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh` (514 s)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór wizualny architekta: macierz stanów (N×3, S×3, C×4, L×2, oba ekrany, oba motywy) w Playwright MCP, zestawienia siatek, zrzuty 2–3× gęstości pikseli dla logo
+- Dopuszczone alternatywy: Codex zablokowany limitem; Gemini `high`; Claude `wykonawca` (pula ŻÓŁTA)
+- Powód wyboru: autor B-1c zna plik; pełna specyfikacja liczbowa w briefie
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex zablokowany (do 2026-10-06 03:11), Spark nieznany, Claude ostrzegawczy (ŻÓŁTY), 2026-10-05 22:05
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zgodny z briefem w większości; Spark nie mógł zrobić zrzutów (serwer podglądu niedostępny z WSL — zrzuty przejął architekt); 5 jawnie zgłoszonych odchyleń, przyjętych
+- Rundy korekt: 0 przebiegów korekty — 6 drobnych poprawek CSS/znaczników zrobił architekt (taniej niż brief do pliku 52 kB): podwójny monogram w jasnym motywie (brak reguły ukrywającej wersję ciemną), nagłówki stopki w Bodoni ok. 50 px (reguły grupy N obejmowały każdy `h2`), poświata nad tekstem kroku 3 w ciemnym motywie (brak `z-index`/izolacji) i w najjaśniejszym punkcie pod tekstem (wbrew briefowi), kafelki monogramu widoczne na komputerze w wierszach bez zdjęć (odziedziczone z części 1), logo: grafika z przezroczystym marginesem 33 % wysokości (przycięto zasób), a „duże” logo złożone w L-2 miało napis mniejszy niż poziome — zastąpione poziomym 64 px; L-2 na telefonie dostał własny układ (menu jako ikona, logo na środku 38 px)
+- Czas do akceptacji: ok. 1 h 15 min (przebieg 8,5 min + walidacja macierzy i poprawki)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): znaleziska architekta — 2× P1 wizualne (podwójny monogram, nagłówki stopki), 4× P2 (poświata ×2, kafelki, logo); fałszywych: 0
+- Defekty po odbiorze: 1 uwaga właściciela po pokazie (2026-10-06): nagłówek otwarcia z myślnikiem łamał się na „Beauty Effect — / salon / kosmetyczny w…” — „salon” sam w wierszu, myślnik jako cienka kreska na początku wiersza; poprawka architekta (myślnik ukryty wizualnie, opis w osobnym bloku 0,75 em, frazy niełamliwe). Źródło: brief B-2 nie przewidział łamania długiego `<em>` przy 72 px (fraza „salon kosmetyczny” ma 500 px przy kolumnie 490–575 px) — pomiar szerokości fraz należy do odbioru wizualnego, nie tylko zrzut. Właściciel wybrał N-1, S-3, C-1, L-1
+- Wymagane testy i dowody: zrzuty każdej opcji, `getComputedStyle` dla przełączanych elementów, zapis kliknięć `data-choice` w `state/events`. Wniosek: przy regułach typu „każdy `h2`” brief ma wymieniać wyjątki (stopka, karty); grafik z logo nie skaluje się bez sprawdzenia ramki obrazu (bbox kanału alfa) — architekt przycina zasoby przed briefem
+
+### BE-11 (BeautyEffect: podgląd części 2 — trzy pary krojów na wybranym układzie) — 2026-10-06
+- Archetyp: jak BE-10 (samodzielny HTML podglądu) — przepięcie krojów na zmienne CSS i trzy zestawy rozmiarów/grubości z briefu
+- Stawka: średnia
+- Niepewność: niska–średnia (wszystkie wartości w briefie; jedyna decyzja projektowa — akcent bez kursywy dla Marcellusa — podjęta przez architekta w briefie)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh` (247 s)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór wizualny architekta (3 pary × komputer/telefon × jasny/ciemny, pomiar wierszy etykiety i opisu H1); odstępstwo od reguły 13 dla materiału podglądowego
+- Dopuszczone alternatywy: Gemini `high`; Codex zablokowany do 2026-10-06 03:11; Claude `wykonawca` (pula ŻÓŁTA)
+- Powód wyboru: autor B-1c i B-2 zna plik; dobry wynik B-2
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark nieznany, Codex zablokowany, Claude ostrzegawczy (ŻÓŁTY, tydzień 73 %), 2026-10-06 00:34
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zgodny z briefem; Spark słusznie wskazał lukę briefu (reguła N-1 „ciemny = grubiej” podniosłaby Marcellus — sam dodał nadpisanie) i niejawne zmiany grubości przycisków/nawigacji
+- Rundy korekt: 0 przebiegów — 1 poprawka architekta (rozstrzelenie etykiety T-B na telefonie, „GÓRA” w osobnym wierszu)
+- Czas do akceptacji: ok. 15 min (przebieg 4 min + walidacja)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): architekt — 1× P3 (zawijanie etykiety T-B na telefonie); fałszywych: 0
+- Defekty po odbiorze: brak — właściciel przełączył trzy pary i wybrał T-B „Klasyka” (Cormorant Garamond + Jost) bez uwag (2026-10-06)
+- Wymagane testy i dowody: siatki zrzutów, `document.fonts` (załadowane kroje i grubości), liczba wierszy etykiety i opisu H1 per para i widok. Wniosek: brief zmieniający krój musi wymieniać reguły zależne od motywu (grubość w ciemnym) dla każdej pary; tracking wersalików sprawdzać na telefonie przy najdłuższej etykiecie
+
+### BE-12 (BeautyEffect: podgląd części 3 — ruch: wejścia, najechanie, pasek u góry) — 2026-10-06
+- Archetyp: jak BE-10 (samodzielny HTML podglądu), ale z logiką: obserwator wejść z kolejnością w partii, odtwarzanie od początku, zachowanie paska przy przewijaniu, przejście motywu (View Transitions), pełny wariant ograniczonego ruchu; wszystkie czasy, krzywe i przesunięcia podane w briefie
+- Stawka: średnia
+- Niepewność: średnia (interakcje przejść CSS z najechaniem i wejściem na tych samych elementach — rozstrzygnięte w briefie zasadą „efekty R tylko na dzieciach jednostek wejścia”)
+- Wykonawca (linia / model / native effort): pierwotnie Spark / `muse-spark-1.3-contributor` / `xhigh` — przebieg nieudany po 295 s (API 402 `billing_error`: „Billing verification failed. Please check your payment method.” — awaria rozliczeń konta, nie limit); ponowna kwalifikacja → Codex / `gpt-6.1-sol` / `high` (2 przebiegi: 57 s zatrzymanie, 590 s wykonanie)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór wizualny architekta (stany pośrednie animacji przez `document.getAnimations()`, siatki zrzutów W×czas, R×najechanie, P×przewijanie, telefon, ciemny, `emulateMedia(reducedMotion)`, przejście motywu); odstępstwo od reguły 13 dla materiału podglądowego
+- Dopuszczone alternatywy: Gemini `high` (zapis na Windows); Claude `wykonawca` (pula ŻÓŁTA, tydzień 73 %)
+- Powód wyboru: Spark — autor B-1c/B-2/B-3, dobre wyniki; po awarii Codex Sol — najsilniejsza dostępna linia spoza puli Claude'a, pula po resecie 03:11, brief nie jest high-stakes, jeden plik
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark zablokowany (402 z wrappera, 2026-10-06 11:31), Codex nieznany, Claude ostrzegawczy (ŻÓŁTY, tydzień 73 %), 2026-10-06 11:30
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: przebieg 1 Codexa zatrzymał się zgodnie z klauzulą STOP na dwóch słusznych lukach briefu (samokontrola obejmowała nagłówek paska wyboru; przycisk motywu ukryty na telefonie) — oba rozstrzygnięte przez architekta; przebieg 2 zgodny z briefem, z jawnie opisanymi doprecyzowaniami (osobna właściwość `scale` dla R-2, żeby nie kolidować z transformacją wejścia)
+- Rundy korekt: 0 przebiegów korekty — 2 poprawki architekta: `<address>` wewnątrz `<p class="rv">` (błąd znaczników z części 1 — parser zostawiał pusty akapit, który nigdy się nie odsłaniał) oraz kontrast przycisku obrysowego przy najechaniu (podbarwienie 8 % `--link` dawało 4,16:1 na `--feat`; tekst i obrys przy najechaniu → `--ctah`, 5,8:1 — usterka istniała od części 1)
+- Czas do akceptacji: ok. 45 min (przebiegi 11 min + walidacja)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): architekt — 1× P2 (kontrast przy najechaniu), 1× P3 (znaczniki adresu); fałszywych: 0
+- Defekty po odbiorze: brak uwag właściciela — wybrał W-3 „Odsłonięcie”, R-2 „Uniesienie” i P-2 „Szkło” (2026-10-06). Po wyborze P-2 architekt znalazł 1× P2 nieobjęte briefem: na pasku „szkło” (85 % karty) napis „Zadzwoń”/„Menu” w kolorze odnośnika spadał w najgorszym przypadku do 3,50:1 (jasny) i 3,92:1 (ciemny) — przyciski obrysowe na szkle dostały pełne tło karty. Wniosek: brief z półprzezroczystą powierzchnią musi podawać kontrast każdego koloru tekstu nad najgorszą treścią pod spodem
+- Wymagane testy i dowody: postęp `.in` przy przewijaniu krokami (komputer i telefon — 38/38 poza ukrytym na telefonie podglądem), wymiary H1/H2 identyczne z częścią 2 we wszystkich W, wysokość nagłówka i pozycja sekcji stałe we wszystkich P, `data-hidden` nie przy otwartym menu, brak animacji przy ograniczonym ruchu, 0 błędów konsoli. Wniosek: brief zmieniający zachowanie istniejącego elementu musi sprawdzić, czy element jest widoczny w obu widokach; Codex z klauzulą STOP zatrzymuje się na drobnych lukach — w briefie dla Codexa warto dopisać regułę „drobne niejasności rozstrzygnij zachowawczo i zgłoś”
+
+### BE-13 (BeautyEffect: podgląd części 4 — strona kategorii „Rzęsy i brwi” K-1/K-2/K-3 i menu na telefonie M-1/M-2) — 2026-10-06
+- Archetyp: jak BE-12 (samodzielny HTML podglądu z logiką): przełączanie stron z przejściem, 11 zabiegów z kotwicami, rozwijanie (K-3), szuflada i arkusz z pułapką fokusu, Escape/scrim/zamknięcie, przeciąganie arkusza palcem
+- Stawka: średnia
+- Niepewność: średnia (geometria warstwy menu w scenie z `zoom`)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (1 przebieg, 688 s)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór w przeglądarce architekta (geometria menu w 4 stanach × 2 zoomy, pułapka fokusu, Escape i powrót fokusu, kotwice 11/11, K-3 `aria-expanded` i ukrycie treści, ciemny motyw, ograniczony ruch, konsola); odstępstwo od reguły 13 dla materiału podglądowego
+- Dopuszczone alternatywy: Gemini `high` (zapis na Windows); Claude `wykonawca` (pula ŻÓŁTA, tydzień 74 %); Spark zablokowany (402)
+- Powód wyboru: Codex — przyjęty BE-12 na tym samym pliku, najsilniejsza dostępna linia spoza puli Claude'a
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY), 2026-10-06 12:05
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: plik kompletny, samokontrola Codexa zielona; Codex słusznie zgłosił błędne założenie briefu (warstwa menu liczona od góry sceny, a nagłówek u początku strony stoi 40 px niżej — dół menu poza ekranem); potwierdzone pomiarem (40 px), poprawione przez architekta jedną linią (wysokość warstwy liczona przy otwarciu od góry nagłówka do dołu sceny), sprawdzone przy `zoom` 1 i 0,88
+- Rundy korekt: 0 przebiegów korekty — 1 poprawka architekta (geometria menu)
+- Czas do akceptacji: ok. 25 min (przebieg 11,5 min + walidacja)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Codex — 1× P2 w briefie (potwierdzone); architekt — 1× P3 (etykiety Booksy łamane między wiersze na telefonie, `box-decoration-break: clone` — zostawione), 1× P3 dziedziczone (nazwa dostępna adresu „ulica…” nie zawiera widocznego „ul.” — WCAG 2.5.3, do specyfikacji)
+- Defekty po odbiorze: właściciel odrzucił K-1/K-2/K-3 — „Te zabiegi wydaja sie tuuuurbo chujowe. Mam w sumie powtórzone 11x "idz do booksy"”. Przyczyna po stronie architekta i dokumentacji, nie wykonawcy: specyfikacja strony kategorii (podpowiedź Booksy + „Umów wizytę” przy każdym zabiegu, wspólna zasada uzupełnienia powtórzona 5×) przeniesiona do briefu dosłownie, mimo że Booksy nie ma odnośników do pojedynczych usług. Wniosek: przed briefem podglądu przejrzeć specyfikację treści pod kątem powtórzeń i martwych działań (ten sam cel 11×), nie tylko pod kątem zgodności tekstu. Druga lekcja: podgląd części 4 pokazywał niezmienioną sekcję „Co tu zrobisz”, którą właściciel już skrytykował — właściciel odebrał to jako zignorowanie uwagi; przy publikacji podglądu jawnie mówić, które sekcje są nieaktualne
+- Wymagane testy i dowody: pomiar geometrii warstwy menu (przepełnienie 0 px w 4 stanach × 2 zoomy), fokus i Escape, kotwice, konsola 0 błędów, zrzuty 2 widoki × 2 motywy
+
+### BE-14 (BeautyEffect: research R-S1 — sekcje niesione zdjęciem i wideo: dowody, wydajność, WCAG, AI) — 2026-10-06
+- Archetyp: research dowodowy z adresem i siłą dowodu przy każdym twierdzeniu + 3–4 opcje na każdą sekcję strony głównej
+- Stawka: średnia (opcje idą do podglądów; zasady AI i ruchu wiążą wygląd)
+- Niepewność: średnia (stan prawny AI Act i UOKiK na 2026, Baseline przeglądarek)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (1607 s)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — kontrola architekta (status HTTP adresów, sprawdzenie dwóch twierdzeń prawnych u źródła); odstępstwo od reguły 13 dla researchu referencyjnego
+- Dopuszczone alternatywy: Gemini `high` (równolegle prowadził research rynkowy R-S2); Spark zablokowany (402); Claude — pula ŻÓŁTA
+- Powód wyboru: Codex — najrzetelniejsze adresy w dotychczasowych researchach (BE-7, BE-9)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY), 2026-10-06 ok. 12:30
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowany bez poprawek; adresy — 35 odpowiada, 20 zwraca 403 automatowi (strony blokujące boty, treść nie do sprawdzenia skryptem), 1 nie odpowiada; dwa twierdzenia prawne (ustawa o przeciwdziałaniu nieuczciwym praktykom rynkowym, ELI DU/2023/845; AI Act art. 50 od 2026-08-02) potwierdzone u źródła; rekomendacje sekcji 01 (duże karty w widocznej siatce; przy taśmie wszystkie nazwy widoczne poza nią) i zasada „pętla 5 s powtarzana to nadal ruch bez końca” przeniesione do briefu B-6
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 35 min (przebieg 27 min + kontrola)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak znalezisk architekta powyżej P3
+- Defekty po odbiorze: brak stwierdzonych
+- Wymagane testy i dowody: status HTTP adresów, odczyt źródeł prawnych dla twierdzeń o obowiązkach
+
+### BE-15 (BeautyEffect: research R-S2 — jak strony beauty 2025–2026 używają zdjęć i wideo w sekcjach) — 2026-10-06
+- Archetyp: przegląd rynku 20–30 stron z opisem sekcji pod pełnym adresem + wzorce per sekcja
+- Stawka: niska–średnia (materiał inspiracyjny; wiążące ustalenia biorą się z BE-14)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` (817 s)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — kontrola architekta (status HTTP adresów, próbka 3 opisów stron porównana z żywą stroną); odstępstwo od reguły 13 dla researchu referencyjnego
+- Dopuszczone alternatywy: Codex `high` (zajęty R-S1 — dwa researche równolegle na rozłącznych plikach); Spark zablokowany (402)
+- Powód wyboru: ponowna ocena negatywnego sygnału z 2026-09-24 na briefie z twardym wymogiem pełnego adresu przy każdym twierdzeniu; druga linia równolegle do Codexa
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany, Codex nieznany (zajęty), Spark zablokowany (402), 2026-10-06 ok. 12:30
+- Pewność decyzji: niska
+- Wynik pierwszego podejścia: przyjęty z adnotacją architekta, bez przebiegu korekty; adresy — 28 odpowiada, 1 zwraca 404 (wpis Awwwards), 2 nie odpowiadają; próbka 3 opisów: 1 zgodny, 1 częściowo błędny, 1 błędny — opisy stron w katalogu niepotwierdzone mimo poprawnych adresów; błędy faktów o salonie (adres, uchwyt Instagrama), błąd techniczny (`loading="lazy"` przy `<video>` nie działa), twierdzenia prawne bez adresów
+- Rundy korekt: 0 (adnotacja architekta zamiast korekty — wzorce z rozdziałów 5–6 tylko jako pomysły)
+- Czas do akceptacji: ok. 25 min (przebieg 14 min + kontrola)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): architekt — opisy treści stron zmyślone przy prawdziwych adresach (P1 dla rzetelności researchu, potwierdzone na 2 z 3 próbek), 2× błędny fakt o salonie (P2), 1× błąd techniczny (P2), twierdzenia prawne bez źródła (P2)
+- Defekty po odbiorze: brak — dokument oznaczony jako niepotwierdzony w części opisowej, ustalenia prawne i techniczne brane wyłącznie z BE-14
+- Wymagane testy i dowody: status HTTP adresów i porównanie próbki opisów z żywą stroną. Wniosek: drugi sygnał negatywny Gemini w researchu rynku — wymóg adresu nie wystarcza, bo adres bywa prawdziwy, a opis strony wymyślony; przy kolejnym researchu rynkowym Gemini kontrola próbki ≥ 3 opisów jest obowiązkowa, a dla treści, które mają wiązać, kwalifikować inną linię
+
+### BE-16 (BeautyEffect: podgląd części 5 — sekcja „Co tu zrobisz”, cztery układy O-1…O-4 ze zdjęciami i filmami) — 2026-10-06
+- Archetyp: jak BE-12/BE-13 (samodzielny HTML podglądu z logiką): cztery układy jednej sekcji × 2 widoki × 2 motywy, filmy z regułą ≤ 5 s i ograniczeniem ruchu, taśma z licznikiem i strzałkami, karty przyklejane, pasy rozsuwane przy najechaniu/fokusie
+- Stawka: średnia (odpowiedź na trzy wprost wymienione zastrzeżenia właściciela, które BE-13 przeoczył)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (1 przebieg, 265 s)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór w przeglądarce architekta (rozmiary kafli w 4 układach × 2 widoki, filmy: start, pauza przy 5,05 s, powtórka po najechaniu, brak odtwarzania przy ograniczonym ruchu, taśma: licznik, strzałki, klawiatura, fokus, Stos: `sticky` i jego wyłączenie przy ograniczonym ruchu, Panorama: rozsunięcie przy fokusie, kontrast przyciemnienia wzorem, unikalne `id`, brak nowych HEX, konsola 0 błędów, pliki na serwerze właściciela); odstępstwo od reguły 13 dla materiału podglądowego
+- Dopuszczone alternatywy: Gemini `high`; Claude `wykonawca` (pula ŻÓŁTA); Spark zablokowany (402)
+- Powód wyboru: Codex — przyjęte BE-12 i BE-13 na tym samym pliku
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 75 %), 2026-10-06 12:40
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: plik kompletny i poprawny w logice filmów, ale Codex zatrzymał się klauzulą STOP na drobnej sprzeczności briefu (opis przycisku „dwa z filmem” przy trzech filmach w specyfikacji), mimo polecenia, by drobne niejasności rozstrzygać zachowawczo — bez końcowej samokontroli; sprzeczność słuszna, ale nie wymagała zatrzymania
+- Rundy korekt: 0 przebiegów korekty — poprawki architekta: opis przycisku; taśma O-2 — licznik pokazuje zakres widocznych kart („1–4 / 8” zamiast „5 / 8” na końcu), „wstecz” wyłączone na starcie (wcięcie 4 px na obrys fokusu), pasek postępu pokazuje widoczną część, zerowanie taśmy przy zmianie widoku
+- Czas do akceptacji: ok. 30 min (przebieg 4,5 min + walidacja i poprawki)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Codex — 1× P3 w briefie (potwierdzone); architekt — 4× P3 w taśmie O-2 (potwierdzone, poprawione); podejrzenie ucięcia pionowych nazw w O-4 — odrzucone pomiarem (zrzut dzielił pas na dwa kadry)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: pomiary rozmiarów kafli, stan `<video>` w czasie (odtwarzanie/pauza/`currentTime`), stan kontrolek taśmy, zrzuty 2 widoki × 2 motywy. Wniosek: brief z twardym wymogiem zgodności liczb (tu: liczba filmów w opisie i w specyfikacji) sprawdzić przed wysłaniem; Codex przy klauzuli STOP przerywa także drobiazgi — w briefie podglądu wskazać wprost, które sprzeczności rozstrzyga sam
+
+### BE-17 (BeautyEffect: research R-S3 — strona kategorii zabiegów bez powtarzanego „umów się”, odnośniki Booksy) — 2026-10-06
+- Archetyp: przegląd rynku 15–25 stron z pełnym adresem + pytanie faktograficzne (Booksy: odnośnik do usługi) + 3–4 wzorce
+- Stawka: średnia (odpowiedź na pytanie 1 rozstrzyga, czy przycisk przy zabiegu ma sens)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` (1403 s)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — kontrola architekta (status HTTP 52 adresów, odczyt kodu profilu Booksy, próbka 4 opisów stron); odstępstwo od reguły 13 dla researchu referencyjnego
+- Dopuszczone alternatywy: Codex `high` (zajęty B-6); Spark zablokowany (402)
+- Powód wyboru: Codex zajęty budową podglądu; pytanie 1 sprawdzalne przez architekta u źródła, więc ryzyko zmyśleń ograniczone do katalogu
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany, Codex nieznany (zajęty), Spark zablokowany (402), 2026-10-06 12:25
+- Pewność decyzji: niska
+- Wynik pierwszego podejścia: przyjęty z adnotacją architekta, bez przebiegu korekty; pytanie 1 — potwierdzone dokładnie (identyfikator usługi z nazwą, jedyne dwie kotwice, oferty bez adresów); adresy — 34 odpowiada, 8 × 403, 5 × 404, 1 × 500, 4 nie odpowiadają; próbka 4 opisów: 3 częściowo niezgodne, 1 strona opisana jako odczytana, choć jej adresy nie działają i nie trafiła na listę nieodczytanych
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 20 min (przebieg 23 min + kontrola)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): architekt — opis strony nieodczytanej podany jako odczyt (P1 dla rzetelności, potwierdzone), 3× częściowo zmyślone szczegóły stron (P2), w sekcji „co błędne” teza, że nazwa usługi Booksy to szum (P3 — sprzeczna z INT-BOOKSY, odnotowana)
+- Defekty po odbiorze: brak — katalog oznaczony jako poglądowy
+- Wymagane testy i dowody: odczyt kodu profilu Booksy, status HTTP adresów, porównanie próbki opisów z żywą stroną. Wniosek: trzeci sygnał negatywny Gemini w researchu rynku (po 2026-09-24 i BE-15) — opisy pojedynczych stron niewiarygodne mimo poprawnych adresów; pytania faktograficzne sprawdzalne przez architekta wypadły dobrze. Przy kolejnym researchu rynkowym kwalifikować inną linię albo ograniczyć Gemini do pytań sprawdzalnych u źródła
+
+### BE-18 (BeautyEffect: podgląd części 6 — strona kategorii „Rzęsy i brwi” Z-1/Z-2/Z-3 bez powtarzanego „idź do Booksy”) — 2026-10-06
+- Archetyp: jak BE-16 (samodzielny HTML podglądu z logiką): trzy układy strony kategorii z odrębnym DOM, wzorzec ARIA zakładek z klawiaturą, przełącznik trybu z regionem `aria-live`, rysunki SVG wg parametrów, pływający przycisk z IntersectionObserver, tabela ↔ lista definicji, film z regułą ≤ 5 s
+- Stawka: średnia (odpowiedź na odrzucenie K-1/K-2/K-3 z BE-13)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (1 przebieg, 517 s)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór w przeglądarce architekta (liczby: 11 zabiegów i 3 grupy w każdej opcji, 4 odnośniki Booksy, żadnego przy zabiegu; zakładki: strzałki/Home/End, `aria-selected`, `hidden`; przełącznik: nazwy obu trybów, `aria-pressed`, komunikat; pływający przycisk: widoczność i fokus na nagłówku ściągawki; film: pauza 5,02 s; ograniczony ruch: 0 animacji, 0 ukrytych, 0 filmów; zrzuty 3 opcje × 2 widoki, ciemny motyw; konsola 0 błędów); odstępstwo od reguły 13 dla materiału podglądowego
+- Dopuszczone alternatywy: Gemini `high`; Claude `wykonawca` (pula ŻÓŁTA, tydzień 75 %); Spark zablokowany (402)
+- Powód wyboru: Codex — przyjęte BE-12, BE-13 i BE-16 na tej samej rodzinie plików
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY), 2026-10-06 13:02
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowany po 4 drobnych poprawkach architekta; tym razem bez zatrzymania na drobiazgach (brief wskazywał wprost, które sprzeczności rozstrzyga sam — wniosek z BE-16 zadziałał)
+- Rundy korekt: 0 przebiegów korekty — poprawki architekta: przywrócony odnośnik „Profil salonu w Booksy” w stopce (Codex usunął go, dosłownie stosując limit odnośników z briefu, który dotyczył przycisków rezerwacji — niejasność briefu), Z-3 na telefonie — zdjęcie grupy „Laminacja” ukryte odziedziczoną klasą `.a-preview` z części 4 (przywrócone), Z-3 ściągawka na telefonie — puste wiersze „uzupełnienie —” przy zabiegach bez uzupełnienia (usunięte), Z-2 — kadr filmu przesunięty z maseczki na dłonie
+- Czas do akceptacji: ok. 35 min (przebieg 8,5 min + walidacja i poprawki)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): architekt — 1× P2 (zdjęcie ukryte na telefonie), 3× P3 (stopka, puste wiersze, kadr); podejrzenia odrzucone pomiarem: puste łuki w Z-3 (zrzut w trakcie odsłaniania), przyklejone zakładki Z-2 nad zamknięciem (zakładki kończą się z ostatnią grupą — zachowanie poprawne)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: liczby z DOM dla każdej opcji, stan ARIA po klawiszach, stan `<video>` w czasie, zrzuty 3 × 2 i ciemny motyw. Wnioski: (1) przy budowie z pliku bazowego wskazać w briefie klasy bazowe, których nie wolno używać ponownie (np. `.a-preview` ma reguły widoku telefonu); (2) limity liczbowe w briefie opisywać rolą („przyciski rezerwacji”), nie wzorcem adresu
+
+### BE-19 (BeautyEffect: podgląd części 7 — strona „Rzęsy i brwi” bez nazw usług z Booksy, z równymi opisami) — 2026-10-06
+- Archetyp: przeróbka istniejącego HTML podglądu (BE-18) — usunięcie mechanizmów (bloki nazw, przełącznik z `aria-live`, ściągawka, pływający przycisk, martwy CSS/JS), podmiana treści dosłownej, nowy rysunek SVG wg parametrów, równe wysokości kart
+- Stawka: średnia (odpowiedź na odrzucenie treści części 6)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (2 przebiegi: 61 s — zatrzymanie, 301 s — wynik)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór w przeglądarce architekta (liczby z DOM: 11 zabiegów z opisem i 3 grupy w każdej opcji, 2 notki na opcję, 6 SVG w Z-3, 4 odnośniki Booksy wg ról, zero zakazanych ciągów, zero zdublowanych `id`; równe wysokości kart w rzędzie Z-2; zakładki `aria-selected`; zrzuty 3 opcje × 2 widoki i ciemny motyw; konsola 0 błędów); odstępstwo od reguły 13 dla materiału podglądowego
+- Dopuszczone alternatywy: Gemini `high` (zajęty briefem B-8); Claude `wykonawca` (pula ŻÓŁTA, tydzień 76 %); Spark zablokowany (402)
+- Powód wyboru: Codex — przyjęte BE-16 i BE-18 na tym samym pliku bazowym
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY), 2026-10-06 14:02
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zatrzymanie słuszne — w opisie mega volume architekt napisał „stąd «7–15D» w nazwie”, a nazwa zabiegu na stronie nie zawiera „7–15D” (to była nazwa usługi z Booksy, właśnie usuwana); po poprawce opisu w dokumentacji i briefie drugi przebieg zaakceptowany
+- Rundy korekt: 1 przebieg ponowny po błędzie przesłanki architekta; poprawka architekta: jedno słowo w opisie paska podglądu („tej samej długości” → „podobnej długości”) — Codex słusznie zgłosił, że opisy mają 107–196 znaków
+- Czas do akceptacji: ok. 15 min (2 przebiegi 6 min + walidacja)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): architekt — brak defektów; zgłoszenia wykonawcy w sekcji „Co uważasz za błędne” — 2 trafne (sprzeczność opisu z nazwą, nieprecyzyjne „tej samej długości”)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: liczby z DOM dla każdej opcji, wysokości kart, zrzuty 3 × 2 i ciemny motyw, konsola. Wniosek: przy zmianie źródła nazw (tu: wycofanie nazw Booksy) sprawdzić w treści odwołania do usuwanych nazw — klauzula STOP wyłapała błąd przesłanki architekta po 61 s, taniej niż poprawka po odbiorze
+
+### BE-20 (BeautyEffect: podgląd części 8 — trzy style kart zabiegów w układzie Z-2) — 2026-10-06
+- Archetyp: przeróbka HTML podglądu (BE-19) — trzy warianty DOM z zakładkami ARIA, wyróżnienia w treści bez zmiany znaków, 5 nowych rysunków SVG z opisu słownego i parametrów, rysowanie kresek w CSS, siatka mozaikowa z jawnym rozmieszczeniem kafli i osobną kolejnością na telefonie
+- Stawka: średnia (odpowiedź na uwagę właściciela do kart Z-2)
+- Niepewność: średnia (rysunki laminacji i henny projektowane z opisu)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (1 przebieg, 549 s)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór w przeglądarce architekta (liczby z DOM: 11 zabiegów i 3 zakładki w każdym wariancie, 11 słów-kluczy w KA-1/KA-2, 11 SVG w KA-2, 4 odnośniki Booksy wg ról, zero zdublowanych `id`; zrzuty 3 warianty × 3 zakładki × 2 widoki; zbliżenia 11 rysunków w obu motywach; ograniczony ruch: 194 ścieżki kompletne, 0 animacji, 0 filmów; konsola 0 błędów); odstępstwo od reguły 13 dla materiału podglądowego
+- Dopuszczone alternatywy: Gemini `high` (zajęty briefem B-8); Claude `wykonawca` (pula ŻÓŁTA, tydzień 76 %); Spark zablokowany (402)
+- Powód wyboru: Codex — przyjęte BE-16, BE-18 i BE-19 na tym samym pliku bazowym
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY), 2026-10-06 14:17
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany bez poprawek
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 15 min (przebieg 9 min + walidacja)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): architekt — brak defektów; wykonawca trafnie wskazał niejednoznaczne „koniec na wysokości 18” (przyjął 18 px nad nasadą)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: liczby z DOM, zrzuty wariant × zakładka × widok, zbliżenia rysunków w obu motywach, stan ruchu przy ograniczeniu. Wniosek: rysunki z opisu słownego z jednym przykładowym kształtem i parametrami geometrii wyszły w pierwszym przebiegu — ten sposób opisu wystarcza dla ilustracji podglądowych
+
+### BE-21 (BeautyEffect: dokumentacja — usunięcie nazw usług Booksy z siedmiu stron kategorii) — 2026-10-06
+- Archetyp: wdrożenie decyzji właściciela w dokumentacji Markdown — 7 plików, usuwanie powtarzalnych bloków, przenoszenie faktów salonu, ujednolicenie wierszy powiązań
+- Stawka: niska–średnia (dokumentacja; źle przeniesiony fakt salonu to błędna informacja dla klientki)
+- Niepewność: średnia (dwa kształty bloków, osobna wcześniejsza reguła publikacji na trzech stronach zabiegów medycznych)
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / effort w sufiksie (1 przebieg, 1850 s, exit 3 — 503 w ostatniej turze, po zapisaniu wszystkich plików)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór architekta (diff 7 plików, wyszukiwanie zakazanych fraz, kontrola linków: 140 plików, 0 martwych); odstępstwo od reguły 13 dla dokumentacji niskiej stawki
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` (zajęty briefem podglądu części 7); Claude `wykonawca` (pula ŻÓŁTA); Spark zablokowany (402)
+- Powód wyboru: Gemini — rozłączny tor dokumentacji równolegle z Codexem na podglądzie; brak niezmiennika wysokiej stawki
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany, Codex nieznany (zajęty), Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY), 2026-10-06 przy starcie podglądu części 7
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowany po poprawkach architekta
+- Rundy korekt: 0 przebiegów wykonawcy; poprawki architekta jednym skryptem (4 strony + KO + DEC)
+- Czas do akceptacji: ok. 31 min przebiegu + ok. 20 min walidacji i poprawek
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): (1) P2 potwierdzone — piercing: kolczyk tytanowy przeniesiony do otwarcia jako zasada „dla wszystkich zabiegów”, choć dotyczy tylko sekcji 3–13 (wykonawca sam to zgłosił); (2) luka specyfikacji, nie wykonania — trzy strony z regułą publikacji z 2026-10-05 zachowały zdanie odsyłające do Booksy przy 15 zabiegach i „szukaj nazw podanych przy zabiegach” w zamknięciu (brief kazał nie ruszać opisów i zamknięcia); (3) wada specyfikacji — fraza `Jak się umówić` z listy zakazanych w definicji ukończenia jest też nazwą pozycji menu, więc wykonawca zamienił ją w trzech plikach na adres `/umow-wizyte`
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: diff, wyszukiwanie zakazanych fraz, kontrola linków. Wniosek: lista zakazanych fraz w definicji ukończenia musi wyłączać ich uprawnione użycia; przed wdrożeniem decyzji w wielu plikach architekt sprawdza, czy któryś plik nie ma własnej, wcześniejszej reguły tego samego tematu
+
+### BE-22 (BeautyEffect: podgląd części 9 — „Dlaczego Beauty Effect”, „Jak się umówić” i menu na telefonie) — 2026-10-06
+- Archetyp: nowy HTML podglądu na pliku bazowym (`czesc-5.html`) z przeniesieniem menu M-2 z `czesc-4.html` — trzy grupy wariantów (D ×3, U ×3, M ×2) z jednym API `pokaz`, rysunki SVG z opisu słownego, film w ramce
+- Stawka: średnia (dwie sekcje strony głównej i menu na telefonie do wyboru przez właściciela)
+- Niepewność: średnia (trzy nowe układy na sekcję, rysunki z opisu, przeniesienie menu między plikami)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (2 przebiegi: B-11 850 s, poprawki B-11a 490 s)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór w przeglądarce architekta (zrzuty 6 wariantów × 2 widoki × 2 motywy, zbliżenia wieńca w obu motywach, stan filmu w czasie: start po wejściu w widok, zatrzymanie przy 5 s, ponowne odtworzenie po najechaniu; ograniczony ruch: tylko plakat, 12 liści kompletnych, 0 animacji; menu M-1/M-2: otwarcie, Escape i powrót fokusu; konsola 0 błędów); odstępstwo od reguły 13 dla materiału podglądowego
+- Dopuszczone alternatywy: Claude `wykonawca` (pula ŻÓŁTA, tydzień 76 %); Gemini `high` (gorsze wyniki na HTML podglądu niż Codex w BE-16…20); Spark zablokowany (402)
+- Powód wyboru: Codex — przyjęte BE-16, BE-18, BE-19 i BE-20 na tych samych plikach bazowych
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 76 %), 2026-10-06 15:06
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: odrzucony do poprawki — 8 defektów wykonania i jedna decyzja architekta odrzucona przez właściciela (czarno-biały film z ręcznym startem w U-3); po B-11a zaakceptowany
+- Rundy korekt: 1 przebieg poprawkowy wykonawcy (B-11a), bez poprawek architekta
+- Czas do akceptacji: ok. 14 min przebiegu B-11 + ok. 8 min B-11a + ok. 40 min walidacji obu
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): architekt — 8 potwierdzonych P2/P3: etykieta nad nagłówkiem nie wyśrodkowana w trzech wariantach wyśrodkowanych; tekst ucięty przez stałe wysokości rzędów siatki D-2; etykieta „Na miejscu” nad pierwszą kolumną zamiast nad trzema; wieniec laurowy narysowany jak łańcuszek w kształcie litery U; nazwy urządzeń łamane z kropką na końcu wiersza; D-3 na telefonie wyśrodkowany z rozjechaną ikonką; numery kroków nie na linii pierwszego wiersza; zdanie o zasadach bez odstępu od przycisków. Właściciel — wada briefu architekta, nie wykonania: film czarno-biały i start ręczny („wygląda strasznie depresyjnie - pogrzebowo”, „włączanie ręczne jest idiotyczne”)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: zrzuty wariant × widok × motyw, zbliżenia rysunków, stan `<video>` w czasie, ograniczony ruch, menu z klawiatury, konsola. Wnioski: (1) brief opisujący rysunek słowami („wieniec laurowy”) bez geometrii dał kształt nierozpoznawalny — w B-11a ścieżki łodyżek i kształt liścia podane wprost wyszły w pierwszym przebiegu, zgodnie z wnioskiem BE-20; (2) układy wyśrodkowane i siatki ze stałą wysokością rzędów trzeba w briefie opisać wprost (wyśrodkowanie etykiety, wysokość z treści) — wykonawca bez przeglądarki tego nie widzi; (3) dobór mediów sprawdza architekt przed briefem: kolor kadrów i sposób startu filmu (pamięć „media w kolorze, autoplay”)
+
+### BE-23 (BeautyEffect: podgląd części 10 — „Aktualności i promocje”, „Gdzie nas znajdziesz” i stopka) — 2026-10-06
+- Archetyp: nowy HTML podglądu na pliku bazowym (`czesc-9.html`) — usunięcie niewybranych wariantów D/U/M, trzy nowe grupy wariantów (A ×3, L ×3, F ×3), galeria, ramka telefonu z filmem, słupki tygodnia, dzisiejszy dzień liczony w skrypcie, napis marki w stopce
+- Stawka: średnia (ostatnie sekcje strony głównej i stopka do wyboru przez właściciela)
+- Niepewność: średnia (dziewięć nowych układów; mechanizmy pliku bazowego z wcześniejszych części)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (4 przebiegi: B-12 75 s — zatrzymanie, B-12 831 s — wynik, B-12a 103 s — zatrzymanie, B-12a 250 s — poprawki)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór w przeglądarce architekta (zrzuty 9 wariantów × 2 widoki × 2 motywy, zbliżenie łuku L-3, stan filmu A-2 w czasie, film otwarcia: pętla, ograniczony ruch przy starcie i po przełączeniu, odtworzenie przyciskiem; dzisiejszy dzień; konsola 0 błędów); odstępstwo od reguły 13 dla materiału podglądowego
+- Dopuszczone alternatywy: Claude `wykonawca` (pula ŻÓŁTA, tydzień 77 %); Gemini `high` (słabsze wyniki na HTML podglądu); Spark zablokowany (402)
+- Powód wyboru: Codex — przyjęte BE-16, BE-18…BE-20 i BE-22 na tych samych plikach bazowych
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 77 %), 2026-10-06 15:33
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zatrzymanie słuszne — dwa błędy przesłanek architekta (atrybut `data-l` zajęty przez nagłówek z części 1b; „istniejący przełącznik ograniczonego ruchu”, którego w pliku nie ma); po poprawce briefu wynik z 6 defektami do poprawki
+- Rundy korekt: 1 runda poprawek (B-12a) z jednym słusznym zatrzymaniem po drodze (architekt błędnie podał, że `czesc-9.html` zatrzymuje film otwarcia przy ograniczonym ruchu — wcześniejszy odczyt architekta złapał film przed startem); bez poprawek architekta
+- Czas do akceptacji: ok. 24 min przebiegów + ok. 45 min walidacji
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): architekt — (1) P2 zmiana poza zakresem: wykonawca usunął pętlę zatwierdzonego filmu otwarcia, czytając „bez nieskończonych pętli” szerzej niż sekcje briefu; (2–6) P3 wykonania: etykiety L-2 przy lewej krawędzi nad wyśrodkowaną treścią, pinezka obok dwuwierszowego adresu na telefonie, przesunięty obrys łuku na bladym wypełnieniu (wygląda jak błąd, wychodzi poza margines), zdjęcie F-3 poza marginesem na telefonie, napis F-1 niewidoczny w jasnym i głośny w ciemnym motywie. Wykonawca — 3 trafne zatrzymania na błędach przesłanek architekta
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: zrzuty wariant × widok × motyw, zbliżenia, stan `<video>` w czasie, ograniczony ruch przy starcie i po przełączeniu, konsola. Wnioski: (1) zakaz ogólny w briefie („bez nieskończonych pętli”) trzeba zawęzić do zakresu briefu, inaczej wykonawca stosuje go do zatwierdzonych elementów; (2) przed briefem na pliku bazowym architekt sprawdza zajęte nazwy atrybutów i kluczy stanu oraz faktyczne zachowanie, na które się powołuje — trzy zatrzymania kosztowały razem ok. 3 min przebiegu, taniej niż poprawka po odbiorze; (3) kolor ozdoby opisany nazwą zmiennej („kolor linii”) daje różny efekt w motywach — podawać kolor z przezroczystością osobno dla każdego motywu
+
+### BE-24 (BeautyEffect: podgląd części 10b — ramka iPhone'a, odnośniki do profili, łuk ze zdjęciem, stopka z podpisem twórcy) — 2026-10-06
+- Archetyp: nowy HTML podglądu na pliku bazowym (`czesc-10.html`) — usunięcie niewybranych wariantów, przebudowa ramki telefonu z geometrią w tabeli, trzy warianty odnośników tylko w widoku telefonu, okno ze zdjęciem w łuku, stopka bez godzin z podpisem twórcy, niski panel wyboru i przewijanie do sekcji
+- Stawka: średnia (dopracowanie wybranych wariantów i ponowny wybór stopki przez właściciela)
+- Niepewność: średnia (sześć niezależnych zmian w jednym pliku, nowe klucze stanu)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (1 przebieg, 719 s)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór w przeglądarce architekta (okno laptopa 1366×657 bez `odslon()`: wysokość sceny i widoczność trzech stopek; zrzuty A-2 × 3 warianty × 2 motywy, L-3 i stopki w obu widokach i motywach; stan filmu A-2 w czasie i przy ograniczonym ruchu; bilans nawiasów CSS; reguły w CSSOM; konsola 0 błędów); odstępstwo od reguły 13 dla materiału podglądowego
+- Dopuszczone alternatywy: Claude `wykonawca` (pula ŻÓŁTA, tydzień 77 %); Gemini `high` (słabsze wyniki na HTML podglądu); Spark (ostatni sygnał: zablokowany, 402)
+- Powód wyboru: Codex — przyjęte BE-16, BE-18…BE-20, BE-22 i BE-23 na tych samych plikach bazowych
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Spark zablokowany (402, ostatni odczyt), Claude ostrzegawczy (ŻÓŁTY, tydzień 77 %), 2026-10-06 16:19
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: przyjęty bez rundy korekt; wszystkie wymiary z tabeli i warianty zgodne ze zrzutami
+- Rundy korekt: 0; jedna poprawka jednowierszowa architekta poza zakresem briefu (osierocona lista deklaracji w bloku ograniczonego ruchu, obecna w plikach od części 3 — wykonawca ją wykrył i słusznie nie ruszył, bo brief zakazywał zmian poza zakresem)
+- Czas do akceptacji: ok. 12 min przebiegu + ok. 20 min walidacji
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): architekt — (1) P2 odziedziczone: w `@media (prefers-reduced-motion)` lista deklaracji bez selektora zamykała blok za wcześnie, przez co reguły „tylko przy ograniczonym ruchu” (przejścia nagłówka P-2, przejście motywu) działały zawsze, a nadmiarowy `}` unieważniał następną regułę (poprawka kontrastu przycisku obrysowego); zgłoszone przez wykonawcę jako uwaga, potwierdzone w CSSOM, usunięte. Przyczyna niewidocznej stopki w części 10 (panel ok. 240 px, stopka wydłużona godzinami) — błąd projektu podglądu po stronie architekta, wykryty dopiero przez właściciela; walidacja części 10 szła w wysokim oknie z `odslon()`, więc go nie pokazała
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: zrzuty w oknie typowego laptopa bez `odslon()` obok zrzutów kompozycji w wysokim oknie, bilans nawiasów i obecność reguł w CSSOM, stan `<video>` w czasie. Wnioski: (1) podgląd sprawdzać także w oknie laptopa (ok. 1366×657) i bez wymuszonego odsłonięcia — wysokie okno z `odslon()` ukrywa problemy, które widzi właściciel; (2) zakaz zmian poza zakresem działa: wykonawca zgłasza zastany błąd zamiast go łatać, a architekt rozstrzyga; (3) przy plikach budowanych łańcuchowo od części do części sprawdzać bilans nawiasów CSS — błąd składni przenosił się przez 8 części
+
+### BE-25 (BeautyEffect: podgląd części 11 — strona „Oferta” w trzech wariantach) — 2026-10-06
+- Archetyp: nowy HTML podglądu na pliku bazowym (`czesc-10b.html`) — usunięcie treści strony głównej i niepotrzebnych kluczy stanu, nowa podstrona z treścią z dokumentu interfejsu (otwarcie, osiem kategorii, zamknięcie), trzy warianty układu (lista z przyklejonym podglądem w łuku, karty, łuki naprzemiennie) w widoku komputera i telefonu, nowy klucz stanu i grupa panelu
+- Stawka: średnia (wzór otwarcia dla kolejnych podstron wybiera właściciel)
+- Niepewność: średnia (nowa podstrona, trzy niezależne kompozycje, przenikanie podglądu na najechanie i fokus)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (1 przebieg, 533 s)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór w przeglądarce architekta (zrzuty 3 warianty × 2 widoki × 2 motywy; okno laptopa 1366×657 bez `odslon()` z przewinięciem do stopki; przenikanie podglądu OF-1 na najechanie i fokus, przy ograniczonym ruchu bez przejścia; bilans nawiasów CSS i reguły w CSSOM; konsola 0 błędów); odstępstwo od reguły 13 dla materiału podglądowego
+- Dopuszczone alternatywy: Claude `wykonawca` (pula ŻÓŁTA, tydzień 77–78 %); Gemini `high` (słabsze wyniki na HTML podglądu); Spark (ostatni sygnał: zablokowany, 402)
+- Powód wyboru: Codex — przyjęte BE-16, BE-18…BE-20 i BE-22…BE-24 na tych samych plikach bazowych
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Spark zablokowany (402, ostatni odczyt), Claude ostrzegawczy (ŻÓŁTY, tydzień 77–78 %), 2026-10-06
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: przyjęty bez rundy korekt; treść, klucze stanu, `aria-current` i układy zgodne z briefem
+- Rundy korekt: 0; jedna poprawka architekta (trzy reguły CSS) — plamy tła otwarcia OF-2 brały jasne `--blob1`/`--blob2` także w ciemnym motywie (jasna poświata za białym tekstem) i były ucinane krawędzią sekcji; dodano wariant ciemny na `--glow1` jak na stronie głównej i wygaszenie maską ku dołowi
+- Czas do akceptacji: ok. 9 min przebiegu + ok. 25 min walidacji
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): architekt — (1) P2: OF-2 w ciemnym motywie — jasna poświata za białym tekstem otwarcia i ostra pozioma krawędź tła; potwierdzone na zrzutach, poprawione. Brief nie wskazał, że strona główna ma osobne reguły plam dla ciemnego motywu — luka briefu, nie wykonawcy
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: zrzuty w obu motywach i widokach, okno laptopa bez `odslon()` z przewinięciem kółkiem nad sceną (kursor nad panelem nie przewija sceny), stan klasy aktywnej i `transition` w podglądzie OF-1 przy zwykłym i ograniczonym ruchu. Wniosek: przy nowym elemencie dekoracyjnym brief ma wskazać istniejący odpowiednik i jego reguły dla ciemnego motywu — zmienne palety podglądu nie są w całości przedefiniowane w ciemnym motywie
+
+### BE-26 (BeautyEffect: podgląd części 12 — strona „O nas” w trzech grupach wariantów) — 2026-10-06
+- Archetyp: nowy HTML podglądu na pliku bazowym (`czesc-11.html`) — usunięcie treści „Oferty” i jej klucza stanu, nowa podstrona z treścią z dokumentu interfejsu (otwarcie wg wybranego wzoru, wyróżnienia, komfort, zespół, zamknięcie), trzy niezależne grupy po trzy warianty (9 układów) w widoku komputera i telefonu, trzy klucze stanu i grupy panelu z przewinięciem do sekcji, przeniesienie `aria-current` w czterech menu
+- Stawka: średnia (wygląd strony „O nas” wybiera właściciel; zdjęcia i dane osób z Booksy)
+- Niepewność: średnia (trzy grupy wariantów naraz, nowe zdjęcia zespołu dostarczone w trakcie, ikona spoza PrimeIcons)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (3 przebiegi: 62,9 s i 67,1 s — zasadne zatrzymania na błędach briefu; 465,7 s — wynik)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór w przeglądarce architekta (zrzuty 3 kombinacje × 2 widoki × 2 motywy w oknie mieszczącym całą stronę; okno laptopa 1366×657 bez `odslon()` z przewinięciem do stopki; przyciski grup; konsola 0 błędów; elementy poza `.site`; bilans nawiasów CSS, unikalne id, `aria-current`, obrazy); odstępstwo od reguły 13 dla materiału podglądowego
+- Dopuszczone alternatywy: Claude `wykonawca` (pula ŻÓŁTA, tydzień 78 %); Gemini `high` (słabsze wyniki na HTML podglądu); Spark (ostatni sygnał: zablokowany, 402)
+- Powód wyboru: Codex — przyjęte BE-16, BE-18…BE-20 i BE-22…BE-25 na tych samych plikach bazowych
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Spark zablokowany (402, ostatni odczyt), Claude ostrzegawczy (ŻÓŁTY, tydzień 78 %), 2026-10-06
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: dwa pierwsze przebiegi zatrzymane zgodnie z klauzulą STOP — (1) brief podawał błędną liczbę menu z `aria-current` i zakładał zachowanie przewinięcia przy zmianie widoku, którego plik bazowy nie ma; (2) ogólna reguła „identycznej dostępnej treści” przeczyła opisom wariantów. Oba zarzuty trafne; brief poprawiony (dodana reguła pierwszeństwa opisu wariantu nad regułą ogólną). Trzeci przebieg przyjęty po dwóch poprawkach architekta
+- Rundy korekt: 0 po wyniku (2 przebiegi powtórzone na błędach briefu); dwie poprawki architekta — (1) wyjątek w obsłudze kliknięć przepuszczał `Zobacz ofertę` w zamknięciu do nawigacji (właściciel opuściłby podgląd); (2) nadmiarowe `</div>` w KB-3 zamykało `.site`, przez co zespół, zamknięcie i stopka wypadały poza stronę, a przewinięcie do sekcji rzucało błąd
+- Czas do akceptacji: ok. 10 min trzech przebiegów + ok. 35 min walidacji (w tym ponowne zrzuty)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): architekt — (1) P1: nadmiarowe `</div>` zamykające `.site` w wariancie KB-3 (sekcje poza kontenerem, błąd `replaySection`); potwierdzone, poprawione; (2) P2: wyjątek nawigacji dla `/oferta` w zamknięciu wbrew regule podglądu; potwierdzone, poprawione
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: zrzuty całej strony w oknie wyższym niż strona (zrzut elementu w przewijanym kontenerze obejmuje tylko część widoczną — reszta wychodzi pusta), przewinięcie sceny na górę przed zrzutem (przyciski grup przewijają scenę), sprawdzenie, że żadna sekcja ani stopka nie leży poza `.site`. Wniosek: bilans nawiasów i walidacja id nie wykrywają błędnego zagnieżdżenia — przy każdym wariancie sprawdzać rodzica sekcji w DOM
+
+### BE-27 (BeautyEffect: podgląd części 13 — strona „Jak się umówić” w trzech grupach wariantów) — 2026-10-06
+- Archetyp: nowy HTML podglądu na pliku bazowym (`czesc-12.html`) — usunięcie treści „O nas” i jej kluczy stanu, nowa podstrona z treścią z dokumentu interfejsu (otwarcie, kroki, kontakt z godzinami, zasady, karta podarunkowa, zamknięcie ze wskazówkami), trzy grupy po trzy warianty i jedna sekcja o stałym układzie, w widoku komputera i telefonu
+- Stawka: średnia (wygląd strony „Jak się umówić” wybiera właściciel)
+- Niepewność: średnia (grafiki rysowane w CSS — bon, kupon z perforacją; lista godzin z innego pliku podglądu)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (2 przebiegi: 62,6 s — zasadne zatrzymanie na błędzie briefu; 484,7 s — wynik)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór w przeglądarce architekta (zrzuty 3 kombinacje × 2 widoki × 2 motywy w oknie mieszczącym całą stronę; zbliżenia kuponu i osi; okno laptopa 1366×657 bez `odslon()` z przewinięciem do stopki; przyciski grup; odnośnik wewnętrzny bez nawigacji; sekcje wewnątrz `.site`; konsola 0 błędów; reguła ograniczonego ruchu); odstępstwo od reguły 13 dla materiału podglądowego
+- Dopuszczone alternatywy: Claude `wykonawca` (pula ŻÓŁTA, tydzień 79 %); Gemini `high` (słabsze wyniki na HTML podglądu); Spark (ostatni sygnał: zablokowany, 402)
+- Powód wyboru: Codex — przyjęte BE-16, BE-18…BE-20 i BE-22…BE-26 na tych samych plikach bazowych
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Spark zablokowany (402, ostatni odczyt), Claude ostrzegawczy (ŻÓŁTY, tydzień 79 %), 2026-10-06
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: pierwszy przebieg zatrzymany zgodnie z klauzulą STOP — brief kazał kopiować `aria-label` przycisku `Zadzwoń` z nagłówka, którego ten przycisk nie ma; zarzut trafny, brief poprawiony. Drugi przebieg przyjęty po dwóch poprawkach architekta
+- Rundy korekt: 0 po wyniku (1 przebieg powtórzony na błędzie briefu); dwie poprawki architekta w CSS — (1) karty wskazówek w zamknięciu dziedziczyły szerokość 900 px wzoru zamknięcia (tytuł łamany na cztery linie) — poszerzone do szerokości kontenera; (2) wycięcia perforacji kuponu KP-3 w kolorze tła były prawie niewidoczne na jasnej karcie — dodane obramowanie, średnica 32 px, wyraźniejsza linia przerywana
+- Czas do akceptacji: ok. 9 min dwóch przebiegów + ok. 25 min walidacji
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): architekt — (1) P2: zbyt wąska siatka kart wskazówek w zamknięciu; (2) P3: słabo widoczne wycięcia kuponu; oba potwierdzone na zrzutach i poprawione. Oba wynikały z briefu (brak szerokości siatki, wycięcia opisane wyłącznie kolorem tła), nie z wykonania
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: zrzuty całej strony w oknie wyższym niż strona, sprawdzenie rodzica sekcji w DOM, zbliżenia drobnych ozdób w obu motywach. Wniosek: przy umieszczaniu nowej treści w stałym wzorze (`sub-close`) brief ma podać szerokość nowej treści, bo wzór niesie własne ograniczenia; ozdoba „w kolorze tła” na jasnej karcie potrzebuje obrysu
+
+### BE-28 (BeautyEffect: podgląd części 13b — grafika przy krokach rezerwacji i zdjęcie na karcie podarunkowej) — 2026-10-06
+- Archetyp: poprawka HTML podglądu na pliku bazowym (`czesc-13.html`) po wyborze właściciela — utrwalenie trzech wybranych wariantów i usunięcie pozostałych z kluczami stanu, dwie nowe grupy po trzy warianty (grafika obok kroków tylko w widoku komputera, w tym makieta telefonu z kalendarzem w CSS; zdjęcie na karcie podarunkowej w trzech kadrach), nowe klucze stanu i grupy panelu
+- Stawka: średnia (wygląd strony „Jak się umówić” wybiera właściciel)
+- Niepewność: niska–średnia (odpowiedź na dwie konkretne uwagi właściciela; makieta telefonu przeniesiona z części 10b)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (1 przebieg, 458,2 s)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór w przeglądarce architekta (zrzuty 3 × 3 warianty × 2 widoki × 2 motywy w oknie mieszczącym całą stronę; porównanie makiety telefonu w obu motywach; okno laptopa 1366×657 bez `odslon()` z przewinięciem do stopki dla każdego wariantu grafiki; konsola 0 błędów; elementy poza `.site`, unikalne id, `aria-current`, obrazy; wystawanie grafiki poza sekcję kroków); odstępstwo od reguły 13 dla materiału podglądowego
+- Dopuszczone alternatywy: Claude `wykonawca` (pula ŻÓŁTA, tydzień 79 %); Gemini `high` (słabsze wyniki na HTML podglądu); Spark (ostatni sygnał: zablokowany, 402)
+- Powód wyboru: Codex — przyjęte BE-16, BE-18…BE-20 i BE-22…BE-27 na tych samych plikach bazowych
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Spark zablokowany (402, ostatni odczyt), Claude ostrzegawczy (ŻÓŁTY, tydzień 79 %), 2026-10-06
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: przyjęty po jednej poprawce architekta. Przed wysłaniem architekt sprawdził przesłanki briefu i poprawił dwie błędne (brief podawał nieistniejący plik logo i ikonę nagłówka, której nagłówek nie używa)
+- Rundy korekt: 0; jedna poprawka architekta — makieta telefonu w ciemnym motywie miała białą ramkę ekranu, bo brief zabraniał prymitywów palety i Codex podstawił kolory semantyczne odwracające się w ciemnym motywie; przywrócone kolory ramki z części 10b (prymitywy szarości, osobne wartości dla ciemnego motywu). Przyczyna po stronie briefu, nie wykonawcy
+- Czas do akceptacji: ok. 8 min przebiegu + ok. 30 min walidacji
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): architekt — (1) P2: odwrócona kolorystyka ramki telefonu w ciemnym motywie; potwierdzone, poprawione (luka briefu)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: jak w BE-26 (okno wyższe niż strona, scena przewinięta na górę, rodzic sekcji w DOM) oraz porównanie obu motywów dla każdego elementu przeniesionego z wcześniejszej części. Wniosek: zakaz prymitywów w briefie musi mieć wyjątek dla elementów kopiowanych z zatwierdzonego podglądu — inaczej wykonawca „naprawia” je kolorami semantycznymi, które w ciemnym motywie się odwracają
+
+### BE-29 (BeautyEffect: generator statycznego planu okolicy salonu z danych OpenStreetMap do SVG) — 2026-10-06
+- Archetyp: skrypt Pythona (biblioteka standardowa) przetwarzający dane Overpass (ok. 2,2 tys. obiektów) na SVG bez kolorów — rzutowanie lokalne, upraszczanie Douglasa–Peuckera, klasyfikacja warstw, etykiety ulic po ścieżkach z wyborem fragmentu i kolizjami, samosprawdzenie wyniku, podgląd jasny/ciemny
+- Stawka: niska–średnia (materiał podglądowy do wyboru sposobu prezentacji mapy; bez danych osobowych)
+- Niepewność: średnia (nowy archetyp — przetwarzanie danych geograficznych; jakość etykiet oceniana dopiero wizualnie)
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` (`-Access write`; 2 przebiegi: 787,9 s — wynik, 326,9 s — poprawka)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór architekta (podgląd jasny/ciemny w przeglądarce, plan w trzech polach strony w obu motywach i na telefonie, unikalność `id` po wstawieniu trzech kopii, przegląd skryptu pod kątem kierunku obrysów); odstępstwo od reguły 13 dla materiału podglądowego
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` (zajęty równoległym briefem strony, mała pula Plus); Claude `wykonawca` (pula ŻÓŁTA, tydzień 79 %); Spark (ostatni sygnał: zablokowany, 402)
+- Powód wyboru: samodzielny skrypt z jasnym wynikiem do sprawdzenia, rozłączny z briefem strony — rozłożenie fali na dwie linie zamiast dwóch przebiegów Codexa; brak lokalnych wyników Gemini dla tego archetypu (pewność niska)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany, Codex nieznany, Spark zablokowany (402, ostatni odczyt), Claude ostrzegawczy (ŻÓŁTY, tydzień 79 %), 2026-10-06
+- Pewność decyzji: niska (pierwszy brief tego archetypu)
+- Wynik pierwszego podejścia: przyjęty wizualnie; sekcja „co błędne” zgłosiła dwa trafne zarzuty wobec briefu — stała długości 1° szerokości dla równika zamiast dla 51,95° N oraz brak ujednolicenia kierunku obrysów przy łączeniu wielokątów w jedną ścieżkę (ryzyko dziur przy `nonzero`); dwa pozostałe uwzględnione bez zmiany (okno doboru etykiet szersze niż wąskie pola — celowe; pominięcie jednej ulicy przez próg kolizji)
+- Rundy korekt: 1 (poprawka obu trafnych zarzutów — brief architekta był źródłem obu); 0 po poprawce
+- Czas do akceptacji: ok. 13 min przebiegu + ok. 5,5 min poprawki + ok. 15 min oceny (równolegle z briefem strony)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): wykonawca (sekcja „co błędne”) — P2 stała skali osi y, P2 kierunek obrysów; potwierdzone, poprawione. Architekt — brak dodatkowych
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: samosprawdzenie skryptu (parsowanie XML, brak atrybutów stylu, unikalne `id` z prefiksem, poprawne odwołania `href`, rozmiar ≤ 300 KB), znak pola wszystkich podścieżek obszarów, ocena wizualna obu motywów. Uwaga procesowa: Gemini zostawił katalog `__pycache__` (import skryptu) — architekt usunął po przebiegu, zgodnie z pamięcią o blokadach katalogów
+
+### BE-30 (BeautyEffect: podgląd części 14 — strona „Kontakt” z trzema sposobami prezentacji mapy) — 2026-10-06
+- Archetyp: nowy HTML podglądu na pliku bazowym (`czesc-13b.html`) — usunięcie treści poprzedniej strony i jej kluczy stanu, nowa podstrona z treścią z dokumentu interfejsu, trzy grupy po trzy warianty (sposoby kontaktu, mapa, układ godzin i adresu — 27 kombinacji), wczytanie planu SVG do trzech pól z przepisaniem `id`, mapa Google ładowana dopiero po kliknięciu z przywracaniem zaślepki, przeniesienie `aria-current`
+- Stawka: średnia (wygląd strony „Kontakt” i decyzja właściciela o mapie i plikach cookies)
+- Niepewność: średnia (zależność od pliku SVG powstającego równolegle, interakcja z zasobem zewnętrznym)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (2 przebiegi: 64,1 s — zasadne zatrzymanie na błędzie briefu; 751,8 s — wynik)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór w przeglądarce architekta (zrzuty 3 warianty kontaktu i 9 kombinacji mapy z układem × 2 motywy × komputer/telefon; brak żądań do Google przed kliknięciem, `iframe` z fokusem po kliknięciu, przywrócenie zaślepki po zmianie wariantu; okno laptopa 1366×657 bez `odslon()` dla 9 kombinacji; konsola 0 błędów; sekcje w `.site`, unikalne `id` po wstawieniu planu, `aria-current`, obrazy); odstępstwo od reguły 13 dla materiału podglądowego
+- Dopuszczone alternatywy: Claude `wykonawca` (pula ŻÓŁTA, tydzień 79 %); Gemini `high` (zajęty równoległym generatorem; słabsze wyniki na HTML podglądu); Spark (ostatni sygnał: zablokowany, 402)
+- Powód wyboru: Codex — przyjęte BE-16, BE-18…BE-20 i BE-22…BE-28 na tych samych plikach bazowych
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany, Spark zablokowany (402, ostatni odczyt), Claude ostrzegawczy (ŻÓŁTY, tydzień 79 %), 2026-10-06
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: pierwszy przebieg zatrzymany zgodnie z klauzulą STOP — brief wymieniał stopkę jako jedno z czterech menu z `aria-current`, a stopka nie ma menu (czwarte to nagłówek alternatywny); zarzut trafny, brief poprawiony. Drugi przebieg przyjęty po jednej poprawce architekta
+- Rundy korekt: 0 po wyniku; jedna poprawka architekta — podmiana zdjęcia prawego łuku otwarcia (obrócone zdjęcie brwi z ciemnym pasem włosów u dołu → zdjęcie ust); błąd doboru zdjęcia po stronie briefu, nie wykonawcy
+- Czas do akceptacji: ok. 1 min + 12,5 min przebiegów + ok. 25 min walidacji
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): architekt — P3: niefortunny kadr zdjęcia w prawym łuku (luka briefu); poprawione
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: jak w BE-26 (okno wyższe niż strona, scena na górze, rodzic sekcji w DOM) oraz test sieci dla wariantu ładowanego po zgodzie (zero żądań przed kliknięciem) i unikalność `id` po wstawieniu treści przez skrypt. Wniosek: przy przenoszeniu `aria-current` brief podaje menu po klasach, a nie z pamięci
+
+### BE-31 (BeautyEffect: podgląd części 15 — elementy stron kategorii „Warkocze” i „Makijaż permanentny”) — 2026-10-06
+- Archetyp: nowy HTML podglądu na pliku bazowym (`czesc-14.html`) z przeniesionym blokiem wariantu KA-1 z `czesc-8.html` — dwie strony kategorii w jednym pliku, zakładki grup, trzy grupy po trzy warianty (długi opis: rozwinięcie / okno z arkuszem na telefonie / szeroka karta; przed i po zabiegu: ramki / zakładki / oś; zasada grupy: notka / lista / kafelki), przenoszenie treści do okna bez duplikatów `id`, zamykanie arkusza na cztery sposoby
+- Stawka: średnia (wygląd stron kategorii z dłuższymi opisami i zasadami przygotowania)
+- Niepewność: średnia (dwa źródła stylu, interakcje okna i zakładek, treść z dokumentów interfejsu z dwoma szkicami opisów)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (3 przebiegi: 38,5 s i 42,4 s — zasadne zatrzymania na błędach briefu; 1108,8 s — wynik)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór w przeglądarce architekta (zrzuty obu stron × DO/PZ/ZW × komputer/telefon × jasny/ciemny; okno: pułapka fokusu, Escape, tło, przycisk, przeciągnięcie uchwytu poniżej i powyżej progu, powrót fokusu; zakładki z klawiatury; brak duplikatów `id` przy otwartym oknie; okno laptopa 1366×657 bez `odslon()`; ograniczony ruch; konsola 0 błędów; sekcje w `.site`, `aria-current`, brak nowych HEX); odstępstwo od reguły 13 dla materiału podglądowego
+- Dopuszczone alternatywy: Claude `wykonawca` (pula ŻÓŁTA, tydzień ok. 80 %); Gemini `high` (słabsze wyniki na HTML podglądu); Spark (ostatni sygnał: zablokowany, 402)
+- Powód wyboru: Codex — przyjęte BE-16, BE-18…BE-20, BE-22…BE-28 i BE-30 na tych samych plikach bazowych
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany, Spark zablokowany (402, ostatni odczyt), Claude ostrzegawczy (ŻÓŁTY, tydzień ok. 80 %), 2026-10-06
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: dwa przebiegi zatrzymane zgodnie z klauzulą STOP, oba trafnie — (1) sprawdzenie briefu zakazywało `google.com/maps`, a niezmieniona stopka ma odnośnik do wyznaczania trasy; (2) brief podawał klasę karty `accent-card`, która należy do wariantu KA-3, a wybrany był KA-1 (`treatment`). Trzeci przebieg przyjęty po poprawkach architekta
+- Rundy korekt: 0 po wyniku; poprawki architekta w pliku — kadr dwóch banerów (`--pos`: twarz ucięta na ustach, warkocze poza kadrem) oraz usunięcie zdegenerowanych wariantów PZ-2/PZ-3 przy karcie bez treści przed/po (jedna zakładka „Opis”, jednoetapowa oś); obie luki briefu, nie wykonawcy
+- Czas do akceptacji: ok. 1,5 min zatrzymań + 18,5 min przebiegu + ok. 35 min walidacji
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): architekt — P3 kadr banerów, P3 pojedyncza zakładka i jednoetapowa oś; poprawione
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: jak w BE-30 oraz test okna/arkusza (cztery sposoby zamknięcia, próg przeciągnięcia, fokus) i brak duplikatów `id` po przeniesieniu treści do okna. Wnioski: (1) klasy przenoszonego wariantu brief weryfikuje w obrębie bloku tego wariantu, nie globalnym zliczeniem; (2) zakazy w sprawdzeniach briefu nie mogą obejmować elementów powłoki, które mają zostać bez zmian; (3) brief wariantów przekrojowych mówi, co zrobić z kartą, która nie ma treści dla wariantu; (4) przy skali ekranu ≠ 1 zrzuty elementów z Playwright są przesunięte — kadrować zrzut całego okna według `getBoundingClientRect` × (szerokość obrazu / `innerWidth`)
+
+### BE-32 (BeautyEffect: podgląd części 16 — „Polityka prywatności” i strona 404) — 2026-10-06
+- Archetyp: nowy HTML podglądu na pliku bazowym (`czesc-14.html`) z mechanizmem dwóch stron przeniesionym z `czesc-15.html`; trzy grupy po trzy warianty (otwarcie dokumentu, układ długiego tekstu ze spisem przyklejonym / ramką spisu / sekcjami rozwijanymi z `hidden="until-found"`, strona 404), przewijanie sceny do sekcji z fokusem na nagłówku, śledzenie czytanej sekcji
+- Stawka: niska–średnia (strona prawna bez treści normatywnej i strona błędu; materiał podglądowy)
+- Niepewność: niska (wzór otwarcia i zamknięcia zaakceptowany, treść z dokumentów interfejsu)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (1 przebieg, 662 s)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór w przeglądarce architekta (zrzuty wybranych wariantów komputer/telefon × jasny/ciemny, pozostałe warianty na komputerze; spis: przewinięcie, wyróżnienie, fokus, zwijanie na telefonie; 404: jeden `<h1>`, cztery odnośniki z właściwymi adresami; `aria-current` w stopce; konsola: tylko brak `favicon.ico` serwera podglądu); odstępstwo od reguły 13 dla materiału podglądowego
+- Dopuszczone alternatywy: Claude `wykonawca` (pula ŻÓŁTA, tydzień 81 %); Gemini `high` (słabsze wyniki na HTML podglądu); Spark (ostatni sygnał: zablokowany, 402)
+- Powód wyboru: Codex — przyjęte BE-16, BE-18…BE-20, BE-22…BE-28, BE-30 i BE-31 na tych samych plikach bazowych
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany, Spark zablokowany (402, ostatni odczyt), Claude ostrzegawczy (ŻÓŁTY, tydzień 81 %), 2026-10-06
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: przyjęty; wykonawca sam przeszedł symulacją DOM 216 kombinacji stanu. Jedno odchylenie zgłoszone trafnie (`transparent` jako wypełnienie obrysowanej liczby wbrew regule „tylko zmienne”)
+- Rundy korekt: 0; poprawki architekta w pliku — obrys liczby `404` (`-webkit-text-stroke` na kroju Cormorant rysuje nakładające się kontury cyfry 4; zamiast przezroczystego wypełnienia: wypełnienie tłem `var(--bg)` + `paint-order: stroke fill`) oraz wymiana zdjęcia prawego łuku (szare tło zdjęcia widoczne pod środkowym łukiem) — oba to luki briefu (dobór zdjęcia i techniki obrysu przez architekta), nie wykonawcy
+- Czas do akceptacji: 11 min przebiegu + ok. 30 min walidacji (z przerwą na restart serwerów podglądu)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): architekt — P3 obrys `404`, P3 kadr prawego łuku; poprawione
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: jak w BE-31 oraz przewinięcie do sekcji ze spisu (położenie nagłówka pod nagłówkiem strony, fokus, wyróżnienie pozycji). Wnioski: (1) obrys tekstu w kroju szeryfowym wymaga `paint-order: stroke fill` z wypełnieniem kolorem tła — `-webkit-text-stroke` z przezroczystym wypełnieniem pokazuje wewnętrzne kontury glifów; (2) zdjęcie bocznego łuku OF-3 dobiera się po dolnej krawędzi — prawy łuk wystaje pod środkowym, więc jednolite tło na dole zdjęcia wygląda jak pasek; (3) właściciel potrafi wybrać z opisu słownego zanim podgląd jest gotowy — podgląd i tak publikuje się na wybranych wariantach do potwierdzenia
+
+### BE-33 (BeautyEffect: odczyt wartości wyglądu z 19 makiet HTML pod specyfikację wyglądu) — 2026-10-06
+- Archetyp: odczyt (ekstrakcja) wartości CSS/HTML/JS wybranych wariantów z 19 podglądów HTML do jednego pliku z odnośnikami `plik:linia`, z dopasowaniem kolorów do skal dokumentu kolorów i tabelą rozbieżności między makietami; tylko odczyt plików wejściowych, jeden plik wynikowy w kopii roboczej
+- Stawka: niska–średnia (podstawa specyfikacji wyglądu, którą pisze architekt; katalog nie jest źródłem prawdy)
+- Niepewność: średnia (makiety z kolejnych etapów, warianty odrzucone w tych samych plikach, trzy mechanizmy szerokości)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (3 przebiegi: 80 s, 120 s, 1508 s)
+- Recenzent (linia / model / native effort): brak recenzji innej rodziny — odbiór architekta: 26 wartości porównanych z liniami makiet (wszystkie zgodne), podsumowania sekcji przeczytane w całości, pliki wejściowe bez zmian (`cmp`), brak ścieżek lokalnych w wyniku; odstępstwo od reguły 13 dla materiału pomocniczego
+- Dopuszczone alternatywy: Gemini `high` (tańszy odczyt, słabsze wyniki na HTML podglądu); Claude `zwiadowca` (Haiku `low` — za słaby do rozdzielenia wariantów i kaskady CSS); Spark (ostatni sygnał: zablokowany, 402)
+- Powód wyboru: Codex — przyjęte BE-16…BE-32 na tych samych plikach
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany, Spark zablokowany (402, ostatni odczyt), Claude ostrzegawczy (ŻÓŁTY, tydzień 82 %), 2026-10-06
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zatrzymanie — trafne zgłoszenie błędnego założenia briefu (widok telefonu opisany tylko przez `data-view`, a późniejsze makiety używają też `@container`); drugi przebieg — zatrzymanie zbędne (rozbieżność opisu filmów z kodem potraktowana jako błąd założeń); trzeci — przyjęty
+- Rundy korekt: 0 korekt wyniku; 2 poprawki briefu przez architekta (obie to luki briefu, nie wykonawcy)
+- Czas do akceptacji: ok. 28 min przebiegów + ok. 30 min odbioru
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): wykonawca wykazał 23 rozbieżności wspólnych elementów między makietami oraz różnice z decyzjami (m.in. grubości Cormoranta w motywie ciemnym, brak kursywy N-1 i wysuwania słów W-3 na podstronach, ikona `roz-700` zamiast `roz-600`, niedziałający selektor w części 13b, limit filmu 5 s sprawdzany zdarzeniem postępu) — potwierdzone, rozstrzygnięte w specyfikacji wyglądu
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: wyrywkowe porównanie wartości z liniami makiet, `cmp` plików wejściowych, przegląd wyniku pod kątem ścieżek lokalnych. Wnioski: (1) brief odczytu z makiet musi wymienić wszystkie mechanizmy szerokości (`data-view`, `@container`, `cqi`, `@media`); (2) sama klauzula STOP przy briefie odczytu powoduje zbędne zatrzymania — brief odczytu mówi wprost, że rozbieżność opisu z kodem zapisuje się i pracuje dalej, a zatrzymanie tylko przy niewykonalności; (3) odczyt „wszystkiego” dał 600 KB (4158 wierszy) — do napisania specyfikacji wystarczyły podsumowania na początku sekcji; przy podobnym briefie żądać najpierw podsumowań, a katalogów szczegółowych tylko dla elementów wspólnych
 
 ## 5. Rytm przeglądów i ewaluacji
 
