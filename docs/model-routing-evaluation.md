@@ -1981,6 +1981,193 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak stwierdzonych do chwili wpisu; obserwacja poza zakresem — Beasties preloaduje też wiele plików fontów `latin-ext` i kursywy na każdej stronie (wydajność, do decyzji)
 - Wymagane testy i dowody: Vitest (kompilacja SCSS, zgodność klas z pakietem), lint, format, build (5 prerenderowanych tras); `grep .eot` w `dist`, preload w HTML, Chrome na `127.0.0.1` (pułapka cienia `ng serve` na `[::1]:4200`)
 
+### BE-65 (BeautyEffect: Etap 3 H2a + H2a-k1 + K2 — film otwarcia `HeroFilm`) — 2026-10-07
+- Archetyp: komponent prezentacyjny z imperatywnym API mediów (autostart w `afterNextRender` przez `defer(from(play()))`, przycisk wstrzymania, reakcja na zmianę `prefers-reduced-motion`), łuk z obrysem i ruchem wejścia w SCSS; 4 pliki
+- Stawka: niska–średnia (otwarcie strony głównej; przycisk nie może kłamać o stanie filmu)
+- Niepewność: średnia (odrzucenie `play()`, zmiana ustawień ruchu w trakcie)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (472 s); korekty `medium` (H2a-k1 144 s po przerwanym limitem przebiegu 23 s; K2 126 s wspólnie z BE-66)
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `high`, `-Access read` (308 s, wspólnie z BE-66)
+- Dopuszczone alternatywy: Gemini (wykonawca H1 w tej fali); Spark (zablokowany 402 przy przydziale); Claude `wykonawca` (pula ŻÓŁTA)
+- Powód wyboru: logika mediów i stanów przycisku — `high`; korekty z gotowymi decyzjami — `medium`
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany → zablokowany (limit 16:47 lokalnie, reset 18:01) → nieznany; Spark zablokowany (402) → znany (sonda 18:05); Claude ostrzegawczy (ŻÓŁTY, tydzień 90–91 %), 2026-10-07 16:38–18:22
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zielony, ale z błędnych przesłanek architekta (próg `sm`/`lg` zamiast `md` z AT-SPEC dla sekcji strony głównej; obrys przy najechaniu) — korekta H2a-k1
+- Rundy korekt: 2 (H2a-k1 — błąd briefu; K2 — znalezisko recenzji)
+- Czas do akceptacji: ok. 4 h zegarowo (przerwa na limit Codexa i 402 Sparka); pracy wykonawcy ok. 12 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P3 `load()` przy zmianie na `reduce`, gdy film nie grał — potwierdzone, poprawione w K2 (wzór `VideoClip`); P3 zapis sygnału po zniszczeniu przy odrzuconym `play()` — odrzucone (`onDestroy` odpina `playSubscription`, więc `catchError` nie startuje); werdykt recenzenta: poprawny 0,9
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest 15/15, lint, format, build (prerender `/`); `browser-check` po złożeniu strony (H8)
+
+### BE-66 (BeautyEffect: Etap 3 H3a + H3a-k1 + K2 — kafel kategorii `CategoryTile`) — 2026-10-07
+- Archetyp: komponent prezentacyjny — jeden odnośnik na kafel, zdjęcie albo `VideoClip` z restartem przy najechaniu i fokusie, kurtyna W-3, modyfikatory `large`/`featured`; 4 pliki
+- Stawka: niska–średnia (8 wejść do oferty na stronie głównej; nazwa dostępna odnośnika)
+- Niepewność: niska–średnia
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `medium` (290 s); H3a-k1 `high` przerwany limitem (80 s), ponowiony `medium` (140 s); K2 `medium` (126 s, wspólnie z BE-65)
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `high`, `-Access read` (308 s, wspólnie z BE-65)
+- Dopuszczone alternatywy: Gemini; Spark (zablokowany 402 przy przydziale); Claude `wykonawca` (pula ŻÓŁTA)
+- Powód wyboru: mały komponent na gotowym `VideoClip` — `medium`
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-65
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielony, ale z trzech błędnych przesłanek architekta (`large` tylko jako wysokość, uniesienie R-2 na kaflach, próg `sm` zamiast `md`) — korekta H3a-k1
+- Rundy korekt: 2 (H3a-k1 — błąd briefu; K2 — znalezisko recenzji)
+- Czas do akceptacji: ok. 4 h zegarowo (przerwy na limity); pracy wykonawcy ok. 9 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P1 licznik identyfikatorów przecieka między żądaniami SSR — odrzucone jako P1 (`id` i `aria-labelledby` z tej samej instancji są spójne w HTML serwera, a pierwsza detekcja zmian po hydracji przepisuje oba), ale usunięte razem z P2; P2 nazwa dostępna = sam tytuł nie zawiera widocznego opisu (WCAG 2.5.3) — potwierdzone, K2: nazwa z treści odnośnika, bez `aria-labelledby` i licznika; P3 martwe zdarzenia w specu — potwierdzone, usunięte; P3 `objectPosition` ignorowane dla kafli z filmem — przyjęte (żaden wpis danych go nie ustawia); werdykt recenzenta: niepoprawny 0,7 → po K2 zgodny
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest 12/12 (z AXE), lint, format, build; oględziny mozaiki po H3b
+
+### BE-67 (BeautyEffect: Etap 3 H1 + H1-k1 — teksty i dane strony głównej) — 2026-10-07
+- Archetyp: dane i i18n — klucze `pl.json`, tablice kategorii i godzin otwarcia z testami danych; ok. 8 plików
+- Stawka: niska (treść publiczna, bez niezmiennika)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` (513 s); H1-k1 ten sam (366 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (196 s); H1-k1 w recenzji fali 2 (413 s, wspólnie z BE-68 i BE-69)
+- Dopuszczone alternatywy: Spark; Codex (pula zostawiona na recenzje); Claude `mechanik` (pula ŻÓŁTA)
+- Powód wyboru: tekstowy brief bez makiety i bez niezmiennika
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini — znany (udane przebiegi tego dnia); Codex — nieznany (wrapper bez zapasu)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielony, ale testy nie przypinały danych (zgodność kluczy bez trójek `path`/`nameKey`/`descriptionKey` i bez pełnych rekordów godzin)
+- Rundy korekt: 1 (H1-k1 — wspólny helper `getNestedTranslation`, pełne trójki 8 kategorii i 7 rekordów godzin)
+- Czas do akceptacji: ok. 25 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P2 słabe testy danych — potwierdzone, H1-k1; recenzja H1-k1 bez znalezisk
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest, lint, format, build; uwaga — „pusty diff” Gemini z `git diff` na pliku nieśledzonym niczego nie dowodzi, dowodem jest spec przypinający dane
+
+### BE-68 (BeautyEffect: Etap 3 H2b — otwarcie strony głównej `HomeOpening`) — 2026-10-07
+- Archetyp: sekcja prezentacyjna z gotowym dzieckiem (`HeroFilm`) — `h1` z ukrytym myślnikiem, plamy tła, CTA; 4 pliki
+- Stawka: niska–średnia (jedyny `h1` strony, SEO)
+- Niepewność: niska–średnia
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` (877 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (413 s, wspólnie z BE-67 i BE-69)
+- Dopuszczone alternatywy: Spark (równolegle zajęty H3b/H5); Codex (pula na recenzje)
+- Powód wyboru: tekstowy brief z dokumentem strony i makietą, bez Figmy
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-67
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowany bez korekty
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 30 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak potwierdzonych dla `HomeOpening`
+- Defekty po odbiorze: „Zobacz ofertę” 121 × 30 px wobec wymogu planu ≥ 44 px — wykryte pomiarem architekta w przeglądarce; przyczyna wspólna (`.bty-link--arrow` bez `min-height`), naprawione globalnie w BE-69 (KG2)
+- Wymagane testy i dowody: Vitest z AXE, lint, format, build, `browser-check` (16 zrzutów, przepływ pauzy filmu PASS)
+
+### BE-69 (BeautyEffect: Etap 3 H4 + KG1 + KG2 — bento „Wyróżniki salonu” `SalonHighlights`) — 2026-10-07
+- Archetyp: sekcja prezentacyjna — bento na siatce Bootstrapa z `display: contents` poniżej `md`, rysowane SVG (wieniec, piktogramy), kurtyna zdjęcia; 4 pliki (+ `links.scss`, `links.spec.ts`, `reveal-styles.spec.ts` w KG2)
+- Stawka: niska–średnia
+- Niepewność: średnia (kolejność kafli na telefonie, odsłanianie rysunków)
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` — H4 (896 s), KG1 (670 s), KG2 (680 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` — `high` (413 s fala 2; 396 s korekty), `medium` (runda 2)
+- Dopuszczone alternatywy: Spark (korekty wracają do autora, o ile się kwalifikuje)
+- Powód wyboru: tekstowy brief, autor korekt = autor kodu
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-67
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zielony, z czterema defektami z recenzji
+- Rundy korekt: 2 (KG1 — recenzja; KG2 — pomiar w przeglądarce i recenzja korekt)
+- Czas do akceptacji: ok. 1 h 15 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): zdjęcie-treść pod `aria-hidden` — potwierdzone; podwójny odstęp `row-gap` + rynna (40 px zamiast 20) — potwierdzone; stany ukryte rysunków bez JS — potwierdzone (wspólny mixin `reveal-local.pending`, BE-74); test nie łapał usunięcia stanu końcowego kresek — potwierdzone; test keyframes bezpiecznika nie łapał usunięcia `scale: none` — potwierdzone, KG2
+- Defekty po odbiorze: nazwy urządzeń sklejone (Angular usuwa białe znaki między elementami) — przy 768 px wystają 49 px, czytnik ekranu czyta „EndosferaNeoPulseBloomea”; wykryte pomiarem architekta, KG2 (`&ngsp;`) z kontrolą czerwony → zielony
+- Wymagane testy i dowody: Vitest z AXE, lint, format, build, pomiar `scrollWidth` 320/390/768, `browser-check`, kontrola bez JS i przy `reduce`
+
+### BE-70 (BeautyEffect: Etap 3 H3b + KS1 — mozaika kategorii `OfferMosaic`) — 2026-10-07
+- Archetyp: sekcja prezentacyjna — 8 kafli `CategoryTile` w jednym `.row.g-3`, para Twarz/Ciało `col-md-3`, łuk górny; 4 pliki
+- Stawka: niska–średnia (8 wejść do oferty)
+- Niepewność: średnia (układ pary na telefonie)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh` (361 s); KS1 `xhigh` (683 s, wspólnie z BE-71 i BE-73)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (726 s, wspólnie z BE-71–73); korekty — Codex `gpt-6.1-sol` `high` (396 s)
+- Dopuszczone alternatywy: Codex (pula na recenzje, pamięć `spark-przejmuje-prosta-prace`); Gemini
+- Powód wyboru: prosty brief tekstowy — Spark przejmuje prostą pracę
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark — znany (udane przebiegi, brak komunikatu limitu); Gemini — znany
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielony; Spark wykazał trzy błędne przesłanki briefu (zapis `col-6` bez `col-md-3`, `arc-top` przełącza się przy `sm`, brak wejścia indeksu kaskady)
+- Rundy korekt: 1 (KS1)
+- Czas do akceptacji: ok. 1 h
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): test nie wykrywał usunięcia `col-md-3` z kontenera pary — potwierdzone; `objectPosition` z danych gubiony — potwierdzone; oba KS1
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest 13 z AXE, lint, format, build, `browser-check` (przepływ wejścia w kategorię PASS)
+
+### BE-71 (BeautyEffect: Etap 3 H5 + KS1 + KS3 — ścieżka rezerwacji `BookingPath`) — 2026-10-07
+- Archetyp: sekcja prezentacyjna — `ol` trzech kroków, linia rysowana, piktogramy SVG, poświata w ciemnym motywie; 4 pliki
+- Stawka: niska–średnia
+- Niepewność: niska–średnia
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh` (443 s); KS1 `xhigh`; KS3 `high` (281 s, wspólnie z BE-72 i BE-73)
+- Recenzent (linia / model / native effort): Gemini `flash-high` (fala); Codex `gpt-6.1-sol` `high` (korekty), `medium` (runda 2)
+- Dopuszczone alternatywy: Codex; Gemini
+- Powód wyboru: jak BE-70
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-70
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielony; poświata ciemnego motywu martwa od początku, a spec przypinał wadliwy selektor jako kontrakt
+- Rundy korekt: 2 (KS1, KS3)
+- Czas do akceptacji: ok. 1 h 20 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): niejawny `accentWordIndex`, brak testu `ol`, nierówne wiersze kroków poniżej `md`, stany ukryte bez JS — potwierdzone, KS1; P2 `.app-dark .x` nie pasuje przy enkapsulacji emulowanej (`<html>` bez atrybutu komponentu) — potwierdzone, KS3 + strażnik `dark-selector-guard.spec.ts` dla wszystkich stylów komponentów
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest 15 z AXE, lint, format, build, pomiar `display` poświaty w obu motywach, zrzut ciemnego motywu
+
+### BE-72 (BeautyEffect: Etap 3 H6 + KS2 + KS3 — aktualności `SocialNews` i `PhoneScene`) — 2026-10-07
+- Archetyp: sekcja prezentacyjna z ozdobną sceną telefonu (rama, karty, film) — po KS2 dwa komponenty; 8 plików
+- Stawka: niska
+- Niepewność: średnia (budżet stylów, odwzorowanie urządzenia rolami kolorów)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh` (551 s); KS2 `xhigh` (372 s); KS3 `high`
+- Recenzent (linia / model / native effort): Gemini `flash-high` (fala); Codex `gpt-6.1-sol` `high` / `medium`
+- Dopuszczone alternatywy: Codex; Gemini
+- Powód wyboru: jak BE-70
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-70
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielony; plan zawierał błąd architekta (odznaki profili w ekranie — wariant S-3 zamiast wybranego S-1), poprawiony przed startem; Spark wykazał błędne przesłanki briefu (szerokość kolumny, brak „czystej klasy” w `RevealKind`, kolory urządzenia bez dokładnych ról)
+- Rundy korekt: 2 (KS2, KS3)
+- Czas do akceptacji: ok. 1 h 20 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): budżet `anyComponentStyle` 7,61 kB > 6 kB (build architekta) — KS2 wydzielił `PhoneScene`; podkreślenie przy `reduce` niewidoczne — KS2; stany ukryte bez JS — KS2; P2 rola metalu w ciemnym motywie martwa (`.app-dark` przy enkapsulacji) — KS3; P2 rynna 64 px na każdej szerokości → przewijanie poziome 12 px przy 320/390 px (recenzja i pomiar architekta) — KS3
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest 17 z AXE, lint, format, build bez ostrzeżenia budżetu, pomiar `scrollWidth`, `browser-check`
+
+### BE-73 (BeautyEffect: Etap 3 H7 + KS1 + KS3 — „Gdzie nas znaleźć” `FindUs`) — 2026-10-07
+- Archetyp: sekcja prezentacyjna z małą logiką (dzień tygodnia w Europe/Warsaw po stronie przeglądarki) — łuk z adresem, godziny, CTA; 6 plików
+- Stawka: niska–średnia (dane kontaktowe)
+- Niepewność: średnia (kolejność fokusu przy `display: contents`)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh` (487 s); KS1 `xhigh`; KS3 `high`
+- Recenzent (linia / model / native effort): Gemini `flash-high` (fala); Codex `gpt-6.1-sol` `high` / `medium`
+- Dopuszczone alternatywy: Codex; Gemini
+- Powód wyboru: jak BE-70
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-70
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielony; kolejność fokusu sprzeczna z wizualną wynikała z DOM przepisanego w briefie (błąd architekta)
+- Rundy korekt: 2 (KS1, KS3)
+- Czas do akceptacji: ok. 1 h 20 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): zdanie z „Kontakt” przed adresem w kolejności fokusu — potwierdzone, KS1 (osobna kolumna `order-4 order-md-3`, test kolejności); stany ukryte godzin bez JS — KS1; P2 numer telefonu 36 px wobec wymogu planu ≥ 44 px — potwierdzone, KS3 (wcześniej błędnie przyjęte przez architekta z uzasadnieniem WCAG 2.5.8; plan wiąże)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest 17 z AXE, lint, format, build, pomiar celów dotykowych, „Dziś” na właściwym dniu w zrzucie
+
+### BE-74 (BeautyEffect: Etap 3 T — mixin `reveal-local.pending` z bezpiecznikiem W-3) — 2026-10-07
+- Archetyp: wspólny mixin SCSS + rozszerzenie keyframes, test kompilacji; 3 pliki
+- Stawka: średnia (przekrojowo — po nieudanym starcie aplikacji treść nie może zniknąć na stałe)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `high` (85 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (396 s, wspólnie z korektami BE-69–73)
+- Dopuszczone alternatywy: Gemini; Codex
+- Powód wyboru: krótki brief z gotowym kodem mixinu, przed trzema równoległymi korektami korzystającymi z jego API
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-70
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany (API dokładnie jak w briefie); architekt dopisał do briefów korekt ograniczenie — bezpiecznik wymusza `transform: none` i `clip-path: inset(0)`, więc mixin tylko na elementach bez spoczynkowego `transform`
+- Rundy korekt: 0 (test keyframes uzupełniony w KG2, BE-69)
+- Czas do akceptacji: ok. 10 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P2 test nie kompilował rzeczywistych keyframes — potwierdzone, KG2
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest, kontrola bez JS i przy `reduce` w przeglądarce (0 elementów ukrytych w 4 przypadkach)
+
+### BE-75 (BeautyEffect: Etap 3 H8 + H8-k1 — złożenie strony głównej, SEO, AXE `Home`) — 2026-10-07
+- Archetyp: złożenie sześciu gotowych sekcji + `Seo.apply` + AXE całej strony; 5 plików
+- Stawka: niska–średnia (SEO trasy `/`)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `high` (149 s); H8-k1 `medium` (104 s)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (350 s); H8-k1 w rundzie 2 Codex `gpt-6.1-sol` `medium` (104 s, wspólnie z KS3 i KG2: bez defektów, 6/6 poprawne)
+- Dopuszczone alternatywy: Gemini; Codex
+- Powód wyboru: mechaniczne złożenie według gotowej tabeli selektorów
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-70
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielony (4/4, AXE całej strony bez naruszeń)
+- Rundy korekt: 1 (H8-k1)
+- Czas do akceptacji: ok. 25 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P2 test SEO tautologiczny (brak klucza → komponent i test dostają ten sam klucz) — potwierdzone, H8-k1: wartości z `pl.json` przez `getNestedTranslation`, kontrola czerwona
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest, lint, format, build (prerender 5 tras), SSR na 127.0.0.1 (tytuł, kanoniczny, jeden `h1`), `browser-check` 16/16 + 2/2
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
