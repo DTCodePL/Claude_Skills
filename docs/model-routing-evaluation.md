@@ -1454,6 +1454,176 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak stwierdzonych do chwili wpisu
 - Wymagane testy i dowody: wyrywkowe porównanie wartości z liniami makiet, `cmp` plików wejściowych, przegląd wyniku pod kątem ścieżek lokalnych. Wnioski: (1) brief odczytu z makiet musi wymienić wszystkie mechanizmy szerokości (`data-view`, `@container`, `cqi`, `@media`); (2) sama klauzula STOP przy briefie odczytu powoduje zbędne zatrzymania — brief odczytu mówi wprost, że rozbieżność opisu z kodem zapisuje się i pracuje dalej, a zatrzymanie tylko przy niewykonalności; (3) odczyt „wszystkiego” dał 600 KB (4158 wierszy) — do napisania specyfikacji wystarczyły podsumowania na początku sekcji; przy podobnym briefie żądać najpierw podsumowań, a katalogów szczegółowych tylko dla elementów wspólnych
 
+### BE-34 (BeautyEffect: Etap 1 Z1 — paleta, role kolorów i preset PrimeNG) — 2026-10-07
+- Archetyp: motyw PrimeNG z dokumentu kolorów — prymitywy (3 skale 50–950 + kolory stanów), 29 ról na motyw jako własne tokeny `bty`, mapowanie prymityw → semantyka w `definePreset(Aura)`, testy wartości; ≤ 5 plików, jedna warstwa (theme)
+- Stawka: średnia (podstawa kontrastu WCAG AA w obu motywach; bez niezmiennika wysokiej stawki)
+- Niepewność: niska–średnia (wartości z tabeli dokumentu, nowy mechanizm własnych tokenów `--p-bty-*`)
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie (943 s; korekty Z1-K1 634 s i część B K-G1)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (159 s), tylko odczyt
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` (w tej fali pisał Z2 — rozłączne pliki, druga rodzina na krzyżową recenzję); Claude `wykonawca` (pula ŻÓŁTA, tydzień 84 %); Spark (ostatni sygnał: zablokowany, 402)
+- Powód wyboru: brief tekstowy z tabelą wartości, bez Figmy i bez kontekstu sesji; Gemini i Codex równolegle dają recenzję krzyżową dwóch rodzin w jednej fali
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany, Codex nieznany, Spark zablokowany (402, ostatni odczyt), Claude ostrzegawczy (ŻÓŁTY, tydzień 84 %), 2026-10-06 21:30
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: przyjęty z poprawkami (recenzja: P2 brak mapowania kolorów pól formularza, P3 dodatkowe deklaracje typów w pliku specu — potwierdzone)
+- Rundy korekt: 2 — Z1-K1 (znaleziska recenzji) i część B K-G1: test ról po Z1-K1 porównywał preset ze stałą źródłową (tautologia; luka briefu korekty architekta, nie wykonawcy) — zastąpiony specem z literałami z dokumentu (60 testów)
+- Czas do akceptacji: ok. 36 min przebiegów + walidacja fali
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1 × P2, 1 × P3 potwierdzone; architekt — test wartości ról bez niezależnej wyroczni (P2), poprawione
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest (wartości ról względem literałów z tabeli dokumentu, zbiór kluczy w obu motywach), skan HEX poza `palette.ts`, `lint`, `format:check`, build. Wnioski: (1) wyrocznia testu wartości to literały z dokumentu, nigdy stała źródłowa — brief korekty, który każe „porównać z `lightSchemeTokens`”, zamienia test wartości w test podpięcia; (2) `definePreset` scala głęboko — nie porównywać tożsamości obiektów presetu; (3) brak `.gitattributes` przy `autocrlf=true` daje CRLF i 72 pliki z błędem Prettiera — dodać przy szkielecie repo
+
+### BE-35 (BeautyEffect: Etap 1 Z2 — ThemeMode i skrypt startowy motywu bez mignięcia) — 2026-10-07
+- Archetyp: serwis sygnałowy SSR-safe (ngx-webstorage, `.app-dark` na `<html>`, View Transitions z obejściem przy ograniczeniu ruchu) + blokujący skrypt w `index.html` czytający zapisany wybór lub `prefers-color-scheme`; testy serwisu i skryptu w jsdom
+- Stawka: średnia (pierwsze malowanie i zgodność SSR/hydracji; bez niezmiennika wysokiej stawki)
+- Niepewność: średnia (View Transitions w jsdom, kolejność skrypt → styl → hydracja)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (203 s; korekta Z2-K1 `medium` 81 s)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie (670 s), tylko odczyt
+- Dopuszczone alternatywy: Gemini `high` (w tej fali pisał Z1); Claude `wykonawca` (pula ŻÓŁTA); Spark (zablokowany, 402)
+- Powód wyboru: logika z przypadkami brzegowymi SSR i platformy — Codex przyjęty bez korekt na podobnych briefach logiki; recenzja krzyżowa z Z1
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 84 %), 2026-10-06 21:30
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: przyjęty z poprawkami
+- Rundy korekt: 1 (Z2-K1, `medium`)
+- Czas do akceptacji: ok. 5 min przebiegów + recenzja 11 min + walidacja fali
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2 × P2 (wyjątek `startViewTransition` rozjeżdża sygnał i klasę; asynchroniczny rozjazd sygnału z klasą w trakcie przejścia), 2 × P3 (zbędne przejście przy tym samym stanie; brak stylu tła płótna dla `.app-dark` przed hydracją) — wszystkie potwierdzone i poprawione
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest serwisu (14) i skryptu startowego (8, w tym styl płótna), `lint`, `format:check`, build. Wniosek: recenzja Gemini trafnie wychwyciła przypadki brzegowe API przeglądarki (wyjątek, kolejność) — przy podobnej logice platformowej warto ją utrzymać
+
+### BE-36 (BeautyEffect: Etap 1 Z3 — kroje, skala pisma, rytm, ruch i style globalne) — 2026-10-07
+- Archetyp: SCSS fundamentów — `@font-face` z fontsource (WOFF2, `latin-ext`), 22 mixiny ról pisma bez emitowanego CSS, progi Bootstrapa, zmienne rytmu i ruchu, odnośniki, style globalne, preload krojów w `index.html`, kopiowanie krojów w `angular.json`, test zakresów Unicode
+- Stawka: średnia (wszystkie późniejsze ekrany dziedziczą pismo i ruch; polskie znaki są wymaganiem blokującym)
+- Niepewność: średnia (ścieżki krojów w buildzie, warunki ruchu `hover`/`reduce`)
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie (709 s; korekta w K-G1 część A, 585 s łącznie z częścią B)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (152 s), tylko odczyt
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` (w tej fali pisał Z4); Claude `wykonawca` (pula ŻÓŁTA); Spark (zablokowany, 402)
+- Powód wyboru: brief tekstowy z tabelą wartości ze specyfikacji wyglądu; recenzja krzyżowa z Z4 w tej samej fali
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany, Codex nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 84 %), 2026-10-06 22:00
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: przyjęty z poprawkami
+- Rundy korekt: 1 (K-G1 część A)
+- Czas do akceptacji: ok. 12 min przebiegu + recenzja + korekta ok. 10 min + walidacja
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): recenzja — 2 × P2 (kolor nieaktywnej zakładki; przesunięcie strzałki bez warunku `hover: hover`) potwierdzone; architekt — przejście koloru odnośnika poza `prefers-reduced-motion: no-preference` (P2), podkreślenie odnośnika ze strzałką pod strzałką (P3); poprawione
+- Defekty po odbiorze: 1 — role Jostu (`eyebrow`, `footer-heading` itd.) nie ustawiały kroju i na elemencie nagłówka/w nagłówku dziedziczyły Cormoranta z globalnej reguły `h1–h4`; wykrył wykonawca Z5b (trafne zatrzymanie), poprawione korektą K-Z3 (Gemini `high`, 307 s; 20 ról z jawnym krojem przez `$font-serif`/`$font-sans`, test wycinający ciała mixinów), recenzja Codex `gpt-6.1-sol` `high`: poprawne. Wniosek: brief mixinów pisma musi wymagać kroju w każdej roli, bo komponentom nie wolno deklarować `font-family`
+- Wymagane testy i dowody: Vitest krojów (zakresy Unicode liczbowo, ścieżki `url()` i preloadów), stylelint, `lint`, `format:check`, build z 8 plikami WOFF2 w `dist/.../fonts/`. Wniosek: przy ruchu w SCSS Gemini pomija warunek `hover: hover` i umieszcza przejście poza blokiem `no-preference` — brief ruchu podaje oba warunki jako osobne punkty definicji ukończenia
+
+### BE-37 (BeautyEffect: Etap 1 Z4 — przyciski R-2 „Uniesienie” w presecie PrimeNG) — 2026-10-07
+- Archetyp: tokeny komponentu `button` w presecie Aury (warianty wypełniony, obrysowy, mały, przycisk-ikona) + hak `css` komponentu z wymiarami, wyglądem najechania/fokusu/naciśnięcia i ruchem pod warunkami `hover`/`reduced-motion`; testy emisji zmiennych przez `Theme.getComponent('button')`; 3 pliki
+- Stawka: średnia (każdy przycisk strony; fokus klawiatury i cele dotykowe; bez niezmiennika wysokiej stawki)
+- Niepewność: wysoka (kaskada haka wobec bazowych reguł PrimeNG, typy PrimeUIX, pułapka ścieżek `button.root.<severity>`)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (126 s, zatrzymanie); korekty Z4-K1 i Z4-K2 `medium` (95 s, 157 s)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie (529 s), tylko odczyt
+- Dopuszczone alternatywy: Gemini `high` (w tej fali pisał Z3); Claude `wykonawca` (pula ŻÓŁTA, tydzień 84 %); Spark (zablokowany, 402)
+- Powód wyboru: 3 pliki w porcji Codexa, logika kaskady i typów; recenzja krzyżowa z Z3
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 84 %), 2026-10-06 22:10 i 2026-10-07 06:15
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: trafne zatrzymanie — brief kazał pisać hak jako funkcję `({ dt }) => …`, a PrimeUIX typuje `css` jako `string | ((options?) => string)` (błąd briefu architekta)
+- Rundy korekt: 2 — Z4-K1 (hak jako tekst z `var(--p-button-…)`), Z4-K2 (znaleziska recenzji)
+- Czas do akceptacji: ok. 6 min przebiegów wykonawcy + recenzja 9 min + walidacja fali
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone — P1 szara obwódka fokusu przycisku-ikony (Aura ustawia `secondary.focusRing` na `surface`), P1 bazowa reguła `.p-button-outlined:active` przywraca kolory spoczynkowe, P2 naciśnięcie tylko pod `hover: hover` (specyfikacja ogranicza tylko uniesienia przy najechaniu; makieta miała je w `hover:hover`, wygrywa dokument), P2 test ruchu wycinał tylko pierwszy blok `@media`, P3 asercje bez wartości dowodowej; odrzucone — P1 „cień przy naciśnięciu” (makieta go nie gasi)
+- Defekty po odbiorze: 1 — `<a pButton>` miał podkreśloną etykietę (bazowy `.p-button` PrimeUIX nie zeruje `text-decoration`, a wezwanie „Umów wizytę” do Booksy będzie odnośnikiem); widoczne dopiero na zrzucie `browser-check` `/design/komponenty`; korekta Z4-K3 (Codex `medium`, 73 s, `text-decoration: none` w haku + test). Kaskada wypełnionych/obrysowych/ikon w przeglądarce bez dalszych uwag. Wniosek: przy haku komponentu sprawdzić oba elementy nosiciela (`button` i `a`)
+- Wymagane testy i dowody: Vitest emisji zmiennych (`--p-button-*` → `var(--p-bty-*)`, obwódka fokusu obu severity), wszystkie zmienne haka emitowane, ruch tylko we właściwych blokach `@media` (wszystkie wystąpienia), naciśnięcie po bloku uniesienia; skan HEX; pełny `lint`, `format:check`, `npm test`, build. Wnioski: (1) `Theme.getComponent` zwraca zmienne i hak, ale nie bazowe style `@primeuix/styles` — kaskadę haka rozstrzyga dopiero przeglądarka, brief musi wymienić konkurujące reguły bazowe; (2) recenzja Gemini z dostępem do `node_modules/@primeuix/styles` znalazła realne konflikty kaskady, których testy jednostkowe nie widzą; (3) architekt przed wysłaniem briefu korekty sprawdza położenie reguły w makiecie i treść dokumentu — pierwsza wersja Z4-K2 miała błędne założenie o makiecie, poprawione przed wysłaniem
+
+### BE-38 (BeautyEffect: Etap 1 Z5a — `/design`: powłoka, przegląd, zaślepki stron, trasy i teksty) — 2026-10-07
+- Archetyp: ekran FE bez Figmy — powłoka podglądu (nawigacja z `aria-current`, przełącznik motywu R-2, `Seo.applyTitle`), przegląd z kartami na siatce Bootstrapa, trzy zaślepki stron, trasy + `ServerRoute` (prerender), `robots.txt`, drzewo 127 tekstów `DESIGN` w `pl.json`, testy tras i AXE; ok. 20 plików
+- Stawka: niska (strona pomocnicza, `noindex`, bez danych; jedynie SEO/prerender i dostępność)
+- Niepewność: średnia (prerender tłumaczeń, `RouterTestingHarness`, dokładne dopasowanie `routerLinkActive`)
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie (893 s); korekta K-Z5a ta sama linia (146 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (3 przebiegi: 120 s zatrzymanie, 105 s, 87 s)
+- Dopuszczone alternatywy: Codex `high` (porcja > 5 plików — odpada bez podziału); Claude `wykonawca` (pula ŻÓŁTA, tydzień 85 %); Spark (zablokowany, 402)
+- Powód wyboru: dużo plików jednej warstwy i długi słownik tekstów — Gemini bez limitu 5 plików; recenzja krzyżowa z Codexem
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany, Codex nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 85 %), 2026-10-07 06:40–07:10
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: kompletny i zielony (lint, format, testy, build z 5 trasami prerenderowanymi); pierwszy build prerenderował surowe klucze — defekt istniejącego loadera SSR (osobny brief Z8), nie Z5a
+- Rundy korekt: 1 — K-Z5a (`[iconOnly]="true"` na przełączniku motywu + asercja)
+- Czas do akceptacji: ok. 15 min wykonawcy + 2,5 min korekty + ok. 5 min recenzji (3 przebiegi) + walidacja
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone — P2 przełącznik motywu bez klasy `p-button-icon-only` (PrimeNG 22 wnioskuje tryb ikony tylko z wejścia `icon`/przestarzałego `ButtonIcon`, nie ze zwykłego `<i>`), więc bez rozmiaru 44 × 44 px; trzeci przebieg — bez defektów (127 tekstów znak w znak)
+- Defekty po odbiorze: 1 — lista kart przeglądu z `margin: 0` kasowała ujemne marginesy `.row`, karty wcięte o 12 px względem treści; widoczne na zrzucie `browser-check`, poprawione jednolinijkowo przez architekta (`margin-block-end: 0`)
+- Wymagane testy i dowody: `RouterTestingHarness` rozróżniający `Colors`/`NotFound`, `ServerRoute` przed `**`, AXE powłoki i przeglądu, `aria-pressed` w obu stanach; build z prerenderem (tytuł, 0 surowych kluczy), `browser-check` 2×2 (16 zrzutów, 0 błędów konsoli/sieci). Wnioski: (1) klauzula STOP w briefie recenzji sprawiła, że recenzent przerwał całą recenzję po pierwszym znalezisku — brief recenzji mówi teraz wprost „zgłoś defekt i kontynuuj; zatrzymaj się tylko, gdy błędne założenie uniemożliwia recenzję”; (2) brief recenzji wymienia znane, osobno poprawiane defekty, inaczej recenzent zatrzymuje się na nich; (3) wyrównanie siatki widać tylko w przeglądarce — `browser-check` po każdej fali ekranów
+
+### BE-39 (BeautyEffect: Etap 1 Z8 — loader tłumaczeń SSR czyta zawsze najpierw źródło) — 2026-10-07
+- Archetyp: poprawka defektu istniejącego kodu SSR (kolejność katalogów w `TranslateServerLoader`) + test z `vi.mock('node:fs')` + akapit README; 3 pliki
+- Stawka: średnia (prerender stron publicznych: surowe klucze zamiast tekstów w HTML dla wyszukiwarek przy buildzie z maszyny dewelopera)
+- Niepewność: niska (przyczyna odtworzona przez architekta dwoma buildami)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `medium` (116 s)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie, tylko odczyt (w zbiorczej recenzji fali 4, 644 s)
+- Dopuszczone alternatywy: Gemini `high`; Claude `wykonawca` (pula ŻÓŁTA); Spark (zablokowany, 402)
+- Powód wyboru: krótka, dobrze określona poprawka w porcji Codexa; `medium` wystarcza przy znanej przyczynie
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 85 %), 2026-10-07 07:00
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: poprawny — testy czerwone 3/6 → zielone 6/6, eslint/prettier czyste
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 2 min wykonawcy + walidacja architekta (build z celowo nieaktualnym `dist/…/pl.json` = `{}`: tytuł poprawny, 0 surowych kluczy)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): odrzucone — P3 „martwy mock `isDevMode`” (parametryzacja celowo pilnuje, że zachowanie nie zależy od trybu, wymóg briefu); uwaga spoza zakresu: zależność od `process.cwd()` przy uruchomieniu serwera z innego katalogu — znana, opisana w README, do rozstrzygnięcia przy definiowaniu środowiska
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest kolejności odczytu (pierwsze wywołanie = źródło, fallback do `dist`, pusty słownik), oba tryby `isDevMode`; dowód buildem z nieaktualnym artefaktem. Wniosek: dowód poprawki prerenderu wymaga celowo zepsutego stanu wejściowego, nie kolejnego „czystego” buildu
+
+### BE-40 (BeautyEffect: Etap 1 Z7 — `/design/komponenty`: przyciski R-2, przyciski-ikony, odnośniki) — 2026-10-07
+- Archetyp: strona podglądu FE bez Figmy — pięć sekcji z prawdziwymi komponentami (`[pButton]` na `button` i `a`, warianty, mały, ikona), odnośniki `.bty-link`, AXE; 4 pliki
+- Stawka: niska (strona pomocnicza; służy jako bramka wizualna przycisków)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (81 s zatrzymanie + 258 s)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie, tylko odczyt (zbiorczo z Z5b i Z8)
+- Dopuszczone alternatywy: Gemini `high` (w tej fali pisał Z6a); Claude `wykonawca` (pula ŻÓŁTA); Spark (zablokowany, 402)
+- Powód wyboru: 4 pliki w porcji Codexa; recenzja krzyżowa z Gemini
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 85 %), 2026-10-07 07:05
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: trafne zatrzymanie — brief zapowiadał „cztery sekcje”, a wymieniał pięć (błąd briefu); `iconOnly` architekt dopisał do briefu przed wysłaniem po znalezisku recenzji Z5a
+- Rundy korekt: 0 (ponowne wysłanie po poprawce briefu)
+- Czas do akceptacji: ok. 6 min wykonawcy + recenzja zbiorcza 11 min + walidacja
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak defektów; odrzucone — P3 podwójna asercja AXE (nieszkodliwa)
+- Defekty po odbiorze: strona ujawniła defekt Z4 (podkreślona etykieta `<a pButton>`) — przypisany do BE-37
+- Wymagane testy i dowody: Vitest struktury (klasy `p-button-outlined`/`-sm`/`-icon-only`, `href`, `aria-label`, `aria-hidden`), AXE; `browser-check` 2×2 (zrzuty obejrzane). Wniosek: strona galerii komponentów jest skutecznym oracle dla haka presetu — defekt kaskady wyszedł dopiero na niej
+
+### BE-41 (BeautyEffect: Etap 1 Z5b — `/design/typografia`: 20 ról pisma i polskie znaki) — 2026-10-07
+- Archetyp: strona podglądu FE bez Figmy — tablica danych ról (`as const`), szablon z `@switch` dla próbek złożonych, 20 klas próbek z mixinami pisma, sekcja polskich znaków w 4 wariantach, testy struktury i powiązania z `typography.scss` przez `node:fs`; 5 plików
+- Stawka: niska (strona pomocnicza; oracle wizualny ról pisma)
+- Niepewność: średnia (dziedziczenie kroju w zagnieżdżonych rolach — ujawnione przez wykonawcę)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (85 s zatrzymanie + 285 s); korekta K-Z5b `medium` (101 s)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie, tylko odczyt (zbiorczo z Z7 i Z8; korekta w osobnej krótkiej recenzji)
+- Dopuszczone alternatywy: Gemini `high` (w tej fali pisał Z6a); Claude `wykonawca` (pula ŻÓŁTA); Spark (zablokowany, 402)
+- Powód wyboru: 5 plików w porcji Codexa, dużo dokładnych wartości do przepisania; recenzja krzyżowa z Gemini
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 85 %), 2026-10-07 07:05–07:30
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: trafne zatrzymanie — mixiny ról Jostu nie ustawiały kroju, więc etykieta w próbce nagłówka i `<h2>` nazwy roli dostałyby Cormoranta (defekt Z3, poprawiony K-Z3, BE-36); drugi przebieg kompletny i zielony (9/9, AXE)
+- Rundy korekt: 1 — K-Z5b (interlinia 1,6 w opisie `eyebrow` — błąd tabeli w briefie architekta; test użycia mixinów w stylach komponentu)
+- Czas do akceptacji: ok. 8 min wykonawcy + 1,7 min korekty + recenzje + walidacja
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone — P2 brak interlinii 1,6 w opisie `eyebrow`, P3 test mixinów sprawdzał tylko `theme/typography.scss`, nie użycie w próbkach; odrzucone — P3 „tautologiczna” asercja wartości (test szablonu, nie danych), P3 podwójna asercja AXE
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu; style komponentu (5,6 kB) przekroczyły budżet ostrzeżenia 4 kB — architekt podniósł próg ostrzeżenia `anyComponentStyle` do 6 kB (błąd nadal 8 kB)
+- Wymagane testy i dowody: Vitest 20 ról w kolejności, próbki złożone, mixin istnieje i jest użyty w dokładnym selektorze próbki, AXE; `browser-check` (role Jostu w Joście po K-Z3). Wniosek: tabele wartości przepisywane „znak w znak” architekt sprawdza z dokumentem przed wysłaniem — wykonawca wiernie powieli błąd briefu
+
+### BE-42 (BeautyEffect: Etap 1 Z6a — czyste funkcje koloru do pomiaru kontrastu WCAG) — 2026-10-07
+- Archetyp: czyste funkcje TS (parsowanie `rgb()`/`color(srgb …)`, krycie, spłaszczanie alfa, powierzchnia złożona, luminancja, kontrast, obcięcie, HEX), część przeniesiona `Copy-Item` z innego projektu, testy z literałami z dokumentu; 13 plików, jedna deklaracja na plik
+- Stawka: średnia (fałszywy PASS na bramce kontrastu WCAG AA przepuszcza defekt dostępności strony publicznej)
+- Niepewność: średnia (precyzja zmiennoprzecinkowa obcięcia, wartości dokumentu liczone na powierzchniach złożonych)
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie (802 s); korekta K-Z6a ta sama linia (680 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (214 s; razem z K-Z3); ponowna weryfikacja korekty w recenzji Z6b
+- Dopuszczone alternatywy: Codex `high` (porcja > 5 plików — odpada bez podziału); Claude `wykonawca` (pula ŻÓŁTA); Spark (zablokowany, 402)
+- Powód wyboru: wiele małych plików jednej warstwy — Gemini bez limitu 5 plików; recenzja krzyżowa z Codexem
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany, Codex nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 85 %), 2026-10-07 07:05–07:45
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielony (34 testy) z trzema trafnymi uwagami do briefu: przypadek `14.469999999` w briefie nie był błędem reprezentacji (wykonawca podniósł epsilon do `1e-5`, żeby go spełnić), wartości 10.69/5.83 dotyczą powierzchni złożonych bez zaokrąglenia, pusta lista warstw przy półprzezroczystym podłożu i tak spłaszcza na biel
+- Rundy korekt: 1 — K-Z6a (epsilon `1e-9` + przypadki błędu reprezentacji `4.35`/`1.15`/`0.29` i regresja `4.49999995` → `4.49`; `parseAlpha` z procentami i `none`; zakotwiczone wyrażenia odrzucające uszkodzone zapisy)
+- Czas do akceptacji: ok. 13 min wykonawcy + 11 min korekty + 3,5 min recenzji + walidacja
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone — P2 epsilon `1e-5` zamienia osiągalny kontrast `4.49999995` na `4.5` (fałszywe AA), P2 krycie w procentach (`85%` → `a: 85`) i `none` (→ `a: 1` zamiast 0), P3 brak zakotwiczenia (`rgb(42, 37, 35oops)` przyjęty); błąd źródłowy — przypadek testowy w briefie architekta
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest 54 przypadki z literałami dokumentu; pomiar w przeglądarce na `/design/kolory` (jasny: wszystkie pary zgodne z dokumentem). Wnioski: (1) przypadek testowy precyzji architekt sprawdza w `node -e` przed wysłaniem — błędny przypadek skłonił wykonawcę do obejścia, które recenzja słusznie odrzuciła; (2) reguła lint `sonarjs/super-linear-regex` wymusiła deterministyczny wzorzec liczby — brief z wyrażeniem regularnym przechodzi przez lint przed wysłaniem
+
+### BE-43 (BeautyEffect: Etap 1 Z6b — strona `/design/kolory` z pomiarem kontrastu w przeglądarce) — 2026-10-07
+- Archetyp: strona podglądu (komponent OnPush, SSR-bezpieczny pomiar w `afterNextRender` + `MutationObserver` na klasie motywu), dane 74 par kontrastu i 27 ról przepisane z dokumentu kolorów, etykiety `pl.json`, tabela ↔ karty z jednego strumienia, testy Vitest + AXE; technika próbnika wzięta ze wzoru w innym projekcie
+- Stawka: średnia (strona jest bramką kontrastu WCAG AA projektu — fałszywy PASS przepuszcza defekt dostępności strony publicznej)
+- Niepewność: średnia (zachowanie `var()` brakującego tokenu w przeglądarce, zgodność 74 par z tabelą dokumentu)
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie (ok. 1084 s); korekta K-Z6b ta sama linia (454 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (226 s; razem z weryfikacją K-Z6a); ponowna recenzja K-Z6b ta sama para (70 s)
+- Dopuszczone alternatywy: Codex `high` (porcja > 5 plików — odpada bez podziału); Claude `wykonawca` (pula ŻÓŁTA); Spark (zablokowany, 402)
+- Powód wyboru: wiele plików jednej warstwy bez Figmy — Gemini bez limitu 5 plików; recenzja krzyżowa z Codexem
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany, Codex nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 85–86 %), 2026-10-07 07:15–08:00
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielony (testy, lint, prettier), pomiar w przeglądarce zgodny z dokumentem w jasnym motywie; wrapper zakończył przebieg kodem 3 („stream interrupted”) mimo kompletnego raportu i plików — odbiór po artefaktach, nie po kodzie wyjścia
+- Rundy korekt: 1 — K-Z6b (opakowanie próbnika z dwiema wartościami sterującymi koloru dziedziczonego, `createTokenResolver` w osobnym pliku, `finally` usuwa opakowanie; niezależna mapa `id → próg` dla 74 par i pełne definicje 12 par plam w teście)
+- Czas do akceptacji: ok. 18 min wykonawcy + 7,5 min korekty + 5 min recenzji + walidacja (pełny lint/format/test/build, browser-check 4 zrzuty)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone — P1 brakujący token w `color: var(--x)` jest nieprawidłowy w chwili obliczania i dziedziczy kolor rodzica (architekt potwierdził w Chrome), więc próbnik mierzyłby brakującą rolę jako kolor tekstu strony; P2 test danych par nie wiązał progu z parą ani definicji par plam (przyjęte częściowo: mapa progów + definicje plam); ponowna recenzja K-Z6b — bez znalezisk, werdykt poprawny
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu; ten sam błąd próbnika jest we wzorze w ZebraniFE (`/design/kolory`) — zgłoszony właścicielowi
+- Wymagane testy i dowody: Vitest (katalog kolorów 78 przypadków, cały projekt 295), AXE strony, browser-check `/design/kolory` 2 szerokości × 2 motywy (jasny: wszystkie pary zgodne; ciemny: rozbieżność dokumentu 8 %/12 % tinty najechania i jedna para plamy poniżej AA — pytania do właściciela). Wnioski: (1) technika przeniesiona z innego projektu wymaga w briefie sprawdzenia jej założenia w prawdziwej przeglądarce, nie tylko w jsdom — błąd wzoru przeszedł do kopii; (2) kod wyjścia 3 wrappera Gemini nie oznacza braku wyniku — raport i diff są dowodem
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
