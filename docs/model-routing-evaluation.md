@@ -1828,6 +1828,159 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak stwierdzonych do chwili wpisu
 - Wymagane testy i dowody: Vitest, lint, format, build; odczyt architekta (jedna metoda limitu, `load()` tylko po starcie)
 
+### BE-56 (BeautyEffect: Etap 2 Z11 — złożenie powłoki publicznej: pasek, szuflada, stopka, odnośnik pomijający) — 2026-10-07
+- Archetyp: złożenie komponentów powłoki w layoucie (sygnał stanu szuflady, landmarki, `scroll-margin-top`, styl odnośnika pomijającego) + rozszerzony spec z AXE w obu stanach szuflady; 6 plików (w tym jednolinijkowa podmiana atrybutu na dyrektywę w `ArchPhoto`)
+- Stawka: średnia (struktura każdej strony: landmarki, przyklejenie paska, pierwszy fokus)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie, `-Access write` (639 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (161 s)
+- Dopuszczone alternatywy: Codex (zajęty Z12b); Claude `wykonawca` (pula ŻÓŁTA, tydzień 88–89 %); Spark (zablokowany, 402)
+- Powód wyboru: równoległość z Codexem; brak niezmiennika; recenzja krzyżowa z Codexem
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 89 %), 2026-10-07 14:29–15:15
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielony; recenzja bez znalezisk (werdykt poprawny)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 11 min wykonawcy + recenzja + walidacja fali
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak
+- Defekty po odbiorze: brak w plikach Z11; sprawdzenie przeglądarkowe złożonej powłoki (Gemini, Playwright MCP) wykryło utratę pozycji przewinięcia po zamknięciu szuflady — defekt szuflady (BE-61), nie złożenia
+- Wymagane testy i dowody: Vitest (AXE w obu stanach szuflady), lint, format, build; `browser-check` (zrzuty 2×2: przyklejony pasek, odnośnik pomijający, szuflada, motywy)
+
+### BE-57 (BeautyEffect: Etap 2 Z12a + K-Z12a — otwarcie podstrony OF-3: tekst i kompozycja trzech łuków) — 2026-10-07
+- Archetyp: komponent prezentacyjny z siatką Bootstrapa, kompozycją trzech zdjęć w łukach (wymiary z makiety dla dwóch progów), odsłonięciami W-3 i `NgOptimizedImage` + model + spec z AXE; 5 plików
+- Stawka: niska–średnia (element LCP podstron, przepełnienie na wąskim ekranie)
+- Niepewność: średnia (geometria kompozycji z makiety, kurtyna na kompozycji)
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie, `-Access write` (660 s; K-Z12a 672 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (322 s)
+- Dopuszczone alternatywy: Codex (zajęty Z12b-1); Claude `wykonawca` (pula ŻÓŁTA); Spark (zablokowany, 402)
+- Powód wyboru: równoległość z Codexem; recenzja krzyżowa z Codexem
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 88–89 %), 2026-10-07 14:03–14:45
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielony w testach; kurtyna obcinała kompozycję, testy wymiarów nie wiązały wartości z selektorami i progami
+- Rundy korekt: 1 (K-Z12a — kurtyna obejmuje pełną szerokość trzech łuków, testy wymiarów per selektor i próg, jedna kreska etykiety, `priority` dla zdjęcia środkowego); architekt dopisał sam `overflow-x: clip` na sekcji (jedna linia)
+- Czas do akceptacji: ok. 22 min wykonawcy + recenzja + korekta + walidacja fali
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P2 kurtyna obcina kompozycję — potwierdzone; P3 asercje wymiarów bez selektorów — potwierdzone; architekt: plan błędnie zakładał drugą kreskę etykiety (`.eline-end` tylko w otwarciach wyśrodkowanych, etap 6) — plan poprawiony
+- Defekty po odbiorze: kurtyna kompozycji nie odsłaniała się w Chrome — przyczyna w serwisie odsłonięć (BE-60), nie w Z12a
+- Wymagane testy i dowody: Vitest, lint, format, stylelint, build; `browser-check`
+
+### BE-58 (BeautyEffect: Etap 2 Z12b-1 — przyciski rezerwacji „Umów wizytę” / „Zadzwoń”) — 2026-10-07
+- Archetyp: mały komponent prezentacyjny z odnośnikami zewnętrznymi (Booksy, `tel:`), dostępną nazwą i układem kolumna/wiersz + spec z AXE; 4 pliki
+- Stawka: niska (dane salonu z jednego źródła, Label in Name)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `medium` (172 s)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie, `-Access read` (743 s, wspólnie z Z12b-2)
+- Dopuszczone alternatywy: Codex `low`; Gemini (zajęty Z12a); Claude `wykonawca` (pula ŻÓŁTA); Spark (zablokowany, 402)
+- Powód wyboru: prosty komponent — `medium` wystarcza; recenzja krzyżowa z Gemini
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 88 %), 2026-10-07 14:03–14:43
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielony
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 3 min wykonawcy + recenzja + walidacja fali
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P3 „brak sprzątania `fixture`” — odrzucone (TestBed niszczy fixture po każdym teście domyślnie)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest, lint, format, build
+
+### BE-59 (BeautyEffect: Etap 2 Z12b-2 + K-Z12b2 — pas zamknięcia z łukiem i projekcją akcji) — 2026-10-07
+- Archetyp: komponent prezentacyjny z projekcją treści (`ng-content`), nagłówkiem sekcji, łukiem górnym z mixinu i odsłonięciami + spec z projekcją bez komponentu-hosta (`createComponent` + `projectableNodes`); 4 pliki
+- Stawka: niska–średnia (wspólny element każdej podstrony; pełna szerokość akcji na telefonie)
+- Niepewność: średnia (test projekcji przy regule jednej deklaracji na plik)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (49 s STOP + 144 s STOP + 155 s; K-Z12b2 `medium` 131 s)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie, `-Access read` (743 s, wspólnie z Z12b-1)
+- Dopuszczone alternatywy: Gemini (zajęty Z12a i Z11); Claude `wykonawca` (pula ŻÓŁTA); Spark (zablokowany, 402)
+- Powód wyboru: wzorzec testu projekcji wymagał `high`; recenzja krzyżowa z Gemini
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 88 %), 2026-10-07 14:22–14:50
+- Pewność decyzji: średnia–wysoka
+- Wynik pierwszego podejścia: dwa zatrzymania STOP na błędnych przesłankach briefu architekta (komponent-host testu poza zakresem plików; `TestBed.createComponent` nie ma `projectableNodes`) — wykonawca miał rację oba razy; potem zielony
+- Rundy korekt: 1 (K-Z12b2 — kontener projektu `.bty-container` zamiast Bootstrapowego `.container` (błąd briefu architekta), akcje na całą szerokość poniżej `sm`, pusty `headingId` bez pustych atrybutów, klasy zamiast gołych znaczników)
+- Czas do akceptacji: ok. 8 min wykonawcy (z dwoma restartami) + recenzja + korekta + walidacja fali
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P2 pojedynczy przycisk nie rozciąga się na telefonie — potwierdzone; P3 pusty `aria-labelledby` — potwierdzone; P3 goły selektor `p` — potwierdzone
+- Defekty po odbiorze: łuk górny pasa płaski w przeglądarce — przyczyna w mixinie `arc-top` z etapu 1 (BE-63), testy tekstu SCSS go nie wykryły
+- Wymagane testy i dowody: Vitest, lint, format, stylelint, build; `browser-check`
+
+### BE-60 (BeautyEffect: Etap 2 K-R1 + K-R1b — odsłonięcia W-3: kurtyna obserwowana przez rodzica, zwalnianie per tryb) — 2026-10-07
+- Archetyp: serwis przekrojowy z dwoma IntersectionObserverami, mapami cel ↔ wartownik ↔ obserwator, kaskadą w kolejności dokumentu i sprzątaniem obserwacji + spec z atrapą obserwatora; 3–4 pliki
+- Stawka: średnia (cicha awaria: każda kurtyna ukryta na zawsze przy działającym JS; bezpiecznik wstrzymany)
+- Niepewność: wysoka (Chrome liczy przecięcie z własnym `clip-path` celu; jsdom tego nie widzi)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (301 s; K-R1b `medium` 178 s)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie, `-Access read` (566 s; pierwsza próba 634 s przerwana „stream interrupted”); K-R1b zrecenzowane w R9 (Gemini, 629 s, wspólnie z K-Z7b; werdykt poprawny 1,0)
+- Dopuszczone alternatywy: Claude `wykonawca-opus` (logika przekrojowa z cichym błędem, ale bez niezmiennika wysokiej stawki — pula ŻÓŁTA); Claude `wykonawca`; Spark (zablokowany, 402)
+- Powód wyboru: autor serwisu w tej samej linii zna mapy; recenzja krzyżowa z Gemini
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany (jedno przerwanie strumienia), Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 89 %), 2026-10-07 14:46–15:20
+- Pewność decyzji: średnia–wysoka
+- Wynik pierwszego podejścia: zielony; łuk stopki potwierdzony w Chrome (`bty-reveal--in`, `clip-path: inset(0)`)
+- Rundy korekt: 1 (K-R1b — wartownik zwalniany osobno z każdego obserwatora, idempotentne `observe` w atrapie, wczesne wyjście przy pustym zbiorze)
+- Czas do akceptacji: ok. 8 min wykonawcy + dwie recenzje + korekta + walidacja fali
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): zgłoszone P1 „wyciek obserwacji w trybie mieszanym” — potwierdzone jako P2 (rzadki układ, ale cichy); P2 „hipoteza architekta o braku powiadomienia w jednym trybie jest błędna” — recenzent miał rację (wartownik jest zwalniany po odsłonięciu); P3 atrapa nieidempotentna — przyjęte; P3 wczesne wyjście — przyjęte
+- Defekty po odbiorze: defekt pierwotny wykryty przez architekta w Chrome na zbudowanej aplikacji (diagnoza Playwright: `intersectionRatio` 0 dla celu z `clip-path`), nie przez testy ani recenzje
+- Wymagane testy i dowody: Vitest (24 → 87 w pięciu specach), lint, format, build; odczyt `classList` i `clip-path` w Chrome
+
+### BE-61 (BeautyEffect: Etap 2 P1 + K-Z7b — sprawdzenie szuflady w przeglądarce i powrót pozycji przewinięcia) — 2026-10-07
+- Archetyp: (a) ręczne sprawdzenie dziesięciu scenariuszy szuflady przez worker z Playwright MCP; (b) poprawka komponentu z porządkiem zdarzeń routera (`RouterScroller` vs subskrybent `router.events`) i testem na prawdziwym `RouterScroller` (szew `APP_BOOTSTRAP_LISTENER`); 2 pliki
+- Stawka: średnia (dostępność i wygoda nakładki na każdej stronie telefonu)
+- Niepewność: średnia–wysoka (kolejność subskrybentów, mikrozadania, `scroll-behavior: smooth`)
+- Wykonawca (linia / model / native effort): (a) Gemini / `gemini-3.8-flash-high` / `-Access write` z briefem bez zmian (1012 s; pierwsza próba `-Access read` 111 s — MCP odrzucone automatycznie); (b) Codex / `gpt-6.1-sol` / `high` (456 s)
+- Recenzent (linia / model / native effort): (b) Gemini / `gemini-3.8-flash-high` / w nazwie, `-Access read` (R9, 629 s, wspólnie z K-R1b)
+- Dopuszczone alternatywy: (a) `browser-check` flows — nie rozstrzyga stanów równych startowi (`passedWithoutActions`), Codex z Playwright (zajęty); (b) Claude `wykonawca` (pula ŻÓŁTA), Gemini (autor sprawdzenia, recenzent)
+- Powód wyboru: (a) scenariusze historii i fokusu wymagają interakcji poza zakresem `browser-check`; (b) autor szuflady, logika routera — `high`
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 89 %), 2026-10-07 14:47–15:25
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: (a) 9/10 PASS, 1 FAIL (pozycja przewinięcia 468 → 0 po `Escape`); (b) zielony 38/38 testów, w Chrome Escape / przycisk / przyciemnienie / „wstecz” wracają do 479, wybór innej pozycji na górę
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 25 min (sprawdzenie + poprawka + recenzja + walidacja w Chrome)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): (a) DEF-2 „znacznik szuflady po odświeżeniu” — odrzucone (dodaje najwyżej jeden zbędny wpis historii); (b) P2 „`popstate` na inny adres zwraca fokus do `Menu`” — odrzucone (przycisk `Menu` jest w stałym pasku powłoki, alternatywą jest fokus na `body`; pozycja przewinięcia nie jest wtedy przywracana); werdykt recenzenta: poprawny 0,98
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest, lint, format, build; skrypt Playwright architekta (sześć dróg zamknięcia, `scrollY` przed i po)
+
+### BE-62 (BeautyEffect: Etap 2 Z12c + K-Z12c — podgląd elementów wspólnych na `/design/komponenty`) — 2026-10-07
+- Archetyp: komponent podrzędny galerii podglądu składający sześć gotowych elementów (nagłówek sekcji, łuk, otwarcie, pas zamknięcia, film, odsłonięcia) + i18n + spec z AXE i atrapami mediów/obserwatora; 4 nowe pliki + 4 zmienione
+- Stawka: niska (strona laboratoryjna poza indeksowaniem)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie, `-Access write` (743 s; K-Z12c 184 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (284 s)
+- Dopuszczone alternatywy: Codex (zajęty K-Z7b, K-R1b); Claude `wykonawca` (pula ŻÓŁTA); Spark (zablokowany, 402)
+- Powód wyboru: równoległość z Codexem; brak niezmiennika; recenzja krzyżowa z Codexem
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 89 %), 2026-10-07 15:11–15:45
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielony (15 testów galerii); wykonawca zawęził selektory spec galerii do `:scope > section` (zagnieżdżone sekcje nowych komponentów) — przyjęte
+- Rundy korekt: 1 (K-Z12c — zestaw zdjęć otwarcia 009 / 003 / 004 według planu i makiety części 16; brief architekta podał błędnie 004 / 019 / 009; zniszczenie fixture przed przywróceniem atrap mediów)
+- Czas do akceptacji: ok. 16 min wykonawcy + recenzja + korekta + walidacja fali
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P2 zestaw zdjęć niezgodny z planem — potwierdzone (błąd briefu); P3 kolejność sprzątania daje błąd jsdom `pause()` — potwierdzone; architekt przyjął drugi `<h1>` z prawdziwego `PageOpening` na stronie laboratoryjnej
+- Defekty po odbiorze: oględziny zrzutu ujawniły płaski łuk pasa zamknięcia — defekt mixinu z etapu 1 (BE-63)
+- Wymagane testy i dowody: Vitest, lint, format, stylelint, build; `browser-check` (`/design/komponenty` × 2 × 2), brak poziomego przewijania przy 320 px
+
+### BE-63 (BeautyEffect: Etap 2 K-SEP — mixin `arc-top`: `list.slash()` i test kompilacji SCSS) — 2026-10-07
+- Archetyp: poprawka mixinu SCSS motywu (dzielenie Sass zamiast separatora `/`) + nowy spec kompilujący SCSS przez `sass.compileString` zamiast testu tekstu źródła; 3 pliki
+- Stawka: niska–średnia (łuki pasa zamknięcia i stopki na każdej stronie; cicha awaria — przeglądarka odrzuca deklarację)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `medium` (39 s STOP + 160 s)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie, `-Access read` (R11, 832 s, wspólnie z Z13)
+- Dopuszczone alternatywy: Gemini (zajęty Z12c); Claude `mechanik` (zmiana dwóch linii, ale test kompilacji wymaga oceny); Spark (zablokowany, 402)
+- Powód wyboru: mała poprawka z testem — `medium`; recenzja krzyżowa z Gemini
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 89 %), 2026-10-07 15:33–15:38
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: STOP — `arch-photo.spec.ts` sprawdzał dosłowny tekst starych deklaracji poza zakresem briefu; wykonawca miał rację; po rozszerzeniu zakresu zielony (4 testy czerwone → 41/41)
+- Rundy korekt: 0 (jeden restart po STOP)
+- Czas do akceptacji: ok. 4 min wykonawcy + walidacja w Chrome (`borderRadius` pasa `50% 50% 0 0 / 48px 48px 0 0`)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak w plikach K-SEP; P3 `sass` jako zależność przechodnia (`@angular/build`, przypięty 1.104.1) w teście kompilacji — przyjęte jako znane ryzyko, bez zmiany `package.json`; werdykt recenzenta: poprawny 1,0
+- Defekty po odbiorze: defekt pierwotny wykryty przez architekta przy oględzinach zrzutu `browser-check` i pomiarze `getComputedStyle`; testy tekstu SCSS z etapu 1 i recenzje go nie wykryły — lekcja: kontrakty SCSS z wartościami złożonymi sprawdzać kompilacją
+- Wymagane testy i dowody: Vitest (kompilacja SCSS), lint, stylelint, format, build; pomiar w Chrome
+
+### BE-64 (BeautyEffect: Etap 2 Z13 — preload ikon `primeicons` tylko w WOFF2 zamiast `.eot`) — 2026-10-07
+- Archetyp: diagnoza narzędzia budowania (Beasties w `@angular/build` preloaduje pierwszy `url()` użytego `@font-face`) + własny `@font-face` motywu, skrypt generujący klasy `.pi` z pakietu bez deklaracji fontu, podpięcie w `angular.json` i skryptach `npm` + spec kompilacji; 5 plików
+- Stawka: niska–średnia (zbędne pobranie na każdej stronie; ryzyko utraty ikon przy złym imporcie)
+- Niepewność: średnia (mechanizm w `node_modules`, opcje Beasties zaszyte na sztywno)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `medium` (311 s, sam w drzewie — z `npm run build`)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie, `-Access read` (R11, 832 s, wspólnie z K-SEP)
+- Dopuszczone alternatywy: Codex `high`; Gemini (recenzent fali); Claude `wykonawca` (pula ŻÓŁTA); Spark (zablokowany, 402)
+- Powód wyboru: diagnoza z jasnym kierunkiem z planu i zakazami (bez `inlineCritical: false`, bez zależności) — `medium` wystarcza; recenzja krzyżowa z Gemini
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 89–90 %), 2026-10-07 15:43–16:05
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielony; w zbudowanym HTML brak `.eot`, preload `primeicons-*.woff2`; ikony renderują się w Chrome (`document.fonts` — załadowany)
+- Rundy korekt: 0 (dwie jednolinijkowe poprawki architekta po recenzji, reguła 11)
+- Czas do akceptacji: ok. 5 min wykonawcy + recenzja + walidacja na zbudowanym SSR
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P2 `prewatch` bez generatora licencji PrimeUI — potwierdzone, poprawione; P3 asymetryczna normalizacja CRLF w spec — potwierdzone, poprawione; P3 `sass` jako zależność przechodnia — przyjęte jako znane ryzyko (przypięty przez `@angular/build`, dodanie wymaga zmiany lockfile); werdykt recenzenta: poprawny 0,98
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu; obserwacja poza zakresem — Beasties preloaduje też wiele plików fontów `latin-ext` i kursywy na każdej stronie (wydajność, do decyzji)
+- Wymagane testy i dowody: Vitest (kompilacja SCSS, zgodność klas z pakietem), lint, format, build (5 prerenderowanych tras); `grep .eot` w `dist`, preload w HTML, Chrome na `127.0.0.1` (pułapka cienia `ng serve` na `[::1]:4200`)
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
