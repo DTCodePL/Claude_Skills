@@ -1624,6 +1624,40 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak stwierdzonych do chwili wpisu; ten sam błąd próbnika jest we wzorze w ZebraniFE (`/design/kolory`) — zgłoszony właścicielowi
 - Wymagane testy i dowody: Vitest (katalog kolorów 78 przypadków, cały projekt 295), AXE strony, browser-check `/design/kolory` 2 szerokości × 2 motywy (jasny: wszystkie pary zgodne; ciemny: rozbieżność dokumentu 8 %/12 % tinty najechania i jedna para plamy poniżej AA — pytania do właściciela). Wnioski: (1) technika przeniesiona z innego projektu wymaga w briefie sprawdzenia jej założenia w prawdziwej przeglądarce, nie tylko w jsdom — błąd wzoru przeszedł do kopii; (2) kod wyjścia 3 wrappera Gemini nie oznacza braku wyniku — raport i diff są dowodem
 
+### BE-44 (BeautyEffect: K-Z6c — plamy otwarcia z kryciem po rozmyciu, DARK_15 = 6.10, naciśnięcie tylko z kursorem) — 2026-10-07
+- Archetyp: korekta danych par kontrastu (12 par plam: krycie warstwy po rozmyciu Gaussa, jedna wartość oczekiwana) i jednej reguły CSS w haku presetu przycisków + testy z niezależnym wzorcem; 4 pliki, dwa obszary jednej warstwy FE
+- Stawka: średnia (bramka kontrastu WCAG AA; fałszywy FAIL trafił już do właściciela jako pytanie o paletę)
+- Niepewność: niska (wartości policzone przez architekta, Codex przeliczył je niezależnie)
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie (596 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (120 s)
+- Dopuszczone alternatywy: Codex `medium` (≤ 5 plików — mieści się); Claude `wykonawca` (pula ŻÓŁTA, tydzień 86 %); Spark (zablokowany, 402)
+- Powód wyboru: Gemini jest autorem strony kolorów (Z6b) — poprawka wraca do autora; recenzja krzyżowa z Codexem
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany, Codex nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 86 %), 2026-10-07 08:20–08:40
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielony (92 testy w zakresie, czerwone → zielone 2/92), z jedną trafną uwagą do briefu: etykieta DARK_15 w `pl.json` nadal mówiła „8 %” (poza zakresem briefu — architekt poprawił jedną linię)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 10 min wykonawcy + 2 min recenzji + walidacja (przerwana zamknięciem sesji Claude Code i powtórzona)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak; recenzent przeliczył całkę (0,610954 / 0,561588), krycie mnożone (0,3135) i DARK_15 (6,100263)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest 295, lint, format, build, browser-check `/design/kolory` 2 × 2 (ciemny: wszystkie pary spełniają, DARK_15 bez DIFF, akcent na pierwszej plamie 5.26:1). Wniosek: źródłem korekty był brief Z6b architekta — para „tekst na plamie” liczona bez rozmycia i rozmiaru gradientu dała fałszywy FAIL (3.81:1), który poszedł do właściciela jako pytanie o paletę; przed eskalacją FAIL-a architekt modeluje pełne renderowanie z makiety (rozmycie, krycie, rozmiar gradientu)
+
+### BE-45 (BeautyEffect: D-1 — zapis sześciu decyzji właściciela z 2026-10-07 w dokumentacji) — 2026-10-07
+- Archetyp: dokumentacja produktu — statusy (AT zatwierdzony, dwie KO rozstrzygnięte), rozstrzygnięcia z dosłownymi cytatami, wyjątki w DEC i WP, uzgodnienie odwołań w dokumentach UI i KO, dwie poprawki wartości technicznych; 14 plików
+- Stawka: średnia (źródło prawdy dla etapów 2–5; błędny cytat albo pozostawiona „otwarta” kwestia wprowadza w błąd kolejne briefy)
+- Niepewność: niska (decyzje i cytaty podane w briefie; struktura wg wzoru rozstrzygniętej kwestii)
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie (903 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (77 s STOP na kryterium briefu + 171 s pełna recenzja)
+- Dopuszczone alternatywy: Codex (porcja > 5 plików — odpada bez podziału); Claude `wykonawca` (pula ŻÓŁTA, tydzień 86 %); Spark (zablokowany, 402)
+- Powód wyboru: brief tekstowy wielu plików — Gemini bez limitu 5 plików; równolegle z K-Z6c w innym repozytorium (rozłączne cele); recenzja krzyżowa z Codexem
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany, Codex nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 86 %), 2026-10-07 08:25–10:15
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: wszystkie punkty A–J wdrożone; dwa defekty wykonania poprawione przez architekta: (1) cały plik `tresci-bezobslugowe.md` zapisany z CRLF wbrew `eol=lf` repozytorium, (2) zdanie „kontrast pochodzi z pomiaru strony” sprzeczne z zasadą dokumentu „tabela to obliczenie, nie pomiar” (zgłoszone przez samego wykonawcę w sekcji uwag); pozostałe uwagi wykonawcy (fragment `#business-reviews`, wyjątki od bezobsługowości, odnośnik do Booksy, krawędź pola bez formularza) dotyczyły decyzji właściciela — odrzucone
+- Rundy korekt: 0 (poprawki architekta: przywrócenie LF, jedno zdanie)
+- Czas do akceptacji: ok. 15 min wykonawcy + 4 min recenzji (dwa przebiegi) + walidacja; sesja Claude Code zamknęła się w trakcie — stan odebrany z rekordów wrappera i `git status`
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): pierwszy przebieg — STOP na błędnym założeniu briefu architekta (kryterium „żaden dokument” kolidowało z zakazem zmian w researchu `zrodla\`), potwierdzone; po zawężeniu kryterium — brak znalezisk, 472 linki względne poprawne
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: recenzja diffu, wyrywkowy odczyt architekta (statusy, cytaty, wartości 12 % / `#56494B` / 6.10:1, adres Booksy), kontrola końców linii wszystkich 14 plików. Wnioski: (1) brief dokumentacji dla Gemini wymaga jawnego „końce linii LF zgodnie z `.gitattributes`” zamiast „zachowaj dotychczasowe” — wykonawca i tak zmienił plik na CRLF; (2) kryterium spójności w briefie recenzji od razu wyłącza zapisy historyczne (`zrodla\`, research)
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
