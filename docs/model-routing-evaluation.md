@@ -2253,6 +2253,91 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak stwierdzonych do chwili wpisu
 - Wymagane testy i dowody: skrypt kontroli dokumentów kategorii
 
+### BE-81 (BeautyEffect: Etap 4 D5-1 — decyzja z 2026-10-07, PROD-OFERTA, mapa stron, kwestie otwarte, WP-UMOW-WIZYTE) — 2026-10-07
+- Archetyp: dokumentacja produktu — zapis decyzji właściciela i jej skutków w dokumentach produktu, przekierowania z przypisaniem do migawek; 9 plików + nowa decyzja
+- Stawka: niska–średnia (źródło prawdy zakresu oferty; bez niezmiennika)
+- Niepewność: średnia (przypisanie starych adresów do zabiegów, zawężenie kwestii otwartej)
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / `-Access write` (947 s)
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh`, `-Access read`, diff w briefie (295 s)
+- Dopuszczone alternatywy: Spark (wykonawca); Codex (recenzent)
+- Powód wyboru: brief tekstowy na wielu plikach Windows; przy ŻÓŁTYM tygodniu Claude'a tekst idzie do Spark/Gemini, Spark miał w tej fali trzy inne briefy
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook, tydzień 94 %, 2026-10-07); Gemini znany (`agy /quota` przed falą: okno 53 %, tydzień 83 %); Spark nieznany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowany; recenzent: wszystkie 13 plików „gotowy”; wykonawca wypisał 5 nieaktualnych miejsc poza zakresem (3 poprawił architekt, 2 to zapisy historyczne)
+- Rundy korekt: 0 (jednolinijkowe poprawki architekta: uwaga przekierowania, wiązanie decyzji z DEC-BOOKSY-REZERWACJA-I-CENY)
+- Czas do akceptacji: ok. 40 min (praca równoległa z resztą fali)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P3 `/zamykanie-naczynek-2/` dotyczy twarzy i nóg — potwierdzone; P2/P3 w plikach innego autora (SEO strony głównej, streszczenia „wyłącznie w Booksy”) — potwierdzone, przypisane D5-4; stare makiety z masażem ajurwedyjskim w ciele — odrzucone (zapis historyczny wyborów)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: kontrola linków (148 plików, 0 martwych), skrypt kotwic kategorii, przeliczenie liczby zabiegów przez recenzenta
+
+### BE-82 (BeautyEffect: Etap 4 D5-2 — nowa strona „Zabiegi laserowe” ze starej strony, prostym językiem) — 2026-10-07
+- Archetyp: dokumentacja produktu — nowy dokument strony kategorii, szkice opisów i zaleceń przed/po zabiegu z migawek starej strony, bez obietnic; 1 plik
+- Stawka: średnia (zalecenia przed i po zabiegach laserowych — błąd treści zdrowotnej przechodzi do implementacji)
+- Niepewność: średnia–wysoka (migawki starej strony z szablonu, sprzeczne terminy w źródłach)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh` (368 s; korekta D5-2K 336 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (741 s, wspólnie z D5-3, D5-4 i poprawkami architekta)
+- Dopuszczone alternatywy: Gemini (wykonawca, `high`); Gemini (recenzent)
+- Powód wyboru: tekst z wiernością źródłom wymaga dokładności, Spark `xhigh` miał dobre wyniki w D4; recenzja wierności źródłom na Codexie (w D4 R2 6 z 7 trafnych), Gemini miał w tej fali D5-1
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook, tydzień 94 %); Spark nieznany; Codex nieznany (brak komunikatu limitu)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: odrzucony do korekty — budowa, kotwice, zamknięcie i panele poprawne, ale 10 odchyleń od źródeł w zaleceniach (sprzeczne terminy antybiotyków rozstrzygnięte po cichu, retinoidy bez rozróżnienia doustne/miejscowe, zakazy opalania skrócone, zapewnienia o bezpieczeństwie przeniesione z migawki)
+- Rundy korekt: 1 (D5-2K, wszystkie punkty zgodne z propozycjami recenzenta; architekt sprawdził cytaty w migawkach przed korektą)
+- Czas do akceptacji: ok. 55 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P1 sprzeczne przerwy po antybiotykach — potwierdzone; P2 ×9 (retinoidy, słońce/sauna/alkohol, opalanie po naczynkach, opalanie między sesjami depilacji, „żyłki pod skórą”, „komórki barwnika”, nazwy fachowe bez objaśnienia, zapewnienia o omijaniu zdrowych tkanek, lista urządzeń) — wszystkie potwierdzone
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: architekt sprawdził cytaty P1/P2 w migawkach jednym poleceniem; skrypt kotwic i fragmentów; kontrola linków
+
+### BE-83 (BeautyEffect: Etap 4 D5-3 — masaż ajurwedyjski z „Pielęgnacji ciała” do „Pielęgnacji twarzy”) — 2026-10-07
+- Archetyp: dokumentacja produktu — przeniesienie jednej karty między zatwierdzonymi dokumentami z przeliczeniem; 2 pliki
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `high` (189 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (wspólny przebieg z BE-82)
+- Dopuszczone alternatywy: Gemini (wykonawca); Gemini (recenzent)
+- Powód wyboru: prosta, dobrze określona zmiana — Spark `high` (pamięć: prosta praca na Sparku, pula Codexa na recenzje)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-82
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany; wykonawca słusznie zgłosił nieaktualne „ośmiu kategorii” w chronionej „Nawigacji” (poprawił architekt)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 15 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak — oba pliki „gotowy”
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: skrypt kotwic (kotwica raz w twarzy, zero w ciele), liczby zakładek, statusy
+
+### BE-84 (BeautyEffect: Etap 4 D5-4 — dziewiąta kategoria w UI-OFERTA i na stronie głównej) — 2026-10-07
+- Archetyp: dokumentacja produktu — zmiana liczby kategorii i wyjątku zamknięcia w dwóch zatwierdzonych dokumentach; 2 pliki
+- Stawka: niska–średnia
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `high`
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (wspólny przebieg z BE-82); dodatkowo uwagi Sparka z recenzji BE-81
+- Dopuszczone alternatywy: Gemini (wykonawca); Gemini (recenzent)
+- Powód wyboru: jak BE-83
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-82
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany w zakresie briefu; luka briefu architekta — brief nie kazał dopasować zdań „ceny i rezerwacja w Booksy” (zdanie wiodące sekcji 2 strony głównej, opis SEO, streszczenia decyzji, tekst sekcji 3 „Oferty”) ani rodzica `interfejsy/strony-publiczne/README.md` i WP-TRESCI-BEZOBSLUGOWE
+- Rundy korekt: 0 (poprawki architekta — gotowe teksty z recenzji; dwuznaczne zdanie o przycisku nagłówka poprawione przez architekta po uwadze autora D5-2)
+- Czas do akceptacji: ok. 50 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P2 wyjątek telefoniczny w ogólnych tekstach rezerwacji — potwierdzone częściowo (trzy kroki rezerwacji w Booksy na stronie głównej zostają: opisują główną drogę); P2 wyjątek u nadrzędnego interfejsu i w WP-TRESCI-BEZOBSLUGOWE — potwierdzone; P2 (Spark) opis SEO strony głównej — potwierdzone (tytuł bez zmian ze względu na długość)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: kontrola „osiem/ośmiu” w kontekście kategorii; kontrola linków
+
+### BE-85 (BeautyEffect: Etap 4 P17 — podgląd części 17: mozaika 9 kafli, siatka 9 łuków, otwarcie bez zdjęć) — 2026-10-07
+- Archetyp: podgląd HTML do wyboru wariantów przez właściciela — trzy bloki × trzy warianty, CSS przejęty z części 8, 10b, 11, 15; 1 plik + wiersz README
+- Stawka: niska (narzędzie decyzji, nie produkt)
+- Niepewność: średnia (układ dziewięciu pozycji w siatkach zbudowanych na osiem)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh` (900 s; korekta P17-K 267 s)
+- Recenzent (linia / model / native effort): architekt — zrzuty Playwright (Chrome, oba motywy, komputer i telefon, 36 zrzutów w arkuszach)
+- Dopuszczone alternatywy: Gemini (wykonawca); recenzja wizualna — worker z Playwright MCP
+- Powód wyboru: podgląd wymaga dużego, spójnego CSS — Spark `xhigh` budował poprzednie części
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-82
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: odrzucony — Spark zgłosił brak przeglądarki (nie użył Playwright MCP) i sprawdził tylko strukturę; brak `</div>` zamykającego `.bar` (strona podglądu 38 px szerokości), pas M9-2 800 px z kolumną jednego słowa, OK-2 łuk na tekście, LO-1 łuk bez wypełnienia (niezdefiniowany token `--s500`) i ucięte słowa, przycisk w otwarciu spoza wzoru
+- Rundy korekt: 1 (P17-K) + dwie poprawki architekta (`</div>`; jawne `grid-column` dzieci pasa, bo wspólna reguła `.offer-o1 .cat-arrow{grid-column:2}` przepychała tekst do kolumny 28 px — Spark naprawił objawy bez podglądu)
+- Czas do akceptacji: ok. 60 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): sześć usterek wizualnych — wszystkie potwierdzone zrzutami; Spark słusznie wskazał błędne odesłanie briefu (kompozycja łuków z części 11, nie 15)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: zrzuty wszystkich wariantów w obu motywach i szerokościach, konsola bez błędów, `files/…` istnieją. Wniosek: brief podglądu musi wskazać sposób oglądu (Playwright MCP albo raport „nie oglądałem” jako blokada), a sprawdzenie skryptem „zbalansowanych tagów” nie wystarcza
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
