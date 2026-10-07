@@ -1658,6 +1658,91 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak stwierdzonych do chwili wpisu
 - Wymagane testy i dowody: recenzja diffu, wyrywkowy odczyt architekta (statusy, cytaty, wartości 12 % / `#56494B` / 6.10:1, adres Booksy), kontrola końców linii wszystkich 14 plików. Wnioski: (1) brief dokumentacji dla Gemini wymaga jawnego „końce linii LF zgodnie z `.gitattributes`” zamiast „zachowaj dotychczasowe” — wykonawca i tak zmienił plik na CRLF; (2) kryterium spójności w briefie recenzji od razu wyłącza zapisy historyczne (`zrodla\`, research)
 
+### BE-46 (BeautyEffect: Etap 2 Z1 — dane salonu, logo, pozycje menu, teksty powłoki) — 2026-10-07
+- Archetyp: pliki stałych (dane salonu znak w znak z WP, zasoby marki, pozycje menu) + 28 kluczy `pl.json` + test z niezależną wyrocznią literałów; 7 plików, jedna warstwa FE, bez logiki
+- Stawka: średnia (adres, telefon i odnośniki trafiają na każdą stronę; literówka w numerze lub adresie Booksy uderza w rezerwacje)
+- Niepewność: niska (wszystkie wartości i klucze podane w planie tabelą)
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie (533 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (320 s, wspólnie z Z3)
+- Dopuszczone alternatywy: Codex `medium` (7 plików — wymagałby podziału na porcje ≤ 5); Claude `wykonawca` (pula ŻÓŁTA, tydzień 87 %); Spark (zablokowany, 402)
+- Powód wyboru: brief tekstowy wielu plików bez podziału; Gemini równolegle z trzema briefami Codexa (rozłączne pliki); recenzja krzyżowa z Codexem
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany, Codex nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 87 %), 2026-10-07 12:50–13:25
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielony (6 testów czerwone → zielone), wartości zgodne z planem; trafna uwaga wykonawcy: zapis briefu „reszta jako `string`” koliduje z `no-inferrable-types` — typy wywnioskowane z literałów
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 9 min wykonawcy + recenzja + walidacja fali
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak (werdykt poprawny, pewność 0,99)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest (fala 351 → 355 po korekcie Z3), lint, format, build; odczyt architekta wszystkich stałych i kluczy względem tabeli planu
+
+### BE-47 (BeautyEffect: Etap 2 Z2 — rozmiar przycisków paska, tło przycisku obrysowego, przyciemnienie pod szufladą) — 2026-10-07
+- Archetyp: zmiana tokenów presetu PrimeNG (zmienna tła przycisku obrysowego w stanach i haku CSS presetu, maska greige-950 50 %) + testy na rozwiązanych tokenach (`Theme.tokens…computed`); 4 pliki
+- Stawka: średnia (preset dotyka każdego przycisku obrysowego w aplikacji; kontrast na szkle paska — AT-SYSTEM-KOLOROW-UI)
+- Niepewność: niska (wartości w planie; ścieżki tokenów Aury znane z etapu 1)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (264 s)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie, `-Access read` (690 s, wspólnie z Z4 i Z5)
+- Dopuszczone alternatywy: Gemini (autor tokenów strony kolorów — ale Codex wolny i w limicie ≤ 5 plików); Claude `wykonawca` (pula ŻÓŁTA); Spark (zablokowany, 402)
+- Powód wyboru: ≤ 5 plików, pułapki ścieżek tokenów Aury (cicho ignorowany token) — Sol `high` ze sprawdzeniem na rozwiązanych tokenach; recenzja krzyżowa z Gemini
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 87 %), 2026-10-07 12:50–13:25
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielony (6 czerwonych + 29 zielonych → 35); rozmiary `small` już były zgodne, potwierdzone emisją z `root.sm`
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 4 min wykonawcy + recenzja + walidacja fali
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1 × P2 odrzucone — stan `:active` czyta zmienną najechania (reguła istniała w `HEAD` przed falą, wartości obu tokenów identyczne); recenzent potwierdził brak kolizji specyficzności (0,2,0) z regułami stanów (0,3,0)/(0,4,0)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest, lint, format, build; w prerenderowanym HTML jedna definicja `--p-mask-background` = `color-mix(… var(--p-bty-shade) 50%, transparent)`, `--p-bty-shade` = greige-950 — maska Aury z `colorScheme` jej nie nadpisuje
+
+### BE-48 (BeautyEffect: Etap 2 Z3 + K-Z3 — odsłonięcia W-3: dyrektywa, serwis obserwatora, style, bezpiecznik) — 2026-10-07
+- Archetyp: dyrektywa + `@Service()` z dwoma `IntersectionObserver` i kaskadą, globalne style odsłonięć z bezpiecznikiem bez JS, sterowalna atrapa obserwatora do testów; 7 plików, jedna warstwa FE, SSR-wrażliwe
+- Stawka: średnia–wysoka (błąd = treść całej strony niewidoczna dla części odwiedzających; dotyka każdej strony etapów 3–5)
+- Niepewność: średnia (zachowanie animacji `forwards` przy zmianie selektora, prerender, hydracja)
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie (797 s + korekta K-Z3 ok. 10 min)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (320 s, wspólnie z Z1)
+- Dopuszczone alternatywy: Codex `high` (7 plików — wymagałby podziału, a dyrektywa i serwis muszą powstać razem); Claude `wykonawca` (pula ŻÓŁTA); Spark (zablokowany, 402)
+- Powód wyboru: spójna jednostka > 5 plików; recenzja krzyżowa z Sol `high` z naciskiem na scenariusze „treść niewidoczna”
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany, Codex nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 87 %), 2026-10-07 12:50–13:40
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zielony (18 testów), ale z defektem przeniesionym z recepty planu architekta: bezpiecznik w selektorze `html:not(.bty-reveal-ready)` — przy starcie aplikacji po 4 s dodanie klasy zdejmowało animację razem ze stanem `forwards` i treść znikała ponownie; testy dyrektywy sprawdzały metadane zamiast wyrenderowanego hosta
+- Rundy korekt: 1 (K-Z3: bezpiecznik na stałe + `animation-play-state: paused` pod `html.bty-reveal-ready`; testy dyrektywy przez TestBed z hostem testowym, w tym SSR)
+- Czas do akceptacji: ok. 13 min + 5 min recenzji + 10 min korekty + dwie walidacje fali
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 3 × P2 — potwierdzone 2 (bezpiecznik po późnym starcie — błąd planu architekta; testy metadanych), odrzucone 1 (filtr `intersectionRatio >= 0.1` — makieta filtruje samym `isIntersecting`, a filtr ukryłby na stałe element wyższy niż 10 ekranów)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest 355, lint, format, build; odczyt architekta selektorów bezpiecznika. Wnioski: (1) recepta „bezpiecznik do czasu klasy gotowości” musi rozważyć start po upływie bezpiecznika — klasa wstrzymuje animację, nie usuwa jej; (2) wejście typowane enumem nie przyjmuje gołego tekstu w szablonie (`btyReveal="words"` → TS2322) — briefy wiążą `[btyReveal]="RevealKind.Words"`; (3) nowe ograniczenie dla stron: `[btyReveal]` nigdy w `@defer (hydrate never)`
+
+### BE-49 (BeautyEffect: Etap 2 Z4 — łuk zdjęcia z obrysem i rozdzielenia sekcji S-3) — 2026-10-07
+- Archetyp: komponent prezentacyjny z `NgOptimizedImage` (`fill`) + partial SCSS z trzema mixinami + spec z AXE; 5 plików, jedna warstwa FE
+- Stawka: niska–średnia (wspólny element wielu stron; obrys i kadrowanie widoczne od razu)
+- Niepewność: niska (wartości i wzór w makiecie i planie)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (273 s)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie, `-Access read` (690 s, wspólnie z Z2 i Z5)
+- Dopuszczone alternatywy: Codex `medium`; Gemini (zajęty Z1 i Z3); Claude `wykonawca` (pula ŻÓŁTA); Spark (zablokowany, 402)
+- Powód wyboru: 5 plików mieści się w porcji Codexa; równolegle z Gemini; recenzja krzyżowa z Gemini
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 87 %), 2026-10-07 12:50–13:25
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielony (14 czerwonych + 2 zielone → 16, dwa audyty AXE); `disableOptimizedSrcset` dla zdjęć statycznych bez loadera
+- Rundy korekt: 0 (architekt dodał jedną linię `max-height: var(--bty-arch-max-height, none)` — stopka w makiecie ogranicza łuk do 340 px, czego plan nie przewidział)
+- Czas do akceptacji: ok. 5 min wykonawcy + recenzja + walidacja fali
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1 × P2 odrzucone jako defekt komponentu — obrys wystaje 12 px w dół (tak samo w makiecie `.archwrap::after`; miejsce rezerwuje rodzic — wymaganie dopisane do briefu stopki Z8)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest, lint, format, build; odczyt architekta względem planu i makiety
+
+### BE-50 (BeautyEffect: Etap 2 Z5 — przełącznik motywu: przycisk-ikona paska i wariant z napisem do szuflady) — 2026-10-07
+- Archetyp: mały komponent prezentacyjny z dwoma wariantami, ikony przełączane wyłącznie CSS-em `:host-context(.app-dark)` (bez mignięcia przed hydracją) + spec z AXE; 4 pliki
+- Stawka: niska (dostępność przełącznika, brak mignięcia przy zapisanym motywie ciemnym)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `medium` (161 s)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / w nazwie, `-Access read` (690 s, wspólnie z Z2 i Z4)
+- Dopuszczone alternatywy: Codex `low`/Luna (ryzyko pominięcia szczegółu SSR); Claude `mechanik` (za dużo decyzji); Spark (zablokowany, 402)
+- Powód wyboru: prosty komponent ≤ 5 plików — `medium` wystarcza; recenzja krzyżowa z Gemini
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, Gemini nieznany, Spark zablokowany (402), Claude ostrzegawczy (ŻÓŁTY, tydzień 87 %), 2026-10-07 12:50–13:25
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielony (9 czerwonych → 9 zielonych, AXE obu wariantów)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 3 min wykonawcy + recenzja + walidacja fali
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2 × P3 bez działania (kontrast lokalnej ramki fokusu 1,8:1 — wskaźnikiem jest globalny pierścień `--bty-focus`, nienaruszony; nadmiarowe 44 × 44 px przy `p-button-icon-only`)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: Vitest, lint, format, build; odczyt architekta (obie ikony w HTML, brak `aria-pressed`, globalny pierścień fokusu)
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
