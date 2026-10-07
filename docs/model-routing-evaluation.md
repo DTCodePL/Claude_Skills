@@ -2338,6 +2338,244 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak stwierdzonych do chwili wpisu
 - Wymagane testy i dowody: zrzuty wszystkich wariantów w obu motywach i szerokościach, konsola bez błędów, `files/…` istnieją. Wniosek: brief podglądu musi wskazać sposób oglądu (Playwright MCP albo raport „nie oglądałem” jako blokada), a sprawdzenie skryptem „zbalansowanych tagów” nie wystarcza
 
+### BE-86 (BeautyEffect: Etap 4 K0 — zasoby oferty: zdjęcia, kadry, wycinki filmów) — 2026-10-07
+- Archetyp: przygotowanie zasobów multimedialnych wg listy z dokumentów (ffmpeg, kadrowanie, arkusz kontrolny); 32 pliki w `public/`
+- Stawka: niska
+- Niepewność: średnia (dobór kadrów i długości wycinków)
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` (1166 s)
+- Recenzent (linia / model / native effort): architekt — arkusz kontrolny, długości klipów, istnienie 48 ścieżek; RE5 (Codex) potwierdziło ścieżki ponownie
+- Dopuszczone alternatywy: Spark `high` (wykonawca)
+- Powód wyboru: zadanie narzędziowe na Windows (ffmpeg, pliki binarne), bez niezmiennika; Spark w tym czasie na K1 i K4
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude zablokowany (hook, CZERWONY — tydzień 95–97 %, od 2026-10-07 ok. 22:27); Spark/Gemini/Codex nieznany (brak komunikatów limitu wrappera przez cały etap)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowany — wszystkie media w kolorze, kadry sensowne, długości wycinków zgodne z briefem
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 20 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: arkusz kontrolny obejrzany przez architekta, skrypt istnienia ścieżek, brak powtórzeń pliku na stronie
+
+### BE-87 (BeautyEffect: Etap 4 K1 — model danych oferty, budowa widoku kategorii, kontrola tekstów) — 2026-10-07
+- Archetyp: warstwa danych FE (modele, enumy, funkcja budująca widok, testy kontraktu kluczy i tekstów); ok. 20 plików
+- Stawka: średnia (kontrakt, na którym stoją wszystkie strony kategorii)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh` (1177 s); poprawka 1 `high` (109 s), poprawka 2 `high` (401 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (R1, 231 s); poprawki — Gemini `gemini-3.8-flash-high` read (RE3)
+- Dopuszczone alternatywy: Codex Sol `high` (wykonawca, ale > 5 plików); Gemini (recenzent)
+- Powód wyboru: największy brief fali 1, wiele plików — Spark `xhigh`
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-86
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany warunkowo; kontrola cen odrzucała słowa typu „złuszczanie” — poprawka 1 (Spark słusznie wykazał, że regex architekta odrzucał też „150zł”); R1 wskazało luki kontroli tekstów — poprawka 2
+- Rundy korekt: 2
+- Czas do akceptacji: ok. 55 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1 — uwagi do kontroli tekstów potwierdzone i naprawione; RE3 — poprawki bez uwag
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: 43/43 testy warstwy danych, pełna walidacja fali (725 testów)
+
+### BE-88 (BeautyEffect: Etap 4 K2a + K2b — tokeny panelu typograficznego i komponent panelu) — 2026-10-07
+- Archetyp: K2a — nowe tokeny koloru (preset, aliasy, pary kontrastu `/design`); K2b — komponent prezentacyjny
+- Stawka: średnia (system kolorów, kontrast WCAG)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): K2a — Codex / `gpt-6.1-sol` / `medium` (pierwszy przebieg 49 s zatrzymany, ponowny 151 s); K2b — Gemini / `gemini-3.8-flash-high` (581 s)
+- Recenzent (linia / model / native effort): K2a — Gemini read (R2, 450 s); K2b — Codex Sol `high` review (R1)
+- Dopuszczone alternatywy: Spark `high` (oba)
+- Powód wyboru: K2a ≤ 5 plików, wyraźny kontrakt — Codex `medium`; K2b równolegle na wolnej linii Gemini
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-86
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: K2a — Codex słusznie zatrzymał się na błędnej przesłance briefu (wcięcie `pl.json` to 2 spacje); po poprawce briefu zaakceptowany. K2b — zaakceptowany; błąd briefu architekta (`cqi` względem samego panelu zamiast `vw` wg AT-SPEC) poprawił architekt w dwóch liniach
+- Rundy korekt: K2a 1 (restart po błędzie briefu), K2b 0 (poprawka architekta)
+- Czas do akceptacji: ok. 15 min (K2a), ok. 12 min (K2b)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R2 — P3 brzmienie etykiet `/design/kolory` (odrzucone: etykiety wewnętrzne); sugestia scalenia par gradientu (odrzucona: pomiar per motyw)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: pary kontrastu w specu, 11/11 testów panelu po poprawce
+
+### BE-89 (BeautyEffect: Etap 4 K4 — wspólne teksty oferty w `pl.json`) — 2026-10-07
+- Archetyp: i18n — klucze wspólne stron kategorii; 1 plik + spec
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `high` (368 s)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / read (R2)
+- Dopuszczone alternatywy: Gemini (wykonawca); Codex (recenzent)
+- Powód wyboru: prosta praca tekstowa — Spark (pamięć: prosta praca na Sparku)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-86
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany; jeden tekst wpisany na sztywno w spec poprawiony jednolinijkowo przez architekta
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 10 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R2 — brak defektów (pewność 0,99)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: spec kluczy, prettier `pl.json`
+
+### BE-90 (BeautyEffect: Etap 4 K3 — otwarcie strony z łukami, pas zamknięcia, przyciski rezerwacji, podgląd `/design`) — 2026-10-07
+- Archetyp: komponenty wspólne FE (3 komponenty + podgląd); ok. 15 plików
+- Stawka: niska–średnia
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` (907 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (RE4, 142 s, wspólnie z K8)
+- Dopuszczone alternatywy: Spark `xhigh` (wykonawca)
+- Powód wyboru: równoległa fala 2 — Spark na K6 i poprawce K1, Codex na K7
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-86
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowany
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 30 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RE4 — K3 poprawny
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: specy z AXE, pełna walidacja fali, zrzuty `/oferta` w browser-check
+
+### BE-91 (BeautyEffect: Etap 4 K5 — karta zabiegu KA-1 z rozwinięciem i osią PZ-3) — 2026-10-07
+- Archetyp: komponent prezentacyjny FE z rozwinięciem (`inert`, aria), podkomponent szczegółów, funkcje podziału tekstu; ok. 12 plików
+- Stawka: średnia (dostępność rozwinięcia, SEO treści w DOM)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` (866 s; poprawka 478 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (RE6, 158 s)
+- Dopuszczone alternatywy: Spark `xhigh` (wykonawca); Spark read (recenzent)
+- Powód wyboru: jak BE-90
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-86
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: odrzucony przez architekta — znikające spacje wokół wyróżnienia (`preserveWhitespaces:false` usuwa węzły z samych spacji), `track` na treści w listach, podwójne pogrubienie w ciemnym motywie
+- Rundy korekt: 1 (K5fix)
+- Czas do akceptacji: ok. 45 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RE6 — brak defektów, sprawdzone klucze 83 zabiegów
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: 24 testy karty z dokładnym tekstem opisu, AXE
+
+### BE-92 (BeautyEffect: Etap 4 K6 — baner grupy i kafle zasad ZW-3) — 2026-10-07
+- Archetyp: dwa komponenty prezentacyjne + jedna linia w `VideoClip`; ok. 9 plików
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh` (383 s); poprawka `high` (269 s)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / read (RE3, 827 s, wspólnie z K7 i poprawkami K1)
+- Dopuszczone alternatywy: Gemini (wykonawca); Codex (recenzent)
+- Powód wyboru: Spark wolny w fali 2; Gemini recenzuje Sparka i Codexa jednym przebiegiem
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-86
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany (22/22); wykonawca słusznie zawęził unię banera przez `computed()` zamiast `@switch` — przesłanka briefu nie trzymała się kontroli typów
+- Rundy korekt: 1 — **zbędna**: RE3 zgłosiło P2 „znak 40 px nigdy nie działa”, architekt potwierdził bez sprawdzenia skompilowanego CSS; Spark w poprawce obalił przesłankę (dart-sass emituje `@media` mixina w miejscu `@include` i dzieli regułę, więc 40 px działało od 576 px). Zapis mobile-first zostawiony jako odporniejszy, z testem kontraktu SCSS
+- Czas do akceptacji: ok. 40 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RE3 P2 rozmiar znaku — fałszywie dodatnie (błędnie potwierdzone przez architekta, obalone przez wykonawcę)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: 9/9 testów kafli z kontraktem skompilowanego SCSS. Wniosek: twierdzenia recenzenta o kaskadzie SCSS sprawdzać na skompilowanym CSS przed potwierdzeniem
+
+### BE-93 (BeautyEffect: Etap 4 K7 — zakładki grup Z-2 na `@angular/aria`) — 2026-10-07
+- Archetyp: komponent interaktywny FE (zakładki, przyklejony pasek, wejście z `#kotwicy`, SSR); 4 pliki
+- Stawka: średnia (klawiatura, SSR, kotwice)
+- Niepewność: średnia (nowe API `@angular/aria`)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (413 s)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / read (RE3)
+- Dopuszczone alternatywy: Spark `xhigh` (wykonawca); Spark read (recenzent)
+- Powód wyboru: ≤ 5 plików, trudniejsze API — Codex Sol `high`; architekt sprawdził API w zainstalowanym pakiecie przed briefem
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-86
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany (25/25); fragment adresu czytany tylko w przeglądarce, przewinięcie po renderze
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 35 min (z oczekiwaniem na RE3)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RE3 — brak
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: specy klawiatury i fragmentu; browser-check kotwicy `/oferta/warkocze#afro-i-loki`
+
+### BE-94 (BeautyEffect: Etap 4 K8 — łuki kategorii OK-1 na stronie „Oferta”) — 2026-10-07
+- Archetyp: lista prezentacyjna FE z przesunięciem kolumny; 8 plików
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` (804 s; poprawka 218 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (RE4)
+- Dopuszczone alternatywy: Spark (wykonawca)
+- Powód wyboru: zwolniony slot Gemini po R2
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-86
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowany warunkowo; specy chwilowo czerwone w trakcie przebiegu (architekt powtórzył: 18/18)
+- Rundy korekt: 1 (szerokość łuku 576–991 px ograniczona do 360 px, test kontraktu)
+- Czas do akceptacji: ok. 35 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RE4 P2 rozciągnięte łuki na tablecie — potwierdzone, naprawione
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: 19/19, zrzuty `/oferta` 4 szerokości × 2 motywy
+
+### BE-95 (BeautyEffect: Etap 4 K9–K17 — dane dziewięciu stron kategorii) — 2026-10-07
+- Archetyp: przeniesienie zatwierdzonych dokumentów do danych `.ts` i fragmentów `pl.json` dosłownie; 9 briefów po 2 pliki + fragment
+- Stawka: średnia (wierność treści właścicielki, brak cen)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `high` — wszystkie 9 (117–244 s, mediana ok. 180 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (RE5, 139 s, cały zbiór); architekt — skrypt fragmentów i skrypt wierności (każdy tekst dosłownie w źródle)
+- Dopuszczone alternatywy: Gemini (wykonawca — pierwotny plan dla K10/K12); Gemini read (recenzent)
+- Powód wyboru: krótkie, mechaniczne briefy ze wspólnego szablonu; K10 i K12 przeniesione z Gemini na Sparka (Gemini zajęty trzema komponentami, Spark przepisał dosłownie 4 strony)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-86
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: 8/9 zaakceptowane od razu (np. K9 57/57, K15 78/78, K17 61/61 tekstów dosłownie); K12 wyciął całe zdania z dopiskiem „(wyjaśnienie dopisał architekt)” zamiast samego dopisku — architekt przywrócił zdania we fragmencie przed scaleniem
+- Rundy korekt: 0 (jedna poprawka architekta we fragmencie K12)
+- Czas do akceptacji: ok. 40 min całości; scalenie 447 kluczy bez zmian istniejących
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RE5 — brak (log potwierdził, że Codex otworzył dokumenty i dane); uwagi wykonawców: K12 — notka redakcyjna dokumentu sprzeczna z blokiem (`chcą/chcesz`), do zgłoszenia właścicielce; K16 — „plan nie ma sekcji K9–K17” — fałszywe (sekcja istnieje)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: spec pokrycia kluczy, skrypt wierności, istnienie 48 mediów
+
+### BE-96 (BeautyEffect: Etap 4 K19 — mozaika M9-1 z dziewiątym kaflem „Zabiegi laserowe”) — 2026-10-07
+- Archetyp: zmiana istniejącego komponentu strony głównej (kafel z panelem typograficznym zamiast zdjęcia); ok. 10 plików
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh` (347 s)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / read (RE7, 516 s, wspólnie z K20)
+- Dopuszczone alternatywy: Codex Sol `high` (pierwotny plan — przeniesiony na Sparka: > 5 plików i pula Codexa na recenzje, pamięć „prosta praca na Sparku”)
+- Powód wyboru: jak w alternatywach
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-86
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 25 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RE7 — P3: komórka lasera bez gałęzi zdjęcia (do zmiany, gdy przyjdą zdjęcia) — przyjęte jako dalsza praca
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: specy strony głównej, zrzuty strony głównej 4 × 2
+
+### BE-97 (BeautyEffect: Etap 4 K20 — strona „Oferta” i trasa `oferta`) — 2026-10-07
+- Archetyp: strona FE składająca gotowe komponenty + trasa, prerender, SEO; ok. 7 plików
+- Stawka: niska–średnia
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh` (419 s)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / read (RE7)
+- Dopuszczone alternatywy: Codex Sol `high` (> 5 plików); Codex review (recenzent)
+- Powód wyboru: pliki tras po kolei (K20 → K21), wolna linia Sparka
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-86
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany; wykonawca słusznie użył tokenu rytmu podstron zamiast sugerowanych w briefie tokenów pasów strony głównej
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 20 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RE7 — poprawny, P3 bez wpływu
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: spec strony z AXE, spec tras, build (prerender `/oferta`), zrzuty 4 × 2
+
+### BE-98 (BeautyEffect: Etap 4 K18 — panel grupy zabiegów) — 2026-10-07
+- Archetyp: komponent składający (karty, baner, kafle) ze stanem rozwinięcia; 4 pliki
+- Stawka: średnia
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` (795 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (RE8, 155 s)
+- Dopuszczone alternatywy: Spark `xhigh` (wykonawca, zajęty K20/K6fix); Spark read (recenzent)
+- Powód wyboru: wolna linia Gemini, ≤ 5 plików
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-86
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowany; błąd przesłanki briefu architekta (`GroupView.index` od 0 — w rzeczywistości od 1) — wykonawca zabezpieczył się warunkiem zamiast zatrzymać; architekt zamienił warunek na `group.index` (jedna linia)
+- Rundy korekt: 0 (poprawka architekta, jednolinijkowa)
+- Czas do akceptacji: ok. 17 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RE8 — brak defektów; przypadek „zmiana wejścia group” odrzucony (każda grupa ma własną instancję)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: 7/7 specy panelu, pełna walidacja (905 testów, build)
+
+### BE-99 (BeautyEffect: Etap 4 K21 — strona kategorii `/oferta/<slug>`, 9 tras, prerender, SEO) — 2026-10-07
+- Archetyp: strona FE składająca komponenty + zakładki (`ngTabs`/`ngTabPanel`) + trasy i SEO; 7 plików
+- Stawka: średnia (9 stron, SEO, prerender)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh` (463 s)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / read (RE9)
+- Dopuszczone alternatywy: Codex Sol `high` (pierwotny plan — przeniesiony na Sparka: 7 plików > 5)
+- Powód wyboru: jak w alternatywach
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-86
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany; jedyne odchylenie — jawny typ `ServerRoute` w `.map()` (bez niego TypeScript poszerzał `renderMode`)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 25 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RE9 — poprawny (0,98); P3 „brak testu zmiany `slug` na żywej instancji” odrzucone (9 osobnych tras — router tworzy nową instancję); RE9 słusznie wskazało, że brief pominął test planu „render z `PLATFORM_ID` server” — zastąpiony dowodem z artefaktu: HTML prerenderu 9 stron zawiera nazwy wszystkich zabiegów
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: 48 testów (strona × 9 z AXE, trasy), build — 15 tras prerenderowanych, panele nieaktywne z `inert` w HTML prerenderu, browser-check stron kategorii
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
