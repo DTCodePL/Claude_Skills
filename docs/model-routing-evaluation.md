@@ -2168,6 +2168,91 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak stwierdzonych do chwili wpisu
 - Wymagane testy i dowody: Vitest, lint, format, build (prerender 5 tras), SSR na 127.0.0.1 (tytuł, kanoniczny, jeden `h1`), `browser-check` 16/16 + 2/2
 
+### BE-76 (BeautyEffect: Etap 4 D4-A — UI-OFERTA punkt 5 i zdjęcia; „Rzęsy i brwi” w układzie wzoru) — 2026-10-07
+- Archetyp: dokumentacja produktu — wspólny układ stron kategorii + dopasowanie strony do wzoru, wybór zdjęć z oglądem klatek filmów; 2 pliki
+- Stawka: niska–średnia (źródło prawdy dla etapu 4 FE; bez niezmiennika)
+- Niepewność: średnia (przypisanie plików podglądu do katalogu, kadry filmów)
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / `-Access write` (1146 s)
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh`, `-Access read` (188 s)
+- Dopuszczone alternatywy: Spark (wykonawca); Codex (recenzent)
+- Powód wyboru: brief tekstowy z oglądem zdjęć i ffmpeg na Windows; przy ŻÓŁTYM tygodniu Claude'a tekst idzie do Spark/Gemini, Spark miał cztery równoległe briefy tej fali
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook, tydzień 93 %, 2026-10-07); Gemini nieznany (brak komunikatu limitu); Spark nieznany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowany z jedną luką (brak nagłówka zamknięcia `Ceny i rezerwacja`); błąd briefu (opis kadru w kolumnie tekstu alternatywnego) wykonawca słusznie przeniósł do kolumny „Plik”
+- Rundy korekt: 0 (dwie jednolinijkowe poprawki architekta)
+- Czas do akceptacji: ok. 45 min (z recenzją i oglądem klatek)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P1 brak nagłówka zamknięcia — potwierdzone; P1 kafle uzupełnienia a karta „Ściągnięcie” — odrzucone (makieta części 7/8 zatwierdzona przez właściciela); P2 łuk prawy na kadr filmu — odrzucone (ten sam plik dwa razy na stronie, film jest banerem); P2 napisy w kadrach 7 s / 9 s — architekt obejrzał, brak napisów, dopisana adnotacja; P3 ×2 — pozostawione
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: skrypt kontroli kotwic, fragmentów, nazw Booksy i linków; ogląd klatek filmów
+
+### BE-77 (BeautyEffect: Etap 4 D4-B — „Manicure i pedicure” w układzie Z-2 z kartą KA-1) — 2026-10-07
+- Archetyp: dokumentacja produktu — przebudowa strony kategorii na wzór, szkice opisów, wybór zdjęć; 1 plik
+- Stawka: niska
+- Niepewność: niska–średnia
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh` (244 s)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (587 s, wspólnie z D4-E)
+- Dopuszczone alternatywy: Gemini (wykonawca); Codex (recenzent)
+- Powód wyboru: brief tekstowy z gotowymi grupami; Spark z oglądem zdjęć przez interop
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-76
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany z jedną usterką
+- Rundy korekt: 0 (poprawka architekta: przywrócone dwie linie)
+- Czas do akceptacji: ok. 40 min (z recenzją)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P2 usunięte pytanie o rolkę Instagrama (pielęgnacja domowa stóp) i odnośnik do migawki Instagrama — potwierdzone; zakaz briefu dotyczył treści starej strony, nie Instagrama
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: skrypt kontroli dokumentów kategorii
+
+### BE-78 (BeautyEffect: Etap 4 D4-C + D4-K — „Pielęgnacja twarzy” w układzie Z-2, wiernie z Booksy) — 2026-10-07
+- Archetyp: dokumentacja produktu — przebudowa strony z wyjątkiem „wiernie z Booksy” (16 kart, 7 długich), ogląd klatek filmów; 1 plik
+- Stawka: średnia (wierność tekstów Booksy — decyzja właściciela)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh` (933 s); D4-K `high` (576 s, wszystkie cztery pliki w jednym przebiegu)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (762 s, wspólnie z D4-D)
+- Dopuszczone alternatywy: Gemini (wykonawca); Gemini (recenzent)
+- Powód wyboru: najdłuższy brief fali z wiernością Booksy; recenzja wierności — Sol z innej rodziny
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-76; Codex nieznany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: treść kart poprawna (kompletność Booksy potwierdzona przez recenzenta), ale przepisane wszystkie sekcje chronione briefem (z błędami: nawigacja bez dwóch kategorii, „ceny” w SEO, wizytówka Google w wejściach) i zbyt ostrożnie pominięty jedyny czysty film
+- Rundy korekt: 1 (D4-K; tekst dyktowany, diff sprawdzony przez architekta zamiast osobnej recenzji — nowe szkice pochodzą z propozycji recenzenta Codex; Spark sam wykrył i naprawił zbyt szeroką podmianę sekcji, jedno zdanie o filmie 002 poprawił architekt)
+- Czas do akceptacji: ok. 80 min (wykonanie, recenzja, korekta D4-K)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P2 baner — dostępny film 002 — potwierdzone (architekt wybrał fragment 8,5–10,5 s oglądem); P2 zmieniony zakres „Użytkowników” — potwierdzone, a architekt ustalił, że przepisano też „Cel”, „Dziedziczone wymagania”, „Wejścia”, „Nawigację” i SEO
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: skrypt kontroli; porównanie sekcji chronionych z wersją sprzed fali
+
+### BE-79 (BeautyEffect: Etap 4 D4-D + D4-K — „Pielęgnacja ciała” i „Medycyna estetyczna”, wiernie z Booksy) — 2026-10-07
+- Archetyp: dokumentacja produktu — dwie strony z wyjątkiem „wiernie z Booksy”, szkice dla zabiegów bez opisu; 2 pliki
+- Stawka: średnia (zabiegi medyczne, wierność Booksy)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh` (1030 s); D4-K `high` (576 s, wszystkie cztery pliki w jednym przebiegu)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (762 s, wspólnie z D4-C)
+- Dopuszczone alternatywy: Gemini (wykonawca); Gemini (recenzent)
+- Powód wyboru: jak BE-78
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-78
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: teksty Booksy kompletne; szkice dopowiadały niepotwierdzone szczegóły
+- Rundy korekt: 1 (D4-K; tekst dyktowany, diff sprawdzony przez architekta zamiast osobnej recenzji — nowe szkice pochodzą z propozycji recenzenta Codex; Spark sam wykrył i naprawił zbyt szeroką podmianę sekcji, jedno zdanie o filmie 002 poprawił architekt)
+- Czas do akceptacji: ok. 80 min (wykonanie, recenzja, korekta D4-K)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P2 nieprawdziwe przypisanie podziału do podglądu części 15 (×2; ten sam błąd architekt znalazł też w „Piercingu”) — potwierdzone; P2 masaż ajurwedyjski „ciała, z olejem” wbrew otwartej KO — potwierdzone; P2 termoaktywny „rozgrzewanie, potem masaż” bez źródła — potwierdzone; P2 urwany opis karty Bloomea — potwierdzone; P2 dwa pierwsze zdania Booksy na karcie NeoPulse — odrzucone (pytanie retoryczne i slogan nie mówią, czym jest zabieg; pełny tekst zostaje w „Dalszym opisie”)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: skrypt kontroli; porównanie z migawką Booksy
+
+### BE-80 (BeautyEffect: Etap 4 D4-E + D4-K — „Piercing” w układzie Z-2) — 2026-10-07
+- Archetyp: dokumentacja produktu — przebudowa strony kategorii bez zdjęć w katalogu (tylko jeden czysty film); 1 plik
+- Stawka: niska–średnia (zdanie o wieku 18+)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `xhigh` (322 s); D4-K `high` (576 s, wszystkie cztery pliki w jednym przebiegu)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (587 s, wspólnie z D4-B)
+- Dopuszczone alternatywy: Gemini (wykonawca); Codex (recenzent)
+- Powód wyboru: jak BE-77
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-76
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany z dwiema usterkami
+- Rundy korekt: 1 (D4-K, jedno zdanie) + jedna linia architekta
+- Czas do akceptacji: ok. 80 min (wykonanie, recenzja, korekta D4-K)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P1 (zgłoszone; realnie P2) brak pozycji „Treści do dostarczenia” o zdjęciach w miejsce paneli — potwierdzone; P3 zmiana opisu SEO (wiek tylko dla przekłuć igłowych) — zaakceptowana jako konieczna; przegapione przez recenzenta: nieprawdziwe zdanie o podglądzie części 15 (wykryte przez architekta po recenzji R2)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: skrypt kontroli dokumentów kategorii
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
