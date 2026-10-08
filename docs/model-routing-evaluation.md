@@ -2576,6 +2576,91 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak stwierdzonych do chwili wpisu
 - Wymagane testy i dowody: 48 testów (strona × 9 z AXE, trasy), build — 15 tras prerenderowanych, panele nieaktywne z `inert` w HTML prerenderu, browser-check stron kategorii
 
+### BE-100 (BeautyEffect: Etap 5 — audyt i poprawki dokumentów O nas, Jak się umówić, Kontakt, mapy) — 2026-10-08
+- Archetyp: audyt gotowości dokumentów (tylko odczyt) + dwie rundy poprawek spójności i decyzji właścicielki + recenzja dokumentów
+- Stawka: średnia (dokumenty wiążące dla wdrożenia trzech stron)
+- Niepewność: średnia (otwarte kwestie: formularz, sobota, gotówka, współrzędne)
+- Wykonawca (linia / model / native effort): A5 — Spark / `muse-spark-1.3-contributor` / `xhigh`, `-Access read` (249 s); W5 i W5b — Spark / `muse-spark-1.3-contributor` / `high` (226 s, 320 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (RD5, 307 s)
+- Dopuszczone alternatywy: Gemini `gemini-3.8-flash-high` (audyt, poprawki); Codex Sol (audyt)
+- Powód wyboru: Spark dla tekstowej, prostej pracy (preferencja właściciela — pula Codexa na recenzje); recenzja z innej rodziny niż autor
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude zablokowany (hook, CZERWONY — tydzień 99–100 %, cały etap 2026-10-08); Spark i Codex nieznany (brak komunikatów limitu); Gemini nieznany do E9 (patrz BE-102)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: A5 — rzetelny podział na poprawki A i decyzje B dla czterech dokumentów; W5 — poprawki wykonane, trzy trafne uwagi do briefu (adresat „Układu”, usuwanie zdania wiodącego, brzmienie „wyłącznie”); W5b — cztery decyzje właścicielki wpisane dosłownie
+- Rundy korekt: 0 (poprawka RD5 P2 wpisana przed zatwierdzeniem dokumentów)
+- Czas do akceptacji: ok. 1 h 30 min (z odpowiedziami właścicielki)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RD5 — P2 akapit laserowy sprzeczny z „Układem” (potwierdzony, poprawiony); P2 zależność polityki prywatności od formularza (potwierdzony, przeniesiony do etapu 6 — polityka); P3 kotwice po renumeracji sekcji (bez zmian)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: 398 lokalnych odnośników Markdown bez martwych (RD5), statusy dokumentów zmieniane tylko za zgodą właścicielki
+
+### BE-101 (BeautyEffect: Etap 5 fala 1 — lista godzin, rozszerzenia PageOpening/ClosingBand, kafle udogodnień, teksty) — 2026-10-08
+- Archetyp: wspólne komponenty FE i teksty `pl.json` pod trzy strony; 4 briefy o rozłącznych plikach
+- Stawka: średnia (komponenty współdzielone przez stronę główną i trzy podstrony)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): E1 lista godzin — Spark / `muse-spark-1.3-contributor` / `xhigh` (334 s); E2 PageOpening/ClosingBand + stałe salonu — Spark / `high` (244 s); E3 AmenityTiles — Gemini / `gemini-3.8-flash-high` (932 s); E4 `pl.json` (135 kluczy) — Spark / `xhigh` (209 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (RW1, 261 s, cała fala)
+- Dopuszczone alternatywy: Gemini dla E1/E2/E4; Spark dla E3; Codex Sol `high` (≤ 5 plików)
+- Powód wyboru: rozłożenie fali na dwie linie zewnętrzne; Claude zablokowany
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-100
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowane po walidacji; E1 24 testy, E2 44, E4 14; E3 wolny (932 s)
+- Rundy korekt: 1 (F1 — Spark `high`, 163 s: test miejsc `ClosingBand` z komponentem-gospodarzem; mutacja selektora czerwona → przywrócenie zielone)
+- Czas do akceptacji: ok. 50 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RW1 — P2 test miejsc `ClosingBand` przechodził niezależnie od selektorów (`projectableNodes` po indeksie) — potwierdzony; P3 spacje w tekstach wokół odnośnika — odrzucony (spacje stawia szablon, plan poprawiony)
+- Defekty po odbiorze: E3 — tytuł kafla 24/26 px zamiast 22 px z makiety; słowo „niepełnosprawnościami” (220 px) nie mieści się w kaflu: przy 320 px strona przewija się w poziomie (`scrollWidth` 333), przy 360 i 992–1440 px tekst wystaje poza kafel. Wykryte sondą przeglądarki architekta, nie przez testy ani recenzję; poprawione w F7 (Spark `high`; 22 px, `overflow-wrap: break-word`; Chrome na Windows nie dzieli polskich wyrazów przy `hyphens: auto`) — po przebudowie sonda: `scrollWidth` równy szerokości okna i 0/4 tytułów poza kaflem od 320 do 1440 px
+- Wymagane testy i dowody: specy z AXE, pokrycie kluczy `pl.json`, sonda `scrollWidth` 320–1440 px
+
+### BE-102 (BeautyEffect: Etap 5 fala 2 — sekcje Gemini: WY-2 + KB-1, KR-1 + KG-3, KP-1 + KZ-2) — 2026-10-08
+- Archetyp: sekcje stron z makiety HTML (układ na siatce Bootstrapa, grafika CSS, zdjęcia); 3 briefy po 4–8 plików
+- Stawka: średnia
+- Niepewność: średnia (odczyt makiety, szerokości pośrednie bez wzorca)
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` — E5 (761 s), E7 (1060 s), E9 (**failed**, 1804 s: limit tokenów wyjścia, potem 30-minutowy limit tury `agy`; artefakty kompletne i zielone, odebrane ręcznie)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (RW2, 306 s, cała fala 2 razem z BE-103)
+- Dopuszczone alternatywy: Spark `xhigh` (E12 i E14 przekwalifikowane z Gemini na Sparka w trakcie — obciążenie, potem porażka E9)
+- Powód wyboru: druga linia zewnętrzna dla równoległości fali
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini — rzeczywiste niepowodzenie E9 (2026-10-08 ok. 08:48), potem ponowna kwalifikacja; reszta jak BE-100
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: E5 — `font-family` w SCSS zamiast mixinów, test kolejności nie sprawdzał kolejności; E7 — kolumny przez własny `display: grid` od `lg` (łamie regułę siatki Bootstrapa), poziomy logotyp zamiast znaku salonu; E9 — `calc(auto + 12px)` (nieprawidłowa deklaracja), uniesienie bez `(hover: hover)`, czas bez tokenu, getter zamiast `computed`; we wszystkich trzech cienie z `--bty-text` zamiast roli `--bty-shade` (poprawił architekt)
+- Rundy korekt: 2 — F2 (Gemini `high`, 456 s: siatka Bootstrapa z dwiema kopiami `BookingActions`, znak salonu) i F3 (Spark `high`, 205 s — E9 przekwalifikowane po porażce Gemini, razem z E5); po oglądzie w przeglądarce F7 (Spark `high`): przyciski kroków wyrównane do lewej (`alignStart`), recenzja F7 — Codex `gpt-6.1-sol` `high` `-Mode review` (RW4, 117 s): brak znalezisk
+- Czas do akceptacji: ok. 2 h 30 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RW2 dla tych sekcji — P3 `font-family` (potwierdzony), P3 kolejność akapitów komfortu (potwierdzony); defekty E7/E9 znane architektowi przed recenzją
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu poza F7 (potwierdzone sondą przeglądarki po przebudowie)
+- Wymagane testy i dowody: specy z AXE, próba mutacyjna testu kolejności (czerwony → zielony), zrzuty 320/390/600/768/992/1440 px w obu motywach
+
+### BE-103 (BeautyEffect: Etap 5 fala 2 — sekcje Sparka: ZE-2, KN-1 + zasady, wskazówki, SK-1, GA-3 + MA-1) — 2026-10-08
+- Archetyp: jak BE-102; 5 briefów, w tym statyczny plan okolicy (SVG 97 KB skopiowany bajt w bajt jako szablon)
+- Stawka: średnia (GA-3: zero żądań do dostawców map, licencja OSM)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` — E6 `xhigh` (354 s), E8 `xhigh` (584 s), E10 `high` (221 s), E11 `xhigh` (304 s), E12 `xhigh` (372 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (RW2)
+- Dopuszczone alternatywy: Gemini `high`; Codex Sol `high` (≤ 5 plików)
+- Powód wyboru: Spark dla większości fali; E12 przekwalifikowany z Gemini
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-100
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: E6, E10, E11 bez uwag recenzji; E8 — tytuły kafli i etykieta zasady bez `h3`; E12 — licencja OSM pozycjonowana względem całego pasa (na telefonie w rogu karty), karta zasłania pinezkę przy 576–991 px (luka szerokości pośredniej w AT-SPEC — rozstrzygnięcie architekta, wiersz do potwierdzenia przez właścicielkę)
+- Rundy korekt: 1 — F4 (Spark `high`, 158 s, `h3`), F5 (Spark `xhigh`, 138 s, pojemnik planu, karta na planie od `lg`); po oglądzie w przeglądarce F7: licencja 52 px nad dolną krawędzią poniżej `lg` (karta przykrywała pole kliknięcia), łamanie adresu e-mail po `@` (`<wbr>`) w SK-1 przy 992–1199 px
+- Czas do akceptacji: ok. 2 h
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RW2 — 3 × P2 (licencja w złym miejscu, pinezka zasłonięta, brak `h3`) potwierdzone
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu poza F7 (RW4 bez znalezisk; sonda: e-mail łamie się tylko po `@`, licencja 12 px nad kartą i klikalna, pole 44 px). Otwarte pytanie do właścicielki: przy oknie szerszym niż 1280 px rysunek planu (1280 × 1280, stała skala z `zasoby/mapa`) kończy się przed krawędzią pasa na całą szerokość — luka dokumentów, nie wada wykonania
+- Wymagane testy i dowody: liczby elementów SVG równe plikowi źródłowemu (17 `path`, 7 `text`, 12 `g`), brak `iframe`/`script`/`img` w mapie, odnośnik licencji poza `role="img"`, zrzuty 320–1440 px
+
+### BE-104 (BeautyEffect: Etap 5 fale 3–4 — strony /o-nas, /umow-wizyte, /kontakt, trasy i prerender) — 2026-10-08
+- Archetyp: złożenie stron z gotowych sekcji + SEO + spec strony z AXE; trasy `loadComponent` i `RenderMode.Prerender`
+- Stawka: średnia (3 strony publiczne, SEO)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` — E13 `xhigh` (325 s), E14 `xhigh` (263 s), E15 `xhigh` (241 s), E16 `high` (111 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (RW3, 247 s — fale 3–4 i poprawki F2–F6 razem)
+- Dopuszczone alternatywy: Gemini `high` (strony); Codex Sol `high` (E16, 2 pliki)
+- Powód wyboru: Spark — krótkie briefy złożenia; E14 przekwalifikowany z Gemini
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-100
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: wszystkie 4 zielone za pierwszym razem (E13 7 testów, E14 7, E15 8, E16 35); E16 słusznie zastosował import względny jak istniejąca trasa `oferta` zamiast aliasu z briefu
+- Rundy korekt: 1 — F6 (Spark `high`, 109 s): wstęp „O nas” z `g-5` wystawał 4 px poza okno telefonu (marginesy wiersza −24 px przy 20 px dopełnienia kontenera), a `margin: 0` akapitów zerował odstęp pionowy; wykryte przez architekta przy czytaniu szablonu, nie przez recenzję. Architekt: szerokość akapitu zamknięcia 900 → 760 px (spójnie z pasem zamknięcia)
+- Czas do akceptacji: ok. 1 h 30 min z oglądem w przeglądarce
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RW3 — brak znalezisk (wada F6 i defekty wyglądu F7 umknęły recenzji z samego kodu)
+- Defekty po odbiorze: etykiety przycisków `Napisz na Instagramie` / `Napisz na Facebooku` w kartach kontaktu (SK-1) łamią się przy 992–1440 px i stały przy lewej krawędzi przycisku — wykryte na zrzutach 1440 px, poprawione jednym wierszem przez architekta (`text-align: center` na własnej klasie `.contact-card__action`), sprawdzone sondą
+- Wymagane testy i dowody: 105 plików / 1086 testów, build — 18 tras prerenderowanych, HTML prerenderu: jedno `h1`, `h2` w kolejności z dokumentów, kanoniczne adresy, brak zduplikowanych `id`; browser-check: pełny przebieg 29/32 zrzutów (limit czasu scenariusza 20 min — trzy brakujące komputer/ciemny dorobione po przebudowie) + 6 zrzutów szerokości pośrednich + 8 zrzutów 1440 px po F7, sondy `scrollWidth`, licencji mapy, łamania e-maila i wyrównania przycisków
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
