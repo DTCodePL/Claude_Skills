@@ -2797,6 +2797,23 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak stwierdzonych
 - Wymagane testy i dowody: 112 plików / 1312 testów, lint, format, build — 19 tras; sondy Chrome 390/1003/1440/2560 w obu motywach: odstęp treści do wierzchołka łuku (80/120 px), położenie pasa, wysokość strony i obu plam identyczne co do piksela przed i po, nakładka 28/48 px, bez przewijania w poziomie; zrzuty z rozciągniętym kontrastem — przed: prosta krawędź gradientu w prawym rogu na każdej szerokości komputera, po: gradient ciągły do łuku; pozostałe łuki (sekcja wyróżniona −80 px, pasy zamknięcia) bez zmian
 
+### BE-113 (BeautyEffect: mały, półprzezroczysty przycisk pauzy filmu otwarcia) — 2026-10-11
+- Archetyp: zmiana kontrolki w szablonie i SCSS (przycisk tekstowy → ikona z `aria-label`) + aktualizacja testów
+- Stawka: niska (wygląd; ograniczenie dostępności WCAG 2.2.2 i 1.4.11 — przycisk musi zostać i być rozpoznawalny)
+- Niepewność: niska; krycie koła i znaku architekt wyznaczył przed briefem pomiarem 36 klatek filmu w rogu przycisku (390/1440 px) — najmniejsza para dająca ≥ 3:1 na najjaśniejszym pikselu
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `high` — F1 (163 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `medium`, `-Mode review`
+- Dopuszczone alternatywy: Codex Sol `medium` jako wykonawca; Gemini `high` jako recenzent
+- Powód wyboru: prosta zmiana w 3 plikach z gotowym kodem w briefie — Spark; recenzja innej rodziny, tania — Sol `medium`
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark i Codex nieznany (wrapper, bez komunikatu limitu, 2026-10-11 12:55); Claude znany — ZIELONY (hook, 12:55)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zgodny z briefem; jedyne odchylenie — ręczne zawinięcie linii pod prettier zamiast `--write` (słuszne)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 20 min od briefu
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 defektów; recenzent nie miał wersji bazowej testów — brak osłabienia asercji sprawdził architekt w diffie (zamiany 1:1 i nowe asercje)
+- Defekty po odbiorze: brak stwierdzonych
+- Wymagane testy i dowody: 112 plików / 1313 testów, lint, format, build — 19 tras; sondy Chrome 1440/390 w obu motywach: start z `pi-pause` i `Wstrzymaj film`, klik → film stoi, `pi-play` i `Odtwórz film`, cel 32 × 32 px, fokus klawiaturą z pierścieniem, 0 błędów konsoli; zrzuty i zbliżenia rogu obejrzane
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
