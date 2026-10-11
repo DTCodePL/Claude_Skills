@@ -3048,6 +3048,23 @@ który kolejne wpisy mają potwierdzić albo obalić.
   - wdrożenie przez workflow: sonda zdrowia ✓; z zewnątrz oba adresy 200, 404, mapa strony i film 200;
   - `browser-check matrix` na żywym adresie HTTPS 16/16, 0 błędów konsoli i sieci.
 
+### BE-122 (BeautyEffect: tekst otwarcia, numer z +48, wyśrodkowany pasek stopki, kurtyna zdjęć z czterech krawędzi) — 2026-10-11
+- Archetyp: Frontend UI — dwa briefy w jednej fali: (1) i18n + stała + SCSS, (2) serwis odsłonięć (TS) + SCSS przejść + testy.
+- Stawka: niska (strona wizytówka, bez niezmiennika high-stakes).
+- Niepewność: niska (1); średnia (2) — interakcja przejść CSS z hydratacją.
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `medium` (1) i `high` (2 + korekta).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `medium`, `-Mode review`, jedna recenzja całej fali (inna rodzina niż autor).
+- Dopuszczone alternatywy: Gemini `gemini-3.8-flash-medium` (1), Codex `gpt-6.1-sol` `high` lub `wykonawca` Sonnet 5.5 `high` (2); recenzja: Gemini `gemini-3.8-flash-high` `-Access read`.
+- Powód wyboru: proste briefy bez Figmy i bez niezmiennika — pula Sparka zgodnie z preferencją użytkownika, pula Codexa na recenzję.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark `nieznany`, Codex `nieznany` (brak odczytu zapasu, 2026-10-11 ~20:15); Claude ZIELONY (hook).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: (1) zaakceptowany; (2) wymagał korekty.
+- Rundy korekt: (1) 0; (2) 1.
+- Czas do akceptacji: ~15 min (1, przebieg 313 s); ~25 min (2: przebieg 131 s + recenzja 90 s + korekta 143 s + walidacja).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 1 × P2 — `transition` kurtyny działało także w stanie ukrytym, więc przydział krawędzi po hydratacji animował stan ukryty (ćwiartka zdjęcia widoczna, odsłonięcie ze stanu pośredniego). Błąd tkwił w specyfikacji architekta, nie w wykonaniu. Odrzucone: 0. Spark w (1) słusznie wskazał niepełną listę specyfikacji do poprawy (normalizacja `\s+` z twardą spacją) i sam ją domknął zgodnie z punktem zakresu.
+- Defekty po odbiorze: brak stwierdzonych.
+- Wymagane testy i dowody: `npm run lint`, `format:check`, `npm test` 1351/1351, build (19 tras); przeglądarka na lokalnym SSR i na produkcji: zero przejść `clip-path` na ukrytych kurtynach, odsłonięcie animowane od przydzielonej krawędzi, pasek stopki 51/50 px (komputer i telefon), numer `+48 795 547 837`; CI i wdrożenie `Prod` zielone.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
