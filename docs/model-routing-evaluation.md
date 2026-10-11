@@ -2814,6 +2814,133 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak stwierdzonych
 - Wymagane testy i dowody: 112 plików / 1313 testów, lint, format, build — 19 tras; sondy Chrome 1440/390 w obu motywach: start z `pi-pause` i `Wstrzymaj film`, klik → film stoi, `pi-play` i `Odtwórz film`, cel 32 × 32 px, fokus klawiaturą z pierścieniem, 0 błędów konsoli; zrzuty i zbliżenia rogu obejrzane
 
+### BE-114 (BeautyEffect: teksty całej strony pod konwersję, SEO i GEO — i18n, JSON-LD, dokumenty stron) — 2026-10-11
+- Archetyp: wdrożenie zatwierdzonego planu treści — podmiana ok. 140 tekstów w i18n z aktualizacją testów przypinających teksty i dwiema drobnymi zmianami szablonu (B1), rozszerzenie danych strukturalnych (B3), aktualizacja 15 dokumentów stron (D1); decyzję, wymagania i docelowy plik tłumaczeń przygotował architekt
+- Stawka: średnia (treść publicznej strony, twierdzenia o zabiegach medycznych, dane dla wyszukiwarek; bez niezmiennika wysokiej stawki)
+- Niepewność: niska–średnia (testy przypinające stare teksty poza listą briefu; spójność dokumentów stron z i18n)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `high` — B1 (590 s), B3 (217 s), D1 (497 s), równolegle w jednej fali o rozłącznych plikach
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (R1, FE, 139 s); Gemini / `gemini-3.8-flash-high`, `-Access read` (R2, dokumentacja autorstwa Sparka i architekta, 769 s)
+- Dopuszczone alternatywy: Codex Sol `medium` jako wykonawca B3; Gemini `high` jako wykonawca D1; Spark `-Access read` odrzucony jako recenzent (autor)
+- Powód wyboru: briefy z twardą wyrocznią (docelowy plik tłumaczeń porównywany jako obiekt, gotowe pola JSON-LD) — Spark `high`; recenzja FE z innej rodziny — Sol `high`; dokumenty pisane przez Sparka i Claude'a — trzecia rodzina, Gemini
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark, Codex i Gemini nieznany (wrapper bez zapasu, bez komunikatu limitu, 2026-10-11 13:30–13:45); Claude znany — ZIELONY, potem ŻÓŁTY (hook, 13:30–16:00)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: B1 — plik tłumaczeń identyczny z docelowym, testy zaktualizowane bez osłabienia asercji, także cztery spoza minimalnej listy briefu (luka briefu architekta); forma `--include` z gwiazdkami w briefie nie znajduje testów — działa forma katalogowa; B3 — zgodny z briefem; D1 — 15 dokumentów stron zgodnych z i18n (166/166 brzmień), słusznie wskazał luki briefu: reguła „żadne stare brzmienie” musi wyłączać nazwy strukturalne i teksty-prefiksy, adnotacje pochodzenia stoją też w liniach „Pochodzenie:”
+- Rundy korekt: 0 dla wykonawców; architekt dopisał we własnych i trzech stronicowych dokumentach zdania wynikające z nowej decyzji (wierne przejęcie z Booksy → redakcja) oraz 6 poprawek po R2
+- Czas do akceptacji: ok. 2 h 30 min od briefów (z dwoma przebiegami zrzutów po ok. 10 i 4 min)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1 — 0 defektów; R2 — 6 potwierdzonych (P1 nieaktualne źródło JSON-LD w dokumencie strony — realnie P2; 3 × P2 nazwy udogodnień, podwójny nawias, brak dokumentu na liście zmian decyzji; 2 × P3 brak odnośnika `tel:` w tabeli działań, „jedno zdanie” przy dwóch zdaniach), 0 odrzuconych; dwa „błędne założenia briefu” R2 częściowo słuszne (akcent nagłówka nie jest regułą dokumentu strony)
+- Defekty po odbiorze: brak stwierdzonych w zakresie zmiany; zrzuty ujawniły dwie usterki układu sprzed zmiany (ucięta druga linia opisu dużego kafelka przy 320 px, nazwa kafelka na strzałce przy 320/768 px)
+- Wymagane testy i dowody: 113 plików / 1316 testów, lint, format, build — 19 tras; HTML z serwera na 15 adresach (długości tytułów i opisów, JSON-LD tylko na `/` i `/kontakt`, bez surowych kluczy); skrypt plan → i18n (116 zgodnych co do znaku, 25 odstępstw opisanych) i i18n → dokumenty stron; `browser-check matrix` 5 stron × 320/768/1440 jasny + 320 ciemny, 0 błędów konsoli i sieci
+
+### BE-115 (BeautyEffect: kafle mozaiki kategorii — nazwa na strzałce, ucięty opis dużego kafla) — 2026-10-11
+- Archetyp: naprawa układu responsywnego w SCSS komponentu z kontraktowymi testami skompilowanego SCSS (5 plików FE: 2 × SCSS, szablon, 2 × spec); geometrię zmierzył w przeglądarce architekt, brief podawał dokładny kod
+- Stawka: niska–średnia (wygląd publicznej strony głównej; bez niezmiennika wysokiej stawki)
+- Niepewność: średnia (zachowanie CSS: jednostki kontenera, `aspect-ratio` z ograniczeniami wymiarów)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `high` — brief główny (234 s), korekta (258 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `medium`, `-Mode review` (80 s)
+- Dopuszczone alternatywy: `wykonawca` (Sonnet `high`) lub Gemini `high` jako wykonawca; Gemini `-Access read` jako recenzent
+- Powód wyboru: brief z gotowym kodem i twardą wyrocznią (testy kontraktu SCSS, pomiar w przeglądarce) — Spark `high`, jak trzy zaakceptowane briefy tego dnia; krótka recenzja z innej rodziny — Sol `medium`
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark i Codex nieznany (wrapper bez zapasu, bez komunikatu limitu, 2026-10-11 16:15–16:30); Claude znany — ZIELONY (hook)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zgodny z briefem co do znaku; jedno słuszne odchylenie (pusta linia wymagana przez stylelint); dobre uwagi w sekcji „co błędne” (Sass upraszcza `calc` w `min()`, krótkie nazwy też maleją na wąskim kaflu)
+- Rundy korekt: 1 — błąd briefu architekta, nie wykonawcy: `aspect-ratio: 4 / 3` z `min-height` poszerzał duży kafel do 353 px przy 320 px (przeglądarka przenosi `min-height` przez proporcję na szerokość); wykrył go pomiar architekta po pierwszej fali, poprawka: wysokość `max(75cqi, …)` bez `aspect-ratio`
+- Czas do akceptacji: ok. 25 min od wysłania briefu (pomiar przed briefem ok. 15 min)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 zgłoszonych; recenzja bez przeglądarki przeoczyła P1 (poziome przewijanie strony przy 320–360 px, kafel szerszy od kolumny przy 375–390 px) — wniosek: recenzja SCSS układu nie zastępuje pomiaru w przeglądarce
+- Defekty po odbiorze: brak stwierdzonych
+- Wymagane testy i dowody: 113 plików / 1317 testów, lint, format, build — 19 tras; pomiar w Chrome przy 12 szerokościach (320–1440) w obu motywach: nazwa nie sięga strzałki (zapas ≥ 9,8 px), napis w 45 %, opis w dwóch wierszach, kafel w kolumnie, bez przewijania w poziomie; zrzuty mozaiki 320/360 ciemny/768/1024/1440
+
+### BE-116 (BeautyEffect: druga analiza tekstów całej strony pod konwersję, SEO i GEO — plan zmian) — 2026-10-11
+- Archetyp: analiza copywriterska i SEO/GEO całej strony (i18n ok. 110 KB, 15 prerenderowanych HTML-i, szablony, JSON-LD) z gotowymi brzmieniami; wynik to jeden plik planu w dokumentacji, bez zmian w kodzie; drugie przejście po wdrożeniu BE-114
+- Stawka: średnia (treść publicznej strony, twierdzenia o zabiegach medycznych i laserowych; bez niezmiennika wysokiej stawki)
+- Niepewność: średnia (ocena redakcyjna bez danych o wolumenie fraz; ryzyko wymyślonych faktów)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` — wybór linii przez właściciela („zrób to na gpt 6 sol”), `-Repo` = katalog dokumentacji (zapis tylko tam, FE poza piaskownicą), 1929 s, 6 wyszukiwań w sieci
+- Recenzent (linia / model / native effort): architekt — weryfikacja odczytem źródeł i skryptem plan → i18n; plan jest propozycją do akceptacji właścicielki, nie kodem
+- Dopuszczone alternatywy: Sol `xhigh` (nieznaczny wzrost jakości przy większym zużyciu puli Plus); Spark `xhigh` lub Gemini `high`, gdyby właściciel nie wskazał linii
+- Powód wyboru: linia wskazana przez właściciela; `high` jako kolano krzywej przy najmniejszej puli
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper bez zapasu, bez komunikatu limitu, 2026-10-11 16:14–16:46); Claude znany — ZIELONY (hook)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: 106 zmian tekstu (P1 29, P2 70, P3 7), 3 [szablon], D-7…D-9, M-7…M-10; skrypt: 106/106 kluczy istnieje, „Obecnie” zgodne co do znaku, limity 60/155 i HIGHLIGHT spełnione; fakty pod P1 z pokryciem w źródłach (kaucja — usługodawca, usuwanie pigmentu w Booksy, IPL Cutera); trafne znaleziska nieuchwycone w BE-114 (pięć instrukcji odstawiania leków, kaucja przypisana Booksy); słusznie zgłosił równoległe zmiany w drzewie (BE-115) zamiast uznać warunek „nic poza planem” za spełniony
+- Rundy korekt: 0 (zastrzeżenia architekta dopisane do planu, do rozstrzygnięcia przy akceptacji)
+- Czas do akceptacji: odbiór architekta ok. 15 min po przebiegu; akceptacja treści czeka na właścicielkę
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 4 zastrzeżenia redakcyjne architekta — skrócenie kafelków jako P1 nieaktualne po BE-115; dwa wstępy łamią zasady stylu briefu (zdanie bez informacji, opis strony zamiast zabiegów) i gubią frazy docelowe z własnej mapy fraz; opisy laserów gubią cel zabiegu; skrócone tytuły tracą frazy
+- Defekty po odbiorze: brak stwierdzonych błędów faktów
+- Wymagane testy i dowody: `git status` + porównanie diffów przed i po w FE i dokumentacji (zmiany spoza planu przypisane BE-115 po znacznikach czasu i rekordach wrappera); skrypt plan → `pl.json`; odczyt źródeł dla faktów P1
+
+### BE-117 (BeautyEffect: wdrożenie drugiego planu tekstów — i18n, nazwa dostępna „Czytaj więcej”, `@id`/`publisher` w JSON-LD, dokumenty stron) — 2026-10-11
+- Archetyp: wdrożenie zaakceptowanego planu treści — podmiana 84 tekstów i 2 nowe klucze z docelowego pliku tłumaczeń, `aria-label` przycisku z testem obu stanów (B1); `@id` i `publisher` w JSON-LD w nowym pliku pomocniczym (B2); aktualizacja 16 dokumentów stron i wymagania widoczności (D1); docelowy plik i 10 brzmień przygotował architekt
+- Stawka: średnia (treść publicznej strony, opisy zabiegów medycznych i laserowych, dane dla wyszukiwarek; bez niezmiennika wysokiej stawki)
+- Niepewność: niska dla kodu (twarda wyrocznia: plik docelowy, dokładne pola JSON-LD); średnia dla treści (teksty z planu Sola nie przeszły wcześniej niezależnej recenzji redakcyjnej)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `high` — B1 (224 s), B2 (154 s), D1 (632 s), równolegle w jednej fali o rozłącznych plikach
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (R1 — nowe teksty i kod FE, 526 s; teksty autorstwa Sola i Claude'a, kod Sparka — trzecia rodzina wobec obu); Codex / `gpt-6.1-sol` / `high`, `-Mode review` (R2 — izolowany diff D1, 288 s)
+- Dopuszczone alternatywy: Codex Sol `medium` jako wykonawca B2; Gemini `high` jako wykonawca D1; Sol jako recenzent R1 odrzucony (autor tekstów — rodzina Codex); Sol `medium` dla R2 odrzucony (przeoczony defekt w BE-115)
+- Powód wyboru: briefy z twardą wyrocznią i gotowym kodem — Spark `high`, jak w BE-114; recenzja treści poza rodzinami autorów — Gemini; dokumentacja Sparka przy zajętym Gemini — Sol `high` (17 dokumentów, spójność wewnętrzna)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark, Codex i Gemini nieznany (wrapper bez zapasu, bez komunikatu limitu, 2026-10-11 17:02–17:20); Claude znany — ZIELONY (hook, 17:10–17:25)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: B1 — plik tłumaczeń równy docelowemu, testy przypinające teksty zaktualizowane bez osłabienia asercji, `aria-label` z testem obu stanów; zgłosił 83 zamiast 84 zmian (dwie wartości w jednej tablicy — liczenie, nie brak); B2 — zgodny z briefem; D1 — 86/86 brzmień w dokumentach, zero starych, słusznie wskazał literówkę briefu (klucz bez prefiksu) i zawijanie linii w dokumentach jako pułapkę weryfikacji; jedna usterka: nowy punkt listy z wcięciem 4 zamiast 5 spacji (poprawił architekt)
+- Rundy korekt: 0 dla wykonawców; architekt wprowadził 5 wartości i 3 dokumenty po R1 oraz 4 dokumenty po R2 (zmiany jednolinijkowe)
+- Czas do akceptacji: ok. 30 min od briefów (ze zrzutami i dwiema recenzjami)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1 — 4 potwierdzone (P1 lipoliza bez objaśnienia pojęcia — realnie P2; P2 puste drugie zdanie opisu Larens; 2 × P3: wstęp laserów zgubił zabieg na wiotką skórę, wyróżnienie tropokolagenu), 1 odrzucone (P3 osobny spec funkcji pomocniczej); proponowane brzmienia R1 obiecywały efekt bez źródła — nie weszły; wszystkie 4 to defekty treści z planu Sola, przeoczone przy odbiorze planu przez architekta, nie defekty wykonawców; R2 — 2 potwierdzone (P2 reguły „dwa zdania” w 3 dokumentach sprzeczne ze skróconymi opisami — luka briefu D1 architekta; P3 adnotacja „dosłownie” przy poprawionym cytacie), 0 odrzuconych; 1186 linków, zero martwych
+- Defekty po odbiorze: brak stwierdzonych w zakresie zmiany; zrzut ujawnił usterkę sprzed zmiany (nazwa zakładki „Oczyszczanie i kwasy” łamie się w środku słowa przy 320 px)
+- Wymagane testy i dowody: 113 plików / 1318 testów, lint, format, build — mapa strony 15 adresów (dwukrotnie: po fali i po poprawkach); `pl.json` == plik docelowy; skrypt tabela → dokumenty w obie strony; HTML z serwera na 15 adresach (tytuły ≤ 65, opisy ≤ 146, JSON-LD `#salon`/`#website`/`publisher`, 24 nazwy „Czytaj więcej: …”); `browser-check matrix` 3 strony × 320 px jasny, 0 błędów konsoli i sieci
+
+### BE-118 (BeautyEffect: rozstrzygnięcia otwartych spraw tekstów — nazwy urządzeń jako odnośniki, przewijanie do kotwicy ze `scroll-margin-top`, teksty leków przy laserach) — 2026-10-11
+- Archetyp: kilka zmian po decyzjach architekta z upoważnienia właściciela:
+  - W1: trzy nazwy urządzeń jako `routerLink` z `fragment`, styl odnośnika i spec;
+  - W2: podmiana `ViewportScroller` na klasę przewijającą do kotwicy przez `scrollIntoView`, czyli z poszanowaniem `scroll-margin-top`; nowa klasa, provider, spec z red-green;
+  - W3: spłaszczenie bloku SCSS przekraczającego budżet stylu;
+  - teksty i dokumenty po stronie architekta.
+- Stawka: średnia. Treść medyczna przy laserach to leki i przeciwwskazania. Do tego przekrojowe przewijanie do kotwic w całej aplikacji. Bez niezmiennika wysokiej stawki.
+- Niepewność:
+  - W1 i W3 niska: twarda wyrocznia w specu i budżecie;
+  - W2 średnia: kontrakt `ViewportScroller` i SSR, a przyczyna zmierzona dopiero w przeglądarce.
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor`:
+  - W1 — `high`, 402 s;
+  - W2 — `high`, 357 s;
+  - W3 — `low`, 52 s.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review`:
+  - R3 — teksty i dokumenty architekta oraz kod W1, 310 s;
+  - R4 — W2 i poprawki tekstów po R3, 274 s.
+  
+  Rodzina inna niż oba źródła zmian (Spark, Claude).
+- Dopuszczone alternatywy:
+  - Gemini `high` `-Access read` jako recenzent R3 i R4;
+  - `wykonawca` (Sonnet `high`) dla W2 — odrzucony: koszt kontekstu w puli Claude'a, a brief miał twardą wyrocznię;
+  - `mechanik` dla W3 — odrzucony: start ok. 58 tys. tokenów wobec 52 s Sparka.
+- Powód wyboru:
+  - kod z gotową specyfikacją i pętlą lint/test — Spark (pamięć „Spark przejmuje prostą pracę”);
+  - recenzja treści medycznej i kontraktu frameworka — Sol `high`, jak R2 w BE-117 (0 fałszywych P0/P1).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas):
+  - Spark i Codex — nieznany: wrapper nie podaje zapasu i nie zgłosił limitu, 2026-10-11 15:42–16:11 UTC;
+  - Claude — znany, ZIELONY: hook, okno 5 h 16–17 %, tydzień 10 %.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia:
+  - W1 zgodny z briefem, red-green potwierdzony. Mimo to przy kontroli w przeglądarce wyszedł defekt: tytuł karty lądował pod nagłówkiem. Przyczyną była luka briefu architekta, który założył, że Angular przy `anchorScrolling` uwzględnia `scroll-margin-top`. Angular przewija współrzędnymi przez `window.scrollTo`.
+  - W2 zgodny. Trzy odchylenia wymusiły bramki repo (`sonarjs/cognitive-complexity`, `unbound-method`, `no-unnecessary-type-assertion`). Spark słusznie wskazał w briefie wzorzec asercji, który łamie lint.
+  - W3 zgodny.
+- Rundy korekt: 0 dla wykonawców.
+  - W2 to nowy brief na defekt ujawniony przez `browser-check`.
+  - W3 to nowy brief na ostrzeżenie budżetu po W1. Ostrzeżenie przeoczył architekt przy pierwszej walidacji, bo filtr wyjścia buildu nie obejmował budżetu.
+- Czas do akceptacji: ok. 35 min od briefu W1, z dwiema recenzjami i czterema przebiegami `browser-check`.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet):
+  - R3 — 3 potwierdzone, wszystkie w tekstach i dokumentach architekta, w kodzie W1 nic. Znaleziska:
+    - P2: akapity leków gubiły przeciwwskazanie „niedawno zakończona kuracja retinoidami”;
+    - P2: zniknęło objaśnienie „retinoidów” wymagane przez WP-PROSTY-JEZYK;
+    - P3: reguła w dokumencie obejmowała „każdą kartę” zamiast pięciu.
+    
+    0 odrzuconych.
+  - R4 — 0 znalezisk.
+  - Recenzja R3 nie wykryła złego lądowania kotwicy (sama zaznaczyła, że nie uruchamiała przeglądarki); wykrył je dopiero zrzut.
+- Defekty po odbiorze: brak stwierdzonych. Odnotowane rozbieżności sprzed zmiany:
+  - AT-SPECYFIKACJA-WYGLADU mówi „80 px pod paskiem”, a kod daje wysokość nagłówka + 72 px;
+  - nazwa zakładki „Oczyszczanie i kwasy” przy 320 px (z BE-117).
+- Wymagane testy i dowody:
+  - 114 plików / 1331 testów, lint 0, format 0;
+  - build 0 bez ostrzeżenia budżetu (19 stron prerenderowanych);
+  - spec klasy przewijania 8/8 z czerwonym przebiegiem przed poprawką.
+  - `browser-check matrix` (0 błędów konsoli i sieci):
+    - odnośniki urządzeń w 2 szerokościach × 2 motywach;
+    - lądowanie po kliknięciu trzech nazw i po wejściu na adres z kotwicą, przed i po poprawce;
+    - notka „Jak się umówić”, zamknięcie makijażu permanentnego i akapit „Przed wizytą” przy laserach.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
