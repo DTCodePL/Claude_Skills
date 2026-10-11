@@ -2971,6 +2971,40 @@ który kolejne wpisy mają potwierdzić albo obalić.
   - CI na `main` zielone;
   - `browser-check matrix` 40/40 (10 widoków × 2 szerokości × 2 motywy), 0 błędów konsoli i sieci.
 
+### BE-120 (BeautyEffect: odstęp karty zabiegu po odnośniku 80 px i margines paska zakładek na telefonie) — 2026-10-11
+- Archetyp: drobna poprawka CSS na podstawie specyfikacji i makiety, z testami kontraktu SCSS. Pięć plików jednej warstwy:
+  - `scroll-margin-top` karty: `+ 72px` → `+ 80px`;
+  - klasa `group-tabs__container` z `padding-inline: 8px` poniżej `sm`.
+
+  Dokument specyfikacji wyglądu uzupełnił architekt.
+- Stawka: niska (wygląd, bez niezmiennika).
+- Niepewność: niska. Przyczynę ustalił pomiar w Chrome przed briefem: „Oczyszczanie” ma 84 px, a obszar tekstu 83,3 px; margines kontenera wynosił 20 px zamiast 8 px z makiety.
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `medium` (256 s).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (R5). To rodzina inna niż oba źródła zmian (Spark, Claude). Codexa zostawiłem na bramki i trudniejsze recenzje.
+- Dopuszczone alternatywy: Spark `low` (jak W3 w BE-118); Codex Sol `high` jako recenzent.
+- Powód wyboru: krótki brief z dokładnymi wartościami i testami red-green — Spark `medium`. Przy samym przeniesieniu bloku bez testów wystarczył `low` (W3).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas):
+  - Spark i Gemini: nieznany (wrapper bez komunikatu limitu, 2026-10-11 16:43–16:55 UTC);
+  - Claude: znany — ZIELONY (hook, okno 5 h 22–25 %).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zgodny z briefem, red-green potwierdzony (4 asercje czerwone przed zmianą). Dwa odchylenia wymusiła bramka repo:
+  - osobny blok `describe` z powodu `sonarjs/max-lines-per-function`;
+  - `prettier --write` na własnym pliku.
+
+  Spark słusznie wskazał, że asercja strażnika (`overflow-wrap`) z natury nie bywa czerwona.
+- Rundy korekt: 0.
+- Czas do akceptacji: ok. 25 min od pomiaru przyczyny (z recenzją i zrzutami).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R5 — 0 znalezisk. Dwie trafne uwagi do briefu:
+  - „pod paskiem u góry” było niejednoznaczne (w specyfikacji to nagłówek P-2);
+  - „7 stron” to strony z zakładkami, nie wszystkie 9.
+- Defekty po odbiorze: brak stwierdzonych.
+- Wymagane testy i dowody:
+  - spece komponentów strony kategorii (11 plików, 103 testy);
+  - eslint, stylelint i prettier na własnych plikach;
+  - build do osobnego katalogu, bo w drzewie równolegle pracowała inna sesja;
+  - pomiar w Chrome: obszar tekstu zakładki 91 px przy 320 px, bez łamania słów na 7 stronach z zakładkami (320–390 px); karta staje dokładnie na wysokości nagłówka + 80 px (144 / 152 px);
+  - `browser-check matrix` przy 320 px w motywie jasnym i ciemnym, 0 błędów konsoli i sieci.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
