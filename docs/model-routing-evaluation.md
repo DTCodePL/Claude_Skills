@@ -2780,6 +2780,23 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak stwierdzonych; P3 zaakceptowane bez poprawki — bez JS przycisk spisu na telefonie jest widoczny, ale nieaktywny (lista i tak rozwinięta)
 - Wymagane testy i dowody: 112 plików / 1309 testów, lint, format, build — 19 tras, sitemap 15 adresów; prerender: jedno `h1`, dziewięć `h2` z `id`, kanoniczny, bez JSON-LD; sondy Chrome 390/1440 w obu motywach (nagłówek po skoku 88 px od góry, spis przyklejony `top` 96 px, fokus i `#id` w adresie, brak błędów konsoli i przewijania w poziomie), śledzenie aktywnej sekcji 1920 × 1080 / 1440 × 900 / 1024 × 700 i po zmianie rozmiaru, spis bez JS — 9 widocznych kotwic
 
+### BE-112 (BeautyEffect: łuk pasa oferty nachodzi na koniec otwarcia strony głównej) — 2026-10-11
+- Archetyp: poprawka wizualna w SCSS (separator sekcji, kolejność warstw) + kontrakt skompilowanego CSS w specach
+- Stawka: niska (wygląd strony głównej, bez niezmiennika)
+- Niepewność: niska po ustaleniu przyczyny; przyczynę (przezroczyste narożniki łuku pokazujące tło strony) wskazał użytkownik po długiej, chybionej analizie architekta (pomiary profilu rozmycia plam)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `high` — L1 (125 s), K1 (63 s, korekta)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `medium`, `-Mode review` (46 s)
+- Dopuszczone alternatywy: Codex Sol `medium` jako wykonawca; Gemini `high` jako recenzent
+- Powód wyboru: prosta zmiana w 5 plikach z gotowym kodem w briefie — Spark; recenzja tania i z innej rodziny — Sol `medium`
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark i Codex nieznany (wrapper bez zapasu, bez komunikatu limitu, 2026-10-11 12:40); Claude znany — ZIELONY (hook, 12:45)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zgodny z briefem co do znaku, sprawdzenia własnych plików zielone; pełne `npm test` wykazało 1 czerwony test w `theme/separators.spec.ts`, którego brief nie wymienił (kolejność deklaracji z nowego mixinu) — luka briefu architekta, nie wykonawcy
+- Rundy korekt: 1 — K1 (regex i nowy test `arc-overlap`); ponadto jednolinijkowe zaostrzenie asercji `position: relative` do bloku `:host` przez architekta po uwadze wykonawcy
+- Czas do akceptacji: ok. 25 min od briefu
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 defektów; recenzent słusznie obalił przesłankę briefu (pas nie musi przykrywać kontenera z `z-index: 1`, bo nakładka obejmuje tylko dolny odstęp)
+- Defekty po odbiorze: brak stwierdzonych
+- Wymagane testy i dowody: 112 plików / 1312 testów, lint, format, build — 19 tras; sondy Chrome 390/1003/1440/2560 w obu motywach: odstęp treści do wierzchołka łuku (80/120 px), położenie pasa, wysokość strony i obu plam identyczne co do piksela przed i po, nakładka 28/48 px, bez przewijania w poziomie; zrzuty z rozciągniętym kontrastem — przed: prosta krawędź gradientu w prawym rogu na każdej szerokości komputera, po: gradient ciągły do łuku; pozostałe łuki (sekcja wyróżniona −80 px, pasy zamknięcia) bez zmian
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
