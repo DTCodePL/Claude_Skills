@@ -2941,6 +2941,36 @@ który kolejne wpisy mają potwierdzić albo obalić.
     - lądowanie po kliknięciu trzech nazw i po wejściu na adres z kotwicą, przed i po poprawce;
     - notka „Jak się umówić”, zamknięcie makijażu permanentnego i akapit „Przed wizytą” przy laserach.
 
+### BE-119 (BeautyEffect: zdjęcia i film zamiast paneli typograficznych — materiały z Instagrama salonu i zdjęcia poglądowe z banku zdjęć) — 2026-10-11
+- Archetyp: podmiana danych konfiguracyjnych stron po decyzji właściciela.
+  - M2: 7 banerów grup, 3 łuki otwarcia lasera, łuk lasera na stronie „Oferta”, kafel lasera z filmem na stronie głównej, klucze `pl.json` (`PANEL_WORD` → `BANNER_ALT`, `OPENING.ALT`) i specy;
+  - kadry (13 plików w `public/`), decyzja, katalog zdjęć i dokumenty stron po stronie architekta.
+- Stawka: niska. Treść wizualna i teksty alternatywne, bez niezmiennika wysokiej stawki. Ryzyko leżało w licencji i granicach zdjęć poglądowych (bez twarzy i efektów), a to rozstrzyga decyzja, nie kod.
+- Niepewność: niska. Twarda wyrocznia: kontrola osieroconych kluczy i `BANNER_ALT` w specach, lint, build z prerenderem.
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `high`, `-Access write`, M2 — 350 s.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `medium`, `-Mode review`, R-M2 — 60 s. Rodzina inna niż wykonawca.
+- Dopuszczone alternatywy:
+  - Gemini `high` `-Access read` jako recenzent;
+  - Spark `medium` jako wykonawca — odrzucony: 17 plików, dane czterech rodzajów miejsc (baner, łuk otwarcia, łuk oferty, kafel z filmem) i ich specy;
+  - `wykonawca` (Sonnet `high`) — odrzucony: koszt kontekstu w puli Claude'a przy briefie bez Figmy.
+- Powód wyboru:
+  - dane z gotową specyfikacją i pętlą lint/test — Spark (pamięć „Spark przejmuje prostą pracę”);
+  - recenzja zgodności danych z plikami i kluczami — Sol `medium`; zakres nie wymagał `high`.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas):
+  - Spark i Codex — nieznany: wrapper nie podaje zapasu i nie zgłosił limitu, 2026-10-11 16:37–16:45 UTC;
+  - Claude — hook bez ostrzeżenia w tym oknie.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zgodny z briefem, jedno uzasadnione odchylenie. Spark obalił założenie briefu: szablon mozaiki renderował 9. kafel wyłącznie w gałęzi panelu. Dodał gałąź `@else` z kaflem zdjęcia i filmu jak kafle 4–8; architekt ją przyjął.
+- Rundy korekt: 0.
+- Czas do akceptacji: ok. 14 min od briefu do commitu, z recenzją, pełną walidacją i `browser-check`.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-M2 — 0 znalezisk; sprawdziła też gałąź `@else`.
+- Defekty po odbiorze: brak stwierdzonych. Błąd procesu po stronie architekta: `git add -A src` objął 5 plików równoległej sesji. Cofnięty przez `reset --soft` przed pushem; od tej pory commit tylko z jawną listą ścieżek.
+- Wymagane testy i dowody:
+  - 114 plików / 1336 testów, lint 0, format 0;
+  - build 0, 19 stron prerenderowanych;
+  - CI na `main` zielone;
+  - `browser-check matrix` 40/40 (10 widoków × 2 szerokości × 2 motywy), 0 błędów konsoli i sieci.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
