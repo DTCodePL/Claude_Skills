@@ -2712,6 +2712,74 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak stwierdzonych do chwili wpisu; ryzyko otwarte — zewnętrzny `<use>` w Firefox/WebKit niesprawdzony (zgodna wersja przeglądarek Playwright wymaga pobrania)
 - Wymagane testy i dowody: 105 plików / 1088 testów, lint, format, build — 18 tras; sonda Chrome 390/1440/1920/2560 px w obu motywach: plik `200 image/svg+xml`, klon renderuje się do krawędzi przy 2560 px, brak przewijania w poziomie i błędów konsoli; SHA-256 kopii w FE równy plikowi źródłowemu; CI na `main`
 
+### BE-108 (BeautyEffect: Etap 6 fala 1 — Seo/Open Graph, sitemap + robots, strona 404 NZ-1) — 2026-10-11
+- Archetyp: rozszerzenie usługi SEO ze specem + skrypt `postbuild` + strona błędu (szablon, SCSS, AXE)
+- Stawka: średnia (indeksowanie całej witryny, `noindex` na 404)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` — E1 `xhigh` (380 s), E3 `high` (120 s), E7 `xhigh` (280 s), F1b `high` (93 s, poprawka)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (RF1, 239 s — cała fala 1 razem z przekierowaniami BE-109)
+- Dopuszczone alternatywy: Gemini `high` (E3, E7); Codex Sol `high` (odrzucone — pula na recenzje)
+- Powód wyboru: Spark — rozłączne, krótkie briefy; `xhigh` przy zmianie wspólnej usługi (E1) i stronie z wyglądem z makiety (E7)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark i Codex `nieznany` (wrapper bez odczytu zapasu), bez komunikatów limitu; Claude ZIELONY (hook), 2026-10-11
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: wszystkie zielone na własnych plikach; walidacja fali — 2 czerwone testy w `app.routes.spec.ts` (zastępcze `Seo` bez nowej metody `applyNotFound` — plik poza listą E1), poprawione przez architekta jednym poleceniem; błąd briefu E3 (`prettier --check` na `.txt`) — odchylenie wykonawcy przyjęte
+- Rundy korekt: 1 — F1b (własna `font-family` w komponencie 404 → miksin `error-number` w `typography.scss`)
+- Czas do akceptacji: ok. 1 h z sondami HTTP i zrzutami 404 (390/1440, oba motywy)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RF1 dla tej części — 1 × P3 potwierdzone (font-family), 0 odrzuconych
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: sitemap 14 → 15 adresów, `robots.txt` z `Disallow: /design`, komplet OG/Twitter na `/kontakt`, 404 z tytułem, opisem i `noindex, nofollow`, bez kanonicznego; brak przewijania w poziomie
+
+### BE-109 (BeautyEffect: Etap 6 — przekierowania 301 ze starej strony i hostów, niezmiennik open redirect) — 2026-10-11
+- Archetyp: logika serwera SSR (Express) z niezmiennikiem bezpieczeństwa — normalizacja ścieżki, tabela 33 przekierowań, zmiana hosta
+- Stawka: wysoka (open redirect i pętle przekierowań — błąd cichy; ten sam kod obsłuży stary ruch i SEO)
+- Niepewność: średnia (różnice między dekodowaniem Expressa, parserem WHATWG i routerem Angulara)
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` (Opus 5.5 `xhigh`) — E5 (pierwszy przebieg, czas niezapisany), F1a (1249 s, poprawki RF1), F1c (167 s, poprawka RF3) — ten sam agent wznawiany przez SendMessage
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` — RF1 (wspólna z BE-108) i RF3 (259 s, wspólna z BE-111); dodatkowo automatyczny przegląd bezpieczeństwa sesji
+- Dopuszczone alternatywy: brak — niezmiennik bezpieczeństwa (reguła wysokiej stawki: tylko `wykonawca-opus`; Spark `xhigh` wyłącznie przy CZERWONYM)
+- Powód wyboru: open redirect = błąd bezpieczeństwa z cichym skutkiem
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ZIELONY (hook, 20–23 % okna 5 h), Codex `nieznany`, 2026-10-11
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: niezmiennik „nigdy obcy host” dotrzymany od początku (`//evil.com` → `/evil.com`), ale RF1 wykazała dwa skoki przy segmentach `..`/wewnętrznym `\` i brak dekodowania `%63ennik`; pośrednia wersja F1a złapana przez automatyczny przegląd (`join('/')` mógł dać wiodące `//`) — wersja końcowa zwija ukośniki po usunięciu kropek
+- Rundy korekt: 2 — F1a (normalizacja WHATWG, dekodowanie wyłącznie znaków niezastrzeżonych „do skutku” stosem, liniowo; wykonawca słusznie obalił przesłankę briefu: jedno przejście składa `%2e` z `%%32%65` i daje drugi skok) i F1c (kropka końcowa hosta, bez wyrażenia regularnego — ochrona przed cofaniem kwadratowym)
+- Czas do akceptacji: ok. 2 h 40 min (dwie rundy, testy mutacyjne)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RF1 — 2 × P2 potwierdzone; RF3 — 1 × P2 potwierdzone (kropka końcowa hosta); 0 odrzuconych
+- Defekty po odbiorze: brak stwierdzonych; incydenty procesu: (1) wykonawca wypisał wygenerowany klucz licencji deweloperskiej do własnego transkryptu (nie do plików ani usług) — w briefach dopisać zakaz wypisywania zawartości `.env.local` i plików generowanych z sekretów; (2) celowo zepsuta kopia kodu w teście mutacyjnym zostawiła zawieszony proces Vitest — architekt go zatrzymał; w kolejnych briefach: przebiegi mutacyjne z limitem czasu i zakaz zostawiania procesów
+- Wymagane testy i dowody: spec 166 testów (w tym „jeden skok” przez `new URL(location)`, niezmiennik na wektorach ataku, wydajność 50 000 kropek < 50 ms), czerwone przed poprawką (25/153 przed F1a, 20/166 przed F1c); sondy `curl`/Node na zbudowanym serwerze: `/..//evil.com`, `/a/../../evil.com`, `/x/%%32%65%%32%65/cennik/`, `/\evil.com`, `/x\..\cennik`, `%2F%2F`, hosty `www`/stara domena z kropką i portem — każdy jeden skok na własny host
+
+### BE-110 (BeautyEffect: Etap 6 fala 2 — JSON-LD BeautySalon, treść polityki w pl.json, spis treści PT-1) — 2026-10-11
+- Archetyp: dane strukturalne ze stałych + przeniesienie zatwierdzonego tekstu prawnego słowo w słowo do i18n z modelem bloków + komponent prezentacyjny spisu
+- Stawka: średnia–wysoka (tekst prawny musi być wierny dokumentowi; JSON-LD wpływa na wyniki wyszukiwania)
+- Niepewność: średnia (składanie zdań z części z odnośnikami, spacje na stykach)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` — E2 `xhigh` (221 s), E6a `xhigh` (639 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (RF2, 164 s)
+- Dopuszczone alternatywy: Gemini `high` (E2); Codex Sol `high` (odrzucone — pula na recenzje)
+- Powód wyboru: Spark `xhigh` — wierność tekstu i model danych bez niezmiennika
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-108
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: treść polityki (68 kluczy) wierna dokumentowi — RF2 złożyła i porównała wszystkie sekcje bez rozbieżności; JSON-LD zgodny z WP-WIDOCZNOSC; spis bez JS działa jako lista kotwic z pełną ścieżką (z `<base href="/">`)
+- Rundy korekt: 0 osobnych — jedyne znalezisko dołączone do briefu E6b (BE-111)
+- Czas do akceptacji: ok. 45 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RF2 — 1 × P2 potwierdzone (`position: sticky` na wewnętrznym `nav`, którego rodzic nie zostawia miejsca na przesunięcie — spis się nie przyklejał), 0 odrzuconych
+- Defekty po odbiorze: brak stwierdzonych; uwaga architekta dla właścicielki: zdanie o przedawnieniu w zatwierdzonym tekście jest nieprecyzyjne prawnie — tekst bez zmian
+- Wymagane testy i dowody: spec sekcji (każdy klucz istnieje i nie jest pusty, brak `[`, liczba części z odnośnikami), spec spisu z AXE, testy JSON-LD; prerender — JSON-LD tylko na `/` i `/kontakt`
+
+### BE-111 (BeautyEffect: Etap 6 fala 3 — strona /polityka-prywatnosci, trasa, prerender, aktywna sekcja) — 2026-10-11
+- Archetyp: złożenie strony z gotowych danych i komponentów + interakcja przeglądarkowa (IntersectionObserver, przewinięcie i fokus, `Location.replaceState`)
+- Stawka: średnia (publiczna strona wymagana prawem; dostępność nawigacji)
+- Niepewność: średnia (kolejność renderu przy zwijaniu spisu, semantyka `rootMargin`)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` — E6b `xhigh` (1221 s), K6b `xhigh` (625 s, poprawki)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (RF3, 259 s — wspólna z BE-109)
+- Dopuszczone alternatywy: Gemini `high`; `wykonawca` Sonnet 5.5 `high` (odrzucony — brief tekstowy bez Figmy)
+- Powód wyboru: Spark `xhigh` — logika przeglądarkowa bez niezmiennika wysokiej stawki
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-108
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielone 54/54, poprawne odchylenia z uzasadnieniem (`prettier-ignore` dla sklejania części bez białych znaków, wymóg nazwy dostępnej bez wielkości liter); sondy architekta w Chrome wykazały skok ze spisu na telefonie o 293 px za nagłówek (przewinięcie liczone przed zwinięciem listy) — test jednostkowy tego nie widział
+- Rundy korekt: 1 — K6b (przewinięcie w `afterNextRender`, stan przecięć w zbiorze zamiast z niepełnych `entries`, `rootMargin` w pikselach z odtwarzaniem po zmianie rozmiaru okna); test skoku czerwony przed poprawką
+- Czas do akceptacji: ok. 1 h 15 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RF3 dla tej części — 2 × P2 potwierdzone (aktywna sekcja z niepełnego stanu; procent `rootMargin` liczony wg specyfikacji W3C od szerokości — Chrome liczy od wysokości, więc sonda w Chrome go nie wykryła); 0 odrzuconych; skok na telefonie podany recenzentowi jako znany
+- Defekty po odbiorze: brak stwierdzonych; P3 zaakceptowane bez poprawki — bez JS przycisk spisu na telefonie jest widoczny, ale nieaktywny (lista i tak rozwinięta)
+- Wymagane testy i dowody: 112 plików / 1309 testów, lint, format, build — 19 tras, sitemap 15 adresów; prerender: jedno `h1`, dziewięć `h2` z `id`, kanoniczny, bez JSON-LD; sondy Chrome 390/1440 w obu motywach (nagłówek po skoku 88 px od góry, spis przyklejony `top` 96 px, fokus i `#id` w adresie, brak błędów konsoli i przewijania w poziomie), śledzenie aktywnej sekcji 1920 × 1080 / 1440 × 900 / 1024 × 700 i po zmianie rozmiaru, spis bez JS — 9 widocznych kotwic
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
