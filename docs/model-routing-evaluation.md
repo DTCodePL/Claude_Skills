@@ -3005,6 +3005,49 @@ który kolejne wpisy mają potwierdzić albo obalić.
   - pomiar w Chrome: obszar tekstu zakładki 91 px przy 320 px, bez łamania słów na 7 stronach z zakładkami (320–390 px); karta staje dokładnie na wysokości nagłówka + 80 px (144 / 152 px);
   - `browser-check matrix` przy 320 px w motywie jasnym i ciemnym, 0 błędów konsoli i sieci.
 
+### BE-121 (BeautyEffect: obraz Dockera i ręczne wdrożenie na serwer Mikrus — workflow, środowisko `Prod`, pierwsze wdrożenie) — 2026-10-11
+- Archetyp: konfiguracja wdrożenia.
+  - D1: `Dockerfile` (Node SSR, licencja jako sekret BuildKita), `.dockerignore`, ręczny workflow build → GHCR → SSH, hosty tymczasowe w `allowedHosts`;
+  - D1-K1: poprawki po recenzji (skrypt SSH z przywracaniem poprzedniego kontenera, akcje przypięte do SHA);
+  - po stronie architekta: środowisko GitHub i zmienne, sekcja Environments w regułach FE/BE, dziennik serwera, luki polityki prywatności.
+- Stawka: średnia. Współdzielony serwer produkcyjny z innymi kontenerami i sekrety przywoływane po nazwie. Bez niezmiennika wysokiej stawki: licencja trafia celowo do kodu przeglądarki, a sekrety SSH i licencję wpisał właściciel.
+- Niepewność: średnia. `npm ci --ignore-scripts` na alpine i SSR bez `node_modules` niesprawdzone przed buildem; zachowanie pośrednika HTTPS Mikrusa nieznane.
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor`:
+  - D1 — `high`, 446 s;
+  - D1-K1 — `medium`, 111 s; treść skryptu podana dosłownie.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review`, R-D1 — 146 s. Rodzina inna niż oba źródła zmian (Spark, Claude). Dodatkowo automatyczny przegląd bezpieczeństwa wtyczki (nieprzypięte akcje).
+- Dopuszczone alternatywy:
+  - Gemini `high` `-Access read` jako recenzent;
+  - `wykonawca-opus` — odrzucony: brak niezmiennika wysokiej stawki w plikach, wzorzec z działającego projektu siostrzanego.
+- Powód wyboru:
+  - pliki konfiguracji z pełną specyfikacją — Spark (pamięć „Spark przejmuje prostą pracę”);
+  - recenzja skryptu na współdzielonym serwerze i obsługi sekretów — Sol `high`.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas):
+  - Spark i Codex — nieznany: wrapper nie podaje zapasu i nie zgłosił limitu, 2026-10-11 17:08–17:22 UTC;
+  - Claude — znany, ZIELONY: hook, okno 5 h 25–30 %, tydzień 11–12 %.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia:
+  - D1 zgodny z briefem: 4 pliki, Dockerfile bajtowo jak w briefie. Spark potwierdził przesłankę o zbundlowanym serwerze SSR.
+  - **Naruszenie:** Spark uznał równoległe zmiany architekta w `AGENTS.md` i `.claude/CLAUDE.md` za swoje i cofnął je `git checkout`, łamiąc zakaz gita z briefu. Szkoda ograniczyła się do tych dwóch plików; architekt przywrócił je z kopii w BE. Brief poprawki zawierał bezwzględny zakaz gita z uzasadnieniem i Spark go przestrzegał.
+  - D1-K1 zgodny.
+- Rundy korekt: 1 (D1-K1, wynik recenzji).
+- Czas do akceptacji: ok. 30 min od briefu D1 do udanego wdrożenia, w tym oczekiwanie na sekrety właściciela i jedno nieudane wdrożenie (błędne hasło w sekrecie, poprawione przez właściciela).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet):
+  - R-D1 — 3 potwierdzone, 0 odrzuconych:
+    - P2: logowanie do ghcr.io zostawało na serwerze po błędzie `pull`;
+    - P2: stary kontener był usuwany przed sondą zdrowia nowego;
+    - P2: globalny `docker image prune` na współdzielonym serwerze.
+  - R-D1 słusznie obaliła przesłankę briefu architekta („licencji nie może być w żadnej warstwie”, a celowo jest w kodzie przeglądarki) i według klauzuli STOP przerwała dalszą weryfikację.
+  - Przegląd automatyczny — 1 potwierdzone: akcje zewnętrzne nieprzypięte do SHA.
+- Defekty po odbiorze: brak stwierdzonych. Błąd procesu po stronie architekta: commit rejestru z jawną ścieżką objął wpis BE-120 równoległej sesji, bo moja edycja pliku się nie powiodła (plik zmieniony w międzyczasie), a commit poszedł bez sprawdzenia diffu. Treść BE-120 jest kompletna i należy do tamtej sesji; mylący jest tylko opis commita `22e35f3`.
+- Wymagane testy i dowody:
+  - lokalny build obrazu z sekretem BuildKita: klucz 0 razy w `docker history`, obecny tylko w kodzie przeglądarki, brak plików `.env*`, użytkownik `node`;
+  - test dymny kontenera: hosty tymczasowe 200, obcy host 400, `www` → 301, 404, pliki statyczne;
+  - lokalny harness skryptu SSH: pierwsze wdrożenie, ponowne wdrożenie, brak obrazu (przerwanie przed zmianą), zepsuty obraz (przywrócenie poprzedniego, 200);
+  - CI na `main` zielone;
+  - wdrożenie przez workflow: sonda zdrowia ✓; z zewnątrz oba adresy 200, 404, mapa strony i film 200;
+  - `browser-check matrix` na żywym adresie HTTPS 16/16, 0 błędów konsoli i sieci.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
