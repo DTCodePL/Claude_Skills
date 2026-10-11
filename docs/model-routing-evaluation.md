@@ -2661,6 +2661,57 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: etykiety przycisków `Napisz na Instagramie` / `Napisz na Facebooku` w kartach kontaktu (SK-1) łamią się przy 992–1440 px i stały przy lewej krawędzi przycisku — wykryte na zrzutach 1440 px, poprawione jednym wierszem przez architekta (`text-align: center` na własnej klasie `.contact-card__action`), sprawdzone sondą
 - Wymagane testy i dowody: 105 plików / 1086 testów, build — 18 tras prerenderowanych, HTML prerenderu: jedno `h1`, `h2` w kolejności z dokumentów, kanoniczne adresy, brak zduplikowanych `id`; browser-check: pełny przebieg 29/32 zrzutów (limit czasu scenariusza 20 min — trzy brakujące komputer/ciemny dorobione po przebudowie) + 6 zrzutów szerokości pośrednich + 8 zrzutów 1440 px po F7, sondy `scrollWidth`, licencji mapy, łamania e-maila i wyrównania przycisków
 
+### BE-105 (BeautyEffect: Etap 6 — audyt dokumentów, decyzje właścicielki, SEO, przekierowania) — 2026-10-11
+- Archetyp: dokumentacja produktu — audyt spójności (tylko odczyt) i redakcja wymagań (SEO, mapa stron, dane salonu, kwestie otwarte) z wpisaniem decyzji właścicielki
+- Stawka: średnia (wymagania wiążące dla fal FE etapu 6; statusy zatwierdzenia tylko za zgodą właścicielki)
+- Niepewność: średnia (kilka decyzji właścicielki zapadło w trakcie)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` — A6 `xhigh` `-Access read` (327 s, audyt), W6 `high` (305 s), W6b `high` (336 s), W6d `high` (248 s, poprawki po recenzji — także polityka, BE-106)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (RD6, 467 s — W6, W6b, W6c, W6m razem)
+- Dopuszczone alternatywy: Gemini `high` (redakcja dokumentów); Codex Sol `high` (wykonanie — odrzucone, pula Codexa zostaje na recenzje)
+- Powód wyboru: Spark — tekst w repo dokumentacji bez kodu, krótkie briefy; audyt na `xhigh`, bo wyniki decydowały o pytaniach do właścicielki
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark i Codex `nieznany` (wrapper bez odczytu zapasu), bez komunikatów limitu, 2026-10-11
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: A6 — rzetelny audyt (m.in. sprzeczność „w tym plików cookies” z wariantem bez analityki, brak `hreflang`), podstawa pytań do właścicielki; W6 i W6b zgodne z briefami; RD6 znalazła w WP-WIDOCZNOSC `Disallow: /design/` (nie blokował samego `/design` po regule kanonicznej)
+- Rundy korekt: 1 — W6d (razem z poprawkami polityki); architekt dopisał jednym wierszem atrybucję decyzji właścicielki w decyzji o mapie (luka zgłoszona przez W6d)
+- Czas do akceptacji: ok. 1 h pracy workerów (bez czasu na odpowiedzi właścicielki); dokumenty etapu 6 czekają na zatwierdzenie
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RD6 — 5 × P2 potwierdzonych (1 tutaj, 4 w BE-106), 0 odrzuconych; RD6 sprawdziła też 567 linków względnych (0 martwych)
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: grep sprawdzeń z briefu W6d, martwe linki 0, statusy bez zmian poza zgodą właścicielki; CEIDG odpowiadał 403 automatom — administrator ustalony z białej listy MF (bez zapisywania numerów rachunków)
+
+### BE-106 (BeautyEffect: Etap 6 — projekt treści polityki prywatności) — 2026-10-11
+- Archetyp: tekst prawny dla odwiedzającej (prosty język, forma „Ty”) ze znacznikami danych i sekcją luk dla prawnika
+- Stawka: średnia–wysoka (dokument prawny RODO; publikacja dopiero po zatwierdzeniu i zalecanym przeglądzie prawnika)
+- Niepewność: średnia (role Booksy, retencja, IOD — luki dla właścicielki i prawnika)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` — W6c `xhigh` (117 s), poprawki w W6d `high`
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (RD6, wspólna z BE-105)
+- Dopuszczone alternatywy: Gemini `high`; Codex Sol `high` (wykonanie — odrzucone, pula na recenzje)
+- Powód wyboru: Spark `xhigh` — tekst z wieloma zależnościami między dokumentami, ale bez niezmiennika kodu
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-105
+- Pewność decyzji: średnia (krótki przebieg `xhigh` przy tekście prawnym — wymagał rundy poprawek)
+- Wynik pierwszego podejścia: wymagane korekty — notatki dla redakcji i zdania „potwierdzi prawnik” w tekście dla odwiedzającej, błędy gramatyczne („Twoje dane używamy”), mylący nagłówek sekcji 3 o usługach osadzonych (strona nic nie osadza) — wykryte przez architekta; RD6 dołożyła 4 merytoryczne
+- Rundy korekt: 1 — W6d: znaczniki `[administrator]` itd. objaśnione w „Zastrzeżeniu”, rezerwacje laserowe telefonicznie i retencja danych rezerwacji, bez adresu pocztowego UODO, IOD przeniesiony do luk
+- Czas do akceptacji: ok. 25 min do zgodności z recenzją; zatwierdzenie treści czeka na właścicielkę
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RD6 — 4 × P2 potwierdzone (rezerwacje telefoniczne, nieaktualny adres UODO, nazwisko administratora wpisane na stałe, brak inspektora podany jako fakt), 0 odrzuconych
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu
+- Wymagane testy i dowody: grep — w sekcji „Treść” zero zdań do redakcji i prawnika, nazwiska administratora ani zdań o inspektorze; nazwy dziewięciu sekcji identyczne w PRAWO i UI-POLITYKA; martwe linki 0. Uwaga architekta: literówka w briefie W6c („możesz, że”) poprawiona przed wysłaniem
+
+### BE-107 (BeautyEffect: Etap 6 — szerszy plan okolicy 2560 × 1280 z OSM, osobny plik przez `<use>`) — 2026-10-11
+- Archetyp: generator SVG w repo dokumentacji (Python, dane Overpass) + komponent FE (szablon, SCSS ze zmiennymi z tokenów, spec z odczytem pliku)
+- Stawka: średnia (publiczna strona Kontakt, zero żądań do dostawców map, licencja OSM, oba motywy)
+- Niepewność: średnia (zewnętrzny `<use>` i dziedziczenie zmiennych CSS do klonu; Safari/Firefox niesprawdzone)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` — W6m `high` (237 s, generator i plik), E8 `xhigh` (305 s, FE), F8 `high` (60 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` — RD6 (generator, granice, struktura SVG) i RE8 (138 s, FE)
+- Dopuszczone alternatywy: Gemini `high` (generator); Codex Sol `high` (E8 — 5 plików, odrzucone ze względu na pulę)
+- Powód wyboru: Spark — jasno opisana zmiana o rozłącznych plikach; E8 na `xhigh` przez nowy mechanizm `<use>`
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-105
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: W6m — plik 227 258 B (tolerancja 1,5 m), zgodny ze specyfikacją; E8 — zielone testy i lint; błąd architekta w briefie E8 (precedens z nieistniejącym specem `design-system-mirror`) poprawiony na `theme-boot-script.spec.ts`
+- Rundy korekt: 1 — F8 (stała i funkcja pomocnicza specu na poziomie modułu → do `describe`, reguła „one declaration per file”)
+- Czas do akceptacji: ok. 45 min z oglądem w przeglądarce
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RE8 — 1 × P3 potwierdzone, 0 odrzuconych; RD6 bez znalezisk dla planu
+- Defekty po odbiorze: brak stwierdzonych do chwili wpisu; ryzyko otwarte — zewnętrzny `<use>` w Firefox/WebKit niesprawdzony (zgodna wersja przeglądarek Playwright wymaga pobrania)
+- Wymagane testy i dowody: 105 plików / 1088 testów, lint, format, build — 18 tras; sonda Chrome 390/1440/1920/2560 px w obu motywach: plik `200 image/svg+xml`, klon renderuje się do krawędzi przy 2560 px, brak przewijania w poziomie i błędów konsoli; SHA-256 kopii w FE równy plikowi źródłowemu; CI na `main`
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
