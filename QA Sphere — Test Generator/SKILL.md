@@ -2,16 +2,18 @@
 name: qasphere-test-generator
 description: Generuje kompletny zestaw test case'ów (happy + negative paths, dążąc do 100% pokrycia przypadków użycia) na podstawie wykonanego zadania/feature'a i tworzy je bezpośrednio w QA Sphere — przez serwer MCP `qasphere`, a w środowisku bez MCP przez REST API. Test casy są po polsku, standalone, z pełnymi repro stepami (dane wejściowe, wyjściowe, instrukcje konfiguracji) tak, by wykonała je osoba widząca aplikację pierwszy raz. Skill sam mapuje repozytorium na właściwy projekt w QA Sphere. UŻYWAJ ZAWSZE, gdy user prosi o wygenerowanie test case'ów, pokrycie testowe, "testy do tego feature'a", "pokryj testami", "wrzuć testy do QA Sphere", "test casy z tego co zrobiliśmy" — nawet jeśli nie padnie słowo "skill" ani "QA Sphere" wprost, a kontekstem jest właśnie ukończone zadanie deweloperskie.
 user-invocable: true
-version: 1.5
+version: 1.6
 ---
 
-# QA Sphere — Test Generator (v1.5)
+# QA Sphere — Test Generator (v1.6)
 
 > Kanoniczna, wersjonowana wersja skilla. Źródło prawdy: `DTCodePL/Claude_Skills`.
 > Lokalnie używany jest tylko cienki loader, który pobiera ten plik z GitHuba.
 >
 > **Changelog**
 >
+> - **1.6** — autor pliku podglądu: Spark `max` zamiast `xhigh` (2026-10-12, routing globalny reguła 8:
+>   pula Sparka nie dobija do limitów, `max` ma 2× wyższy Terminal-Bench 4.0 za ~17 % więcej tokenów).
 > - **1.5** — **podział pracy w Claude Code** (sekcja „Podział pracy” pod Krokiem 0): sesja architekta nie pisze
 >   ani nie przepisuje treści przypadków i nie woła `create_test_case` / `update_test_case` — przypadki pisze Spark
 >   `xhigh` do pliku podglądu, recenzuje inna rodzina modeli, a wysyła, poprawia i weryfikuje trwały skrypt
@@ -80,7 +82,7 @@ workery na osobnych abonamentach; wysyłka to praca dla skryptu, nie dla modelu.
 | Krok                                                                   | Kto                                                                                                       | Jak                                                                                                                                                                                                                                 |
 | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 0–1, 4a — transport, projekt, custom fieldy, foldery, duplikaty        | architekt                                                                                                 | `qas.py context --project <P> --search "<fraza>" [--folder-id <N>] --out <katalog>\context.json` — jedno polecenie zamiast serii odczytów MCP                                                                                   |
-| 2–4c + plik podglądu (5.1); poprawki istniejących przypadków (`updates`) | **Spark `xhigh`** (`-Access write`); Gemini `-Access write`, gdy Spark w tej fali zajęty albo zgłosił limit | brief z szablonu niżej; worker czyta ten plik jako specyfikację                                                                                                                                                                     |
+| 2–4c + plik podglądu (5.1); poprawki istniejących przypadków (`updates`) | **Spark `max`** (`-Access write`); Gemini `-Access write`, gdy Spark w tej fali zajęty albo zgłosił limit | brief z szablonu niżej; worker czyta ten plik jako specyfikację                                                                                                                                                                     |
 | kontrola kształtu                                                      | architekt                                                                                                 | `qas.py lint <plik> --context <context.json>` — błędy wracają briefem korekty do tej samej linii                                                                                                                                    |
 | recenzja treści                                                        | inna rodzina niż autor: plik Sparka → Gemini `-Access read`, plik Gemini → Spark `-Access read`            | fakty (komunikaty dosłownie z `pl.json`/`en.json`, trasy, konta i dane z seedów), pokrycie kategorii Kroku 2, przypadki „obchodzące” znany defekt; każde P0/P1 architekt obala jednym poleceniem, zanim zleci korektę              |
 | poprawki po recenzji i po bramie                                       | linia autora — brief korekty                                                                               | architekt nie edytuje pliku; wyjątek: pojedyncza fraza wskazana przez użytkownika na bramie                                                                                                                                         |

@@ -3161,4 +3161,24 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Linie Codex, Spark i Gemini bez nowych dostępnych modeli; Gemini 4 Argon jest poza AI Pro.
 - Zgodność kopii wspólnej sekcji potwierdził `sync-routing.py --check`. Recenzji innej rodziny nie było (dokumentacja reguł, nie kod).
 
-**Następny przegląd:** po kolejnych 10–15 istotnych briefach albo po wyniku próby testera, zależnie od tego, co nastąpi wcześniej.
+**Decyzje właściciela po przeglądzie (2026-10-12):**
+
+- **Spark domyślnie `max` we wszystkich rolach:** wykonawca, recenzent, audyt, autor QA Sphere, wyjątek CZERWONEGO i stały recenzent próby testera, która nie miała jeszcze briefu.
+  - Niższy effort tylko z uzasadnieniem zapisanym w briefie i we wpisie.
+  - Przesłanki:
+    - 649 przebiegów Sparka z 2026-09-21…10-11 bez komunikatu limitu (dwa 402 to przejściowa weryfikacja płatności);
+    - TB4 `max` 0,333 wobec `xhigh` 0,167 za ~17 % tokenów więcej;
+    - koszt: ~2× dłuższy przebieg.
+  - Ocena po 10–15 briefach na `max`, wobec rund z wykonania z tego przeglądu (`xhigh` 0,58, `high` 0,35 na brief).
+  - Wpisy Sparka od tej daty podają effort jawnie, z powodem przy odstępstwie od `max`.
+- **Pliki niezmiennika high-stakes zostają przy `wykonawca-opus`.** Spark `max` pisze je tylko w wyjątku CZERWONEGO.
+- **Recenzent przy niskiej stawce:** preferencja Sol `high` / Gemini `high` przed Sparkiem; Spark `max` pozostaje kandydatem przy wyższej stawce. To preferencja wśród dopuszczonych, nie stała kolejność.
+- **Wprowadzone w:**
+  - reguły 2, 6, 7, 8, 13 i 14 globalnego `CLAUDE.md`;
+  - wspólna sekcja projektów;
+  - skill `implement-ado-feature-zebrani` v5.20;
+  - `qasphere-test-generator` v1.6;
+  - `external-workers`;
+  - domyślna wartość wrappera (`-Effort max`).
+
+**Następny przegląd:** po kolejnych 10–15 istotnych briefach albo po wyniku próby testera, zależnie od tego, co nastąpi wcześniej. Osobno ocena Sparka `max` po 10–15 jego briefach.
