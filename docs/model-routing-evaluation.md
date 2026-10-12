@@ -3479,6 +3479,24 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: zrzut obejrzany, zapytanie SQL (rola 1,2; 1 subskrypcja, 1 płatność, 1 zgoda, profil rozliczeniowy), `invoice.paid` w logu `stripe listen`
 - Uwaga o specyfikacji: nazwy pól ramki Stripe zmieniają się po wypełnieniu (`Data ważności (MM/RR)`) — brief powinien kazać ponowić `find` zamiast ufać starym refom
 
+### 2705-QAS (przypadki QA Sphere — zakup programu z konta, 33 przypadki w 4 folderach) — 2026-10-12
+- Archetyp: QA Sphere — autor przypadków manualnych (plik podglądu wg skilla v1.6)
+- Stawka: średnia (przypadki manualne funkcji płatności; wysyłka skryptem po bramie użytkownika, bez zmian w kodzie)
+- Niepewność: średnia (atrapa operatora na pre-prod, przypadki płatności zależne od klucza testowego Stripe, zachowanie między kartami)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access write`
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (plik Sparka → Gemini, wg skilla)
+- Dopuszczone alternatywy: autor — Gemini `-Access write` (linia zapasowa skilla); recenzent — brak innej rodziny wg procedury skilla (Spark nie recenzuje Sparka, Codex zarezerwowany dla bramek)
+- Powód wyboru: procedura skilla QA Sphere v1.6 (Spark `max` autor, recenzja krzyżowa Gemini)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark nieznany (wrapper bez zapasu, bez komunikatu limitu), Gemini nieznany, 19:19Z
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: lint 0 błędów; 32 przypadki (W1–W8, F1–F9, P1–P11, V1–V4), `updates[]` puste po odczycie ZEB-1581/980/184/221/248; autor obalił dwie przesłanki briefu (próg liczby błędów przy 60 s, wylogowanie w innej karcie jako przypadek)
+- Rundy korekt: 3 — runda 1 po recenzji i kontroli architekta (V4, W1/W2 wobec atrapy, nowy P12 — zmiana konta w innej karcie, F5 osoba prywatna, V3 zaślepka `{kwota}`), runda 2 z kontroli architekta (odłożenie kreatora po zakupie w P2/P7/P8/P12), runda 3 z luki zgłoszonej przez autora (P8 krok 3 — kreator nad komunikatem „Już właściciel”)
+- Czas do akceptacji: ~1 h zegarowo (autor 15,3 min, recenzja 1 min nieudana + 13 min, korekty 7,2 / 4,0 / 1,7 min)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): zgłoszone 2 × P1 — oba potwierdzone po obniżeniu do P2 (V4: zdanie o ramce operatora niewykonalne na pre-prod; luka: zmiana konta w innej karcie osiągalna przez odświeżenie sesji po zakupie); potwierdzone 1 × P2 (W1/W2 „brak komunikatów” wobec atrapy) i 1 × P3 (F5 bez typu „Osoba prywatna”). Raport recenzenta zawierał zmyślone fakty w części potwierdzającej (trasy `/konto/zakup-programu`, `/panel/program/nowy`, klucze folderów, konto `wlasciciel.demo`, PESEL, cytat komunikatu) — architekt przeliczył napisy mechanicznie (wszystkie cytaty w przypadkach wobec `pl.json`/`en.json`, kwoty wobec `pricing-constants.ts`), zamiast polegać na tym potwierdzeniu
+- Defekty po odbiorze: brak (`qas.py verify` 33/33, różnic 0; ZEB-1589…1621, foldery 168–171)
+- Wymagane testy i dowody: `qas.py lint --context` (0 błędów, 8 uwag o wzorcu numeru świeżego konta), mechaniczne sprawdzenie cytatów wobec `pl.json`/`en.json`, diff wersji pliku po każdej korekcie (zmiany tylko w wskazanych krokach), tabela na bramie użytkownika, `qas.py folders` → `push --limit 1` → `verify --only` → `push` → `verify`
+- Uwaga o specyfikacji: pierwszy przebieg recenzji Gemini skończył się bez raportu — brief wskazywał katalog zamiast plików, a recenzent bez powłoki sięgnął po `Get-ChildItem` (odmowa uprawnień); lekcja: brief recenzenta `-Access read` wymienia pliki ścieżkami bezwzględnymi. Błędy briefu autora zgłoszone przez autora: „po ilu błędach” (kod nie ma progu błędów, tylko budżet 60 s), przypadek wylogowania w innej karcie bez płatności (niewykonalny — karta dowiaduje się o zmianie konta dopiero przy swoim odświeżeniu sesji); brief korekty 1 przypisał W2 frazę, której tam nie było.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
