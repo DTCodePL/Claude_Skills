@@ -18,7 +18,7 @@ description: >
   poda link lub numer Epic/Feature/PBI/Task/Bug z Azure DevOps projektu
   Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie i/lub naprawienie go
   — nawet jeśli nie padnie słowo "skill".
-version: '5.18'
+version: '5.19'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -297,14 +297,15 @@ odrzuć pary model–native effort niespełniające choć jednego twardego warun
 - Figma: wykonawca ekranu z makiety sam pobiera kontekst projektu;
   wymagany jest faktyczny dostęp do Figmy. Link lub transkrypcja makiety
   nie zastępuje dostępu. Spark i Gemini nie kwalifikują się do Figmy.
-  Próba A/B linii Figmy (`wykonawca` Sonnet 5.5 `high` wobec
-  `wykonawca-opus-medium` Opus 5.5 `medium`, reguła 14 globalnego
-  `CLAUDE.md`) obejmuje briefy Figmy, które kwalifikacja kieruje do linii
-  Claude'a; brief Figmy przydzielony Codexowi nie wchodzi do próby i jej
-  nie przerywa — ramię wybierasz dla kolejnego briefu Claude'a. Wyjątek:
-  w próbie A/B linii Figmy oba ramiona recenzuje Spark `xhigh` — stały
-  recenzent jako kontrola eksperymentu; brief, którego Spark nie
-  zrecenzuje, wypada z pomiaru;
+  Próba A/B linii Figmy zamknięta 2026-10-12: w linii Claude'a ekrany
+  z Figmy zostają przy `wykonawca` (Sonnet 5.5 `high`);
+- próba testera (reguła 14 globalnego `CLAUDE.md`, od 2026-10-12): briefy
+  testów, które kwalifikacja kieruje do linii Claude'a, idą naprzemiennie
+  na `tester` (Sonnet 5.5 `medium`) i `tester-haiku` (Haiku 5.5 `xhigh`),
+  po 3 na ramię; ramię wybierasz przed napisaniem briefu. Brief testów
+  innej linii nie wchodzi do próby i jej nie przerywa. Wyjątek: w próbie
+  oba ramiona recenzuje Spark `xhigh` — stały recenzent jako kontrola;
+  brief, którego Spark nie zrecenzuje, wypada z pomiaru;
 - narzędzia, repozytoria, uprawnienia oraz potrzebny kontekst muszą być
   dostępne w wybranej linii; brak dziedziczenia sesji wymaga samodzielnego
   briefu, a brak nieprzenoszalnego kontekstu wyklucza kandydata;
@@ -392,13 +393,13 @@ bez wklejonego diffu.
 | sesja główna — Claude Opus `xhigh` | plan, decyzje, briefy, WCAG/tokeny, walidacja dowodów, triaż, domknięcie ADO | architekt; nigdy nie pisze kodu ani testów poza istniejącym jednolinijkowym wyjątkiem reguły 11 |
 | `wykonawca-opus` — Opus `xhigh` | pliki niosące niezmiennik high-stakes; briefy za trudne dla Sonneta | nie wolumen, ekran, szablon, styl ani i18n bez niezmiennika; obowiązuje hook; rodzina Claude — nie recenzuje Claude'a |
 | `wykonawca` — Sonnet 5.5 `high` | Figma MCP, kontekst sesji, repo FE/BE, implementacja; inne narzędzia po potwierdzeniu | jedna warstwa; wymagany faktyczny dostęp; nie przejmuje niezmienników wymagających Opusa; rodzina Claude — nie recenzuje Claude'a |
-| `wykonawca-opus-medium` — Opus `medium` | Figma MCP, kontekst sesji; ekrany, szablony, style, i18n bez niezmiennika | wyłącznie ramię B próby A/B linii Figmy (reguła 14 globalnego `CLAUDE.md`); poza próbą wykluczony; nigdy pliki niezmiennika; obowiązuje hook; rodzina Claude — nie recenzuje Claude'a |
 | Spark — `muse-spark-1.3-contributor` (`none|minimal|low|medium|high|xhigh|max|ultra`) | `-Access write`: Node z Windows przez interop, pętla własnych testów, MCP ADO, Playwright, Angular, QA Sphere, Mikrus; `-Access read`: audyt i recenzja | brak Figma MCP; high-stakes tylko w zachowanym wyjątku blokady hooka; bez gita i `npm install`; bez limitu slotów, ale rozłączne cele |
 | Gemini — `agy`, `gemini-3.8-flash-low`, `gemini-3.8-flash-medium`, `gemini-3.8-flash-high` (effort zakodowany w sufiksie identyfikatora) | zapis i pętla lint/test na Windows oraz MCP ADO, Playwright, Angular, QA Sphere, Mikrus; `-Access read` do recenzji | nigdy high-stakes ani Figma; ścieżki absolutne, jawny odczyt `AGENTS.md`, zakaz powłoki w briefie recenzji zgodnie z `external-workers` |
 | Codex — `gpt-6.1-sol` (`low|medium|high|xhigh|max|ultra`), `gpt-6-luna` (`low|medium|high|xhigh|max`) | implementacja, testy, research, audyt/recenzja; Figma i Playwright po potwierdzeniu dostępu w konkretnej sesji; `-Mode review` do odczytu | pełnoprawny kandydat, porcje ≤ 5 plików (implementacja/testy; recenzji nie dzielisz — bramka końcowa czyta cały diff w jednym przebiegu); nie zastępuje Opusa na high-stakes; nie recenzuje własnej rodziny; research bez poleceń powłoki; najmniejsza pula (Plus), sygnał zwykle `nieznany` — w funkcji high-stakes tylko krótkie briefy bez niezmiennika (≤ 5 plików, effort ≤ `high`), po limicie przed bramką brak kolejnych briefów tej funkcji |
 | `tester` — Sonnet 5.5 `medium` | speci Vitest / AXE / xunit; czerwony test Buga | test przed łatką i bez edycji przez autora łatki; odrębne briefy testu i łatki |
-| `mechanik` — Haiku `low` | pojedyncze klucze i18n, rename, przeniesienie pliku | mechaniczne drobiazgi, nie implementacja wysokiej stawki |
-| `zwiadowca` — Haiku `low` | fakty z repo przed decyzją | tylko odczyt |
+| `tester-haiku` — Haiku 5.5 `xhigh` | jak `tester` | wyłącznie ramię B próby testera (reguła 14 globalnego `CLAUDE.md`); poza próbą wykluczony; obowiązuje hook |
+| `mechanik` — Haiku 5.5 `low` | pojedyncze klucze i18n, rename, przeniesienie pliku | mechaniczne drobiazgi, nie implementacja wysokiej stawki |
+| `zwiadowca` — Haiku 5.5 `low` | fakty z repo przed decyzją | tylko odczyt |
 | `audytor-a11y` — Opus `high` | delegowany audyt kontrastu/fokusu/tokenów | audyt, nie przejęcie implementacji |
 | QA Sphere — autor Spark `xhigh`; Gemini `-Access write`, gdy Spark zajęty albo z limitem | plik podglądu wg `qasphere-test-generator` | recenzja: plik Sparka → Gemini `-Access read`, plik Gemini → Spark `-Access read`; publikacja/poprawki/weryfikacja przez architekta skryptem `qas.py`; sesja nie pisze przypadków i nie woła `create_test_case` / `update_test_case` |
 | bramka końcowa — `gpt-6.1-sol` `max` (od 2026-10-05, zamiast Astry) | cały feature high-stakes po recenzjach fal, osobno FE i BE, sekwencyjnie | bramka z Fazy 4b; niezależna wobec plików niosących niezmiennik (pisze je Opus); nie zastępuje recenzji fal, także dla plików bez niezmiennika pisanych przez Codex |
@@ -513,9 +514,9 @@ i odbierasz niezależną recenzję z Fazy 4b.
 
 **Raport przekazania zamiast raportu końcowego** (reguła 15, strażnik
 kontekstu od 2026-09-28). Hook `~/.claude/bin/kontekst-hook.mjs` każe
-subagentowi Claude'a przy 300 tys. kontekstu (Haiku: 120 tys.) domknąć
-bieżącą jednostkę pracy i oddać raport przekazania, a przy 450 tys. (Haiku:
-160 tys.) nie zaczynać nowej. Taki raport walidujesz jak każdy wynik — diff
+subagentowi Claude'a przy 300 tys. kontekstu (Haiku 4.5: 120 tys.) domknąć
+bieżącą jednostkę pracy i oddać raport przekazania, a przy 450 tys. (Haiku
+4.5: 160 tys.; Haiku 5.5 ma okno 1M i progi domyślne) nie zaczynać nowej. Taki raport walidujesz jak każdy wynik — diff
 tego, co zrobione — a resztę zlecasz **świeżemu agentowi tej samej linii**:
 pierwotny brief + raport przekazania (decyzje i pułapki dosłownie) + „nie
 powtarzaj zrobionego, zacznij od sprawdzenia stanu poleceniem X”. Nie
@@ -658,8 +659,8 @@ uzasadnienie, pewność, alternatywy i status dostępności zapisujesz
 w briefie recenzenckim. Sol jest kandydatem bez czekania na limit, ale
 nie recenzuje kodu rodziny Codexa; Spark nie recenzuje Sparka, Gemini
 Gemini. Fable nie recenzuje (ta sama rodzina co Sonnet i Opus).
-Wyjątek: w próbie A/B linii Figmy oba ramiona recenzuje Spark `xhigh` —
-stały recenzent jako kontrola eksperymentu; brief, którego Spark nie
+Wyjątek: w próbie testera oba ramiona recenzuje Spark `xhigh` — stały
+recenzent jako kontrola eksperymentu; brief, którego Spark nie
 zrecenzuje, wypada z pomiaru.
 
 Fala mieszana → recenzje po zbiorach plików per autor, każda przez inną
