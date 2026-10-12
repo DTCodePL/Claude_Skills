@@ -3076,3 +3076,89 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
    - Wyniki należy oceniać **per archetyp** zadania.
    - **Mała próbka nie uzasadnia rankingu:** jeśli dla danego archetypu liczba zrealizowanych briefów jest niewielka, nie wolno tworzyć definitywnych rankingów modeli ani automatycznych reguł sztywnego przypisania.
    - Wnioski z przeglądów stanowią wskazówkę operacyjną i podlegają walidacji przy zachowaniu twardych ograniczeń bezpieczeństwa, uprawnień i narzędzi.
+
+### Zapisy przeglądów
+
+#### Przegląd 1 — 2026-10-12
+
+- **Powód:** pierwszy przegląd (próg 10–15 briefów dawno przekroczony) oraz istotna zmiana modeli i pomiaru: Haiku 5.5, Terminal-Bench 4.0 w AA i ponownie zmierzone koszty zadania.
+- **Zakres:** 167 wpisów z 2026-10-04…11. Projekty: BeautyEffect 125, Zebrani 33, narzędzia i routing 9. Rozkład wykonawców: 143 wpisy z jednym wykonawcą, 22 mieszane.
+- **Miara:** liczba rund korekt. Pole „Wynik pierwszego podejścia” jest zapisywane niejednolicie, więc nie służy za miarę.
+- **Ograniczenia próbki:**
+  - Obciążenie doborem: trudniejsze briefy trafiały do mocniejszych linii.
+  - Trzy czwarte próbki to jeden projekt (strona wizytówka o niskiej stawce).
+  - Część rund wynika z błędów w specyfikacji architekta, a nie z wykonania.
+  - Wniosków nie wolno czytać jako rankingu linii (sekcja 5, pkt 4).
+
+**Wykonawcy (wpisy z jednym wykonawcą).** „Rundy z winy specyfikacji” to rundy, które wpis przypisuje briefowi architekta.
+
+| Linia / effort | Briefy | Śr. rund | Bez korekt | Rundy z winy specyfikacji | Wpisy z defektem po odbiorze |
+| --- | --- | --- | --- | --- | --- |
+| Codex `gpt-6.1-sol` `high` | 31 | 0,45 | 20 | 10 z 14 | 5 |
+| Gemini `gemini-3.8-flash-high` | 30 | 0,63 | 14 | 6 z 19 | 6 |
+| Spark `xhigh` | 26 | 0,88 | 9 | 8 z 23 | 3 |
+| Spark `high` | 17 | 0,53 | 9 | 3 z 9 | 1 |
+| `wykonawca-opus` — Opus 5.5 `xhigh` | 11 | 1,64 | 2 | 2 z 18 | 5 |
+| `wykonawca` — Sonnet 5.5 `high` | 10 | 1,30 | 0 | 0 z 13 | 2 |
+| Codex `gpt-6.1-sol` `medium` | 6 | 0,33 | 5 | — | 1 |
+| Opus 5.5 `medium` (próba A/B) | 4 | 0,75 | 1 | — | 2 |
+| `tester` — Sonnet 5.5 `medium` | 1 (+3 mieszane) | 0 (3,33 w mieszanych) | 1 | — | 1 |
+
+**Archetypy z co najmniej 3 briefami** (liczba briefów / średnio rund):
+
+- Dokumentacja: Sol `high` 12 / 0,2, Gemini `high` 7 / 0,1. Obie linie dowożą; różnica nieistotna.
+- Testy: Spark `high` 5 / 0,2, Gemini `high` 9 / 0,9.
+- FE bez Figmy: Sol `high` 4 / 0,2.
+- Figma w linii Claude'a: Sonnet `high` 5 / 1,4, Opus `medium` 3 / 1,0. Próba A/B zamknięta wg kryterium kosztu: zostaje Sonnet.
+- BE high-stakes: Opus `xhigh` 5 / 1,4. Rundy pochodzą głównie z recenzji fal i bramki, czego przy tej stawce należy oczekiwać.
+
+**Recenzenci:**
+
+- Sol `high`: 48 recenzji, 1 odrzucone znalezisko.
+- Gemini `high`: 46 recenzji, 0 odrzuconych.
+- Spark `xhigh`:
+  - 31 recenzji, 2 odrzucone znaleziska;
+  - najwięcej wzmianek P0/P1 (43), część z nich architekt obniżył przy weryfikacji. To koszt weryfikacji, a nie fałszywe defekty.
+- Architekt (walidacja i oględziny): 40 wpisów.
+- Bramki końcowe znalazły P0/P1 po recenzjach fal w obu funkcjach high-stakes:
+  - 1603 (Sol `max`): 2 × P0 i 1 × P1;
+  - 2370 (Spark `max` z decyzji właściciela): 1 × P1 w BE, którego nie złapały testy uzupełniające (2370-BE-1b3).
+
+**Defekty po odbiorze:** 32 wpisy.
+- 11 z bramek końcowych (zob. wyżej).
+- Około 16 to defekty wizualne strony BeautyEffect (BE-36…BE-104):
+  - głównie typografia, marginesy siatki, łuki i kurtyny, rozmiary celów dotykowych;
+  - wykrył je architekt w przeglądarce albo na zrzutach `browser-check`, a nie recenzja kodu.
+- Reszta to uwagi właściciela po pokazie oraz drobiazgi w dokumentacji.
+
+**Wnioski (wskazówki operacyjne, nie reguły):**
+
+1. **Zgodne z obecnymi regułami, bez zmian.** Sol `high`/`medium`, Spark `high` i Gemini `high` mają najniższe liczby rund na briefach dokumentacji, FE bez Figmy i testów o niskiej i średniej stawce. Pozostają pełnoprawnymi kandydatami od planowania.
+2. **Główną dźwignią rund jest specyfikacja architekta:**
+   - u Sola `high` wynika z niej 10 z 14 rund, u Sparka `xhigh` 8 z 23, u Gemini 6 z 19;
+   - przed wysłaniem briefu przesłanki dotyczące stanu repozytorium trzeba sprawdzić faktami od `zwiadowca` albo poleceniem, a nie z pamięci.
+3. **Sonnet `high` ma najsłabsze pierwsze przejście** (0 na 10 bez korekt, wszystkie rundy z wykonania). Jego briefy to jednak głównie Figma i kontekst sesji, czyli najtrudniejszy archetyp. Sygnał do obserwacji: przy następnym przeglądzie porównać briefy Figmy z Codexem z potwierdzonym MCP, jeśli takie się pojawią.
+4. **Bramka raz na feature jest uzasadniona.** W obu funkcjach high-stakes znalazła P0/P1, które przeszły recenzje fal.
+5. **Defekty wizualne łapie tylko przeglądarka.** Plan odbioru każdej fali FE z UI zawiera scenariusz `browser-check` i oględziny zrzutów przez architekta; recenzja kodu tego nie zastąpi.
+6. **Tester ma za mało danych.** Próba testera 3+3 (od 2026-10-12) dostarczy porównania. Przy scenariuszach z przyszłym okresem i wyścigiem brief testera wymienia przypadki wprost.
+7. **Briefy BE high-stakes były za długie:** strażnik kontekstu i kontynuacje. Dzielić je na krótsze i przenosić rozpoznanie do `zwiadowca` przed briefem (reguła 15).
+
+**Propozycje do decyzji właściciela (pewność niska, routing bez zmian do decyzji):**
+
+- **Wyjątek CZERWONEGO:**
+  - zamiana Sparka `xhigh` na Sparka `max` dla przekwalifikowanego briefu `wykonawca-opus`;
+  - za: TB4 0,333 wobec 0,167;
+  - lokalnie Spark `max` wystąpił tylko jako bramka (2 przebiegi), a nie jako wykonawca.
+- **Recenzent przy niskiej stawce:**
+  - Sol `high` lub Gemini `high` przed Sparkiem `xhigh`, ze względu na koszt weryfikacji zawyżonych priorytetów;
+  - przy wyższej stawce wybór per brief bez zmian.
+
+**Zmiany routingu z 2026-10-12** (decyzje właściciela wprowadzone w sesji głównej):
+
+- `mechanik` i `zwiadowca` na Haiku 5.5 `low` (`claude-haiku-5-5`). Strażnik kontekstu ma dla Haiku 5.5 progi domyślne (okno 1M).
+- Próba A/B linii Figmy zamknięta, zostaje Sonnet `high`; agent `wykonawca-opus-medium` w archiwum.
+- Start próby testera: Sonnet 5.5 `medium` wobec Haiku 5.5 `xhigh`, 3+3, stały recenzent Spark `xhigh`.
+- Linie Codex, Spark i Gemini bez nowych dostępnych modeli; Gemini 4 Argon jest poza AI Pro.
+- Zgodność kopii wspólnej sekcji potwierdził `sync-routing.py --check`. Recenzji innej rodziny nie było (dokumentacja reguł, nie kod).
+
+**Następny przegląd:** po kolejnych 10–15 istotnych briefach albo po wyniku próby testera, zależnie od tego, co nastąpi wcześniej.
