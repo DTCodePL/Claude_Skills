@@ -18,7 +18,7 @@ description: >
   poda link lub numer Epic/Feature/PBI/Task/Bug z Azure DevOps projektu
   Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie i/lub naprawienie go
   — nawet jeśli nie padnie słowo "skill".
-version: '5.20'
+version: '5.21'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -270,8 +270,9 @@ Czekają wyłącznie na decyzję, którą odzwierciedlają — nie na koniec eta
 ani na siebie nawzajem. Warunek jak w fali: rozłączne cele (inne pliki, inne
 strony i ramki Figmy, inne work itemy). Brama potwierdzenia (Faza 5) nadal
 wstrzymuje domknięcie — commit, push i statusy końcowe idą dopiero po niej.
-Dwa znane ograniczenia współbieżności: Playwright MCP to jedna karta dla
-wszystkich agentów (brief każe otworzyć własną kartę i sprawdzić
+Dwa znane ograniczenia współbieżności: w jednej sesji przeglądarki karta jest
+wspólna (równolegli workerzy dostają osobne sesje — nazwaną `-s=<nazwa>`
+w Playwright CLI, osobny przebieg z `--isolated` w MCP — i sprawdzają
 `location.href` przed każdym zrzutem), a równoległa przebudowa jednej sekcji
 Figmy zostawia plik widocznie rozbebeszony — uprzedź o tym jednym zdaniem,
 gdy użytkownik ogląda plik na żywo.
@@ -500,15 +501,26 @@ nie wypisywany). Exit 0 nie dowodzi czystości: oglądasz PNG i czytasz
 z `passedWithoutActions` to wada scenariusza (asercje spełnione na starcie).
 Wynik inny niż PASS triażujesz z raportu: defekt aplikacji → korekta do
 autora; wada scenariusza (cel, asercja, lokator) → poprawka i powtórka;
-`ERROR`, `TIMEOUT` lub `artifactError` → jedna powtórka. Worker z Playwright
-MCP — wybrana per brief linia (Spark, Gemini lub Codex po potwierdzeniu
-narzędzia), nie subagent Claude'a (reguła 15 — zrzuty stron szybko puchną
-w kontekście) — wchodzi przy `NEED_FALLBACK`, `LOOP`, `MAX_STEPS`, FAIL,
-którego raport nie wyjaśnia, wyniku powtarzającym się po powtórce albo
-dla interakcji spoza scenariusza. Jego brief podaje przejście, stan
-wyjściowy, ustalenia raportu, `forbidden` scenariusza, zakaz akcji
-nieodwracalnych i akcji z zapisem z listy high-stakes Fazy 4b, a także
-własną kartę i `location.href` przed każdym zrzutem.
+`ERROR`, `TIMEOUT` lub `artifactError` → jedna powtórka. `browser-check`
+z Jev zostaje pierwszym krokiem; worker przeglądarkowy — wybrana per brief
+linia (Spark, Gemini lub Codex po potwierdzeniu narzędzia), nie subagent
+Claude'a (reguła 15 — zrzuty stron szybko puchną w kontekście) — wchodzi
+dopiero przy `NEED_FALLBACK`, `LOOP`, `MAX_STEPS`, FAIL, którego raport nie
+wyjaśnia, wyniku powtarzającym się po powtórce albo dla interakcji spoza
+scenariusza. **Od 2026-10-12 tam, gdzie działa, steruje przeglądarką przez
+Playwright CLI** (`Claude_Skills/browser-check/pwcli`; dziś linia Spark):
+łączy polecenia w jednym wywołaniu powłoki i celuje `find` / `--raw eval`
+zamiast pełnych snapshotów — w pomiarze ~3,3× mniej tokenów i ~2× mniej tur
+niż MCP przy tych samych 5 przejściach. Gemini i Codex zostają przy
+Playwright MCP z `--isolated` (Gemini ubija demona sesji CLI po każdym
+wywołaniu, piaskownica Codexa blokuje rejestr Playwrighta) — ta różnica
+kosztu jest argumentem przy kwalifikacji linii, nie stałą trasą. Brief
+wkleja sekcje „Narzędzie — Playwright CLI” i „Oszczędny sposób pracy”
+z `browser-check/CLI-WORKER.md`, a `-Repo` wskazuje pusty katalog
+w scratchpadzie. Podaje też przejście, stan wyjściowy, ustalenia raportu,
+`forbidden` scenariusza, zakaz akcji nieodwracalnych i akcji z zapisem
+z listy high-stakes Fazy 4b, własną sesję przeglądarki z logowaniem kontem
+testowym na początku i `location.href` przed każdym zrzutem.
 Po każdej fali całą weryfikację robisz Ty, z rezerwą na 2–3 drobne korekty,
 i odbierasz niezależną recenzję z Fazy 4b.
 
@@ -594,10 +606,13 @@ gwarancjami co test:
   i wracasz do BEFORE. Dane z BEFORE nie mogą z góry spełniać asercji AFTER
   (osobne `testData` albo sprzątnięcie).
 - **Błąd czysto wizualny** (np. odcień koloru — asercje `browser-check` nie
-  sprawdzają stylu): worker z Playwright MCP wykonuje **wyłącznie kroki 3
+  sprawdzają stylu): worker przeglądarkowy (narzędzie jak w Fazie 3: CLI
+  w linii Spark, MCP w Gemini i Codexie) wykonuje **wyłącznie kroki 3
   (BEFORE) i 6 (AFTER)** procedury `fix-devops-bug-zebrani` — macierz 2×2,
-  mierzalna asercja przez `browser_evaluate` (wyliczony styl wobec tokenu),
-  spisane wartości i sparowane zrzuty — na `baseUrl` podanym w briefie, bez
+  mierzalna asercja przez `--raw eval` w CLI albo `browser_evaluate` w MCP
+  (wyliczony styl wobec tokenu), spisane wartości i sparowane zrzuty
+  (`screenshot --filename` / `browser_take_screenshot`) — na `baseUrl`
+  podanym w briefie, bez
   jej kroków 5, 7 i 8 (`lint:fix`, `format`, commit, deploy); BEFORE i AFTER
   z tymi samymi asercjami.
 - Część błędu, którą da się złapać testem jednostkowym, nadal dostaje
