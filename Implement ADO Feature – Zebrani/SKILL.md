@@ -12,13 +12,15 @@ description: >
   i wiarygodnego sygnału dostępności. Codex jest pełnoprawnym kandydatem
   bez czekania na limit innej linii. Zachowuje ograniczenia high-stakes,
   dostęp do Figmy, reguły skilli pomocniczych, niezależność rodziny recenzenta
-  i końcową bramkę Sol `max`. Na starcie, po zatwierdzeniu planu, PBI/Bug
-  i taski do wykonania idą na In Progress. Obejmuje też Bugi — test-first:
+  i końcową bramkę Sol `max`. Dokumentację produktową (źródło prawdy)
+  aktualizuje na bieżąco w trakcie fal i przed bramą sprawdza jej zgodność
+  z tym, co faktycznie zaimplementowano. Na starcie, po zatwierdzeniu
+  planu, PBI/Bug i taski do wykonania idą na In Progress. Obejmuje też Bugi — test-first:
   czerwony test, łatka, ten sam test zielony. UŻYWAJ ZAWSZE, gdy user
   poda link lub numer Epic/Feature/PBI/Task/Bug z Azure DevOps projektu
   Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie i/lub naprawienie go
   — nawet jeśli nie padnie słowo "skill".
-version: '5.22'
+version: '5.23'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -63,12 +65,14 @@ brama → ADO) robi wyłącznie cztery rzeczy:
    od której zależą, jest ustalona (Faza 2, „Tory poboczne").
 3. **Waliduje raz na falę** — czyta diff, uruchamia lint/test/build
    i `browser-check` (zrzuty 2×2, przejścia scenariusza), ogląda zrzuty,
-   odsyła korekty do tej samej linii. Raport wykonawcy nigdy nie
-   jest dowodem.
+   odsyła korekty do tej samej linii i dopisuje do dziennika rozbieżności
+   dokumentacji wszystko, czym implementacja odeszła od dokumentu. Raport
+   wykonawcy nigdy nie jest dowodem.
 4. **Otwiera i domyka w ADO** — po zatwierdzeniu planu ustawia `In Progress`
-   (Faza 1b); na końcu triażuje recenzje (Gemini, Spark, Sol, bramka końcowa),
-   prowadzi bramę potwierdzenia, robi commit/push i statusy końcowe (MCP do
-   ADO mają też Spark i Gemini; Figmę — Claude i Codex).
+   (Faza 1b); na końcu triażuje recenzje (Gemini, Spark, Sol, bramka końcowa)
+   i przegląd zgodności dokumentacji (Faza 4c), prowadzi bramę
+   potwierdzenia, robi commit/push i statusy końcowe (MCP do ADO mają też
+   Spark i Gemini; Figmę — Claude i Codex).
 
 **Sesja główna nie pisze kodu, nie pisze testów, nie przepisuje po wykonawcy
 i nie czyta dwudziestu plików „żeby sprawdzić"** — każde z tych działań to
@@ -86,31 +90,86 @@ Dokumentacja produktowa (`d:\projects\DTCode\Dokumentacja\Zebrani`) jest
 **źródłem prawdy (SoT)** zachowania, napisów, reguł biznesowych i decyzji
 Zebrani.pl. Kod, testy, przypadki QA Sphere i makiety idą za nią — nigdy
 odwrotnie. **Nie wolno o niej zapomnieć ani jej pominąć w żadnym zadaniu**,
-także w refaktorze i w Bugu:
+także w refaktorze i w Bugu.
 
-- **Faza 1** — plan ma obowiązkowy punkt „Dokumentacja”: dokumenty, z których
-  wynika zakres (id, ścieżka, `status`), i każda zmiana dokumentacji, której
-  zadanie wymaga — albo wprost „bez zmian” z uzasadnieniem. Plan bez tego
-  punktu jest niekompletny.
-- **Fazy 2–4** — każda decyzja, która zmienia zachowanie, napis albo regułę
-  albo rozstrzyga coś, czego dokument nie mówi, trafia do dokumentacji w tym
-  samym zadaniu (tor poboczny tej samej fali). Dokument `zatwierdzony`
-  zmieniasz datowaną rewizją zatwierdzoną przez właściciela. Zachowanie
-  zastane w kodzie, którego dokument nie opisuje albo któremu przeczy,
-  dopisujesz tak samo albo zgłaszasz właścicielowi do rozstrzygnięcia —
-  nigdy nie przemilczasz.
-- **Faza 5** — raport bramy ma punkt „Dokumentacja”: co zmieniono (plik,
-  sekcja) albo dlaczego bez zmian.
-- **Faza 6** — dokumentacja idzie commitem do repo `Dokumentacja` razem
-  z kodem, z numerem PBI/Buga w gałęzi i w commicie. **Zadanie
-  z nieaktualną dokumentacją nie jest skończone** — nie zamykasz go w ADO.
+Implementacja regularnie odchodzi od planu: wykonawca obala premisę, recenzja
+wymusza inną poprawkę, właściciel koryguje coś na bramie, ograniczenie
+techniczne zmienia zachowanie. Dlatego (decyzja właściciela 2026-10-12)
+dokumentację prowadzisz **na bieżąco przez cały cykl**, a **przed bramą
+sprawdzasz jej zgodność z tym, co faktycznie zaimplementowano** — nie
+z tym, co zakładał plan. Zmiany w repo `Dokumentacja` robi linia wybrana
+per brief wg Fazy 2; brief każe jej przeczytać `AGENTS.md` tego repo
+i stosować `INSTRUKCJA-DLA-AI.md` (modyfikacja wymagania §10, kontrola
+wpływu §12, sprzeczności → `kwestie-otwarte/` §13, raport końcowy §17).
+Diff repo `Dokumentacja` odbierasz tak jak diff kodu — raport wykonawcy
+nie jest dowodem.
+
+1. **Faza 1 — mapa dokumentacji.** Plan ma obowiązkowy punkt
+   „Dokumentacja”: dokumenty i sekcje, z których wynika zakres (id, ścieżka,
+   `status`, sekcja), i każda zmiana dokumentacji, której zadanie wymaga —
+   albo wprost „bez zmian” z uzasadnieniem. Ta mapa jest punktem odniesienia
+   przeglądu zgodności w Fazie 4c. Plan bez tego punktu jest niekompletny.
+2. **Faza 1b — dziennik rozbieżności.** Razem z markerem tokenów zakładasz
+   plik `~/.claude/worker-status/tasks/<numer>-dokumentacja.md`: nagłówek
+   z numerem i tytułem work itemu, mapa dokumentacji z planu i pusta tabela
+   dziennika (format niżej). Plik leży poza repozytoriami i przeżywa `/clear`
+   oraz wznowienie zadania w nowej sesji — przy wznowieniu czytasz go
+   jako pierwszy, przed briefami kolejnej fali.
+3. **Fazy 2–4 — dziennik na bieżąco.** Wpis dostaje każda z tych sytuacji:
+   - decyzja podjęta po zatwierdzeniu planu (korekta briefu, nowy przypadek
+     brzegowy, inny kształt API, inny napis);
+   - przyjęta odpowiedź wykonawcy z sekcji raportu „Co uważasz za błędne
+     w tej specyfikacji?” albo „Odchylenia od dokumentacji”;
+   - znalezisko recenzji fali albo bramki końcowej, którego poprawka zmienia
+     zachowanie, napis lub regułę;
+   - korekta właściciela na bramie (Faza 5);
+   - zachowanie zastane w kodzie, którego dokument nie opisuje albo któremu
+     przeczy;
+   - ograniczenie techniczne, przez które kod robi co innego niż dokument.
+
+   Wpis dopisujesz przy walidacji fali, w której sytuacja wyszła — nie na
+   końcu zadania. Brief dokumentacji, który go zamyka, rusza jako tor poboczny
+   tej samej fali, najpóźniej razem z następną; **żadna zależna fala nie
+   startuje, dopóki w dzienniku jest wpis `otwarty`**. Według
+   statusu dokumentu:
+   - `szkic` / `do-weryfikacji` — zmiana wprost w treści, status bez zmian
+     (AI nie zatwierdza dokumentów);
+   - `zatwierdzony` — datowana rewizja (`## Rewizja RRRR-MM-DD — …`) i zmiana
+     **treści normatywnej**, nie samego znacznika rewizji; wpis czeka na
+     zatwierdzenie właściciela na bramie;
+   - zmiana reguły biznesowej, zachowania widocznego dla użytkownika albo
+     napisu, której właściciel nie zdecydował — **zatrzymaj się i zapytaj**,
+     zanim wykonawca ją wdroży; konflikt dwóch dokumentów idzie do
+     `kwestie-otwarte/` (§13), nigdy cichą edycją jednego z nich;
+   - `wycofany` — nigdy nie jest podstawą implementacji.
+
+   Format dziennika (jeden wiersz na rozbieżność):
+
+   | # | Fala / źródło | Co się zmieniło | Dokument › sekcja (id, `status`) | Rozstrzygnięcie | Brief dokumentacji / stan |
+   | --- | --- | --- | --- | --- | --- |
+
+   Stany wpisu: `otwarty` (ani briefu, ani pytania) → `w toku` (brief
+   wysłany) → `zamknięty` (diff dokumentacji odebrany) albo `czeka na
+   właściciela` (rewizja dokumentu `zatwierdzony` gotowa do zatwierdzenia
+   albo zadane pytanie produktowe).
+4. **Faza 4c — przegląd zgodności dokumentacji z implementacją**, po
+   recenzjach i ich poprawkach, przed bramą — patrz Faza 4c.
+5. **Faza 5** — raport bramy ma punkt „Dokumentacja” z wynikiem Fazy 4c,
+   rewizjami do zatwierdzenia i zamkniętym dziennikiem.
+6. **Faza 6** — dokumentacja idzie commitem do repo `Dokumentacja` razem
+   z kodem, z numerem PBI/Buga w gałęzi i w commicie. **Zadanie
+   z nieaktualną dokumentacją nie jest skończone** — nie zamykasz go w ADO.
 
 ## Faza 1 — Plan (Plan Mode, po polsku)
 
 Zanim zlecisz jakikolwiek kod, wejdź w Plan Mode i ustal:
 
-- **Dokumentacja (źródło prawdy)** — punkt obowiązkowy planu, patrz sekcja
-  „Dokumentacja produktowa — źródło prawdy, nigdy pomijana”.
+- **Dokumentacja (źródło prawdy)** — punkt obowiązkowy planu: mapa
+  dokumentacji (dokument, sekcja, id, `status`) i planowane zmiany albo „bez
+  zmian” z uzasadnieniem; patrz sekcja „Dokumentacja produktowa — źródło
+  prawdy, nigdy pomijana”. Tabela „etap → fala → brief → linia” ma briefy
+  dokumentacji przypięte do decyzji, od których zależą, i brief przeglądu
+  zgodności z Fazy 4c.
 - **Makiety z Figmy.** Pobierz makiety pod linkami podanymi w opisie PBI i w
   planie odwołuj się do nich linkami/node-id, nigdy własnym opisem "na oko"
   — UI ma być 1:1 zgodne z Figmą. Do rzeczy, których Figma nie pokazuje
@@ -215,6 +274,11 @@ Jeden `mcp__azure-devops__wit_work_item_write` `action: update_batch`:
    zadania w nowej sesji (po `/clear`, w nowym oknie) wywołaj to samo
    polecenie ponownie — dopisze bieżącą sesję, nie zresetuje startu.
    Bez markera raport z Fazy 6 nie ma czego policzyć.
+5. **Dziennik rozbieżności dokumentacji.** Obok markera zakładasz
+   `~/.claude/worker-status/tasks/<numer>-dokumentacja.md` z mapą
+   dokumentacji z planu i pustą tabelą dziennika (format w sekcji
+   „Dokumentacja produktowa”). Przy wznowieniu zadania plik już istnieje —
+   czytasz go, nie zakładasz od nowa.
 
 Przed zapisem zweryfikuj nazwę stanu przez `mcp__azure-devops__wit_work_item`
 `action: get_type` dla każdego typu (`Task`, `Product Backlog Item`, `Bug`) —
@@ -243,10 +307,16 @@ Główny wątek nigdy nie jest wykonawcą tego, co da się zlecić:
    specyfikację plus właściwe sekcje CLAUDE.md, klauzulę "jeśli premisa w tej
    specyfikacji jest błędna, ZATRZYMAJ SIĘ i zgłoś zamiast wykonywać
    dosłownie" oraz wymaganą sekcję raportu "Co uważasz za błędne w tej
-   specyfikacji?".
+   specyfikacji?". Brief implementacji i brief korekty podaje też ścieżki
+   dokumentów z mapy, które jego zakres realizuje, i ma drugą wymaganą
+   sekcję raportu: **„Odchylenia od dokumentacji”** — zachowania, napisy
+   i reguły wdrożone inaczej, niż mówi brief albo dokument, oraz te, których
+   żaden dokument nie opisuje, z `plik:linia` — albo jawnie „brak”.
 3. **Walidujesz raz na falę** — nigdy na słowo wykonawcy. Dowodem zamykającym
    zadanie jest diff, lint, testy, build, zrzut ekranu — nie deklaracja
-   sukcesu.
+   sukcesu. Przy walidacji fali przenosisz do dziennika rozbieżności każdą
+   przyjętą pozycję z obu sekcji raportu i każdą decyzję podjętą po planie,
+   a briefy dokumentacji dla nowych wpisów wysyłasz z kolejną porcją pracy.
 4. **Zlecasz recenzję po każdej fali** niezależnemu recenzentowi (Faza 4b)
    z innej rodziny niż autor; architekt odbiera dowody tej fali przed
    rozpoczęciem zależnej. Nie zastępujesz jej okresową oceną routingu.
@@ -261,7 +331,10 @@ po kodzie:
 - **dokumentacja produktowa** (`d:\projects\DTCode\Dokumentacja\Zebrani`,
   osobne repo, własny `AGENTS.md`, `status` w front matter) → linia
   kwalifikująca się do tego briefu; **obowiązkowo przy każdej zmianie
-  zachowania, napisu, reguły albo decyzji** — to źródło prawdy, nigdy pomijane;
+  zachowania, napisu, reguły albo decyzji** — to źródło prawdy, nigdy pomijane.
+  Każdy wpis dziennika rozbieżności dostaje brief w tej samej fali,
+  najpóźniej w następnej; brief obejmuje rozłączne pliki dokumentacji
+  (równoległe briefy nie edytują jednego dokumentu);
 - **ADO** (nowe taski, komentarze, opisy) → Ty sam; większa porcja to brief
   na wybraną linię z potwierdzonym MCP ADO i właściwymi uprawnieniami;
 - **briefy kolejnej fali**, które od tej decyzji zależą.
@@ -811,16 +884,95 @@ per archetyp; mała próbka nie uzasadnia rankingu. To rytm operacyjny,
 nie próg statystycznej wystarczalności ani scoring. Recenzja kodu oraz
 odbiór dowodów przez architekta nadal odbywają się **po każdej fali**.
 
+## Faza 4c — Przegląd zgodności dokumentacji z implementacją (przed bramą)
+
+Po recenzjach fal, bramce końcowej i wszystkich ich poprawkach — gdy kod jest
+w stanie, który pokażesz na bramie — sprawdzasz, czy dokumentacja opisuje to,
+co faktycznie zaimplementowano. Dziennik rozbieżności łapie to, co ktoś
+zauważył; przegląd łapie to, czego nikt nie zgłosił. Faza obowiązuje w każdym
+zadaniu, także w refaktorze i w Bugu — refaktor bez zmiany zachowania kończy
+się macierzą bez rozbieżności z uzasadnieniem, nigdy pominięciem fazy.
+
+**Zakres — w obie strony:**
+
+- **dokument → kod:** każde twierdzenie dokumentów z mapy i dokumentów
+  zmienionych w tym zadaniu, w zakresie zadania — zachowanie, stany ekranu,
+  napisy (tekst dokumentu wobec `pl.json` / `en.json` i komunikatów BE),
+  walidacje i limity, komunikaty błędów, kontrakt API, uprawnienia, przypadki
+  brzegowe — ma pokrycie w kodzie;
+- **kod → dokument:** każde zachowanie, napis i reguła z diffu, widoczne dla
+  użytkownika albo istotne biznesowo, jest opisane w źródle prawdy, nie
+  w kopii (§10 i §14 instrukcji repo `Dokumentacja`).
+
+**Wykonawca przeglądu** — kwalifikowany i wybrany wg kroków 1–2 Fazy 2: tylko
+odczyt repozytoriów kodu i repo `Dokumentacja`; jawny model/native effort,
+uzasadnienie, pewność, alternatywy i status dostępności; inna rodzina niż
+autor zmian dokumentacji w tym zadaniu (Fable nie recenzuje). Brief zawiera
+mapę dokumentacji i dziennik rozbieżności, listy zmienionych i nowych plików
+kodu z obu repo (`git diff --name-only HEAD` + `git status --porcelain -uall`)
+oraz plików dokumentacji, kryteria akceptacji PBI/Buga, polecenie przeczytania
+`AGENTS.md` repo `Dokumentacja` i wymagany format wyniku. Linia bez gita
+(Spark, Gemini) dostaje te listy od architekta. Jeden przebieg obejmuje cały
+zakres; gdy przekracza budżet briefu (reguła 15), dzielisz po grupach
+dokumentów — każda grupa w całości, z całym kodem, który ją realizuje. Przy
+diffie do ~5 plików i jednym–dwóch dokumentach przegląd robisz sam (reguła 11),
+w tym samym formacie.
+
+**Wynik — macierz zgodności (format obowiązkowy):**
+
+| Dokument › sekcja (id, `status`) | Twierdzenie albo zachowanie | Kod (`plik:linia`) | Werdykt | Proponowana akcja |
+| --- | --- | --- | --- | --- |
+
+Werdykty: `zgodne` · `dokument nieaktualny` (kod celowo robi co innego) ·
+`kod odbiega` (rację ma dokument) · `brak w dokumencie` · `brak w kodzie`.
+Rozbieżność to jeden wiersz; `zgodne` podajesz liczbą per sekcja, żeby było
+widać, że każda sekcja mapy została sprawdzona. Każdy werdykt inny niż
+`zgodne` recenzent sprawdza w pliku przed zgłoszeniem (jak P0/P1 w Fazie 4b).
+
+**Triaż — Twój, nie recenzenta:**
+
+1. `dokument nieaktualny` / `brak w dokumencie` → wpis do dziennika i brief
+   dokumentacji (dokument `zatwierdzony` — datowana rewizja do zatwierdzenia
+   na bramie). Gdy rozbieżność dotyczy decyzji produktowej, której właściciel
+   nie podjął, to pytanie do właściciela, nie rewizja z domysłu.
+2. `kod odbiega` / `brak w kodzie` → defekt: brief korekty do linii autora
+   (Faza 4b, pkt 2), potem dowód (diff + lint + testy, przy zmianie UI
+   `browser-check`).
+3. Sporne (nie wiadomo, czy rację ma kod, czy dokument) → pytanie do
+   właściciela w raporcie bramy; sprzeczność między dokumentami →
+   `kwestie-otwarte/` (§13).
+4. Fałszywy alarm → jedno zdanie dlaczego.
+
+**Odbiór fazy:** każdy wiersz rozbieżności rozstrzygnięty; w dzienniku
+zostają co najwyżej wpisy `czeka na właściciela`; diff repo `Dokumentacja`
+przeczytany przez Ciebie (`git diff` i `git status --porcelain` — w tym repo
+też bywa cudza praca w toku, więc odbierasz wyłącznie pliki tego zadania);
+raport zmian dokumentacji w formacie §17 instrukcji repo (zmieniono,
+sprawdzono, wpływ, nierozstrzygnięte, decyzje człowieka). Poprawka kodu
+z tej fazy, która zmienia zachowanie, wraca do przeglądu — na swojej delcie,
+nie na całym feature'ze.
+
 ## Faza 5 — Brama potwierdzenia (nie zamykaj ADO sam)
 
 Po zakończeniu implementacji **ZATRZYMAJ SIĘ i czekaj na moje potwierdzenie**.
 Nie ruszaj statusów w ADO (poza `In Progress` z Fazy 1b, które już stoi) ani
 nie commituj samodzielnie na tym etapie.
 
-Raport bramy zawiera punkt **„Dokumentacja”**: zmienione pliki i sekcje
-dokumentacji produktowej albo uzasadnienie „bez zmian” — oraz punkt
-**„SemVer”**: bump z uzasadnieniem i pary stare→nowe per zmienione repo
-(z podglądu/zapisu skryptu). Gdy commit/push nie jest autoryzowany, raport
+Raport bramy zawiera punkt **„Dokumentacja”**:
+
+- zmienione pliki i sekcje dokumentacji produktowej albo uzasadnienie „bez
+  zmian”;
+- wynik Fazy 4c — liczby werdyktów macierzy zgodności i każda rozbieżność
+  z rozstrzygnięciem;
+- rewizje dokumentów `zatwierdzony` do zatwierdzenia — każda z treścią
+  zmiany (co obowiązywało, co obowiązuje) i pytaniem do właściciela, nie
+  sama nazwa pliku;
+- otwarte pytania produktowe i nowe `kwestie-otwarte/`;
+- potwierdzenie, że w dzienniku rozbieżności nie ma wpisu `otwarty` ani
+  `w toku`.
+
+Oraz punkt **„SemVer”**: bump z uzasadnieniem i pary stare→nowe per
+zmienione repo (z podglądu/zapisu skryptu). Gdy commit/push nie jest autoryzowany, raport
 niesie też gotowy tekst komentarza dostępności (wypełniony szablon z Fazy 6,
 pkt 4) — bez ogłaszania publikacji. Bez tych punktów brama nie jest gotowa.
 Raport potwierdza też recenzję i odbiór dowodów każdej fali, spełnienie
@@ -828,7 +980,13 @@ ograniczeń routingu oraz wpisy istotnych briefów do rejestru (albo
 uzasadnione mechaniczne pominięcia); dla high-stakes zawiera wynik
 niezmienionej bramki końcowej (6.1 Sol `max`).
 
-- Jeśli zgłoszę poprawki → wprowadź je → wróć do tej samej bramy.
+- Jeśli zgłoszę poprawki → wprowadź je → wróć do tej samej bramy. Każda
+  poprawka, która zmienia zachowanie, napis albo regułę, dostaje wpis
+  w dzienniku i brief dokumentacji, a Faza 4c przechodzi ponownie na
+  delcie poprawek — dopiero potem wracasz na bramę.
+- Rewizje, które zatwierdzę, oznaczasz w dzienniku jako `zamknięty`;
+  rewizja odrzucona wraca do triażu Fazy 4c (zmienia się kod albo treść
+  rewizji).
 - Jeśli potwierdzę, że jest OK → przejdź do Fazy 6.
 
 ## Faza 6 — Domknięcie po potwierdzeniu
@@ -837,7 +995,10 @@ Wykonaj w tej kolejności:
 
 1. **Commit i push** na `main` — numer PBI w branchu i w commicie
    (CLAUDE.md · Git Workflow). Dokumentację produktową commitujesz
-   i pushujesz w tym samym kroku w repo `Dokumentacja` — nigdy „później”.
+   i pushujesz w tym samym kroku w repo `Dokumentacja` — nigdy „później”;
+   `git add` tylko pliki dokumentacji z dziennika i z Fazy 4c (w tym repo
+   też bywa cudza praca w toku). Przed commitem dziennik rozbieżności ma
+   wyłącznie wpisy `zamknięty`.
    Do commita wchodzą jawnie także pliki wersji z procedury SemVer:
    `version.json` oraz manifesty zmienionych repo (FE: `package.json`
    i `package-lock.json`; BE: `ZebraniBE/ZebraniBE.csproj`) — jak reszta
