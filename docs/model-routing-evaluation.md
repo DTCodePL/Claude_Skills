@@ -3497,6 +3497,24 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: `qas.py lint --context` (0 błędów, 8 uwag o wzorcu numeru świeżego konta), mechaniczne sprawdzenie cytatów wobec `pl.json`/`en.json`, diff wersji pliku po każdej korekcie (zmiany tylko w wskazanych krokach), tabela na bramie użytkownika, `qas.py folders` → `push --limit 1` → `verify --only` → `push` → `verify`
 - Uwaga o specyfikacji: pierwszy przebieg recenzji Gemini skończył się bez raportu — brief wskazywał katalog zamiast plików, a recenzent bez powłoki sięgnął po `Get-ChildItem` (odmowa uprawnień); lekcja: brief recenzenta `-Access read` wymienia pliki ścieżkami bezwzględnymi. Błędy briefu autora zgłoszone przez autora: „po ilu błędach” (kod nie ma progu błędów, tylko budżet 60 s), przypadek wylogowania w innej karcie bez płatności (niewykonalny — karta dowiaduje się o zmianie konta dopiero przy swoim odświeżeniu sesji); brief korekty 1 przypisał W2 frazę, której tam nie było.
 
+### 2705-QAS-2 (korekta 19 przypadków QA Sphere — pre-prod na Stripe w trybie testowym, z weryfikacją na żywo) — 2026-10-12
+- Archetyp: QA Sphere — poprawki istniejących przypadków (`updates[]`) z weryfikacją faktów w przeglądarce (Playwright CLI)
+- Stawka: średnia (przypadki manualne funkcji płatności; zmiana środowiska testowego, bez zmian w kodzie)
+- Niepewność: średnia (wnętrze ramki operatora, kolejność Tab, ponowienie po zablokowanym skrypcie — nie do ustalenia z kodu)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access write`, Playwright CLI
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (plik Sparka → Gemini, wg skilla)
+- Dopuszczone alternatywy: autor — Gemini `-Access write` z Playwright MCP (CLI w `agy` nie działa); recenzent — brak innej rodziny wg procedury skilla
+- Powód wyboru: procedura skilla QA Sphere v1.6 i Playwright CLI dostępne tylko w linii Spark
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark nieznany, Gemini nieznany (wrappery bez zapasu, bez komunikatów limitu), 20:45Z
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: lint 0 błędów, 19 pozycji `updates[]`; weryfikacja na żywo potwierdziła pola karty, plakietkę trybu testowego Stripe (ramka ze skryptu operatora), pełną kolejność Tab łącznie z wnętrzem ramki i scenariusz P1 (blokada `js.stripe.com` → komunikat → ponowienie bez przeładowania wczytuje pole); 0 pełnych snapshotów, 61 wywołań powłoki, 11,3 min
+- Rundy korekt: 1 — z winy specyfikacji (brief kazał użyć panelu „Network request blocking”, którego nazwa zmienia się między wersjami Chrome; krok kazał przeładować nieotwartą stronę) + komentarz folderu zgłoszony przez autora; 1,2 min
+- Czas do akceptacji: ~35 min zegarowo (autor 11,3 min, korekta 1,2 min, recenzja 8,8 min)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 zgłoszonych; recenzent potwierdził zakres zmian wobec źródła, napisy wobec `pl.json`, brak pozostałości atrapy w 14 przypadkach spoza poprawek. Jedno twierdzenie z części potwierdzającej (konto demo w P3) architekt sprawdził osobno — zgodne z zestawem zatwierdzonym wcześniej
+- Defekty po odbiorze: brak (`qas.py update --only 1606` → `verify --only` → `update` → `verify` 19/19, różnic 0; komentarz folderu 170 przez `upsert_folders`, bo `qas.py folders` celowo nie nadpisuje komentarza istniejącego folderu)
+- Wymagane testy i dowody: `browser-check` matrix architekta (pole karty w kadrze puste — artefakt zrzutu ramki poza widokiem; rozstrzygnięte zrzutami wykonawcy po przewinięciu), zrzuty light/dark obejrzane przez architekta, diff każdej pozycji `updates[]` wobec opublikowanej treści, `lint`, `update --dry-run`
+- Uwaga o specyfikacji: autor obalił trzy drobne przesłanki briefu (motyw startowy sesji, pusta klauzula Z4, nieczytelność wnętrza ramki) i wskazał nieobjęty briefem komentarz folderu. Lekcja: instrukcja DevTools w przypadku manualnym przez menu kontekstowe żądania, nie przez nazwę panelu.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
