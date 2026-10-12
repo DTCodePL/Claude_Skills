@@ -8,10 +8,11 @@ description: >
   weryfikuje czy błąd występuje w kodzie, odtwarza buga w działającej aplikacji przez
   Playwright na macierzy 2×2 (mobile 360×530 i desktop 1280×720, każdy w Light i Dark)
   — test BEFORE, implementuje poprawkę zgodnie z CLAUDE.md, potwierdza Playwrightem
-  że bug zniknął (test AFTER), uruchamia lint:fix + format, commituje i pushuje,
+  że bug zniknął (test AFTER), sprawdza zgodność dokumentacji produktowej (źródła
+  prawdy) z poprawką i ją aktualizuje, uruchamia lint:fix + format, commituje i pushuje,
   proponuje ręczne uruchomienie deployu pre-prod, a następnie aktualizuje statusy
   w DevOps (Fix → Done, Bug → Ready for tests) i przypisuje buga do testera.
-version: '1.0'
+version: '1.1'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -22,9 +23,9 @@ remote:
 
 # Fix DevOps Bug – Zebrani.pl
 
-Pełny przepływ naprawy zgłoszenia z Azure DevOps: **pobierz → przeanalizuj → odtwórz buga
-(Playwright) → napraw → potwierdź fix (Playwright) → zlintuj → commit/push → deploy →
-zaktualizuj statusy**. Treści (commit, komentarze, plan) pisz po polsku. Trzymaj się zasad
+Pełny przepływ naprawy zgłoszenia z Azure DevOps: **pobierz → przeanalizuj (kod
+i dokumentacja) → odtwórz buga (Playwright) → napraw → potwierdź fix (Playwright) →
+sprawdź zgodność dokumentacji → zlintuj → commit/push → deploy → zaktualizuj statusy**. Treści (commit, komentarze, plan) pisz po polsku. Trzymaj się zasad
 z `.claude/CLAUDE.md` w `ZebraniFE` (i18n w `pl` **i** `en`, kolory wyłącznie z tokenów,
 Signal Forms, Observable zamiast Promise, brak `@deprecated`, dostępność WCAG AA).
 
@@ -47,6 +48,14 @@ Signal Forms, Observable zamiast Promise, brak `@deprecated`, dostępność WCAG
   - FE: `DTCodePL/ZebraniFE` — `d:\projects\DTCode\ZebraniFE` (Angular 22, SSR, zoneless).
   - BE: `DTCodePL/ZebraniBE` — **repozytorium jest puste (samo README)**. Backend Zebrani
     jeszcze nie istnieje (patrz „Bug backendowy" niżej).
+- **Dokumentacja produktowa — źródło prawdy:** `d:\projects\DTCode\Dokumentacja\Zebrani`
+  (osobne repo; przed zmianą przeczytaj jego `AGENTS.md` i stosuj `INSTRUKCJA-DLA-AI.md`).
+  Kod, testy, przypadki QA Sphere i makiety idą za nią — nigdy odwrotnie. Status
+  w front matter: `zatwierdzony` wiąże; `do-weryfikacji` to propozycja czekająca na
+  decyzję; `szkic` jeszcze nie jest wymaganiem; `wycofany` to historia i nigdy nie jest
+  podstawą poprawki. **Każda naprawa sprawdza dokumentację i — gdy trzeba — aktualizuje
+  ją w tej samej naprawie** (kroki 2, 4 i 6b). Naprawa z nieaktualną dokumentacją nie
+  jest skończona — nie zamykasz jej w ADO.
 - **Git:** commity idą na `main`. Konwencja wiadomości: `fix(<scope>): #<idBuga> opis`
   po polsku (np. `fix(public): #123 ...`).
   - CLAUDE.md Zebrani wymaga numeru work itema w commicie — **numer buga tę regułę
@@ -119,6 +128,22 @@ Każdy test Playwright BEFORE i AFTER uruchamiaj na **czterech** kombinacjach:
 
 - Przeczytaj wskazane w repro pliki/komponenty (Grep/Glob/Read). **Potwierdź każdy punkt
   zgłoszenia faktem z kodu** (plik + linia). Nie zakładaj — sprawdź.
+- **Znajdź źródło prawdy w dokumentacji** dla zachowania ze zgłoszenia: wyszukaj
+  w `Dokumentacja\Zebrani` po nazwie ekranu, reguły, napisie i ID (`interfejsy/`,
+  `reguly-biznesowe/`, `procesy-biznesowe/`, `wymagania-przekrojowe/`, `decyzje/`)
+  i zapisz **mapę dokumentacji**: dokument, sekcja, `id`, `status` — albo jawnie „brak
+  dokumentu opisującego to zachowanie". Potem ustal przypadek:
+  - dokument opisuje zachowanie, którego oczekuje zgłoszenie, a kod od niego odbiega —
+    to błąd; poprawka idzie za dokumentem;
+  - żaden dokument tego zachowania nie opisuje (albo opisuje je tylko `szkic` /
+    `do-weryfikacji`, które nie wiążą) — naprawiasz i dopisujesz je do dokumentacji
+    w kroku 6b;
+  - dokument opisuje zachowanie, które zgłoszenie nazywa błędem, albo zgłoszenie żąda
+    czegoś innego niż dokument — to nie bug, tylko zmiana wymagania: **zatrzymaj się
+    i zapytaj użytkownika** (`AskUserQuestion`, z cytatem dokumentu i zgłoszenia);
+    nigdy nie naprawiasz wbrew dokumentowi;
+  - dwa dokumenty sobie przeczą — zatrzymaj się; konflikt idzie do `kwestie-otwarte/`
+    (§13 instrukcji repo), decyzja należy do człowieka.
 - **Bug backendowy:** jeśli repro dotyczy API, danych, bazy albo logiki serwerowej —
   `ZebraniBE` jest puste, więc nie ma czego naprawiać. **Zatrzymaj się, zgłoś to
   użytkownikowi i zapytaj o dalsze kroki.** Nie szukaj „gdzieś indziej" i nie próbuj
@@ -178,6 +203,12 @@ dopiero po hydracji.
 ### 4. Zaplanuj i wprowadź poprawkę
 
 - Trzymaj się kierunku z repro i zasad CLAUDE.md. Reużywaj istniejących wzorców i tokenów.
+- Poprawka realizuje zachowanie z dokumentów z mapy (krok 2). Gdy w trakcie naprawy
+  okaże się, że kod musi zachować się inaczej, niż mówi dokument (ograniczenie
+  techniczne, przypadek brzegowy, którego dokument nie przewidział), **od razu**
+  zanotuj to jako rozbieżność do kroku 6b — nie odkładaj na koniec. Jeśli zmienia to
+  regułę biznesową, zachowanie widoczne dla użytkownika albo napis z dokumentu
+  `zatwierdzony`, zatrzymaj się i zapytaj, zanim to wdrożysz.
 - **Nigdy nie wprowadzaj surowego koloru** (hex/rgb/hsl) — kolory pochodzą wyłącznie
   z `var(--p-*)` / `dt('…')`. Jeśli żaden istniejący token nie pasuje — **zatrzymaj się
   i zapytaj**, zamiast dodawać nowy jednostronnie.
@@ -220,6 +251,42 @@ Dodatkowo zweryfikuj (wymogi CLAUDE.md Zebrani):
 - **Jeśli asercja „po" w którejkolwiek kombinacji nadal pokazuje buga — NIE commituj.**
   Wróć do kroku 4 i popraw.
 
+### 6b. Przegląd zgodności dokumentacji z poprawką (przed commitem)
+
+**Obowiązkowe w każdej naprawie, także czysto wizualnej.** Po potwierdzonym AFTER
+porównaj mapę dokumentacji z kroku 2 i rozbieżności z kroku 4 z tym, co faktycznie
+zmieniłeś (`git diff`, `git status`) — w obie strony:
+
+- **dokument → kod:** każde twierdzenie z sekcji mapy, którego dotyka poprawka
+  (zachowanie, stan ekranu, napis — tekst dokumentu wobec `pl.json` / `en.json`,
+  walidacja, limit, komunikat błędu, kontrakt API), zgadza się z kodem po poprawce;
+- **kod → dokument:** każde zachowanie, napis i reguła z poprawki, widoczne dla
+  użytkownika albo istotne biznesowo, jest opisane w źródle prawdy, nie w kopii.
+
+Wynik zapisz jako macierz (trafi do podsumowania w kroku 9):
+
+| Dokument › sekcja (id, `status`) | Twierdzenie albo zachowanie | Kod (`plik:linia`) | Werdykt | Akcja |
+| --- | --- | --- | --- | --- |
+
+Werdykty: `zgodne` · `dokument nieaktualny` · `kod odbiega` · `brak w dokumencie` ·
+`brak w kodzie`.
+
+- `kod odbiega` / `brak w kodzie` → poprawka nie jest skończona: wróć do kroku 4,
+  potem powtórz AFTER (krok 6).
+- `dokument nieaktualny` / `brak w dokumencie` → aktualizujesz dokumentację **teraz**,
+  wg procedury repo (`INSTRUKCJA-DLA-AI.md`: modyfikacja wymagania §10, kontrola wpływu
+  §12, raport końcowy §17):
+  - `szkic` / `do-weryfikacji` — zmiana wprost w treści, status bez zmian;
+  - `zatwierdzony` — datowana rewizja (`## Rewizja RRRR-MM-DD — …`) i zmiana **treści
+    normatywnej**, nie samego znacznika rewizji. Treść rewizji (co obowiązywało, co
+    obowiązuje) pokazujesz użytkownikowi i bez jego zgody jej nie commitujesz — AI nie
+    zatwierdza dokumentów;
+  - decyzja produktowa, której nikt nie podjął — pytanie do użytkownika, nie rewizja
+    z domysłu.
+- Naprawa, która nie zmienia niczego opisanego w dokumentacji i niczego do niej nie
+  dodaje (np. odstęp przywrócony do wartości z makiety), kończy się macierzą „wszystko
+  `zgodne`" albo „brak dokumentu w zakresie" z uzasadnieniem — nigdy pominięciem kroku.
+
 ### 7. Commit + push -- zrób to tylko jeżeli wprost ci powiem, że masz pushować
 
 > ⚠️ **Pułapka:** `npm run lint:fix` i `npm run format` potrafią zmodyfikować
@@ -240,6 +307,12 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
 - `git push origin main`.
+- **Dokumentacja w tym samym kroku, nigdy „później":** osobny commit w repo
+  `d:\projects\DTCode\Dokumentacja\Zebrani` — `git add` wyłącznie plików zmienionych
+  w kroku 6b (w tym repo też bywa cudza praca w toku), wiadomość
+  `docs(<scope>): #<idBuga> <krótki opis po polsku>` z tą samą stopką, push razem
+  z kodem. Rewizja dokumentu `zatwierdzony` wchodzi do commita tylko po zgodzie
+  użytkownika z kroku 6b.
 - (Jeśli użytkownik woli PR: utwórz branch `fix/<idBuga>-<slug>`, push, PR z linkiem do
   work itema — zapytaj, gdy nie jest jasne.)
 
@@ -278,6 +351,9 @@ Format numeru: liczba z **plusem** (np. `FE: 12+`) — oznacza „ten build lub 
 
 #### 8b. Statusy
 
+Statusy zmieniasz dopiero, gdy dokumentacja jest zaktualizowana i wypchnięta razem
+z kodem albo krok 6b wykazał „bez zmian" z uzasadnieniem.
+
 - Task **„Fix"** → `Done`:
   `wit_update_work_item(id=<fix>, [{op:"add", path:"/fields/System.State", value:"Done"}])`
 - **Bug** → `Ready for tests` **i** przypisz testerowi (assignee z „Retest"):
@@ -315,6 +391,9 @@ Jak zretestować ręcznie:
 4. <co należy zaobserwować — oczekiwany, poprawny efekt>
 5. <ewentualnie: gdzie wcześniej był błąd, żeby tester wiedział na co patrzeć>
 
+<tylko gdy zmieniła się dokumentacja: Dokumentacja: <jednym zdaniem, który opis albo
+regułę uzupełniono — prostym językiem, bez nazw plików>>
+
 Naprawiono na main (commit <hash>).
 ```
 
@@ -327,7 +406,10 @@ Wypisz: które punkty potwierdzone w kodzie (plik:linia), **wynik testów Playwr
 (before → after) dla wszystkich czterech kombinacji**, zmienione pliki, hash commita,
 czy deploy został uruchomiony i z jakim numerem, nowe statusy (#Fix=Done,
 #Bug=Ready for tests → tester) oraz ewentualne niepowiązane zmiany pominięte w commicie.
-Wskaż screenshoty „przed/po" i porównanie z Figmą.
+Wskaż screenshoty „przed/po" i porównanie z Figmą. Punkt **„Dokumentacja"**: mapa
+z kroku 2, macierz z kroku 6b (każda rozbieżność z rozstrzygnięciem), zmienione pliki
+dokumentacji i hash commita w repo `Dokumentacja`, rewizje czekające na zgodę — albo
+„bez zmian" z uzasadnieniem.
 
 ## Testowanie w Playwright (MCP)
 
@@ -395,15 +477,22 @@ zanim wejdziesz `browser_navigate`. Po naprawie poczekaj na hot-reload przed ase
 
 - [ ] Każdy punkt repro potwierdzony w kodzie (plik:linia).
 - [ ] Bug backendowy → zatrzymany i zgłoszony (`ZebraniBE` jest puste), nie „załatany" w FE.
+- [ ] **Mapa dokumentacji** z kroku 2 (dokument, sekcja, id, status); zgłoszenie sprzeczne
+      z dokumentem → zatrzymane i zgłoszone, nie „naprawione" wbrew dokumentowi.
 - [ ] **Playwright BEFORE:** asercja odtwarza buga na wszystkich czterech kombinacjach
       (mobile 360×530 / desktop 1280×720 × Light / Dark) + screenshot każdej.
 - [ ] Poprawka zgodna z CLAUDE.md: brak surowych kolorów, brak `::ng-deep` i `.p-*`,
       brak `@deprecated`, i18n w `pl.json` **i** `en.json`, dostępność WCAG AA.
 - [ ] **Playwright AFTER:** te same asercje na wszystkich czterech kombinacjach potwierdzają
       brak buga; zero nowych błędów w konsoli.
+- [ ] **Krok 6b:** macierz zgodności dokumentacji z poprawką; dokumentacja zaktualizowana
+      (rewizja dokumentu `zatwierdzony` po zgodzie użytkownika) albo „bez zmian"
+      z uzasadnieniem.
 - [ ] `lint:fix` + `format` → zero błędów; AXE przechodzi.
 - [ ] Zestage'owane TYLKO pliki tej naprawy; niepowiązane zmiany zgłoszone.
 - [ ] Commit `fix(<scope>): #<idBuga> ...` + stopka Co-Authored-By; push po wyraźnej zgodzie.
+- [ ] Commit `docs(<scope>): #<idBuga> ...` w repo `Dokumentacja` (tylko pliki tej naprawy),
+      wypchnięty razem z kodem.
 - [ ] **Deploy pre-prod:** zapytano użytkownika; przy zgodzie run zakończony sukcesem
       i numer odczytany po `headSha` (bez „ostatni + 1").
 - [ ] Fix → Done; Bug → Ready for tests + przypisany do testera; Retest bez zmian.
