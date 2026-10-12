@@ -14,13 +14,15 @@ description: >
   dostęp do Figmy, reguły skilli pomocniczych, niezależność rodziny recenzenta
   i końcową bramkę Sol `max`. Dokumentację produktową (źródło prawdy)
   aktualizuje na bieżąco w trakcie fal i przed bramą sprawdza jej zgodność
-  z tym, co faktycznie zaimplementowano. Na starcie, po zatwierdzeniu
-  planu, PBI/Bug i taski do wykonania idą na In Progress. Obejmuje też Bugi — test-first:
+  z tym, co faktycznie zaimplementowano. Plan kończy się listą kroków 1…N,
+  a każda wiadomość w trakcie wykonania mówi, na którym kroku z ilu jest.
+  Na starcie, po zatwierdzeniu planu, PBI/Bug i taski do wykonania idą
+  na In Progress. Obejmuje też Bugi — test-first:
   czerwony test, łatka, ten sam test zielony. UŻYWAJ ZAWSZE, gdy user
   poda link lub numer Epic/Feature/PBI/Task/Bug z Azure DevOps projektu
   Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie i/lub naprawienie go
   — nawet jeśli nie padnie słowo "skill".
-version: '5.23'
+version: '5.24'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -160,6 +162,66 @@ nie jest dowodem.
    z kodem, z numerem PBI/Buga w gałęzi i w commicie. **Zadanie
    z nieaktualną dokumentacją nie jest skończone** — nie zamykasz go w ADO.
 
+## Lista kroków i postęp — „Krok X/N” w każdej wiadomości
+
+Właściciel ma w każdej chwili wiedzieć, na którym etapie jest zadanie i ile
+zostało do końca (decyzja właściciela 2026-10-12 — wcześniej z rozmowy nie
+dało się tego odczytać). Dlatego przed startem powstaje numerowana lista
+wszystkich kroków, a każda wiadomość mówi, na którym z nich jesteś.
+
+1. **Faza 1 — lista kroków w planie.** Plan kończy się listą **wszystkich**
+   kroków od otwarcia w ADO do domknięcia, ponumerowanych 1…N:
+
+   | # | Krok | Kto (linia / architekt / właściciel) | Kończy go (dowód) |
+   | --- | --- | --- | --- |
+
+   Krok to etap z obserwowalnym końcem, nie pojedynczy brief ani wywołanie
+   narzędzia. Szkielet obowiązkowy, w tej kolejności:
+   - otwarcie w ADO (statusy, marker tokenów, dziennik rozbieżności, plik
+     kroków);
+   - dla każdej fali trzy kroki: **wykonanie** (briefy fali z liniami oraz
+     tory poboczne — dokumentacja, Figma — wypisane w tym kroku),
+     **walidacja** (diff, lint, testy, build, `browser-check`) i **recenzja
+     niezależna z poprawkami**;
+   - dla Buga zamiast pierwszej fali: czerwony test → odbiór czerwieni →
+     łatka → ten sam test zielony i cały pakiet;
+   - audyt SCSS (gdy diff zmienia SCSS);
+   - bramka końcowa Sol `max` (gdy feature jest wysokiej stawki; FE i BE
+     jako osobne kroki);
+   - SemVer (podgląd i zapis wersji);
+   - przegląd zgodności dokumentacji (Faza 4c);
+   - brama potwierdzenia — **czeka na właściciela**;
+   - domknięcie: commit/push, statusy i komentarze w ADO, raport tokenów.
+
+   Nie sklejasz kroków, żeby lista wyglądała krócej, i nie rozbijasz ich na
+   pojedyncze briefy.
+2. **Faza 1b — plik kroków i publikacja.** Po zatwierdzeniu planu zapisujesz
+   listę w `~/.claude/worker-status/tasks/<numer>-kroki.md` z kolumną stanu
+   (`do zrobienia` / `w toku` / `zrobione` / `czeka na właściciela` /
+   `zablokowane`) i pokazujesz ją w czacie jako pierwszą wiadomość wykonania.
+   Przy wznowieniu zadania w nowej sesji czytasz ten plik i zaczynasz od
+   „Wznawiam od kroku X/N”.
+3. **Linia postępu w każdej wiadomości.** Od Fazy 1b do końca każda
+   wiadomość tekstowa do właściciela — także krótka wzmianka między
+   wywołaniami narzędzi — zaczyna się od linii:
+
+   `**[Krok X/N]** <nazwa kroku> — <stan> · zostało: <N−X> (dalej: <nazwa następnego kroku>)`
+
+   Stan to jedno z: `start`; `w toku — <konkret, np. 2 z 3 briefów
+   odebrane, czekam na Sparka (BE)>`; `zrobione — <dowód jednym zdaniem>`;
+   `czeka na Ciebie — <czego potrzebujesz>`; `zablokowane — <brakujący
+   warunek>`. Początek i koniec każdego kroku to osobna wiadomość; plik
+   kroków aktualizujesz w tym samym momencie.
+4. **Zmiana listy — jawnie.** Gdy kroków przybywa (runda korekty, dodatkowa
+   fala, druga recenzja, poprawki z bramy) albo ubywa (krok okazał się
+   zbędny), ogłaszasz to jedną linią: `Lista kroków: N → M — <co doszło lub
+   odpadło i dlaczego>`, i poprawiasz plik. Kroki zrobione zachowują numery;
+   nowe wstawiasz w kolejności wykonania, a dalsze numery przesuwasz — nigdy
+   po cichu.
+5. **Odległość do końca bez zgadywania.** „Ile zostało” to liczba
+   pozostałych kroków i wskazanie tych, które czekają na właściciela — nie
+   szacunek minut ani procent.
+
 ## Faza 1 — Plan (Plan Mode, po polsku)
 
 Zanim zlecisz jakikolwiek kod, wejdź w Plan Mode i ustal:
@@ -209,7 +271,10 @@ Zanim zlecisz jakikolwiek kod, wejdź w Plan Mode i ustal:
   odczytu sygnału. Brak lokalnych wyników podobnego briefu oznacza niską
   pewność. Nazwy effortów różnych dostawców nie oznaczają równoważnej jakości.
   Liczba briefów per linia to bilans obciążenia, nie kryterium poprawności.
-- **Kontrola planu przed pokazaniem**: żaden wybór nie omija high-stakes,
+- **Lista kroków 1…N** — punkt obowiązkowy, ostatni w planie; szkielet
+  i format w sekcji „Lista kroków i postęp”. Plan bez niej jest niekompletny.
+- **Kontrola planu przed pokazaniem**: lista kroków obejmuje cały cykl
+  do domknięcia, a żaden wybór nie omija high-stakes,
   faktycznego dostępu do Figmy/narzędzi, uprawnień, jednej warstwy na brief,
   rozłączności celów fali, niezależności rodziny recenzenta ani ograniczeń
   skilli pomocniczych. Codex może dostać kwalifikującą się implementację
@@ -279,6 +344,11 @@ Jeden `mcp__azure-devops__wit_work_item_write` `action: update_batch`:
    dokumentacji z planu i pustą tabelą dziennika (format w sekcji
    „Dokumentacja produktowa”). Przy wznowieniu zadania plik już istnieje —
    czytasz go, nie zakładasz od nowa.
+6. **Plik kroków i pierwsza linia postępu.** Zapisujesz listę kroków z planu
+   w `~/.claude/worker-status/tasks/<numer>-kroki.md`, krok otwarcia
+   oznaczasz jako `zrobione` i pokazujesz całą listę w czacie, zaczynając od
+   `**[Krok 1/N]** Otwarcie w ADO — zrobione …` (sekcja „Lista kroków
+   i postęp”). Dopiero potem wysyłasz pierwszy brief.
 
 Przed zapisem zweryfikuj nazwę stanu przez `mcp__azure-devops__wit_work_item`
 `action: get_type` dla każdego typu (`Task`, `Product Backlog Item`, `Bug`) —
@@ -956,7 +1026,8 @@ nie na całym feature'ze.
 
 Po zakończeniu implementacji **ZATRZYMAJ SIĘ i czekaj na moje potwierdzenie**.
 Nie ruszaj statusów w ADO (poza `In Progress` z Fazy 1b, które już stoi) ani
-nie commituj samodzielnie na tym etapie.
+nie commituj samodzielnie na tym etapie. Raport bramy zaczyna się od linii
+`**[Krok X/N]** Brama potwierdzenia — czeka na Ciebie · zostało: …`.
 
 Raport bramy zawiera punkt **„Dokumentacja”**:
 
@@ -980,7 +1051,8 @@ ograniczeń routingu oraz wpisy istotnych briefów do rejestru (albo
 uzasadnione mechaniczne pominięcia); dla high-stakes zawiera wynik
 niezmienionej bramki końcowej (6.1 Sol `max`).
 
-- Jeśli zgłoszę poprawki → wprowadź je → wróć do tej samej bramy. Każda
+- Jeśli zgłoszę poprawki → najpierw ogłoś zmianę listy kroków (`Lista
+  kroków: N → M`) → wprowadź je → wróć do tej samej bramy. Każda
   poprawka, która zmienia zachowanie, napis albo regułę, dostaje wpis
   w dzienniku i brief dokumentacji, a Faza 4c przechodzi ponownie na
   delcie poprawek — dopiero potem wracasz na bramę.
@@ -1098,7 +1170,9 @@ Wykonaj w tej kolejności:
    `action: update_batch`, jednym wywołaniem na wszystkie PBI/taski naraz,
    gdzie to możliwe. **Zweryfikuj przez zwróconą treść odpowiedzi API** —
    deklaracja sukcesu nie jest dowodem, dopiero zwrócony stan pola jest.
-8. **Raport zużycia tokenów — ostatnia rzecz w komunikacie końcowym.**
+8. **Komunikat końcowy** zaczyna się od `**[Krok N/N]** Domknięcie —
+   zrobione · zostało: 0`; plik kroków ma wszystkie kroki `zrobione`.
+9. **Raport zużycia tokenów — ostatnia rzecz w komunikacie końcowym.**
    Uruchom `python $env:USERPROFILE\.claude\bin\token-report.py report --task <numer>`
    i wklej obie tabele bez zmian (per silnik → per model → sumy; szczegóły
    per rola/brief) wraz ze stopką. Raport liczy z zapisów na dysku
