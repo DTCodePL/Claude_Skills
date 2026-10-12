@@ -3065,6 +3065,420 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak stwierdzonych.
 - Wymagane testy i dowody: `npm run lint`, `format:check`, `npm test` 1351/1351, build (19 tras); przeglądarka na lokalnym SSR i na produkcji: zero przejść `clip-path` na ukrytych kurtynach, odsłonięcie animowane od przydzielonej krawędzi, pasek stopki 51/50 px (komputer i telefon), numer `+48 795 547 837`; CI i wdrożenie `Prod` zielone.
 
+### 2705-B1 (trwałość i bramka operatora płatności — przebieg przerwany przekazaniem) — 2026-10-12
+- Archetyp: Backend — migracja, repozytorium Dapper, bramka operatora płatności
+- Stawka: wysoka / high-stakes (migracja danych, płatność)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh`
+- Recenzent (linia / model / native effort): — (brief podzielony przed recenzją)
+- Dopuszczone alternatywy: brak (przy CZERWONYM Spark `max`)
+- Powód wyboru: twarda bramka — migracja i płatność
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany, hook Claude'a ZIELONY, 2026-10-12 rano
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: przekazanie przy ~306 tys. kontekstu (strażnik kontekstu, próg miękki) po warstwie bazy; bramka operatora nie rozpoczęta
+- Rundy korekt: 0 (reszta zlecona jako B1a/B1b świeżym agentom tej samej linii)
+- Czas do akceptacji: nie dotyczy — zastąpiony przez B1a i B1b
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): —
+- Defekty po odbiorze: —
+- Wymagane testy i dowody: —
+- Wniosek: brief łączący migrację, repozytorium (20 zapytań) i bramkę operatora był za duży na jeden przebieg (reguła 15) — dzielić od razu na bazę i bramkę.
+
+### 2705-B1a (tabela prób zakupu, słownik stanów, repozytorium z testami DB) — 2026-10-12
+- Archetyp: Backend — migracja i repozytorium Dapper
+- Stawka: wysoka / high-stakes (migracja danych, przejścia stanów warunkowe)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh`
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access read`
+- Dopuszczone alternatywy: wykonawca — brak (przy CZERWONYM Spark `max`); recenzent — brak bez naruszenia rezerwy puli Codexa na bramkę (reguła 7), Gemini wykluczony przy high-stakes
+- Powód wyboru: twarda bramka; recenzent innej rodziny o stawce wyższej niż niska
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY); Spark nieznany (wrapper bez zapasu), 2026-10-12
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano (build i 5508 testów zielone, 0 pominiętych; kontrola SQL przez architekta)
+- Rundy korekt: 0 (3 × P3 z recenzji wykonuje następny brief tej samej linii)
+- Czas do akceptacji: ~1 h (z recenzją 11 min)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 3 × P3 (brak więzu zamkniętego zbioru przyczyn porażki, zbędna metoda kasowania bez warunku stanu, nieaktualna liczba w legendzie diagramu); odrzucone 0
+- Defekty po odbiorze: brak (stan na odbiór fali)
+- Wymagane testy i dowody: `dotnet build`, `dotnet test` ze zmienną testów SQL (0 pominiętych), przegląd zapytań warunkowych
+
+### 2705-F1a (awans konfiguratora oferty do warstwy wspólnej + przeniesienie kluczy i18n) — 2026-10-12
+- Archetyp: Refactoring / Architektura — hoisting komponentów i kluczy i18n
+- Stawka: niska (bez niezmiennika; regresja strony zakupu publicznego łapana testami)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access write`
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read`
+- Dopuszczone alternatywy: wykonawca — Claude `wykonawca` Sonnet 5.5 `high`; recenzent — Sol `high` (pominięty: rezerwa puli Codexa na bramkę)
+- Powód wyboru: zmiana mechaniczna o dużej liczbie plików; Spark lokalnie 0–1 rund; Gemini preferowany przy niskiej stawce (reguła 13)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark i Gemini nieznany (wrappery), 2026-10-12
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano po cofnięciu przez architekta niezgłoszonej zmiany koloru w jednym arkuszu SCSS (poza zakresem briefu)
+- Rundy korekt: 0
+- Czas do akceptacji: ~35 min (wykonanie 18 min, recenzja 10 min)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): werdykt poprawny (1,0); P3 obsłużone przez architekta
+- Defekty po odbiorze: 1 — komentarz w presecie wskazywał starą ścieżkę po przeniesieniu; poprawka architekta złamała test lustra design systemu (lustro w 2 repozytoriach), cofnięta — dług do bramki
+- Wymagane testy i dowody: lint, format, pełny `npm test`, build; specy strony zakupu publicznego zielone
+
+### 2705-F1b (awans pomocników operatora płatności i serwisów profilu do obszaru zalogowanego) — 2026-10-12
+- Archetyp: Refactoring / Architektura — hoisting serwisów i DTO
+- Stawka: niska (przeniesienie bez zmiany zachowania)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access write`
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read`
+- Dopuszczone alternatywy: jak 2705-F1a
+- Powód wyboru: jak 2705-F1a; rozłączne pliki, równolegle
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark i Gemini nieznany (wrappery), 2026-10-12
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano
+- Rundy korekt: 0
+- Czas do akceptacji: ~35 min (wykonanie 16 min, recenzja 10 min)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): werdykt poprawny (0,98); P3 obsłużone
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: lint, format, pełny `npm test`, build
+
+### 2705-F2a (klient HTTP zakupu z konta, DTO, enumy, strażnik trasy, awans typów nabywcy) — 2026-10-12
+- Archetyp: Frontend — serwis HTTP, DTO, strażnik trasy
+- Stawka: średnia (strażnik dostępu i kontrakt płatności, bez logiki płatności)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access write`
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read`
+- Dopuszczone alternatywy: wykonawca — `wykonawca-opus` (strażnik); recenzent — Sol `high` (rezerwa puli Codexa)
+- Powód wyboru: kod według ścisłego kontraktu i wzorca istniejącego strażnika; logika płatności wydzielona do osobnego briefu Opusa
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark i Gemini nieznany (wrappery), 2026-10-12
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano; jedno odstępstwo zgłoszone słusznie (brief wskazał nieistniejący spec)
+- Rundy korekt: 0 (2 × P3 wykonuje następny brief w tych plikach)
+- Czas do akceptacji: ~2 h (wykonanie 9 min, recenzja 11 min; reszta to kolejka walidacji fali)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 2 × P3 (zbyt szeroki typ kodu języka, niepełny komentarz strażnika o braku ponownego biegu po hydratacji); odrzucone 1 × P3 (adres bazowy — konwencja projektu)
+- Defekty po odbiorze: brak (stan na odbiór fali)
+- Wymagane testy i dowody: lint, format, pełny `npm test`, build; specy API, strażnika i mapowania nabywcy
+
+### 2372-F3 (sekcja ustawień konta dla konta bez roli właściciela, z makiety) — 2026-10-12
+- Archetyp: Frontend UI / Figma
+- Stawka: niska (widoczność wyłącznie z roli w sesji)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` — Sonnet 5.5 / `high` (Figma MCP)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read`
+- Dopuszczone alternatywy: wykonawca — brak (Figma MCP tylko w linii Claude'a w tej sesji); recenzent — Sol `high` (rezerwa puli Codexa)
+- Powód wyboru: ekran z makiety wymaga faktycznego Figma MCP; linia Figmy po próbie A/B zostaje przy Sonnecie
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY); Gemini nieznany, 2026-10-12
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano po poprawce wyrównania przycisku na szerokim ekranie przez architekta — przyczyna w specyfikacji (brief podał identyfikator całej strony zamiast sekcji, więc wykonawca nie odczytał wariantu szerokiego)
+- Rundy korekt: 0 z wykonania (1 poprawka z winy specyfikacji)
+- Czas do akceptacji: ~2 h (z kolejką walidacji fali; recenzja 12 min)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 1 × P3 (tytuł testu deklaruje wąski ekran bez jego ustawienia) — wykonuje następny brief
+- Defekty po odbiorze: brak (stan na odbiór fali)
+- Wymagane testy i dowody: lint, format, pełny `npm test` z AXE, build; zrzuty makiety przez architekta
+
+### 2372-FIG (nagłówek i opis sekcji w ramkach makiety) — 2026-10-12
+- Archetyp: Frontend UI / Figma — edycja makiety
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` — Sonnet 5.5 / `high` (Figma MCP)
+- Recenzent (linia / model / native effort): architekt (zrzuty `get_screenshot`) — inna rodzina z Figma MCP niedostępna w tej sesji
+- Dopuszczone alternatywy: brak (Figma MCP)
+- Powód wyboru: edycja makiety wymaga Figma MCP
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY), 2026-10-12
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano
+- Rundy korekt: 0
+- Czas do akceptacji: w obrębie fali (~1 h)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak; zgłoszenie do bramy — brak ramek trybu ciemnego tego ekranu w pliku makiet
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: zrzuty ramek przez architekta
+
+### 2705-B1b (bramka operatora płatności dla zakupu z konta — kontrakt, implementacja, atrapa, DI) — 2026-10-12
+- Archetyp: Backend — integracja z operatorem płatności
+- Stawka: wysoka / high-stakes (płatność, zwrot, anulowanie subskrypcji)
+- Niepewność: wysoka (zachowanie operatora przy anulowaniu i zwrocie sprawdzane sondą na koncie testowym)
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (dwa przebiegi: pierwszy zakończony przekazaniem przy ~301 tys., kontynuacja świeżym agentem tej samej linii)
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access read`
+- Dopuszczone alternatywy: wykonawca — brak (przy CZERWONYM Spark `max`); recenzent — brak bez naruszenia rezerwy puli Codexa na bramkę (reguła 7), Gemini wykluczony przy high-stakes
+- Powód wyboru: twarda bramka — płatność; recenzent innej rodziny o stawce wyższej niż niska
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY→ŻÓŁTY); Spark nieznany (wrapper bez zapasu), 2026-10-12 przed południem
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: przekazanie przy ~301 tys. (strażnik kontekstu); kontynuacja dokończyła — zaakceptowano po walidacji (build czysty, 5572 testy, 0 pominiętych)
+- Rundy korekt: 1 (P2 z recenzji jako Krok 0 briefu następnego, ta sama linia; zaakceptowany: 5576 testów)
+- Czas do akceptacji: ~1,5 h z kontynuacją i recenzją; Krok 0 +~20 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 3 × P2 (sekret płatności w domyślnym opisie rekordu, zbyt wąski ponowny odczyt po odmowie unieważnienia faktury, pusty identyfikator sesji przy ponownym użyciu zapisu subskrypcji — przeniesione do briefu domknięcia); P3: 1 odrzucone (klucz idempotencji unieważnienia — współbieżność wyklucza blokada konta), 1 bez poprawki (więz przyczyny porażki przepuszcza małe litery — kolumnę zapisuje wyłącznie kod ze stałych), drobiazgi bez wpływu
+- Defekty po odbiorze: brak (stan na odbiór fali)
+- Wymagane testy i dowody: `dotnet build`, `dotnet test` ze zmienną testów SQL (0 pominiętych), testy HTTP bramki na zapisanych odpowiedziach operatora, sonda na koncie testowym operatora (bez sekretów w logach)
+- Uwaga o specyfikacji: dwa błędy briefu architekta (zbyt wąski ponowny odczyt; uproszczony opis istniejącego zapisu subskrypcji) — rundy z winy specyfikacji, nie wykonania.
+
+### 2705-F2b (przepływ płatności zakupu z konta — serwis FE: pole karty, start, potwierdzenie, odpytywanie, sesja) — 2026-10-12
+- Archetyp: Frontend — logika przepływu płatności z sesją i odpytywaniem (niezmiennik)
+- Stawka: wysoka / high-stakes (płatność, sesja)
+- Niepewność: wysoka (zmiana sesji w trakcie płatności, fail-closed po potwierdzeniu)
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh`
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access read`
+- Dopuszczone alternatywy: wykonawca — brak (przy CZERWONYM Spark `max`); recenzent — brak bez naruszenia rezerwy puli Codexa na bramkę, Gemini wykluczony przy high-stakes
+- Powód wyboru: twarda bramka — płatność i sesja; recenzent innej rodziny o stawce wyższej niż niska
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ŻÓŁTY — Opus dozwolony dla niezmiennika); Spark nieznany, 2026-10-12 południe
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: odrzucony do poprawek (bez P0/P1; 3 × P2 w kodzie i testach)
+- Rundy korekt: 3 (runda 1: 7 poprawek z recenzji; runda 2: luka tej samej klasy zgłoszona przez wykonawcę + podział specu przekraczającego limit długości; runda 3: luka zgłoszona przez wykonawcę rundy 2 — jednolinijkowa bramka potwierdzenia w toku; zaakceptowana). Runda 2 przerwana wyjściem procesu sesji i wznowiona tym samym agentem (ryzyko pozostawionej mutacji) — dokończona.
+- Czas do akceptacji: ~2,5 h z trzema rundami (rundy 1–2 ~2 h, runda 3 ~20 min)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 4 × P2 (nieukształtowany wynik potwierdzenia wiesza fazę wysyłania; zmiana sesji zostawia fazy oczekiwania bez wyjścia; dwie luki dowodowe w testach) i 3 × P3 (luki testów montażu i wznowienia, kolejność fokusu); odrzucone 0
+- Defekty po odbiorze: nieustalone (bramka końcowa przed nami)
+- Wymagane testy i dowody: spec Vitest przepływu z kontrolą mutacyjną każdej asercji na niezmienniku; pełne `npm run lint` / `format:check` / `npm test` (4521) / `npm run build` po fali
+- Uwaga o specyfikacji: dwie przesłanki briefu błędne (wzorzec ścieżki istniejącego komponentu; wzorzec współdzielonego setupu testów) — wykonawcy zgłosili je w sekcji „co błędne”.
+### 2705-F4 (ekran zakupu programu z konta — strona, sekcje, walidacja kolejnością ekranu, trasa, i18n) — 2026-10-12
+- Archetyp: Frontend — ekran z formularzem wg wzorca istniejącego ekranu, bez makiety (decyzja właściciela: wzór w kodzie)
+- Stawka: średnia (ekran funkcji high-stakes bez niezmiennika — niezmiennik płatności i sesji w osobnym serwisie przepływu)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access write`
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read`
+- Dopuszczone alternatywy: wykonawca — `wykonawca` Sonnet 5.5 `high`; recenzent — brak bez naruszenia rezerwy puli Codexa na bramkę (Sol `high` byłby kandydatem)
+- Powód wyboru: ekran bez Figmy i bez niezmiennika, wzorzec w kodzie; recenzent innej rodziny, preferencja Gemini przy niskiej/średniej stawce
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark i Gemini nieznany (wrapper bez zapasu), 2026-10-12 popołudnie
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: odrzucony do poprawek (bez P0/P1); wykonawca sam wskazał błąd specyfikacji (podwójny nagłówek strony)
+- Rundy korekt: 1 (5 poprawek: nagłówek, warunek liczby programów, enum zamiast unii, atrybut niepoprawności pola zgody, działanie główne nieaktywne do wczytania pola karty)
+- Czas do akceptacji: ~1 h 50 min (z recenzją 10 min i rundą korekty 10 min)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 2 × P2 (warunek liczby programów nie łapie wartości nieliczbowej — potwierdzony testem czerwonym na starym kodzie; zamknięty zbiór jako unia typów zamiast enuma) i 2 × P3 (brak atrybutu niepoprawności na polu zgody; ciche naciśnięcie w czasie wczytywania pola karty — nowa decyzja w dokumentacji); odrzucone 1 (kolejność zgody po polu karty — zgodna z kolejnością ekranu)
+- Defekty po odbiorze: brak (stan na odbiór fali)
+- Wymagane testy i dowody: speci Vitest komponentów i AXE strony; pełne `npm run lint` / `format:check` / `npm test` (4528) / `npm run build`; zrzuty `browser-check` — po etapie BE
+- Uwaga o specyfikacji: 2 błędy briefu architekta (własny nagłówek strony wbrew powłoce; nieistniejące użycia kluczy w jednym pliku) — zgłoszone przez wykonawcę.
+### 2705-A-SCSS (audyt SCSS ekranu zakupu i sekcji ustawień — Faza 4) — 2026-10-12
+- Archetyp: Audyt SCSS (tylko odczyt) — duplikacja i reguły stylów, 10 plików
+- Stawka: niska (audyt bez zapisu)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access read`
+- Recenzent (linia / model / native effort): architekt (triaż rekomendacji względem repo i reguł); kod nie powstał
+- Dopuszczone alternatywy: Gemini `high` `-Access read`; Sol `high` wyłączony rezerwą puli Codexa na bramkę
+- Powód wyboru: wcześniejszy audyt SCSS na Sparku bez pominiętego pliku; tylko odczyt
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark nieznany (wrapper bez zapasu), 2026-10-12 ok. 14:15
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowany — wszystkie 10 plików omówione
+- Rundy korekt: 0
+- Czas do akceptacji: ~10 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): rekomendacje — 4 przyjęte do refaktoru (dwa wspólne partiale, scalenie dwóch reguł, mixin hosta sekcji ustawień), 1 zamieniona z komponentu na mixin (decyzja architekta), 1 odłożona jako dług (atomy tekstu ekranu logowania poza obszarem)
+- Defekty po odbiorze: nie dotyczy
+- Wymagane testy i dowody: brak (wejście do F5-scss)
+- Uwaga o specyfikacji: brak.
+
+### 2705-F5-scss (refaktor SCSS po audycie — dwa partiale z mixinami, scalenie reguł, mixiny ustawień) — 2026-10-12
+- Archetyp: Frontend — refaktor SCSS z wyrocznią identyczności skompilowanego CSS (11 plików)
+- Stawka: niska (style bez niezmiennika; wygląd chroniony wyrocznią)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` — Sonnet 5.5 / `high` (ponowna kwalifikacja: pierwszy przydział Spark `max` padł na pierwszym wywołaniu modelu komunikatem 429 „Subscription quota exhausted” — pierwszy limit puli Sparka w rejestrze)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read`
+- Dopuszczone alternatywy: wykonawca — Gemini `high` `-Access write` (recenzent musiałby czekać na reset Sparka; Codex ≤ 5 plików w funkcji high-stakes); recenzent — Spark po resecie
+- Powód wyboru: Spark zablokowany do 14:27Z; pula Claude'a zielona; autor Claude pozwala na natychmiastową recenzję Gemini
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark zablokowany (wrapper 429, reset 14:27Z), Claude znany (hook ZIELONY 7 %), Gemini nieznany — 2026-10-12 12:23Z
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany po walidacji (wyrocznia 10 × OK, stylelint i Prettier czyste); 2 odchylenia od briefu zgłoszone przez wykonawcę i słuszne (parametr mixinu, wycofany punkt bez identycznych deklaracji)
+- Rundy korekt: 1 (4 poprawki z recenzji: drugi konsument mixinu szerokości przycisku, komentarz konsumentów, domyślna wartość parametru, nagłówek sekcji na ekranie publicznym) — przez wznowienie tego samego agenta (152 tys. kontekstu)
+- Czas do akceptacji: ~25 min (z recenzją ~9 min)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 1 × P2, 3 × P3; odrzucone 0; 1 propozycja zmiany komponentu sekcji ustawień odłożona jako dług (dotyka 12 użyć)
+- Defekty po odbiorze: brak (stan na odbiór fali)
+- Wymagane testy i dowody: wyrocznia sass (znormalizowane reguły przed/po, 11 plików), stylelint, Prettier; pełne `npm run lint` / `format:check` / `npm test` (4528) / `npm run build` po fali
+- Uwaga o specyfikacji: 1 błąd briefu (parametr mixinu z samym dolnym marginesem nie daje identycznego CSS) — wykonawca naprawił i zgłosił.
+### 2705-B2 (start zakupu z konta — oferta, walidator, handler pod blokadą konta, kontroler, testy) — 2026-10-12
+- Archetyp: Backend — przypadek użycia z płatnością (CQRS + kontroler)
+- Stawka: wysoka / high-stakes (płatność, start subskrypcji, warunki nadania roli właściciela)
+- Niepewność: wysoka (ponowne kliknięcie przy istniejącej próbie, stany płatności po stronie operatora)
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (trzy przebiegi: STOP na błędzie briefu po Kroku 0; świeży przebieg zakończony przekazaniem przy ~300 tys.; wznowienie tego przebiegu przez SendMessage od razu przekroczyło 305 tys. bez żadnej zmiany; świeży przebieg z briefem i dosłownym przekazaniem dokończył)
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access read` (po pierwszym limicie puli Sparka recenzja ruszyła po resecie 14:28Z; 13,5 min)
+- Dopuszczone alternatywy: wykonawca — brak (przy CZERWONYM Spark `max`); recenzent — brak bez naruszenia rezerwy puli Codexa na bramkę (reguła 7), Gemini wykluczony przy high-stakes; przy limicie Sparka recenzja czeka, zależna fala B3a czeka na nią
+- Powód wyboru: twarda bramka — płatność; recenzent innej rodziny o stawce wyższej niż niska
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook); Spark zablokowany (429 wrappera, 2026-10-12 ok. 12:30Z, reset 14:27Z)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: STOP — wykonawca słusznie zakwestionował przepisane w briefie brzmienie zgody (tekst zakupu publicznego zamiast zgody cyklicznej z konta); Krok 0 (poprawki po recenzji B1b) zaakceptowany
+- Rundy korekt: 0 z wykonania; przebiegi dodatkowe z winy specyfikacji (1) i kosztu kontekstu (wznowienie zamiast świeżego agenta); po zaakceptowaniu: build czysty, 5691 testów, 0 pominiętych
+- Czas do akceptacji: ~1,5 h od pierwszego przebiegu (11:00Z) do odbioru, bez recenzji
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): werdykt „poprawny”, pewność 0,85, 0 × P0–P2; 3 × P3 potwierdzone (jawny `null` zamówienia/nabywcy daje 500 zamiast 400; rozjazd wielkości liter języka zgoda↔produkt operatora; klient usunięty ręcznie u operatora blokuje zakup konta — dług); 1 uwaga wykonawcy obalona (brak śladu 503 — middleware loguje każde 5xx). Dwa pierwsze P3 + własne znaleziska architekta (język pl/en, kod odmowy operatora w logu) jako Krok 0 briefu B3a, ta sama linia
+- Defekty po odbiorze: brak (stan na odbiór fali)
+- Wymagane testy i dowody: `dotnet build`, `dotnet test` ze zmienną testów SQL (0 pominiętych), testy jednostkowe handlera z prawdziwym resolverem klucza i starterem na atrapie operatora, test kontraktu JSON kontrolera
+- Uwaga o specyfikacji: 1 błąd briefu (brzmienie zgody); lekcja kosztu — wznowienie przerwanego agenta z dużym kontekstem kończy się natychmiastowym przekazaniem, kontynuacja zawsze świeżym agentem (reguła 15).
+### 2372-QAS (przypadki QA Sphere — sekcja „Własny program”, 8 przypadków) — 2026-10-12
+- Archetyp: QA Sphere — autor przypadków manualnych (plik podglądu wg skilla v1.6)
+- Stawka: niska (ekran bez niezmiennika; przypadki manualne, wysyłka skryptem po bramie użytkownika)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / `-Access write` (Spark — linia domyślna autora — z pierwszym limitem puli)
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access read` (plik Gemini → Spark, wg skilla; po resecie puli)
+- Dopuszczone alternatywy: autor — Spark `max` (limit do 14:27Z); recenzent — brak innej rodziny wg procedury skilla (Gemini nie recenzuje Gemini)
+- Powód wyboru: procedura skilla QA Sphere (Spark autor, Gemini przy limicie Sparka; recenzja krzyżowa)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark zablokowany (429, 12:25Z → reset 14:27Z); Gemini nieznany (wrapper bez zapasu), 12:43Z
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: lint 0 błędów; 8 przypadków (2 high, 2 medium, 4 low), `updates[]` puste po sprawdzeniu ZEB-980/881/882/951/979
+- Rundy korekt: 2 — runda 1 po recenzji (2 × P2, 3 × P3), runda 2 z kontroli architekta (kolejność kroków warunków wstępnych A5/A6 — sekcja języka i motywu jest na otwieranej dopiero stronie)
+- Czas do akceptacji: ~2,5 h zegarowo, w tym ~1,5 h oczekiwania na reset puli Sparka (autor 9,5 min, recenzja 8,7 min, korekty 4,9 i 4,4 min)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2 × P1 obalone przez architekta (hasło `klient.demo` zmierzone logowaniem i obecne w opublikowanych przypadkach — seed celowo go nie zapisuje; puste `updates[]` potwierdzone odczytem ZEB-980/881 — `context.json` nie niesie treści przypadków); potwierdzone 2 × P2 (fałszywe pokrycie „persystencja”, trwała zmiana języka/motywu bez przywrócenia), 3 × P3 (nieprawdziwe uzasadnienie i nieistniejący endpoint w A7, nazwa tokenu zamiast obserwacji w A6)
+- Defekty po odbiorze: brak (`qas.py verify` 8/8, różnic 0; ZEB-1581…1588, folder 166)
+- Wymagane testy i dowody: `qas.py lint --context` (0/0), tabela na bramie użytkownika, `qas.py folders` → `push --limit 1` → `verify --only` → `push` → `verify`
+- Uwaga o specyfikacji: 2 błędy briefu architekta — „hasła wyłącznie z seedów” (niespełnialne dla `klient.demo`) i „sprawdź treść w `context.json`” (plik niesie tylko tytuły; autor sięgnął po MCP sam); lekcja: brief autora i recenzenta ma wskazywać źródło hasła spoza seeda i dołączać treść przypadków do sprawdzenia albo kazać ją pobrać `get_test_case`.
+### 2705-B3a (domknięcie zakupu z konta — orkiestrator, zapis w jednej transakcji, procesor `invoice.paid`, siatka) — 2026-10-12
+- Archetyp: Backend — domknięcie płatności (orkiestrator + procesor webhooka)
+- Stawka: wysoka / high-stakes (nadanie roli właściciela, zapis subskrypcji i płatności, zwrot przy konflikcie)
+- Niepewność: wysoka (trzy wejścia domknięcia, brak ponowienia webhooka, stany operatora)
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (trzy przebiegi: Krok 0 zakończony przekazaniem przy ~300 tys. po jednym kroku; B3a-1 orkiestrator; B3a-2 procesor — oba świeże, z plikiem przekazania)
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access read` (12,3 min)
+- Dopuszczone alternatywy: wykonawca — brak (przy CZERWONYM Spark `max`); recenzent — brak bez naruszenia rezerwy puli Codexa (reguła 7), Gemini wykluczony przy high-stakes
+- Powód wyboru: twarda bramka — płatność i rola; recenzent innej rodziny o stawce wysokiej
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook, ZIELONY 31–38 % okna); Spark nieznany (bez komunikatu limitu od resetu 14:27Z), 15:35Z
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: B3a-1 i B3a-2 zaakceptowane bez korekty z wykonania (5735 → 5759 testów, 0 pominiętych); wykonawca B3a-2 sam wskazał lukę: anulowane żądanie webhooka w siatce gubi zwrot bez alarmu
+- Rundy korekt: 1 wspólna z B3b (B3-fix, `wykonawca-opus` `xhigh`, świeży przebieg, 17 min, 322 tys. kontekstu — próg miękki przekroczony przy mutacjach, dokończony bez przekazania): 9 punktów (P1–P9) przyjętych za pierwszym razem, 5885 testów, 0 pominiętych, każda poprawka z mutacją; architekt dopisał sam 1 zdanie komentarza handlera i 1 zdanie dokumentacji INT pkt 9 (uwagi wykonawcy). Bez osobnej recenzji poprawek — gałęzie przeczytane przez architekta, cały diff idzie do bramki Sol `max`
+- Czas do akceptacji: B3a-1 ~25 min, B3a-2 ~16 min, recenzja 12 min, B3-fix 17 min + walidacja ~10 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 × P0/P1; 1 × P2 potwierdzone (zwrot w konflikcie nieprzyjęty → subskrypcja `canceled` → kolejne domknięcia `NotPaid`, zwrot nigdy nie ponowiony); 3 × P3 potwierdzone (brakujące testy kolejności i ścieżki `ABANDONED`; strażnik pustego `InvoiceId`; warunki przejęcia przez B3b — już w briefie B3b); 2 uwagi wykonawcy przyjęte jako poprawki (token żądania w siatce; zdarzenia poza zakresem jako przetworzone)
+- Defekty po odbiorze: brak (stan na odbiór fali)
+- Wymagane testy i dowody: `dotnet build`, `dotnet test` ze zmienną testów SQL (0 pominiętych), testy jednostkowe orkiestratora i procesora z mutacją, test SQL dwóch domknięć z konta
+- Uwaga o specyfikacji: 5 błędów przesłanek briefu B3a-completion obalonych przez wykonawców (ponowienie webhooka mimo deduplikacji; null → 500 zamiast 400; testy persistera nie istniały; położenie `MessageLanguageCodes`; typ `BillingIntervalId`) i 2 w B3a-2 („przetworzone jak `default`” — `default` niczego nie oznacza; siatka jako użytkownik blokady konta — siatka konta nie zna); lekcja: przesłanki o mechanice istniejącego kodu (ponowienia, oznaczanie zdarzeń) sprawdzać odczytem przed briefem.
+### 2705-B3b (status zakupu z odczytem u operatora, cykl uzgadniający i retencja prób) — 2026-10-12
+- Archetyp: Backend — zapytanie z domknięciem + usługa cykliczna w tle
+- Stawka: wysoka / high-stakes (status steruje ponowną płatnością na froncie; cykl jest jedynym ponowieniem domknięcia; porzucanie i anulowanie subskrypcji)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (jeden przebieg, 300 tys. kontekstu na granicy progu)
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access read` (14,8 min)
+- Dopuszczone alternatywy: jak 2705-B3a
+- Powód wyboru: twarda bramka — płatność; recenzent innej rodziny o stawce wysokiej
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook, ZIELONY 38–40 % okna); Spark nieznany, 15:54Z
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany bez korekty z wykonania (5857 testów, 0 pominiętych; mutacje blokady potwierdzone przez wykonawcę); 3 uwagi wykonawcy przyjęte jako poprawki (eskalacja zawieszonej próby po 24 h; `incomplete` + PaymentIntent `canceled` → `PAYMENT_REQUIRED`; opis blokady konta) + 1 własna architekta (obiekt `StripeException` w dzienniku statusu i cyklu)
+- Rundy korekt: wspólna B3-fix (wpis 2705-B3a) — przyjęta za pierwszym razem
+- Czas do akceptacji: ~17 min wykonania + 15 min recenzji + wspólna B3-fix 17 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 × P0/P1/P2; 1 × P3 zapisane jako dług (odpytywanie statusu bez ograniczenia częstotliwości — blokada konta szereguje, ryzyko teoretyczne); 3 doprecyzowania briefu (limit blokady 25 s, nie 30 s; `Active` = „nie anulowano”; `canceled` dla anulowania przy starcie)
+- Defekty po odbiorze: brak (stan na odbiór fali)
+- Wymagane testy i dowody: `dotnet build`, `dotnet test` ze zmienną testów SQL, test kontraktu JSON statusu, testy cyklu ze stanem blokady przy każdym wywołaniu domknięcia
+- Uwaga o specyfikacji: brief nie przewidział eskalacji próby, która trwale rzuca wyjątkiem (uwaga wykonawcy); kontrakt `PAYMENT_REQUIRED` niejednoznaczny dla `incomplete` + PaymentIntent `canceled`. Brief B3-fix: obietnica „każde ponowienie zwrotu działa” była zbyt mocna — stały klucz idempotencji zwrotu daje przez dobę tę samą odpowiedź operatora (uwaga wykonawcy, dokumentacja doprecyzowana).
+### 2705-BT-1 (testy API zakupu z konta — prawdziwy host HTTP, prawdziwa baza, atrapa operatora) — 2026-10-12
+- Archetyp: Testy — xunit integracyjne BE (host + SQL + atrapa bramki)
+- Stawka: wysoka / high-stakes (dowód kontraktu, autoryzacji, transakcji i blokady zakupu; pliki testów bez niezmiennika produkcji)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / `tester` — Sonnet 5.5 / `medium` (ramię A próby testera, reguła 14); korekta — świeży `tester`
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access read` (9,8 min; stała kontrola próby)
+- Dopuszczone alternatywy: w próbie brak (ramię wybrane przed briefem)
+- Powód wyboru: próba testera — pierwszy brief testów linii Claude'a w dzienniku
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook, ZIELONY 45–50 % okna); Spark nieznany, 16:30Z
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: 7 scenariuszy (10 testów), zielone, mutacje 3/5/7 czerwone; scenariusz 8 słusznie pominięty (pokryty kontraktami); 0 defektów produkcji
+- Rundy korekt: 1 (3 × P2 fałszywej zieleni + 4 × P3 z recenzji); korekta przyjęta za pierwszym razem, 1 przesłanka briefu korekty obalona przez wykonawcę (`UnitAmountMinor` to cena jednostkowa)
+- Czas do akceptacji: 7,7 min + recenzja 9,8 min + korekta 4,7 min + walidacja
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 × P0/P1; 3 × P2 potwierdzone (drugi `GET` po `COMPLETED` nie pilnował braku odczytu u operatora; tolerancja czasu zgody ±10 ms; scenariusz 4 nie sprawdzał warunków nowej próby i żądania do operatora); 4 × P3 potwierdzone (zera w scenariuszu 6; token z rolą Owner w scenariuszu 1; magiczna liczba; realizm atrapy); 1 twierdzenie recenzenta odrzucone (zaokrąglenie `datetime` „tylko w dół” — idzie w obie strony)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: `dotnet build`, `dotnet test` z SQL (5895, 0 pominiętych), filtr funkcji 430, mutacje po korekcie (poprawki 1 i 3)
+- Uwaga o specyfikacji: brief scenariusza 5 żądał „bez nowych wywołań zapisu” zamiast „bez wywołań w ogóle” — słabsze kryterium architekta przeniosło się do testu; koszt próby: 2,65 $ (1,82 + 0,83).
+### 2705-REPRO (odtworzenie zakupu z konta na testowym koncie Stripe — przeglądarka, Playwright CLI) — 2026-10-12
+- Archetyp: Przeglądarka — ręczne odtworzenie przepływu płatności (worker CLI)
+- Stawka: wysoka (dowód płatności i nadania roli na prawdziwym operatorze w trybie testowym; worker tylko klika, bez kodu)
+- Niepewność: średnia (ramka Stripe, prawdziwe webhooki lokalnie)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access write` (powłoka dla `pwcli`; katalog roboczy pusty w scratchpadzie), 4,6 min
+- Recenzent (linia / model / native effort): architekt — zrzuty PNG, log BE, log `stripe listen`, stan bazy (dowód, nie recenzja kodu)
+- Dopuszczone alternatywy: Gemini/Codex tylko z Playwright MCP (CLI u nich nie działa) — droższe w tokenach; Claude bez zrzutów (reguła 15)
+- Powód wyboru: jedyna linia z Playwright CLI
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark nieznany (bez komunikatu limitu od odnowienia), 16:34Z
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: PASS obu przejść (A: karta odrzucana → komunikat, brak roli; B: odrzucenie → ponowienie 4242 bez przeładowania → `/panel/biznes/pulpit` z nakładką); 31 wywołań powłoki, 68 poleceń CLI, 0 pełnych snapshotów; webhook `invoice.paid` i odczyt statusu domknęły tę samą próbę w tej samej sekundzie — w bazie po 1 subskrypcji, płatności, fakturze i zgodzie
+- Rundy korekt: 0
+- Czas do akceptacji: 4,6 min + weryfikacja architekta
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): uwaga UX P3 — powód odrzucenia widoczny dwa razy (w elemencie Stripe i pod polem karty — drugie wymagane dokumentacją)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: zrzuty 3 PNG obejrzane, log BE, log `stripe listen` (200), zapytanie SQL obu kont
+- Uwaga o specyfikacji: 3 drobne błędy briefu zgłoszone przez workera (angielski przykład tytułu ramki; `getByLabel('Hasło')` niejednoznaczne; nie każde polecenie CLI wypisuje adres) — wiedza zapisana w pamięci `zebrani-stripe-konto-testowe`.
+### 2705-BT-2 (testy SQL domknięcia zakupu z konta — wyścig wejść, duplikat ze zwrotem, zwrot nieprzyjęty, siatka webhooka, retencja) — 2026-10-12
+- Archetyp: Testy — xunit integracyjne BE (prawdziwy SQL, prawdziwa blokada `sp_getapplock`, atrapa bramki)
+- Stawka: wysoka / high-stakes (dowód niezmiennika „nigdy dwie subskrypcje” i zwrotu przy konflikcie; pliki testów bez niezmiennika produkcji)
+- Niepewność: średnia (współbieżność na prawdziwej bazie)
+- Wykonawca (linia / model / native effort): Claude / `tester-haiku` — Haiku 5.5 / `xhigh` (ramię B próby testera, reguła 14); korekta — świeży `tester-haiku`, 10,2 min
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access read` (stała kontrola próby)
+- Dopuszczone alternatywy: w próbie brak (ramię wybrane przed briefem)
+- Powód wyboru: próba testera — drugi brief, naprzemiennie po BT-1 (ramię A)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook, ZIELONY); Spark znany po odnowieniu limitu (komunikat użytkownika), 17:00Z
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: 5 scenariuszy na SQL, zielone; wyścig 3 × 3 wejścia na świeżych kontach; 0 defektów produkcji; jeden plik istniejący zmieniony bez zgłoszenia (wyciągnięcie pomocnika z `AccountProgramPurchaseCompletionSqlTests.cs`)
+- Rundy korekt: 1 (3 × P2 + 8 × P3 z recenzji); korekta przyjęta za pierwszym razem — wymieniła każdy zmieniony plik, mutacje czerwone (4 zamiast 3 wpisów `Completed`; `ABANDONED` zamiast `PENDING`), wyścig 3 × zielony
+- Czas do akceptacji: 1. przebieg + recenzja + korekta 10,2 min + walidacja architekta
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 × P0/P1; 3 × P2 potwierdzone (kontrola 11 min retencji nie sprawdzała stanu końcowego — regresja „porzucaj każdą nieopłaconą” przeszłaby; wyścig bez dowodu, że każdy webhook doszedł do domknięcia; siatka webhooka bez stanu bazy); 8 × P3 potwierdzone (m.in. dwa `Task.WhenAll`, `UpdatedAt` 71 h, wszystkie metody atrapy, brak `Critical` w duplikacie, liczba subskrypcji w scenariuszu 3, magiczna liczba, awans pomocników do `Support/`, komentarz o wspólnej bazie klasy)
+- Defekty po odbiorze: brak; dług P3 — zapytanie o liczbę subskrypcji konta zdublowane w dwóch klasach testów (brief korekty zakazał zmian treści pomocników)
+- Wymagane testy i dowody: `dotnet build`, `dotnet test` z SQL (5903, 0 pominiętych), filtr funkcji 438, wyścig 3 ×, mutacje poprawek 1 i 3
+- Uwaga o specyfikacji: 3 przesłanki briefu korekty doprecyzowane przez wykonawcę (magiczna liczba także w pliku „tylko `using`”; „wszystkie metody atrapy” = wywołania cyklu, bo zakładanie klienta i subskrypcji w przygotowaniu nosi `purchaseRef`; dziennik bez właściwości strukturalnych); koszt próby: 1,92 $ (1,18 + 0,74).
+### 2705-GATE-FE (bramka końcowa FE — cały diff funkcji zakupu z konta i sekcji „Własny program”) — 2026-10-12
+- Archetyp: Recenzja — bramka końcowa high-stakes (reguła 6)
+- Stawka: wysoka / high-stakes (płatność, sesja, nadanie roli)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): n/d (recenzja)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review` (tylko odczyt), jeden przebieg na całym diffie FE, ~30 min
+- Dopuszczone alternatywy: brak (bramka bez obniżenia modelu i effortu)
+- Powód wyboru: reguła 6 — inna rodzina niż autor plików niezmiennika (`wykonawca-opus`)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper nie podaje zapasu; bez komunikatu limitu), 16:35Z
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: werdykt „niepoprawny” — 2 × P1 + 5 × P2
+- Rundy korekt: 2 (GFE-fix, `wykonawca-opus`, 7,48 $; 6/6 poprawek z mutacją czerwoną, 2 przesłanki briefu obalone: blokada przechodzi do PrimeNG przez `[formField]` bez zmian w komponentach wspólnych; synchroniczne drugie `refresh()` dołączyłoby do starego żądania — potrzebny przeskok mikrozadania; recenzja fali korekty Spark `max` read 12,5 min — werdykt „niepoprawny” 0,9: P0 „wypełnienie profilem starego konta” obalone w źródłach Angulara 22.1.5 (`httpResource` zeruje wartość synchronicznie przy zmianie klucza), P2 „telefon konta A” obalone tak samo, 2 × P1 obniżone do P2 i potwierdzone (stany terminalne i komunikat odmowy poprzedniego konta po zmianie sesji), P2 REGON w blokadzie → dług P3, P3 testu blokady potwierdzone; GFE-fix-2 `wykonawca-opus` 3,75 $, 3 mutacje czerwone, delta przyjęta bez kolejnej recenzji)
+- Czas do akceptacji: bramka ~30 min + triaż + korekta + walidacja (lint, format, 4546 testów, build) + recenzja fali korekty
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2 × P1 potwierdzone (sekret PaymentIntentu w adresie powrotu po logowaniu; dane, zgoda i karta konta A zostają po zmianie konta na B); 4 × P2 potwierdzone i naprawione (nawigacja po `COMPLETED` bez roli właściciela; budżet 60 s nieegzekwowany przy wiszącym żądaniu; przełącznik okresu PrimeNG zmienia się Spacją mimo blokady; wstępne wypełnienie nadpisuje pole w trakcie pisania); 1 × P2 przyjęte jako dług (powrót z pełnego przekierowania 3DS nie odtwarza zamówienia — pole tylko karta, `redirect: 'if_required'`); żadnego z nich nie znalazła wcześniejsza recenzja fal Sparka
+- Defekty po odbiorze: brak; dług P3 — odpowiedź REGON w locie wpisuje dane firmy do zablokowanego formularza (komponenty wspólne z `/kup`)
+- Wymagane testy i dowody: triaż każdego znaleziska w kodzie; po każdej korekcie pełne `npm run lint`, `format:check`, `npm test` (4546 → 4549), `npm run build`
+- Uwaga o specyfikacji: brak.
+### 2705-GATE-BE (bramka końcowa BE — cały diff funkcji zakupu z konta) — 2026-10-12
+- Archetyp: Recenzja — bramka końcowa high-stakes (reguła 6)
+- Stawka: wysoka / high-stakes (płatność, zwrot, nadanie roli, migracja)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): n/d (recenzja)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review` (tylko odczyt), jeden przebieg na całym diffie BE, 12,7 min
+- Dopuszczone alternatywy: brak (bramka bez obniżenia modelu i effortu)
+- Powód wyboru: reguła 6 — inna rodzina niż autor plików niezmiennika (`wykonawca-opus`)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (bez komunikatu limitu po bramce FE), 17:39Z
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: werdykt „niepoprawny” — 4 × P2, 0 × P0/P1; weryfikacja statyczna (testów nie uruchamiała)
+- Rundy korekt: 1 (GBE-fix, `wykonawca-opus`, 6,20 $, 15,8 min; 14 mutacji czerwonych, migracja wykonana dwukrotnie na świeżej bazie — oryginał pada Msg 1781, poprawiona przechodzi; 1 przesłanka briefu obalona: deduplikacja webhooka nie przetwarza zdarzenia ponownie, więc skasowana próba kończy się alarmem do ręcznej obsługi, nie siatką zwrotu; recenzja fali korekty Spark `max` read 7,9 min — werdykt „poprawny” 0,8, 1 × P2 potwierdzone (teksty alarmu `RefundPending` w webhooku i cyklu opisywały tylko konflikt ze zwrotem — poprawione przez `mechanik`), 1 × P3 dług (gałąź „subskrypcja już zapisana” ignoruje wynik — nieosiągalna))
+- Czas do akceptacji: bramka 12,7 min + triaż + korekta + walidacja + recenzja fali korekty
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2 × P2 potwierdzone (wynik warunkowego zapisu domknięcia ignorowany → `Completed` bez zapisów, gdy retencja skasuje próbę w trakcie odczytu u operatora; surowy wyjątek operatora w dzienniku awaryjnego anulowania startera); 2 × P2 obniżone do P3 i poprawione tanio (domknięcie i zwrot na `latest_invoice` zamiast pierwszej faktury — wymaga opóźnienia o cały okres; migracja bez osłon `ADD CONSTRAINT` — zgodna z konwencją Script000004/000015, ale DbUp bez transakcji); żadnego z nich nie znalazły recenzje fal Sparka
+- Defekty po odbiorze: brak; długi P3 — gałąź „subskrypcja już zapisana” bez sprawdzenia wyniku; próba `ABANDONED` z fakturą nie-pierwszą bez alarmu cyklu; siatka webhooka zwraca `latest_invoice` bez sprawdzenia pierwszej faktury (uruchamia się tylko przy doręczeniu pierwszej)
+- Wymagane testy i dowody: build 0 ostrzeżeń, pełny pakiet 5903 → 5917 (0 pominiętych); triaż każdego znaleziska w kodzie (DbUp bez `WithTransaction`, `_ = await writer.WriteAsync`, `LogError(exception, …)`)
+- Uwaga o specyfikacji: brief bramki żądał „skrypt idempotentny wg konwencji repo” — konwencja sama ma tę lukę; bramka słusznie oceniła skutek, nie zgodność z konwencją.
+### 2705-DOC4C-BE (Faza 4c — zgodność dokumentacji z implementacją, grupa BE: płatności, dane) — 2026-10-12
+- Archetyp: Recenzja — przegląd zgodności dokumentacji (Faza 4c)
+- Stawka: wysoka (dokumenty feature'a high-stakes: INT-PLATNOSCI-CYKLICZNE, WP-USUWANIE-KONTA-I-DANYCH)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): n/d (recenzja)
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access read`, 685,8 s
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` odłożony (pula Plusa po dwóch bramkach, sygnał nieznany); Gemini wykluczony (stawka high-stakes)
+- Powód wyboru: inna rodzina niż autor dokumentacji (architekt, Claude); zakres całej grupy dokumentów z całym kodem BE w jednym przebiegu
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark nieznany (działa po resecie limitu z ~12:25Z), 18:00Z
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: macierz kompletna — 0 × „kod odbiega”, 0 × „dokument nieaktualny”, 9 × „brak w dokumencie”, każdy z `plik:linia`
+- Rundy korekt: 0 (triaż i rewizje dokumentów — architekt)
+- Czas do akceptacji: przebieg 11,4 min + triaż
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 9/9 potwierdzone w kodzie (produkt operatora per język; „to samo zamówienie” z ceną i językiem; konflikt przy samej roli; zakres `invoice.paid`; tylko pierwsza faktura; CAS bez zmiany; kontrakt API; skład próby z IP/UA; opłata w chwili anulowania) → rewizje INT pkt 1, 3–6, 9, 10 i WP pkt 1; 0 fałszywych alarmów
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: każdy wiersz rozbieżności sprawdzony przez architekta w kodzie przed rewizją
+- Uwaga o specyfikacji: brief niósł kryteria akceptacji #2372 (szum dla grupy BE) i numerację dziennika z lukami — recenzent słusznie wskazał oba
+
+### 2705-DOC4C-FE (Faza 4c — zgodność dokumentacji z implementacją, grupa FE: ekrany) — 2026-10-12
+- Archetyp: Recenzja — przegląd zgodności dokumentacji (Faza 4c)
+- Stawka: wysoka (UI-KONTO-ZAKUP-PROGRAMU feature'a high-stakes, UI-KONTO-USTAWIENIA)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): n/d (recenzja)
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access read`, 1197,1 s
+- Dopuszczone alternatywy: jak 2705-DOC4C-BE
+- Powód wyboru: jak 2705-DOC4C-BE; dwa przebiegi równolegle na rozłącznych grupach dokumentów
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark nieznany, 18:04Z
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: 1 × „dokument nieaktualny”, 10 × „brak w dokumencie”, 0 × „kod odbiega”/„brak w kodzie”; liczby `zgodne` per sekcja (ponad 100 twierdzeń); raport częściowo przemieszany w logu wrappera (znana kolejność linii), treść kompletna
+- Rundy korekt: 0 (triaż i rewizje dokumentów — architekt)
+- Czas do akceptacji: przebieg 20 min + triaż
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 11/11 potwierdzone; najcenniejsze — zdanie z rewizji tego zadania („strona nie wyświetla się właścicielowi ani na chwilę”) przeczyło zatwierdzonej DEC-PIERWSZY-RENDER-POWLOKI (serwer nie zna ról) — skorygowane; sekret płatności w adresie powrotu nieopisany (także sekret SetupIntentu z PBI #1759) → rewizja DEC-ADRES-POWROTU-PO-ZALOGOWANIU; 6 uwag do briefu, wszystkie trafne (opis PBI #2372 w ADO nieaktualny, zła ścieżka w briefie, dwuznaczne zdanie dokumentu)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: każdy wiersz rozbieżności sprawdzony przez architekta w kodzie przed rewizją; kontrola linków w 5 zmienionych dokumentach — 0 złych
+- Uwaga o specyfikacji: brief podawał nieistniejącą ścieżkę komponentu sekcji „Abonament i faktury”
+
+### 2705-REPRO-2 (ponowne odtworzenie zakupu z konta na testowym Stripe po poprawkach bramki FE) — 2026-10-12
+- Archetyp: Weryfikacja w przeglądarce — worker przeglądarkowy (Playwright CLI), ścieżka płatności
+- Stawka: wysoka (płatność, nadanie roli) — odczyt i jedna płatność testowa, bez zmian w kodzie
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access write` (powłoka dla Playwright CLI), 244 s
+- Recenzent (linia / model / native effort): n/d — architekt odbiera artefakty (zrzut, baza, log `stripe listen`)
+- Dopuszczone alternatywy: Codex z Playwright MCP (droższy w kontekście, pula zarezerwowana dla bramek); Gemini wykluczony (CLI nie działa, stawka)
+- Powód wyboru: Playwright CLI działa dziś tylko w linii Spark; poprzedni przebieg na tym briefie — 0 rund
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark nieznany, działa od resetu ~12:25Z, 18:40Z
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: PASS — konto po odmowie karty sprzed 2 h: to samo zamówienie → ta sama próba (`PENDING` z 16:35Z domknięta 18:42Z), blokada formularza w trakcie płatności (wszystkie pola `disabled`), przejście na `/panel/biznes/pulpit` z nakładką po ~15 s; 22 wywołania powłoki, 45 poleceń CLI, 0 pełnych snapshotów
+- Rundy korekt: 0
+- Czas do akceptacji: 4 min + odbiór
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): n/d; obserwacja — pigułka „stripe” na pulpicie to asystent trybu testowego Stripe.js (tylko tryb testowy)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: zrzut obejrzany, zapytanie SQL (rola 1,2; 1 subskrypcja, 1 płatność, 1 zgoda, profil rozliczeniowy), `invoice.paid` w logu `stripe listen`
+- Uwaga o specyfikacji: nazwy pól ramki Stripe zmieniają się po wypełnieniu (`Data ważności (MM/RR)`) — brief powinien kazać ponowić `find` zamiast ufać starym refom
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
