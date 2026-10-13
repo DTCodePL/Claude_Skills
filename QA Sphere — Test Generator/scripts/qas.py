@@ -2,12 +2,18 @@
 
 Podkomendy (zalecana kolejność):
   context -> (generator pisze plik) -> lint --context -> table (brama)
-  -> folders -> push --limit 1 -> verify --only <klucz> -> push -> verify
-  (+ update -> verify dla poprawek istniejących przypadków)
+  -> folders -> push --limit 1 -> verify --only <klucz> -> push
+  -> update -> retire -> verify
+  (pełne verify raz, na końcu; pośrednio tylko verify --only;
+  przy pustym testCases cztery pierwsze kroki zapisu odpadają,
+  zostaje update -> retire -> verify)
 
-context --project P [--search T]... [--folder-id N]... --out PLIK
+context --project P [--search T]... [--folder-id N]... [--review-folder N]...
+  --out PLIK
   Odczyty read-only (get_project, list_custom_fields, list_folders,
-  list_test_cases) do pliku-kontekstu dla generatora.
+  list_test_cases, get_test_case) do pliku-kontekstu dla generatora.
+  --review-folder (powtarzalne) wyznacza zakres przeglądu istniejących
+  przypadków: folder i jego potomki, z pełną treścią do existing.
 lint PLIK [--context CTX] [--strict]
   Błędy (exit 1) i uwagi (exit 0; z --strict exit 1) dot. kształtu pliku,
   pól przypadków i recepty Markdown z Kroku 4c SKILL.md.
@@ -23,6 +29,11 @@ push PLIK [--only KLUCZ]... [--limit N] [--dry-run]
   seq/id po każdym przypadku. Bez automatycznych ponowień create.
 update PLIK [--only SEQ]... [--limit N] [--dry-run]
   update_test_case dla wpisów updates bez done:true (pełna podmiana list).
+retire PLIK [--only SEQ]... [--limit N] [--dry-run]
+  Oznaczenie wpisów retire bez done:true: prefiks [Removed] w tytule
+  + tag [Removed] (update_test_case tylko na te dwa pola, folder
+  bez zmian). API QA Sphere nie usuwa przypadków; usunięcie
+  oznaczonych przypadków z rejestru odbywa się ręcznie w UI.
 verify PLIK [--only KLUCZ_LUB_SEQ]...
   Porównanie pliku z odczytem get_test_case. Nigdy nie zapisuje pliku.
 
@@ -38,6 +49,7 @@ import re
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -82,6 +94,14 @@ DATA_TYPES = {"text", "link", "file"}
 FILE_KEYS = {"id", "fileName", "mimeType", "size"}
 # Pola tylko do odczytu w krokach z odczytu (update je przycina).
 READONLY_STEP_FIELDS = {"id", "type", "version", "isLatest"}
+
+# Oznaczenie wycofanych przypadków: API QA Sphere nie usuwa przypadków,
+# więc skrypt tylko oznacza (prefiks tytułu + tag), bez zmiany folderu.
+REMOVED_TAG = "[Removed]"
+REMOVED_TITLE_PREFIX = "[Removed] "
+REVIEW_VERDICTS = {"keep", "update", "retire"}
+REVIEW_FIELDS = {"seq", "verdict", "reason"}
+RETIRE_FIELDS = {"seq", "title", "reason", "replacedBy", "done"}
 
 LIST_ITEM_RE = re.compile(r"^\s*(\d+\.|[-*])\s")
 PLACEHOLDER_RE = re.compile(r"\b(todo|tbd|xxx|lorem)\b", re.IGNORECASE)
@@ -333,6 +353,15 @@ def _is_nonempty_str(value):
     return isinstance(value, str) and bool(value.strip())
 
 
+def _is_seq_int(value):
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def _is_digits(value):
+    return (isinstance(value, str) and len(value) > 0
+            and all("0" <= c <= "9" for c in value))
+
+
 def _strip_fenced_blocks(text):
     """Usuwa bloki ```...``` (do kontroli MD3/MD4 poza kodem)."""
     parts = text.split("```")
@@ -581,14 +610,20 @@ def lint_file(data, context=None):
         errors.append(("plik", "richTextFormat", "musi być 'markdown'"))
     has_path = "folderPath" in data and data["folderPath"] is not None
     has_folders = "folders" in data and data["folders"] is not None
+    has_cases = bool(data.get("testCases"))
     if has_path and has_folders:
         errors.append(
             ("plik", "folderPath/folders",
              "dokładnie jeden: skrót folderPath albo folders"))
-    elif not has_path and not has_folders:
+    elif not has_path and not has_folders and has_cases:
         errors.append(
             ("plik", "folderPath/folders",
              "brak folderPath i folders (jeden wymagany)"))
+    if not (data.get("testCases") or data.get("updates")
+            or data.get("retire") or data.get("review")):
+        errors.append(
+            ("plik", "testCases",
+             "pusty zestaw: brak testCases, updates, retire i review"))
     folder_keys = {}
     paths = []
     if has_path:
@@ -759,7 +794,258 @@ def lint_file(data, context=None):
     for idx, upd in enumerate(data.get("updates") or [], 1):
         _check_update(upd, idx, errors, warnings,
                       ctx_fields if context else None)
+    review_raw = data.get("review")
+    review_by_seq = _check_review(review_raw, errors)
+    retire_seqs = _check_retire(data.get("retire"), errors, set(seen_keys),
+                                context, warnings)
+    retire_done = {item["seq"] for item in data.get("retire") or []
+                   if isinstance(item, dict) and item.get("done") is True
+                   and _is_seq_int(item.get("seq"))}
+    update_seqs = {upd["seq"] for upd in data.get("updates") or []
+                   if isinstance(upd, dict) and _is_seq_int(upd.get("seq"))}
+    for seq in sorted(retire_seqs & update_seqs):
+        errors.append(
+            ("retire %s" % seq, "seq",
+             "seq jednocześnie w retire i updates"))
+    has_review = isinstance(review_raw, list) and len(review_raw) > 0
+    _check_review_consistency(has_review, review_by_seq, update_seqs,
+                              retire_seqs, errors, warnings)
+    _check_review_context(review_by_seq, retire_seqs, context,
+                          errors, warnings, retire_done)
+    if context is not None:
+        _check_filled_context(data.get("updates"), retire_seqs - retire_done,
+                              context, errors)
     return errors, warnings
+
+
+def _review_ident(kind, seq, idx):
+    if _is_seq_int(seq):
+        return "%s %s" % (kind, seq)
+    return "%s #%d" % (kind, idx)
+
+
+def _check_review(review, errors):
+    """Werdykty przeglądu. Zwraca {seq: verdict} dla wpisów z seq."""
+    by_seq = {}
+    if review is None:
+        return by_seq
+    if not isinstance(review, list):
+        errors.append(("plik", "review", "musi być listą"))
+        return by_seq
+    for idx, item in enumerate(review, 1):
+        seq = item.get("seq") if isinstance(item, dict) else None
+        ident = _review_ident("review", seq, idx)
+        if not isinstance(item, dict):
+            errors.append((ident, "-", "musi być obiektem"))
+            continue
+        for field in sorted(set(item) - REVIEW_FIELDS):
+            errors.append((ident, field, "nieznane pole"))
+        if not _is_seq_int(seq):
+            errors.append((ident, "seq", "całkowity seq wymagany"))
+        elif seq in by_seq:
+            errors.append((ident, "seq", "zdublowany seq w review"))
+        verdict = item.get("verdict")
+        if not isinstance(verdict, str) or verdict not in REVIEW_VERDICTS:
+            errors.append((ident, "verdict", "musi być keep|update|retire"))
+        if not _is_nonempty_str(item.get("reason")):
+            errors.append((ident, "reason", "niepusty powód wymagany"))
+        if _is_seq_int(seq) and seq not in by_seq:
+            by_seq[seq] = item.get("verdict")
+    return by_seq
+
+
+def _check_retire(retire, errors, case_keys, context=None, warnings=None):
+    """Wpisy do oznaczenia [Removed]. Zwraca zbiór seq (poprawnych)."""
+    seqs = set()
+    if retire is None:
+        return seqs
+    if not isinstance(retire, list):
+        errors.append(("plik", "retire", "musi być listą"))
+        return seqs
+    for idx, item in enumerate(retire, 1):
+        seq = item.get("seq") if isinstance(item, dict) else None
+        ident = _review_ident("retire", seq, idx)
+        if not isinstance(item, dict):
+            errors.append((ident, "-", "musi być obiektem"))
+            continue
+        for field in sorted(set(item) - RETIRE_FIELDS):
+            errors.append((ident, field, "nieznane pole"))
+        if not _is_seq_int(seq):
+            errors.append((ident, "seq", "całkowity seq wymagany"))
+        elif seq in seqs:
+            errors.append((ident, "seq", "zdublowany seq w retire"))
+        else:
+            seqs.add(seq)
+        if "done" in item and not isinstance(item["done"], bool):
+            errors.append((ident, "done", "done musi być true albo false"))
+        if not _is_nonempty_str(item.get("reason")):
+            errors.append((ident, "reason", "niepusty powód wymagany"))
+        if ("title" in item and item["title"] is not None
+                and not isinstance(item["title"], str)):
+            errors.append((ident, "title", "musi być napisem"))
+        refs = item.get("replacedBy")
+        if refs is not None:
+            if not isinstance(refs, list):
+                errors.append((ident, "replacedBy", "musi być listą"))
+            else:
+                for j, ref in enumerate(refs):
+                    where = "replacedBy[%d]" % j
+                    if not _is_nonempty_str(ref):
+                        errors.append(
+                            (ident, where, "niepusty napis wymagany"))
+                    elif ref not in case_keys and not _is_digits(ref):
+                        errors.append((
+                            ident, where,
+                            "musi być kluczem z testCases albo seq (cyfry)"))
+    if context is not None:
+        _check_retire_replaced_by(
+            retire, seqs, context, errors,
+            warnings if warnings is not None else [])
+    return seqs
+
+
+def _check_retire_replaced_by(retire, retire_seqs, context, errors,
+                              warnings=None):
+    """Cyfrowe replacedBy: wycofany seq to błąd, spoza kontekstu to uwaga."""
+    if warnings is None:
+        warnings = []
+    known, retired_set = _context_known_and_retired(context)
+    in_scope = known - retired_set  # existing i listy cases, bez wycofanych
+    for idx, item in enumerate(retire, 1):
+        if not isinstance(item, dict):
+            continue
+        refs = item.get("replacedBy")
+        if not isinstance(refs, list):
+            continue
+        seq = item.get("seq")
+        ident = _review_ident("retire", seq, idx)
+        for j, ref in enumerate(refs):
+            if not _is_digits(ref):
+                continue
+            target = int(ref)
+            if target in retire_seqs or target in retired_set:
+                errors.append((
+                    ident, "replacedBy[%d]" % j,
+                    "replacedBy wskazuje wycofany seq"))
+            elif target not in in_scope:
+                warnings.append((
+                    ident, "replacedBy[%d]" % j,
+                    "replacedBy wskazuje seq spoza kontekstu — sprawdź, "
+                    "że istnieje"))
+
+
+def _check_review_consistency(has_review, review_by_seq, update_seqs,
+                              retire_seqs, errors, warnings):
+    """Werdykt a wpisy w updates/retire — tylko gdy review niepuste."""
+    if not has_review:
+        return
+    for seq, verdict in review_by_seq.items():
+        ident = "review %s" % seq
+        if verdict == "update" and seq not in update_seqs:
+            errors.append(
+                (ident, "verdict", "verdict update wymaga wpisu w updates"))
+        elif verdict == "retire" and seq not in retire_seqs:
+            errors.append(
+                (ident, "verdict", "verdict retire wymaga wpisu w retire"))
+        elif verdict == "keep" and (seq in update_seqs or seq in retire_seqs):
+            errors.append((
+                ident, "verdict",
+                "verdict keep wyklucza wpisy w updates i retire"))
+    for seq in sorted(update_seqs - set(review_by_seq)):
+        warnings.append(
+            ("update %s" % seq, "seq",
+             "seq poza przeglądem (brak wpisu w review)"))
+    for seq in sorted(retire_seqs - set(review_by_seq)):
+        warnings.append(
+            ("retire %s" % seq, "seq",
+             "seq poza przeglądem (brak wpisu w review)"))
+
+
+def _context_seqs(items):
+    return {item["seq"] for item in items or []
+            if isinstance(item, dict) and _is_seq_int(item.get("seq"))}
+
+
+def _context_known_and_retired(context):
+    """Znane seq (existing, cases i retiredInScope) oraz wycofane."""
+    known = _context_seqs(context.get("existing"))
+    for _name, items in (context.get("cases") or {}).items():
+        known |= _context_seqs(items)
+    retired = context.get("retiredInScope")
+    retired_set = (_context_seqs(
+        [{"seq": s} for s in retired]) if isinstance(retired, list)
+        else set())
+    return known | retired_set, retired_set
+
+
+def _check_review_context(review_by_seq, retire_seqs, context,
+                          errors, warnings, done_seqs=None):
+    """Przegląd i retire wobec kontekstu (existing, cases, retiredInScope).
+
+    Historyczne pole z id folderu w pliku jest ignorowane.
+    """
+    if context is None:
+        return
+    pending = retire_seqs - (done_seqs or set())
+    existing = context.get("existing")
+    if isinstance(existing, list):
+        existing_seqs = _context_seqs(existing)
+        for seq in sorted(existing_seqs - set(review_by_seq)):
+            errors.append((
+                "review %s" % seq, "seq",
+                "przypadek z zakresu przeglądu bez werdyktu"))
+        for seq in sorted(set(review_by_seq) - existing_seqs):
+            warnings.append(
+                ("review %s" % seq, "seq", "seq spoza zakresu przeglądu"))
+    else:
+        existing_seqs = None
+    known, retired_set = _context_known_and_retired(context)
+    if existing_seqs is None:
+        unknown = (retire_seqs - known
+                   - ((done_seqs or set()) & retired_set))
+        for seq in sorted(unknown):
+            errors.append(
+                ("retire %s" % seq, "seq",
+                 "nieznany seq (brak w existing i cases kontekstu)"))
+    else:
+        for seq in sorted(pending - existing_seqs - retired_set):
+            errors.append(
+                ("retire %s" % seq, "seq",
+                 "retire spoza zakresu przeglądu (brak w existing)"))
+    for seq in sorted(pending & retired_set):
+        errors.append(
+            ("retire %s" % seq, "seq",
+             "już oznaczony [Removed] (retiredInScope)"))
+
+
+def _check_filled_context(updates, retire_pending, context, errors):
+    """Wpisy wobec przypadków typu filled (zmienia je szablon, nie wpis).
+
+    retire: seq typu filled wymaga oznaczenia szablonu. updates: wpis
+    o seq typu filled może zmieniać wyłącznie priority (klucze args
+    poza priority to błąd). Inne typy i brak pola type — bez błędu.
+    """
+    filled = {item["seq"] for item in context.get("existing") or []
+              if isinstance(item, dict) and _is_seq_int(item.get("seq"))
+              and item.get("type") == "filled"}
+    if not filled:
+        return
+    for seq in sorted(retire_pending & filled):
+        errors.append(
+            ("retire %s" % seq, "seq",
+             "przypadek typu filled — oznacz szablon"))
+    for upd in updates or []:
+        if not isinstance(upd, dict) or not _is_seq_int(upd.get("seq")):
+            continue
+        if upd.get("seq") not in filled:
+            continue
+        args = upd.get("args")
+        if not isinstance(args, dict):
+            continue
+        if set(args) - {"priority"}:
+            errors.append(
+                ("update %s" % upd["seq"], "args",
+                 "przypadek typu filled — poza priority zmień szablon"))
 
 
 def _check_custom_field(name, entry, errors, warnings, ident, ctx_fields):
@@ -909,6 +1195,56 @@ def find_project_root(raw_folders, project_title):
             and f.get("title") == project_title]
 
 
+def tag_titles(case):
+    """Tytuły tagów z odczytu (lista napisów, kolejność z serwera)."""
+    tags = (case.get("tags") or []) if isinstance(case, dict) else []
+    return [t.get("title") for t in tags
+            if isinstance(t, dict) and isinstance(t.get("title"), str)]
+
+
+def is_retired_case(case):
+    """Przypadek oznaczony [Removed]: prefiks tytułu albo tag."""
+    if not isinstance(case, dict):
+        return False
+    title = case.get("title")
+    if isinstance(title, str) and title.startswith(REMOVED_TITLE_PREFIX):
+        return True
+    return REMOVED_TAG in tag_titles(case)
+
+
+def mcp_origin(url):
+    """Schemat i host adresu MCP (do linków wprost do przypadków)."""
+    parsed = urllib.parse.urlparse(url or "")
+    if parsed.scheme and parsed.netloc:
+        return "%s://%s" % (parsed.scheme, parsed.netloc)
+    return (url or "").rstrip("/")
+
+
+def _children_map(raw_folders):
+    """parentId -> [id dzieci] (do wyliczania poddrzew po parentId)."""
+    children = {}
+    for folder in raw_folders:
+        if not isinstance(folder, dict):
+            continue
+        fid = folder.get("id")
+        if _is_seq_int(fid):
+            children.setdefault(folder.get("parentId"), []).append(fid)
+    return children
+
+
+def _subtree_ids(children, start):
+    """start i wszyscy jego potomkowie (chroni przed pętlą)."""
+    seen = set()
+    stack = [start]
+    while stack:
+        fid = stack.pop()
+        if fid in seen:
+            continue
+        seen.add(fid)
+        stack.extend(children.get(fid, []))
+    return seen
+
+
 def slim_case(item):
     tags = item.get("tags") or []
     return {
@@ -918,6 +1254,62 @@ def slim_case(item):
         "priority": item.get("priority"),
         "tags": [t.get("title") for t in tags if isinstance(t, dict)],
     }
+
+
+def _read_review_scope(project, review_ids, raw_folders, by_id, id_path):
+    """Zakres przeglądu: podane foldery i wszyscy ich potomkowie.
+
+    Zwraca (reviewFolders, existing, retiredInScope). existing niesie
+    pełną treść z get_test_case, bez przycinania.
+    """
+    for fid in review_ids:
+        if fid not in by_id:
+            raise QasError("Nieznany --review-folder: %s." % fid, exit_code=1)
+    children = _children_map(raw_folders)
+    scope = set()
+    for fid in review_ids:
+        scope |= _subtree_ids(children, fid)
+    scope_ids = sorted(s for s in scope if _is_seq_int(s))
+    review_folders = [{"id": i, "path": id_path.get(i, [])}
+                      for i in scope_ids]
+    if scope_ids:
+        listed = paged_list("list_test_cases",
+                            {"projectCode": project, "folders": scope_ids})
+    else:
+        listed = []
+    seqs = sorted({item.get("seq") for item in listed
+                   if isinstance(item, dict)
+                   and _is_seq_int(item.get("seq"))})
+    existing = []
+    retired = []
+    for seq in seqs:
+        err, text, structured = call_retry(
+            "get_test_case", {"projectCode": project, "tcase": str(seq)})
+        if err:
+            status, message = parse_api_error(text)
+            raise QasError("Błąd get_test_case (seq %s): %s %s."
+                           % (seq, status, message[:200]), exit_code=1)
+        live = structured or {}
+        if is_retired_case(live):
+            retired.append(seq)
+            continue
+        existing.append({
+            "seq": live.get("seq"),
+            "title": live.get("title"),
+            "folderId": live.get("folderId"),
+            "folderPath": id_path.get(live.get("folderId"), []),
+            "priority": live.get("priority"),
+            "tags": tag_titles(live),
+            "isDraft": live.get("isDraft"),
+            "type": live.get("type"),
+            "version": live.get("version"),
+            "precondition": live.get("precondition"),
+            "steps": live.get("steps"),
+            "requirements": live.get("requirements"),
+            "links": live.get("links"),
+            "customFields": live.get("customFields"),
+        })
+    return review_folders, existing, retired
 
 
 def cmd_context(ns):
@@ -940,7 +1332,7 @@ def cmd_context(ns):
     custom_fields = (structured or {}).get("customFields") or []
     raw_folders = paged_list("list_folders", {
         "projectCode": project, "sortField": "id", "sortOrder": "asc"})
-    _by_id, id_path = folder_paths(raw_folders)
+    by_id, id_path = folder_paths(raw_folders)
     folders = []
     for folder in raw_folders:
         if not isinstance(folder, dict):
@@ -977,11 +1369,22 @@ def cmd_context(ns):
         "roots": roots,
         "cases": cases,
     }
+    review_ids = list(ns.review_folder or [])
+    if review_ids:
+        folders_out, existing, retired = _read_review_scope(
+            project, review_ids, raw_folders, by_id, id_path)
+        out["reviewFolders"] = folders_out
+        out["existing"] = existing
+        out["retiredInScope"] = retired
     save_json(ns.out, out)
     print("Projekt %s: folderów %d, korzeni %d, pól custom %d."
           % (project, len(folders), len(roots), len(custom_fields)))
     for name, items in cases.items():
         print("%s: przypadków %d." % (name, len(items)))
+    if review_ids:
+        print("Przegląd: folderów %d, przypadków %d, oznaczonych [Removed] %d."
+              % (len(out["reviewFolders"]), len(out["existing"]),
+                 len(out["retiredInScope"])))
     print("Zapisano %s." % ns.out)
     return 0
 
@@ -1012,12 +1415,17 @@ def cmd_table(ns):
     print("# QA Sphere — podgląd: %s" % project)
     print()
     print("Foldery:")
-    for entry in _payload_folders(data):
-        path = entry["path"] or []
-        label = entry["key"] or "(skrót)"
-        print("- `%s` → %s (folderId %s)"
-              % (label, " / ".join(str(s) for s in path),
-                 entry["folderId"]))
+    has_folder = (("folderPath" in data and data["folderPath"] is not None)
+                  or ("folders" in data and data["folders"] is not None))
+    if not has_folder:
+        print("- (brak — tylko przegląd istniejących przypadków)")
+    else:
+        for entry in _payload_folders(data):
+            path = entry["path"] or []
+            label = entry["key"] or "(skrót)"
+            print("- `%s` → %s (folderId %s)"
+                  % (label, " / ".join(str(s) for s in path),
+                     entry["folderId"]))
     print()
     coverage = data.get("coverage") or {}
     print("Pokrycie — objęte (%d):" % len(coverage.get("covered") or []))
@@ -1056,17 +1464,62 @@ def cmd_table(ns):
             print("| %s | %s | %s |"
                   % (upd.get("seq"), (upd.get("reason") or "").replace(
                       "|", "\\|"), ", ".join(sorted(args))))
+    review_items = data.get("review")
+    if not isinstance(review_items, list):
+        review_items = []
+    retire_items = data.get("retire")
+    if not isinstance(retire_items, list):
+        retire_items = []
+    if review_items:
+        keep = sum(1 for r in review_items
+                   if isinstance(r, dict) and r.get("verdict") == "keep")
+        upd_n = sum(1 for r in review_items
+                    if isinstance(r, dict) and r.get("verdict") == "update")
+        ret_n = sum(1 for r in review_items
+                    if isinstance(r, dict) and r.get("verdict") == "retire")
+        print("Przegląd istniejących (%d): zostają %d, aktualizacja %d, "
+              "[Removed] %d."
+              % (len(review_items), keep, upd_n, ret_n))
+        keeps = [r.get("seq") for r in review_items
+                 if isinstance(r, dict) and r.get("verdict") == "keep"]
+        keeps.sort(key=lambda s: (0, s)
+                   if _is_seq_int(s) else (1, str(s)))
+        print("Zostają bez zmian: %s"
+              % (", ".join(str(s) for s in keeps) if keeps else "—"))
+    if retire_items:
+        print("Do usunięcia — [Removed]:")
+        print("| seq | tytuł | powód | zastępują go |")
+        print("| --- | --- | --- | --- |")
+        for entry in retire_items:
+            if not isinstance(entry, dict):
+                continue
+            refs = entry.get("replacedBy")
+            if isinstance(refs, list):
+                refs_text = ", ".join(str(x) for x in refs)
+            elif refs is None:
+                refs_text = ""
+            else:
+                refs_text = str(refs)
+            print("| %s | %s | %s | %s |"
+                  % (entry.get("seq"),
+                     str(entry.get("title") or "").replace("|", "\\|"),
+                     str(entry.get("reason") or "").replace("|", "\\|"),
+                     refs_text.replace("|", "\\|")))
     print()
-    print("Liczniki: high %d, medium %d, low %d (razem %d; aktualizacji %d)."
+    print("Liczniki: high %d, medium %d, low %d "
+          "(razem %d; aktualizacji %d; [Removed] %d)."
           % (counts.get("high", 0), counts.get("medium", 0),
              counts.get("low", 0), len(data.get("testCases") or []),
-             len(updates)))
+             len(updates), len(retire_items)))
     return 0
 
 
 def cmd_folders(ns):
     data = load_json(ns.plik)
     run_lint_gate(data)
+    if not data.get("testCases"):
+        print("Brak nowych przypadków — nic do utworzenia.")
+        return 0
     project = data.get("project")
     entries = _payload_folders(data)
     todo = [e for e in entries if not e["folderId"]]
@@ -1202,6 +1655,9 @@ def _get_live_case(project, seq, ident):
 def cmd_push(ns):
     data = load_json(ns.plik)
     run_lint_gate(data)
+    if not data.get("testCases"):
+        print("Brak nowych przypadków — nic do utworzenia.")
+        return 0
     project = data.get("project")
     entries = _payload_folders(data)
     folder_ids = {e["key"]: e["folderId"] for e in entries}
@@ -1379,7 +1835,7 @@ def cmd_update(ns):
     project = data.get("project")
     pending = []
     for upd in data.get("updates") or []:
-        if not isinstance(upd, dict) or upd.get("done"):
+        if not isinstance(upd, dict) or upd.get("done") is True:
             continue
         if ns.only and str(upd.get("seq")) not in ns.only:
             continue
@@ -1435,6 +1891,133 @@ def _update_once(call_args):
         return call_retry("update_test_case", call_args)
     except QasError as exc:
         return True, exc.message, None
+
+
+def _pending_retire(data, only, limit):
+    """Wpisy retire bez done:true, po filtrach --only i --limit."""
+    pending = []
+    for entry in data.get("retire") or []:
+        if not isinstance(entry, dict) or entry.get("done") is True:
+            continue
+        if only and str(entry.get("seq")) not in only:
+            continue
+        pending.append(entry)
+    if limit is not None:
+        pending = pending[:limit]
+    return pending
+
+
+def _retire_live_case(project, seq):
+    """Odczyt przypadku do oznaczenia. Błąd odczytu to exit 1."""
+    try:
+        err, text, structured = call_retry(
+            "get_test_case", {"projectCode": project, "tcase": str(seq)})
+    except QasError as exc:
+        raise QasError("seq %s: odczyt niepewny (%s)."
+                       % (seq, exc.message), exit_code=1)
+    if err:
+        status, message = parse_api_error(text)
+        raise QasError("seq %s: odczyt: %s %s."
+                       % (seq, status, message[:200]), exit_code=1)
+    live = structured
+    if (not isinstance(live, dict)
+            or not _is_nonempty_str(live.get("title"))
+            or not isinstance(live.get("tags"), list)):
+        raise QasError(
+            "seq %s: odczyt niepełny (brak tytułu albo listy tagów) — "
+            "nic nie zapisano." % seq, exit_code=1)
+    return live
+
+
+def _print_retire_addresses(data, project):
+    """Końcowa instrukcja z adresami wpisów done:true (tylko get_auth)."""
+    finished = [e for e in data.get("retire") or []
+                if isinstance(e, dict) and e.get("done") is True]
+    if not finished:
+        return
+    _key, url = get_auth()
+    print("Oznaczone [Removed] — API QA Sphere nie usuwa przypadków; "
+          "jeśli mają zniknąć z rejestru, usuń je w UI "
+          "(filtr: tag [Removed]):")
+    for entry in finished:
+        print("%s/project/%s/tcase/%s"
+              % (mcp_origin(url), project, entry.get("seq")))
+
+
+def cmd_retire(ns):
+    data = load_json(ns.plik)
+    run_lint_gate(data)
+    project = data.get("project")
+    pending = _pending_retire(data, ns.only, ns.limit)
+    if ns.dry_run:
+        for entry in pending:
+            print("DRY-RUN [Removed] seq %s: %s"
+                  % (entry.get("seq"), entry.get("reason")))
+        print("Do oznaczenia: %d (bez wywołań)." % len(pending))
+        return 0
+    if not pending:
+        print("Brak przypadków do oznaczenia.")
+        _print_retire_addresses(data, project)
+        return 0
+    done = 0
+    for entry in pending:
+        seq = entry.get("seq")
+        try:
+            live = _retire_live_case(project, seq)
+        except QasError:
+            save_json(ns.plik, data)
+            raise
+        live_title = live.get("title")
+        live_tags = tag_titles(live)
+        if (live_title.startswith(REMOVED_TITLE_PREFIX)
+                and REMOVED_TAG in live_tags):
+            entry["done"] = True
+            save_json(ns.plik, data)
+            print("seq %s już oznaczony." % seq)
+            done += 1
+            continue
+        if live_title.startswith(REMOVED_TITLE_PREFIX):
+            new_title = live_title
+        else:
+            new_title = REMOVED_TITLE_PREFIX + live_title
+        if len(new_title) > 511:
+            save_json(ns.plik, data)
+            raise QasError(
+                "seq %s: tytuł po dodaniu prefiksu za długi (%d > 511)."
+                % (seq, len(new_title)), exit_code=1)
+        new_tags = list(live_tags)
+        if REMOVED_TAG not in new_tags:
+            new_tags.append(REMOVED_TAG)
+        call_args = {"projectCode": project,
+                     "tcaseOrLegacyId": str(seq),
+                     "title": new_title,
+                     "tags": new_tags}
+        try:
+            err, text, _structured = call_retry(
+                "update_test_case", call_args)
+        except QasError as exc:
+            if not exc.uncertain:
+                save_json(ns.plik, data)
+                raise QasError("seq %s: %s." % (seq, exc.message),
+                               exit_code=exc.exit_code)
+            err, text, _structured = _update_once(call_args)
+            if err:
+                save_json(ns.plik, data)
+                raise QasError("seq %s: zapis niepewny (%s)." % (seq, text),
+                               exit_code=1)
+        if err:
+            save_json(ns.plik, data)
+            status, message = parse_api_error(text)
+            raise QasError("seq %s: %s %s." % (seq, status, message[:500]),
+                           exit_code=1)
+        entry["done"] = True
+        save_json(ns.plik, data)
+        print("seq %s oznaczony [Removed]." % seq)
+        done += 1
+        time.sleep(WRITE_GAP)
+    print("Oznaczono %d." % done)
+    _print_retire_addresses(data, project)
+    return 0
 
 
 def _short(text, width=160):
@@ -1559,6 +2142,24 @@ def compare_case(tc, live, ident, partial=False):
     return diffs
 
 
+def _check_retired(ident, live):
+    """Weryfikacja oznaczenia [Removed]. Zwraca True przy różnicy."""
+    title = live.get("title")
+    if not isinstance(title, str):
+        title = ""
+    tags = tag_titles(live)
+    if (title.startswith(REMOVED_TITLE_PREFIX) and REMOVED_TAG in tags):
+        print("OK %s" % ident)
+        return False
+    missing = []
+    if not title.startswith(REMOVED_TITLE_PREFIX):
+        missing.append("brak prefiksu [Removed] w tytule")
+    if REMOVED_TAG not in tags:
+        missing.append("brak tagu [Removed]")
+    print("RÓŻNICA %s: %s." % (ident, ", ".join(missing)))
+    return True
+
+
 def cmd_verify(ns):
     data = load_json(ns.plik)
     project = data.get("project")
@@ -1578,17 +2179,30 @@ def cmd_verify(ns):
                                             data.get("folderId"))
         jobs.append((ident, str(tc["seq"]), probe, None))
     for upd in data.get("updates") or []:
-        if not isinstance(upd, dict) or not upd.get("done"):
+        if not isinstance(upd, dict) or upd.get("done") is not True:
             continue
         if ns.only and str(upd.get("seq")) not in (ns.only or []):
             continue
         args, _trimmed = trim_update_args(upd.get("args") or {})
         jobs.append(("update %s" % upd.get("seq"), str(upd.get("seq")),
                      args, "update"))
+    for entry in data.get("retire") or []:
+        if not isinstance(entry, dict):
+            continue
+        if ns.only and str(entry.get("seq")) not in (ns.only or []):
+            continue
+        ident = "[Removed] %s" % entry.get("seq")
+        if entry.get("done") is not True:
+            jobs.append((ident, None, None, "retire-undone"))
+            continue
+        jobs.append((ident, str(entry.get("seq")), None, "retire"))
     bad = 0
     for ident, seq, probe, kind in jobs:
         if seq is None:
-            print("NIEWYSŁANY %s" % ident)
+            if kind == "retire-undone":
+                print("NIEOZNACZONY %s" % ident)
+            else:
+                print("NIEWYSŁANY %s" % ident)
             bad += 1
             continue
         err, text, structured = call_retry(
@@ -1598,6 +2212,10 @@ def cmd_verify(ns):
             print("BŁĄD %s: odczyt seq %s: %s %s."
                   % (ident, seq, status, message[:200]))
             bad += 1
+            continue
+        if kind == "retire":
+            if _check_retired(ident, structured or {}):
+                bad += 1
             continue
         diffs = compare_case(probe, structured or {}, ident,
                              partial=(kind == "update"))
@@ -1625,7 +2243,10 @@ def cmd_lint(ns):
 def build_parser():
     parser = argparse.ArgumentParser(
         prog="qas.py",
-        description="QA Sphere: kontekst, lint, tabela, wysyłka, weryfikacja.")
+        description="QA Sphere: kontekst, lint, tabela, wysyłka, weryfikacja. "
+        "Kolejność zapisu: folders -> push --limit 1 -> verify --only "
+        "<klucz> -> push -> update -> retire -> verify (pełne verify raz, "
+        "na końcu; przy pustym testCases cztery pierwsze kroki odpadają).")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("context", help="Odczyty read-only do pliku-kontekstu.")
@@ -1634,6 +2255,9 @@ def build_parser():
                    help="Fraza do list_test_cases (powtarzalne).")
     p.add_argument("--folder-id", action="append", type=int, default=[],
                    help="ID folderu do list_test_cases (powtarzalne).")
+    p.add_argument("--review-folder", action="append", type=int, default=[],
+                   help="ID folderu zakresu przeglądu z pełną treścią "
+                   "(folder i potomki; powtarzalne).")
     p.add_argument("--out", required=True, help="Plik kontekstu (JSON).")
     p.set_defaults(func=cmd_context)
 
@@ -1677,6 +2301,17 @@ def build_parser():
     p.add_argument("--dry-run", action="store_true",
                    help="Pokaż plan bez wywołań.")
     p.set_defaults(func=cmd_update)
+
+    p = sub.add_parser("retire",
+                         help="Oznacz wycofane (prefiks + tag [Removed]).")
+    p.add_argument("plik", help="Plik payloadów (JSON).")
+    p.add_argument("--only", action="append", default=[],
+                   help="SEQ (powtarzalne).")
+    p.add_argument("--limit", type=int, default=None,
+                   help="Max liczba do oznaczenia.")
+    p.add_argument("--dry-run", action="store_true",
+                   help="Pokaż plan bez wywołań.")
+    p.set_defaults(func=cmd_retire)
 
     p = sub.add_parser("verify", help="Porównaj plik z serwerem (read-only).")
     p.add_argument("plik", help="Plik payloadów (JSON).")

@@ -1,17 +1,25 @@
 ---
 name: qasphere-test-generator
-description: Generuje kompletny zestaw test case'ów (happy + negative paths, dążąc do 100% pokrycia przypadków użycia) na podstawie wykonanego zadania/feature'a i tworzy je bezpośrednio w QA Sphere — przez serwer MCP `qasphere`, a w środowisku bez MCP przez REST API. Test casy są po polsku, standalone, z pełnymi repro stepami (dane wejściowe, wyjściowe, instrukcje konfiguracji) tak, by wykonała je osoba widząca aplikację pierwszy raz. Skill sam mapuje repozytorium na właściwy projekt w QA Sphere. UŻYWAJ ZAWSZE, gdy user prosi o wygenerowanie test case'ów, pokrycie testowe, "testy do tego feature'a", "pokryj testami", "wrzuć testy do QA Sphere", "test casy z tego co zrobiliśmy" — nawet jeśli nie padnie słowo "skill" ani "QA Sphere" wprost, a kontekstem jest właśnie ukończone zadanie deweloperskie.
+description: Generuje kompletny zestaw test case'ów (happy + negative paths, dążąc do 100% pokrycia przypadków użycia) na podstawie wykonanego zadania/feature'a — najpierw przegląda przypadki, które już są w QA Sphere w obszarze zmiany (zostaje / aktualizacja / `[Removed]`), potem dodaje brakujące — i tworzy je bezpośrednio w QA Sphere — przez serwer MCP `qasphere`, a w środowisku bez MCP przez REST API. Test casy są po polsku, standalone, z pełnymi repro stepami (dane wejściowe, wyjściowe, instrukcje konfiguracji) tak, by wykonała je osoba widząca aplikację pierwszy raz. Skill sam mapuje repozytorium na właściwy projekt w QA Sphere. UŻYWAJ ZAWSZE, gdy user prosi o wygenerowanie test case'ów, pokrycie testowe, "testy do tego feature'a", "pokryj testami", "wrzuć testy do QA Sphere", "test casy z tego co zrobiliśmy" — nawet jeśli nie padnie słowo "skill" ani "QA Sphere" wprost, a kontekstem jest właśnie ukończone zadanie deweloperskie.
 user-invocable: true
-version: 1.6
+version: 1.7
 ---
 
-# QA Sphere — Test Generator (v1.6)
+# QA Sphere — Test Generator (v1.7)
 
 > Kanoniczna, wersjonowana wersja skilla. Źródło prawdy: `DTCodePL/Claude_Skills`.
 > Lokalnie używany jest tylko cienki loader, który pobiera ten plik z GitHuba.
 >
 > **Changelog**
 >
+> - **1.7** — **przegląd istniejących przypadków i oznaczenie `[Removed]`** (Krok 2b, decyzja właściciela 2026-10-13): zestaw nie
+>   zaczyna od zera — każdy przypadek z zakresu przeglądu (`qas.py context --review-folder`, pełna treść
+>   w `existing[]`) dostaje werdykt `keep` / `update` / `retire` w `review[]`, a nowe przypadki pokrywają tylko luki.
+>   **API QA Sphere nie usuwa ani nie przenosi przypadków** (zmierzone 2026-10-13: REST `PATCH` z `folderId` zwraca
+>   200 i ignoruje pole, MCP `update_test_case` nie ma `folderId`), więc `qas.py retire` oznacza wycofany przypadek
+>   tagiem `[Removed]` i prefiksem tytułu `[Removed] ` (decyzja właściciela 2026-10-13, bez folderu „Kosz”) —
+>   usuwa go, jeśli trzeba, człowiek w UI. Kolejność zapisu: `folders` → `push` → `update` → `retire`, potem jedno
+>   pełne `verify` (pośrednio tylko `verify --only`).
 > - **1.6** — autor pliku podglądu: Spark `max` zamiast `xhigh` (2026-10-12, routing globalny reguła 8:
 >   pula Sparka nie dobija do limitów, `max` ma 2× wyższy Terminal-Bench 4.0 za ~17 % więcej tokenów).
 > - **1.5** — **podział pracy w Claude Code** (sekcja „Podział pracy” pod Krokiem 0): sesja architekta nie pisze
@@ -81,13 +89,13 @@ workery na osobnych abonamentach; wysyłka to praca dla skryptu, nie dla modelu.
 
 | Krok                                                                   | Kto                                                                                                       | Jak                                                                                                                                                                                                                                 |
 | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0–1, 4a — transport, projekt, custom fieldy, foldery, duplikaty        | architekt                                                                                                 | `qas.py context --project <P> --search "<fraza>" [--folder-id <N>] --out <katalog>\context.json` — jedno polecenie zamiast serii odczytów MCP                                                                                   |
-| 2–4c + plik podglądu (5.1); poprawki istniejących przypadków (`updates`) | **Spark `max`** (`-Access write`); Gemini `-Access write`, gdy Spark w tej fali zajęty albo zgłosił limit | brief z szablonu niżej; worker czyta ten plik jako specyfikację                                                                                                                                                                     |
+| 0–1, 4a, 2b — transport, projekt, custom fieldy, foldery, duplikaty, zakres przeglądu | architekt                                                                                  | `qas.py context --project <P> --search "<fraza>" [--folder-id <N>] --review-folder <N>… --out <katalog>\context.json` — jedno polecenie zamiast serii odczytów MCP; `--review-folder` (całe poddrzewo) daje `existing[]` z pełną treścią przypadków do przeglądu |
+| 2–4c + plik podglądu (5.1): werdykty przeglądu (`review`), poprawki (`updates`), `[Removed]` (`retire`), nowe (`testCases`) | **Spark `max`** (`-Access write`); Gemini `-Access write`, gdy Spark w tej fali zajęty albo zgłosił limit | brief z szablonu niżej; worker czyta ten plik jako specyfikację                                                                                                                                                                     |
 | kontrola kształtu                                                      | architekt                                                                                                 | `qas.py lint <plik> --context <context.json>` — błędy wracają briefem korekty do tej samej linii                                                                                                                                    |
-| recenzja treści                                                        | inna rodzina niż autor: plik Sparka → Gemini `-Access read`, plik Gemini → Spark `-Access read`            | fakty (komunikaty dosłownie z `pl.json`/`en.json`, trasy, konta i dane z seedów), pokrycie kategorii Kroku 2, przypadki „obchodzące” znany defekt; każde P0/P1 architekt obala jednym poleceniem, zanim zleci korektę              |
+| recenzja treści                                                        | inna rodzina niż autor: plik Sparka → Gemini `-Access read`, plik Gemini → Spark `-Access read`            | fakty (komunikaty dosłownie z `pl.json`/`en.json`, trasy, konta i dane z seedów), pokrycie kategorii Kroku 2, przypadki „obchodzące” znany defekt, werdykty przeglądu (2b); każde P0/P1 architekt obala jednym poleceniem, zanim zleci korektę              |
 | poprawki po recenzji i po bramie                                       | linia autora — brief korekty                                                                               | architekt nie edytuje pliku; wyjątek: pojedyncza fraza wskazana przez użytkownika na bramie                                                                                                                                         |
-| brama (5.2–5.3)                                                        | architekt                                                                                                 | `qas.py table <plik>` → tabela dla użytkownika; całego pliku architekt nie czyta — wyrywkowo przypadki `high` i te, których dotyczyła recenzja                                                                                      |
-| wysyłka i kontrola (6)                                                 | architekt, skryptem                                                                                       | `qas.py folders` → `qas.py push --limit 1` → `qas.py verify --only <klucz>` → `qas.py push` → `qas.py verify`; poprawki istniejących: `qas.py update` → `qas.py verify`                                                            |
+| brama (5.2–5.3)                                                        | architekt                                                                                                 | `qas.py table <plik>` → tabela dla użytkownika (z przeglądem i listą „Do usunięcia — [Removed]”); całego pliku architekt nie czyta — wyrywkowo przypadki `high`, te, których dotyczyła recenzja, i każdy `retire`                                                                                      |
+| wysyłka i kontrola (6)                                                 | architekt, skryptem                                                                                       | `qas.py folders` → `qas.py push --limit 1` → `qas.py verify --only <klucz>` → `qas.py push` (te cztery pomijasz przy pustym `testCases`) → `qas.py update` → `qas.py retire` → **jedno pełne `qas.py verify` na końcu** (pośrednio tylko `verify --only`, bo pełne liczy niewykonane jeszcze wpisy jako różnice); adresy z wyniku `retire` idą do użytkownika |
 
 Twarde:
 
@@ -128,7 +136,8 @@ Repozytoria i dokumentacja tylko do odczytu: <ścieżki>. Bez gita zmieniająceg
 ## Zadanie
 Work item: <PBI/Bug #nr — tytuł dosłownie z ADO> (<link>). Zmiana: <commity albo zakres `git log` / `git diff`>.
 Dokumenty produktowe (`zatwierdzony`): <ścieżki>. Makiety — wyłącznie jako `links`: <linki do node'ów>.
-Istniejące przypadki do poprawki: <seq + co się zmieniło w zachowaniu> (→ `updates[]`).
+Zakres przeglądu (Krok 2b): foldery <id — ścieżka>, przypadki w `existing[]` w context.json z pełną treścią — każdy
+dostaje werdykt w `review[]`. Zmiany zachowania, które mogą unieważnić istniejące przypadki: <lista>.
 
 ## Decyzje
 - Folder(y): <ścieżka od korzenia projektu albo `folders[]` z kluczami>; komentarz folderu: <tekst>.
@@ -140,7 +149,7 @@ Istniejące przypadki do poprawki: <seq + co się zmieniło w zachowaniu> (→ `
 ## Wynik
 <katalog>/qasphere-payloads-<PROJECT>-<slug>.json w kształcie z Kroku 5, z `key` przy każdym przypadku.
 Przed oddaniem: `python3 <ścieżka qas.py> lint <plik> --context <katalog>/context.json` — zero błędów.
-Raport: liczba przypadków wg priorytetu i kategorii, pominięte kategorie z powodem, fakty niepotwierdzone w kodzie
+Raport: przegląd (zostają / aktualizacja / `[Removed]` — liczby), liczba nowych przypadków wg priorytetu i kategorii, pominięte kategorie z powodem, fakty niepotwierdzone w kodzie
 (i co przyjęto). Bez wklejania treści przypadków.
 
 Jeśli któreś założenie tego briefu jest błędne, ZATRZYMAJ SIĘ i zgłoś to, zamiast wykonywać go dosłownie.
@@ -160,8 +169,11 @@ Nie zapisuj plików i nie uruchamiaj poleceń.
 ## Zadanie
 Znajdź: (1) fakty niezgodne z kodem — komunikat inny niż w `pl.json`, zła trasa, konto, hasło lub dane spoza
 seedów, krok niewykonalny; (2) luki pokrycia wobec kategorii Kroku 2 i kryteriów work itemu; (3) przypadki, które
-obchodzą znany defekt, zamiast go wykazać; (4) przypadki niesamowystarczalne. Kształtu i Markdown nie zgłaszaj —
-pilnuje ich `qas.py lint`.
+obchodzą znany defekt, zamiast go wykazać; (4) przypadki niesamowystarczalne; (5) werdykty przeglądu istniejących
+(Krok 2b, treść w `existing[]` pliku <katalog>/context.json): `keep` dla przypadku, który przeczy kodowi albo
+dokumentacji; `update`, który zmienia cel testu (powinien być `retire` + nowy); `retire` bez uzasadnienia, wbrew
+Krokowi 2b albo zabierający pokrycie, którego nic nie zastępuje. Kształtu i Markdown nie zgłaszaj — pilnuje ich
+`qas.py lint`.
 
 ## Format wyniku
 `[P0–P3] <klucz> — tytuł`, pole, dowód (`ścieżka:linia` albo cytat), poprawka. Każde P0/P1 sprawdź konkretnym
@@ -214,6 +226,39 @@ Cel: **100% pokrycia przypadków użycia**. Zbierz kontekst z rozmowy, diffa (`g
 - **Wydajność / wolumen** — duże listy, paginacja (jeśli dotyczy).
 
 Dla każdego przypadku zanotuj: priorytet (high = krytyczny/happy path głównej ścieżki, medium = istotny, low = edge), kategorię (tag/folder), oczekiwany rezultat.
+
+### Krok 2b — Przejrzyj to, co już jest w QA Sphere (zostaje / aktualizacja / `[Removed]`)
+
+Zestaw nie zaczyna od zera: obszar, którego dotyczy zadanie, zwykle ma już przypadki, a zmiana mogła część z nich
+unieważnić. **Zakres przeglądu** to foldery obszaru funkcjonalnego zmiany — całe poddrzewa — które wskazuje architekt
+(`qas.py context --review-folder <id>`; w `context.json` lista `existing[]` z pełną treścią każdego przypadku). Każdy
+przypadek z `existing[]` dostaje **dokładnie jeden werdykt** w `review[]` (`seq`, `verdict`, `reason`):
+
+| Werdykt  | Kiedy                                                                                                                                                                                                                          | Co dalej                                                                                                                         |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| `keep`   | opisuje zachowanie, które nadal obowiązuje, a treść (kroki, dane, napisy, trasy, konta, warunek wstępny) zgadza się z kodem i dokumentacją `zatwierdzony`                                                                         | nic                                                                                                                              |
+| `update` | ten sam cel testu, ale zmieniła się treść: napis, trasa, krok, dane, konto, warunek wstępny albo wymaganie (np. dopisanie PBI do `requirements`)                                                                                 | wpis w `updates[]` — pełna podmiana list wg Kroku 6.4, punktem wyjścia jest treść z `existing[]`                                   |
+| `retire` | zachowania już nie ma albo zastąpiło je inne, którego ten przypadek nie opisze po aktualizacji (inny cel testu); duplikat innego przypadku (zostaje lepszy); przypadek oparty na dokumencie `wycofany`                            | wpis w `retire[]` z powodem i `replacedBy` — klucze nowych przypadków albo `seq` istniejących, które przejmują jego pokrycie |
+
+**Nie wycofujesz:** przypadku, który dziś nie przechodzi przez znany defekt (opisuje zachowanie poprawne — tester
+oznacza go jako nieudany); przypadku tylko dlatego, że jest stary, ASCII-only albo inaczej sformułowany (zestawy
+sprzed 1.3 zostają, jak są); przypadku spoza zakresu przeglądu — taki trafia do raportu, nie do `retire`
+(`qas.py lint --context` odrzuca wpis `retire` spoza `existing[]`). Przypadek typu `filled` (wygenerowany
+z szablonu) przyjmuje w `update_test_case` wyłącznie `priority` — oznaczenie `[Removed]` i każda inna zmiana
+idą na jego szablonie.
+
+**Brakujące** to pozycje listy z Kroku 2, których nie pokrywa żaden przypadek `keep` ani `update` — tylko one idą do
+`testCases`. Pozycja pokryta aktualizacją nie dostaje drugiego, nowego przypadku.
+
+**`[Removed]` zamiast usunięcia.** QA Sphere nie usuwa ani nie przenosi przypadków przez API — ani REST, ani MCP
+(zmierzone 2026-10-13 na ZEB/612: `PATCH` z `folderId` zwraca 200, podbija `version` i zostawia folder; MCP
+`update_test_case` nie przyjmuje `folderId`; usuwania nie ma w żadnym z nich). Dlatego `qas.py retire` przypadek
+**oznacza** — tag `[Removed]` i prefiks tytułu `[Removed] `, bez zmiany treści i bez przenoszenia (decyzja
+właściciela 2026-10-13) — i wypisuje adresy oznaczonych przypadków. Przypadku z tym oznaczeniem się nie wykonuje;
+jeśli ma zniknąć z rejestru, usuwa go człowiek w UI QA Sphere (filtr po tagu `[Removed]`). Przypadki oznaczone
+`[Removed]` są poza zakresem kolejnych przeglądów. Bez skryptu (claude.ai) to samo robi `update_test_case`
+z samym `title` i `tags` (pełna lista tagów z odczytu + `[Removed]`). Tag z nawiasami QA Sphere przyjmuje bez
+zmiany pisowni (próba 2026-10-13 na ZEB/612, stan przywrócony).
 
 ### Krok 3 — Napisz test casy jako STANDALONE (reguły treści)
 
@@ -373,8 +418,15 @@ Zanim cokolwiek polecisz do QA Sphere:
    - **Poprawki istniejących przypadków** w tym samym pliku:
      `"updates": [{ "seq": 1051, "reason": "…", "args": { <argumenty update_test_case bez projectCode i tcaseOrLegacyId> } }]`
      — reguły pełnej podmiany z Kroku 6.4 obowiązują w `args`.
-2. Pokaż userowi: **ścieżkę pliku**, **projekt docelowy**, **ścieżkę folderu** i **tabelę** (nr, tytuł, priorytet, tagi) oraz liczbę i listę kategorii pokrycia objętych / świadomie pominiętych.
-3. Zapytaj o akceptację/poprawki. Poprawki nanoś **w pliku**. Twórz **dopiero po „ok"**.
+   - **Przegląd istniejących (Krok 2b)** w tym samym pliku:
+     `"review": [{ "seq": 1051, "verdict": "keep|update|retire", "reason": "…" }]` — po jednym wpisie na każdy przypadek
+     z `existing[]`; `update` ma swój wpis w `updates[]`, `retire` — w
+     `"retire": [{ "seq": 1052, "title": "…", "reason": "…", "replacedBy": ["A3", "1060"] }]` (`done` dopisuje
+     `qas.py retire`). `qas.py lint --context` pilnuje, żeby każdy przypadek z zakresu miał werdykt, a werdykty
+     zgadzały się z `updates[]` i `retire[]`. Gdy zestaw nie ma nowych przypadków (`testCases` puste), folder jest
+     zbędny.
+2. Pokaż userowi: **ścieżkę pliku**, **projekt docelowy**, **ścieżkę folderu** i **tabelę** (nr, tytuł, priorytet, tagi) oraz liczbę i listę kategorii pokrycia objętych / świadomie pominiętych — a z przeglądu: ile przypadków zostaje, ile idzie do aktualizacji i **listę „Do usunięcia — [Removed]” z powodami** (wszystko daje `qas.py table`).
+3. Zapytaj o akceptację/poprawki. Poprawki nanoś **w pliku**. Twórz, aktualizuj i oznaczaj `[Removed]` **dopiero po „ok"** — akceptacja obejmuje każdy wpis `retire` z osobna.
 
 > Plik oddziela **generowanie** (praca tekstowa — Kroki 2–4c wykonuje worker, z tym skillem jako specyfikacją
 > i `context.json` z `qas.py context`) od **wysyłki** (Krok 6 — skrypt `qas.py` w Claude Code, MCP albo `curl`
@@ -382,7 +434,8 @@ Zanim cokolwiek polecisz do QA Sphere:
 
 ### Krok 6 — Utwórz test casy w QA Sphere (MCP)
 
-> **W Claude Code cały ten krok robi `qas.py`** (`folders` → `push` → `verify`, poprawki `update` → `verify`) —
+> **W Claude Code cały ten krok robi `qas.py`** (`folders` → `push` → `update` → `retire`, potem jedno pełne
+> `verify`; pośrednio tylko `verify --only`) —
 > reguły niżej są zaszyte w skrypcie. Ręcznie, narzędziami MCP, wyłącznie w claude.ai albo gdy skryptu nie da się
 > uruchomić — i wtedy po wysyłce porównaj **całą** treść z plikiem, nie tylko tytuły.
 
@@ -399,10 +452,16 @@ Zanim cokolwiek polecisz do QA Sphere:
    - **nigdy nie wysyłaj `parameterValues`** (dotyczy szablonów; pusta tablica kasuje wygenerowane przypadki) ani `type`;
    - każdy update podbija `version` i nadaje krokom **nowe `id`** — nie opieraj logiki na `id` kroków.
    Zamiast prosić o ręczne sprzątanie w UI, **przerób błędny wpis na pierwszy prawdziwy test case** z zestawu.
+5. **`[Removed]`** (wpisy `retire`, po akceptacji z Kroku 5): `qas.py retire` jako ostatni zapis, po nim jedno pełne
+   `qas.py verify` całego pliku. Skrypt przed zapisem wymaga pełnego odczytu (tytuł i lista tagów); każdemu
+   przypadkowi dodaje tag `[Removed]` i prefiks tytułu `[Removed] ` jednym `update_test_case` z samym `title`
+   i pełną listą `tags` — treści nie zmienia i folderu nie rusza, więc oznaczenie da się cofnąć tym samym
+   narzędziem. Usunięcie z rejestru zostaje człowiekowi w UI — API tego nie umie (Krok 2b); listę adresów
+   z wyniku `retire` przekaż użytkownikowi.
 
 ### Krok 7 — Raport końcowy
 
-Podsumuj: projekt (code + title), ścieżkę folderu i `folderId`, liczbę utworzonych test case'ów z `seq` i tytułami, ścieżkę pliku payloadów, ostrzeżenia (np. brak pola `automation`, elementy pominięte po błędzie). Linki do pojedynczych przypadków:
+Podsumuj: projekt (code + title), ścieżkę folderu i `folderId`, liczbę utworzonych test case'ów z `seq` i tytułami, wynik przeglądu (ile zostaje, zaktualizowane `seq`, oznaczone `[Removed]` `seq` z adresami), ścieżkę pliku payloadów, ostrzeżenia (np. brak pola `automation`, elementy pominięte po błędzie). Linki do pojedynczych przypadków:
 
 ```
 https://dtcode.eu1.qasphere.com/project/<PROJECT>/tcase/<seq>
@@ -424,6 +483,7 @@ https://dtcode.eu1.qasphere.com/project/<PROJECT>/tcase/<seq>
 | Napraw pomyłkę                       | `update_test_case(projectCode, tcaseOrLegacyId: "<seq>", …)` — pełna podmiana list; kroki z odczytu bez `id`/`type`/`version`/`isLatest` | `PATCH /project/{P}/tcase/{seq}` (bez `type`)                |
 | Wgraj plik (załącznik)               | **brak** — bajty tylko przez REST; przez MCP idzie sama referencja w `steps[].data[].file` (4d) | `POST /file` (multipart, pole `file`) · `POST /file/batch`   |
 | Usuń test case / folder              | **brak** — napraw przez `update_test_case`                                                     | **brak** (`DELETE` → 404)                                    |
+| Przenieś test case do innego folderu | **brak** — `update_test_case` nie ma `folderId`; wycofanie: `qas.py retire` (tag i prefiks `[Removed]`), usunięcie tylko w UI | **brak** — `PATCH` z `folderId` zwraca 200 i pole ignoruje (zmierzone 2026-10-13) |
 
 Treść przez MCP w Markdown (recepta w 4c), przez REST w HTML. `priority`: `high|medium|low`. `type` tylko przy tworzeniu: `standalone`.
 
@@ -438,6 +498,9 @@ Treść przez MCP w Markdown (recepta w 4c), przez REST w HTML. `priority`: `hig
 - Dane wej/wyj **konkretne**, nie placeholdery.
 - **Nie twórz** niczego przed potwierdzeniem projektu (Krok 1) i akceptacją pliku podglądu (Krok 5).
 - Dąż do **pełnego pokrycia** — przejdź każdą kategorię z Kroku 2 i jawnie zaznacz pominięcia.
+- **Najpierw przegląd, potem nowe** (Krok 2b): każdy przypadek z zakresu przeglądu ma werdykt `keep` / `update` /
+  `retire`; nowe przypadki pokrywają tylko luki. Nic nie dostaje `[Removed]` bez akceptacji pliku podglądu, a `[Removed]`
+  to oznaczenie (tag i prefiks tytułu), nie usunięcie — API nie przenosi ani nie usuwa; usuwa człowiek w UI.
 - Nowe foldery **zawsze** pod folderem-korzeniem projektu — `path` zaczyna się od tytułu `ROOT`.
 - **Nic „na próbę".** Delete nie istnieje — każdy test case utworzony „żeby sprawdzić" zostaje w rejestrze. Eksperymenty z formatem rób na **istniejącym** przypadku przez `update_test_case`: najpierw `get_test_case(richTextFormat: "html")` i zapis oryginału, potem próba, potem przywrócenie z pełną listą kroków i odczyt kontrolny.
 - `list_custom_fields` **przed** `create_test_case`; wartość dropdownu to string opcji, nie `id`.

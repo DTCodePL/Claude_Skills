@@ -18,13 +18,15 @@ description: >
   a każda wiadomość w trakcie wykonania mówi, na którym kroku z ilu jest.
   Na starcie, po zatwierdzeniu planu, PBI/Bug i taski do wykonania idą
   na In Progress. Na końcu, po pushu i przed przekazaniem testerowi,
-  generuje przypadki testowe w QA Sphere skillem `qasphere-test-generator`.
+  uzgadnia przypadki testowe w QA Sphere skillem `qasphere-test-generator`:
+  przegląda istniejące w obszarze zmiany (zostaje / aktualizacja / `[Removed]`)
+  i dodaje brakujące.
   Obejmuje też Bugi — test-first:
   czerwony test, łatka, ten sam test zielony. UŻYWAJ ZAWSZE, gdy user
   poda link lub numer Epic/Feature/PBI/Task/Bug z Azure DevOps projektu
   Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie i/lub naprawienie go
   — nawet jeśli nie padnie słowo "skill".
-version: '5.25'
+version: '5.26'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -75,7 +77,7 @@ brama → ADO) robi wyłącznie cztery rzeczy:
 4. **Otwiera i domyka w ADO** — po zatwierdzeniu planu ustawia `In Progress`
    (Faza 1b); na końcu triażuje recenzje (Gemini, Spark, Sol, bramka końcowa)
    i przegląd zgodności dokumentacji (Faza 4c), prowadzi bramę
-   potwierdzenia, robi commit/push, prowadzi przypadki testowe w QA Sphere
+   potwierdzenia, robi commit/push, uzgadnia przypadki testowe w QA Sphere
    (`qasphere-test-generator`, Faza 6, pkt 3) i statusy końcowe (MCP do ADO
    mają też Spark i Gemini; Figmę — Claude i Codex).
 
@@ -195,9 +197,10 @@ wszystkich kroków, a każda wiadomość mówi, na którym z nich jesteś.
    - przegląd zgodności dokumentacji (Faza 4c);
    - brama potwierdzenia — **czeka na właściciela**;
    - commit i push (kod, dokumentacja, wersje);
-   - przypadki testowe QA Sphere (Faza 6, pkt 3) — dwa kroki: plik podglądu
-     z recenzją innej rodziny; podgląd **czeka na właściciela**, potem
-     wysyłka `qas.py` z `verify` (pominięte tylko z uzasadnieniem z planu);
+   - przypadki testowe QA Sphere (Faza 6, pkt 3) — dwa kroki: przegląd
+     istniejących i plik podglądu z recenzją innej rodziny; podgląd **czeka
+     na właściciela**, potem wysyłka, aktualizacje i oznaczenia `[Removed]` przez `qas.py`
+     z `verify` (pominięte tylko z uzasadnieniem z planu);
    - domknięcie: statusy i komentarze w ADO, przekazanie testerowi, raport
      tokenów.
 
@@ -1112,6 +1115,13 @@ Wykonaj w tej kolejności:
      testera.
 3. **Przypadki testowe w QA Sphere — skill `qasphere-test-generator`, po
    pushu, przed przekazaniem testerowi** (decyzja właściciela 2026-10-13).
+   To uzgodnienie całego obszaru, nie dopisanie nowych: najpierw przegląd
+   przypadków, które już są w QA Sphere (Krok 2b skilla — każdy dostaje
+   werdykt zostaje / aktualizacja / `[Removed]`), potem nowe tylko tam, gdzie po
+   przeglądzie została luka. **Zakres przeglądu** wskazujesz sam — foldery
+   QA Sphere obszaru funkcjonalnego, którego dotyczy zadanie (całe
+   poddrzewa), ustalone z drzewa folderów w `context.json` i z mapy
+   dokumentacji; trafiają do `qas.py context --review-folder`.
    Wywołaj skill narzędziem `Skill` i przeprowadź go w całości według jego
    sekcji „Podział pracy”; tu jego procedury nie powtarzasz, a ogólny
    routing jej nie nadpisuje (Faza 2). Przypadki pisze do pliku podglądu
@@ -1123,27 +1133,36 @@ Wykonaj w tej kolejności:
      zakres `git diff` drzewa roboczego); dokumenty `zatwierdzony` z mapy
      dokumentacji i Fazy 4c, w brzmieniu po rewizjach zatwierdzonych na
      bramie; linki do makiet z planu, wyłącznie jako `links`; konta i dane
-     środowiska PRE; znane defekty i świadome pominięcia; istniejące
-     przypadki, których zachowanie zadanie zmieniło (→ `updates[]`; ich
-     treść z `get_test_case`, bo `context.json` niesie same tytuły). Dla
-     Buga: przypadek regresji z krokami odtworzenia z planu, opisujący
-     zachowanie poprawne, oraz poprawki istniejących przypadków, których
-     dotyczy łatka.
+     środowiska PRE; znane defekty i świadome pominięcia; zakres przeglądu
+     (id i ścieżki folderów) i zmiany zachowania z dziennika rozbieżności,
+     które mogą unieważnić istniejące przypadki. Dla Buga: przypadek
+     regresji z krokami odtworzenia z planu, opisujący zachowanie poprawne,
+     oraz werdykty dla przypadków, których dotyczy łatka.
    - **Podgląd przypadków to osobna brama** (Krok 5 skilla), której
      potwierdzenie z Fazy 5 nie obejmuje: tabela z `qas.py table` w
      wiadomości `**[Krok X/N]** Przypadki QA Sphere — czeka na Ciebie …`.
-     Wysyłkę (`qas.py folders` → `push` → `verify`) uruchamiasz dopiero po
-     „ok”; poprawki zgłoszone na tej bramie idą briefem korekty do linii
-     autora.
+     Tabela pokazuje też wynik przeglądu: ile zostaje, co idzie do
+     aktualizacji i listę „Do usunięcia — [Removed]” z powodami — każdy taki
+     wpis akceptujesz z osobna. Zapis (`qas.py folders` → `push` → `update`
+     → `retire`, potem jedno pełne `verify`; pośrednio tylko
+     `verify --only`) uruchamiasz dopiero po „ok”;
+     poprawki zgłoszone na tej bramie idą briefem korekty do linii autora.
+   - **`[Removed]` to oznaczenie, nie usunięcie.** API QA Sphere — REST
+     i MCP — nie usuwa ani nie przenosi przypadków (zmierzone 2026-10-13),
+     więc `qas.py retire` dodaje tag `[Removed]` i prefiks tytułu
+     `[Removed] `, bez folderu „Kosz” (decyzja właściciela 2026-10-13).
+     Adresy oznaczonych przypadków podajesz właścicielowi w komunikacie
+     końcowym (pkt 9) — usuwa je w UI, jeśli chce; z przekazaniem testerowi
+     na to nie czekasz.
    - **Krok pominięty w planie** (Faza 1) oznaczasz w pliku kroków jako
      zrobiony z tym uzasadnieniem. **Blokada** — brak transportu QA Sphere
      albo dopuszczonej linii autora lub recenzenta po ponownej kwalifikacji
      (reguła 2) — daje stan `zablokowane` z brakującym warunkiem;
      `Ready for tests` czeka wtedy na decyzję właściciela.
    - Briefy autora i recenzenta wpisujesz do rejestru jak każdy istotny
-     brief. Wynik potwierdzony przez `qas.py verify` (folder, `seq`, linki
-     z Kroku 7 skilla) trafia do komentarza dostępności (pkt 5)
-     i do komunikatu końcowego.
+     brief. Wynik potwierdzony przez `qas.py verify` (folder, `seq` nowych,
+     zaktualizowanych i oznaczonych `[Removed]`, linki z Kroku 7 skilla) trafia
+     do komentarza dostępności (pkt 5) i do komunikatu końcowego.
 4. **Komentarz pieczętujący Buga — obowiązkowy, przed zmianą stanu.** Po
    naprawieniu buga dodaj do work itemu Buga (`wit_work_item_comment_write`)
    komentarz z **nazwą i lokalizacją testu, który go pieczętuje**, w stałym
@@ -1183,7 +1202,7 @@ Wykonaj w tej kolejności:
    - BE wdrożony: <SemVer + SHA + build/run> albo "niezweryfikowane / niewdrożone".
    - Odczyt: https://pre.zebrani.pl/version.json i https://pre.zebrani.pl/api/version; w UI pasek/stopka FE · BE (dopiero gdy endpointy/UI istnieją — przed ich implementacją jawnie brak mechanizmu).
    - Warunek rozpoczęcia retestu: live zawiera commit funkcji/fix po obu wymaganych stronach; numer i commit porównane do komentarza; FE w otwartej karcie może być starszy niż aktualny endpoint — odświeżyć i sprawdzić wersję ZAŁADOWANEGO FE.
-   Przypadki testowe QA Sphere (projekt ZEB, folder "<ścieżka od korzenia projektu>"): nowe <seq, …>; zaktualizowane <seq, …>; https://dtcode.eu1.qasphere.com/project/ZEB/tcase/<seq> — albo "brak — <powód pominięcia lub blokady>".
+   Przypadki testowe QA Sphere (projekt ZEB, folder "<ścieżka od korzenia projektu>"): nowe <seq, …>; zaktualizowane <seq, …>; wycofane — oznaczone [Removed], nie wykonywać <seq, …>; https://dtcode.eu1.qasphere.com/project/ZEB/tcase/<seq> — albo "brak — <powód pominięcia lub blokady>".
    ```
 
    Zasady wypełniania:
@@ -1224,8 +1243,11 @@ Wykonaj w tej kolejności:
    deklaracja sukcesu nie jest dowodem, dopiero zwrócony stan pola jest.
 9. **Komunikat końcowy** zaczyna się od `**[Krok N/N]** Domknięcie —
    zrobione · zostało: 0`; plik kroków ma wszystkie kroki `zrobione`.
-   Zawiera wynik pkt 3: projekt i folder QA Sphere, liczbę nowych
-   i zaktualizowanych przypadków z `seq` i linkami — albo powód pominięcia.
+   Zawiera wynik pkt 3: projekt i folder QA Sphere, wynik przeglądu
+   (zostaje / zaktualizowane / `[Removed]`) i liczbę nowych przypadków z `seq`
+   i linkami — albo powód pominięcia — oraz listę adresów przypadków
+   oznaczonych `[Removed]` — do usunięcia w UI, jeśli mają zniknąć
+   z rejestru.
 10. **Raport zużycia tokenów — ostatnia rzecz w komunikacie końcowym.**
     Uruchom `python $env:USERPROFILE\.claude\bin\token-report.py report --task <numer>`
     i wklej obie tabele bez zmian (per silnik → per model → sumy; szczegóły

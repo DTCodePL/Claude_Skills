@@ -3695,6 +3695,40 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: build `--no-incremental` 0/0, pełny `dotnet test` 6219 (0 pominiętych), format 57 plików, 5/5 mutacji potoku wykrytych (bez dekodowania, bez przebiegu surowego, bez reguły parametru, jedna runda, bez dekodowania procentowego), rebuild 400/400 testów funkcji
 - Uwaga o specyfikacji: brief wymagał separatora `[?&;]` przed nazwą parametru — dogrywka zastąpiła go warunkiem granicy nazwy, żeby parametr bez separatora też był maskowany; znane granice zapisane jako P3 w raporcie (kodowanie zagnieżdżone ponad limit rund, spacje wokół `=`).
 
+### qas-review-S1 (skrypt transportu QA Sphere: przegląd istniejących przypadków, oznaczenie wycofanych, lint i testy bez sieci) — 2026-10-13
+- Archetyp: Algorytmika / Logika — narzędzie wiersza poleceń z walidacją pliku i zapisem do zewnętrznego systemu testów.
+- Stawka: średnia — zapisy w rejestrze przypadków testowych są odwracalne, ale API nie usuwa przypadków, więc błędny zapis zostaje w rejestrze do ręcznego sprzątania.
+- Niepewność: średnia — nowy format pliku (werdykty przeglądu, wpisy wycofania), zachowanie API zmierzone w trakcie (brak usuwania i przenoszenia).
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max` (`-Access write`), domyślny effort reguły 8.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (`-Mode review`) — wpis qas-review-R1.
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` (porcje ≤ 5 plików — tu 2 pliki); `wykonawca` (Sonnet 5.5 `high`).
+- Powód wyboru: jeden plik skryptu z testami jednostkowymi bez sieci, pełna pętla testów w linii Sparka, pula bez komunikatów limitu.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark `nieznany` (wrapper nie podaje zapasu), 2026-10-13 07:54.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: wymagane korekty — implementacja zgodna ze specyfikacją, ale właściciel zmienił decyzję w trakcie (oznaczenie tagiem i prefiksem zamiast folderu).
+- Rundy korekt: 2 — runda 1 z winy zmiany decyzji właściciela i trzech uwag wykonawcy do specyfikacji (przyjęte); runda 2 po recenzji: 3 defekty wykonania (niepełny odczyt przed zapisem, typ werdyktu, typ znacznika wykonania) i 5 uzupełnień specyfikacji.
+- Czas do akceptacji: ~44 min (przebiegi 11,5 + 7 + 10,7 min, recenzja 7 min).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): zob. qas-review-R1.
+- Defekty po odbiorze: brak do chwili wpisu.
+- Wymagane testy i dowody: 155 testów jednostkowych zielonych (z atrapą transportu); odczyt kontekstu na żywym projekcie (folder z 9 przypadkami); lint, tabela i próba wycofania bez wywołań na kontekście z żywych danych; próba tagu z nawiasami na jednym przypadku, stan przywrócony.
+
+### qas-review-R1 (recenzja skryptu transportu QA Sphere i dwóch skilli procedury) — 2026-10-13
+- Archetyp: Recenzja — skrypt narzędziowy z testami oraz dokumentacja procedury.
+- Stawka: średnia (jak qas-review-S1).
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): autorzy recenzowanego diffu: Spark `max` (skrypt, testy), sesja architekta (Claude, dwa skille).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (`-Mode review`, tylko odczyt).
+- Dopuszczone alternatywy: Gemini `gemini-3.8-flash-high` `-Access read`.
+- Powód wyboru: rodzina inna niż obaj autorzy; preferencja reguły 13 przy niższej stawce; recenzent sam czyta diff i uruchamia scenariusze w pamięci.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex `nieznany` (wrapper nie podaje zapasu), 2026-10-13 08:16.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: raport kompletny w jednym przebiegu, werdykt „niepoprawny”.
+- Rundy korekt: 0 (recenzja).
+- Czas do akceptacji: 7 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 6 — P1 ×1 (zapis po niepełnym odczycie nadpisuje tytuł i tagi), P2 ×4 (wycofanie spoza zakresu przeglądu, kolejność pełnej weryfikacji w obu skillach, znacznik wykonania niebędący wartością logiczną, nieobsłużony typ werdyktu), P3 ×1 (brak adresów przy ponownym uruchomieniu); odrzucone 0. Ocena trzech uwag zaplanowanych przez architekta: dwie właściwe, trzecia za szeroka (blokowała dozwoloną zmianę samego priorytetu) — zawężona.
+- Defekty po odbiorze: brak do chwili wpisu.
+- Wymagane testy i dowody: każde znalezisko sprawdzone przez architekta w kodzie przed korektą; po korekcie 155 testów zielonych i próby na kontekście z żywych danych.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
