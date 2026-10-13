@@ -26,7 +26,7 @@ description: >
   poda link lub numer Epic/Feature/PBI/Task/Bug z Azure DevOps projektu
   Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie i/lub naprawienie go
   — nawet jeśli nie padnie słowo "skill".
-version: '5.26'
+version: '5.27'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -459,13 +459,10 @@ odrzuć pary model–native effort niespełniające choć jednego twardego warun
   nie zastępuje dostępu. Spark i Gemini nie kwalifikują się do Figmy.
   Próba A/B linii Figmy zamknięta 2026-10-12: w linii Claude'a ekrany
   z Figmy zostają przy `wykonawca` (Sonnet 5.5 `high`);
-- próba testera (reguła 14 globalnego `CLAUDE.md`, od 2026-10-12): briefy
-  testów, które kwalifikacja kieruje do linii Claude'a, idą naprzemiennie
-  na `tester` (Sonnet 5.5 `medium`) i `tester-haiku` (Haiku 5.5 `xhigh`),
-  po 3 na ramię; ramię wybierasz przed napisaniem briefu. Brief testów
-  innej linii nie wchodzi do próby i jej nie przerywa. Wyjątek: w próbie
-  oba ramiona recenzuje Spark `max` — stały recenzent jako kontrola;
-  brief, którego Spark nie zrecenzuje, wypada z pomiaru;
+- próba testera zamknięta 2026-10-13 (reguła 14 globalnego `CLAUDE.md`):
+  w linii Claude'a briefy testów idą do `tester`, który biegnie na
+  Haiku 5.5 `xhigh` (wcześniej Sonnet 5.5 `medium`); recenzenta wybierasz
+  per brief jak dla każdego innego briefu;
 - narzędzia, repozytoria, uprawnienia oraz potrzebny kontekst muszą być
   dostępne w wybranej linii; brak dziedziczenia sesji wymaga samodzielnego
   briefu, a brak nieprzenoszalnego kontekstu wyklucza kandydata;
@@ -556,8 +553,7 @@ bez wklejonego diffu.
 | Spark — `muse-spark-1.3-contributor` (`minimal|low|medium|high|xhigh|max`; `none` i `ultra` wrapper odrzuca — `ultra` ma zamkniętą bramkę i biegnie jako `xhigh`); domyślnie `max` od 2026-10-12, niższy effort z uzasadnieniem w briefie | `-Access write`: Node z Windows przez interop, pętla własnych testów, MCP ADO, Playwright, Angular, QA Sphere, Mikrus; `-Access read`: audyt i recenzja | brak Figma MCP; high-stakes tylko w zachowanym wyjątku blokady hooka; bez gita i `npm install`; bez limitu slotów, ale rozłączne cele |
 | Gemini — `agy`, `gemini-3.8-flash-low`, `gemini-3.8-flash-medium`, `gemini-3.8-flash-high` (effort zakodowany w sufiksie identyfikatora) | zapis i pętla lint/test na Windows oraz MCP ADO, Playwright, Angular, QA Sphere, Mikrus; `-Access read` do recenzji | nigdy high-stakes ani Figma; ścieżki absolutne, jawny odczyt `AGENTS.md`, zakaz powłoki w briefie recenzji zgodnie z `external-workers` |
 | Codex — `gpt-6.1-sol` (`low|medium|high|xhigh|max|ultra`), `gpt-6-luna` (`low|medium|high|xhigh|max`) | implementacja, testy, research, audyt/recenzja; Figma i Playwright po potwierdzeniu dostępu w konkretnej sesji; `-Mode review` do odczytu | pełnoprawny kandydat, porcje ≤ 5 plików (implementacja/testy; recenzji nie dzielisz — bramka końcowa czyta cały diff w jednym przebiegu); nie zastępuje Opusa na high-stakes; nie recenzuje własnej rodziny; research bez poleceń powłoki; najmniejsza pula (Plus), sygnał zwykle `nieznany` — w funkcji high-stakes tylko krótkie briefy bez niezmiennika (≤ 5 plików, effort ≤ `high`), po limicie przed bramką brak kolejnych briefów tej funkcji |
-| `tester` — Sonnet 5.5 `medium` | speci Vitest / AXE / xunit; czerwony test Buga | test przed łatką i bez edycji przez autora łatki; odrębne briefy testu i łatki |
-| `tester-haiku` — Haiku 5.5 `xhigh` | jak `tester` | wyłącznie ramię B próby testera (reguła 14 globalnego `CLAUDE.md`); poza próbą wykluczony; obowiązuje hook |
+| `tester` — Haiku 5.5 `xhigh` (od 2026-10-13, po próbie z reguły 14 globalnego `CLAUDE.md`; wcześniej Sonnet 5.5 `medium`) | speci Vitest / AXE / xunit; czerwony test Buga | test przed łatką i bez edycji przez autora łatki; odrębne briefy testu i łatki; obowiązuje hook |
 | `mechanik` — Haiku 5.5 `low` | pojedyncze klucze i18n, rename, przeniesienie pliku | mechaniczne drobiazgi, nie implementacja wysokiej stawki |
 | `zwiadowca` — Haiku 5.5 `low` | fakty z repo przed decyzją | tylko odczyt |
 | `audytor-a11y` — Opus `high` | delegowany audyt kontrastu/fokusu/tokenów | audyt, nie przejęcie implementacji |
@@ -836,9 +832,6 @@ Gemini. Fable nie recenzuje (ta sama rodzina co Sonnet i Opus).
 Przy niskiej stawce preferujesz Sola `high` albo Gemini `high` przed
 Sparkiem (mniej zawyżonych P0/P1 do obalenia; decyzja właściciela
 2026-10-12); Spark `max` pozostaje kandydatem przy wyższej stawce.
-Wyjątek: w próbie testera oba ramiona recenzuje Spark `max` — stały
-recenzent jako kontrola eksperymentu; brief, którego Spark nie
-zrecenzuje, wypada z pomiaru.
 
 Fala mieszana → recenzje po zbiorach plików per autor, każda przez inną
 rodzinę niż ten autor. Liczby recenzji nie limitujesz. Brief recenzenta
