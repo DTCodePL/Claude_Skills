@@ -17,12 +17,14 @@ description: >
   z tym, co faktycznie zaimplementowano. Plan kończy się listą kroków 1…N,
   a każda wiadomość w trakcie wykonania mówi, na którym kroku z ilu jest.
   Na starcie, po zatwierdzeniu planu, PBI/Bug i taski do wykonania idą
-  na In Progress. Obejmuje też Bugi — test-first:
+  na In Progress. Na końcu, po pushu i przed przekazaniem testerowi,
+  generuje przypadki testowe w QA Sphere skillem `qasphere-test-generator`.
+  Obejmuje też Bugi — test-first:
   czerwony test, łatka, ten sam test zielony. UŻYWAJ ZAWSZE, gdy user
   poda link lub numer Epic/Feature/PBI/Task/Bug z Azure DevOps projektu
   Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie i/lub naprawienie go
   — nawet jeśli nie padnie słowo "skill".
-version: '5.24'
+version: '5.25'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -73,8 +75,9 @@ brama → ADO) robi wyłącznie cztery rzeczy:
 4. **Otwiera i domyka w ADO** — po zatwierdzeniu planu ustawia `In Progress`
    (Faza 1b); na końcu triażuje recenzje (Gemini, Spark, Sol, bramka końcowa)
    i przegląd zgodności dokumentacji (Faza 4c), prowadzi bramę
-   potwierdzenia, robi commit/push i statusy końcowe (MCP do ADO mają też
-   Spark i Gemini; Figmę — Claude i Codex).
+   potwierdzenia, robi commit/push, prowadzi przypadki testowe w QA Sphere
+   (`qasphere-test-generator`, Faza 6, pkt 3) i statusy końcowe (MCP do ADO
+   mają też Spark i Gemini; Figmę — Claude i Codex).
 
 **Sesja główna nie pisze kodu, nie pisze testów, nie przepisuje po wykonawcy
 i nie czyta dwudziestu plików „żeby sprawdzić"** — każde z tych działań to
@@ -191,7 +194,12 @@ wszystkich kroków, a każda wiadomość mówi, na którym z nich jesteś.
    - SemVer (podgląd i zapis wersji);
    - przegląd zgodności dokumentacji (Faza 4c);
    - brama potwierdzenia — **czeka na właściciela**;
-   - domknięcie: commit/push, statusy i komentarze w ADO, raport tokenów.
+   - commit i push (kod, dokumentacja, wersje);
+   - przypadki testowe QA Sphere (Faza 6, pkt 3) — dwa kroki: plik podglądu
+     z recenzją innej rodziny; podgląd **czeka na właściciela**, potem
+     wysyłka `qas.py` z `verify` (pominięte tylko z uzasadnieniem z planu);
+   - domknięcie: statusy i komentarze w ADO, przekazanie testerowi, raport
+     tokenów.
 
    Nie sklejasz kroków, żeby lista wyglądała krócej, i nie rozbijasz ich na
    pojedyncze briefy.
@@ -317,6 +325,11 @@ Zanim zlecisz jakikolwiek kod, wejdź w Plan Mode i ustal:
   aplikacji: wybrany bump (`major` / `minor` / `patch` / `none`),
   jednozdaniowe uzasadnienie z diffa oraz para stare→nowe z podglądu skryptu.
   Numeru nie zgadujesz — arytmetykę liczy skrypt.
+- **Przypadki testowe QA Sphere (Faza 6, pkt 3).** Plan przewiduje ten krok
+  dla każdego PBI i Buga, który zmienia zachowanie widoczne dla testera.
+  Pomijasz go tylko z uzasadnieniem w planie: zadanie bez takiej zmiany
+  (refaktor albo aktualizacja zależności bez taska `Manual tests` / `Retest`,
+  sama dokumentacja).
 
 ## Faza 1b — Otwarcie w ADO (po zatwierdzeniu planu, przed pierwszym briefem)
 
@@ -723,7 +736,7 @@ Gdy work item to **Bug**, kolejność jest obowiązkowa i niezmienna:
    zachowaniu (nie po numerze buga w nazwie metody; numer buga idzie do
    komentarza/opisu i do commita). Zanotuj jego ścieżkę, `describe`/klasę i
    nazwę oraz oba wyniki (czerwony/zielony) — trafią do komentarza
-   pieczętującego Buga w ADO (Faza 6, pkt 3).
+   pieczętującego Buga w ADO (Faza 6, pkt 4).
 
 Nigdy jeden brief „napisz test i napraw" — to dwa briefy do dwóch linii,
 a Ty porównujesz oba wyniki, nie deklarację.
@@ -1045,7 +1058,7 @@ Raport bramy zawiera punkt **„Dokumentacja”**:
 Oraz punkt **„SemVer”**: bump z uzasadnieniem i pary stare→nowe per
 zmienione repo (z podglądu/zapisu skryptu). Gdy commit/push nie jest autoryzowany, raport
 niesie też gotowy tekst komentarza dostępności (wypełniony szablon z Fazy 6,
-pkt 4) — bez ogłaszania publikacji. Bez tych punktów brama nie jest gotowa.
+pkt 5) — bez ogłaszania publikacji. Bez tych punktów brama nie jest gotowa.
 Raport potwierdza też recenzję i odbiór dowodów każdej fali, spełnienie
 ograniczeń routingu oraz wpisy istotnych briefów do rejestru (albo
 uzasadnione mechaniczne pominięcia); dla high-stakes zawiera wynik
@@ -1097,7 +1110,41 @@ Wykonaj w tej kolejności:
    - **Gdy work item to Bug**, sub-taski to `Fix` i `Retest` (patrz
      `azure-devops-zebrani`): `Fix` → `Done`, `Retest` zostaje otwarty dla
      testera.
-3. **Komentarz pieczętujący Buga — obowiązkowy, przed zmianą stanu.** Po
+3. **Przypadki testowe w QA Sphere — skill `qasphere-test-generator`, po
+   pushu, przed przekazaniem testerowi** (decyzja właściciela 2026-10-13).
+   Wywołaj skill narzędziem `Skill` i przeprowadź go w całości według jego
+   sekcji „Podział pracy”; tu jego procedury nie powtarzasz, a ogólny
+   routing jej nie nadpisuje (Faza 2). Przypadki pisze do pliku podglądu
+   linia autora z tamtej sekcji, recenzuje je inna rodzina, a wysyła,
+   poprawia i weryfikuje architekt skryptem `qas.py`. Sesja nie pisze treści
+   przypadków i nie woła `create_test_case` / `update_test_case`.
+   - **Brief generatora korzysta z tego zadania**, nie ze świeżej analizy:
+     numer, tytuł i link work itemu; commity z pkt 1 (bez autoryzacji pushu:
+     zakres `git diff` drzewa roboczego); dokumenty `zatwierdzony` z mapy
+     dokumentacji i Fazy 4c, w brzmieniu po rewizjach zatwierdzonych na
+     bramie; linki do makiet z planu, wyłącznie jako `links`; konta i dane
+     środowiska PRE; znane defekty i świadome pominięcia; istniejące
+     przypadki, których zachowanie zadanie zmieniło (→ `updates[]`; ich
+     treść z `get_test_case`, bo `context.json` niesie same tytuły). Dla
+     Buga: przypadek regresji z krokami odtworzenia z planu, opisujący
+     zachowanie poprawne, oraz poprawki istniejących przypadków, których
+     dotyczy łatka.
+   - **Podgląd przypadków to osobna brama** (Krok 5 skilla), której
+     potwierdzenie z Fazy 5 nie obejmuje: tabela z `qas.py table` w
+     wiadomości `**[Krok X/N]** Przypadki QA Sphere — czeka na Ciebie …`.
+     Wysyłkę (`qas.py folders` → `push` → `verify`) uruchamiasz dopiero po
+     „ok”; poprawki zgłoszone na tej bramie idą briefem korekty do linii
+     autora.
+   - **Krok pominięty w planie** (Faza 1) oznaczasz w pliku kroków jako
+     zrobiony z tym uzasadnieniem. **Blokada** — brak transportu QA Sphere
+     albo dopuszczonej linii autora lub recenzenta po ponownej kwalifikacji
+     (reguła 2) — daje stan `zablokowane` z brakującym warunkiem;
+     `Ready for tests` czeka wtedy na decyzję właściciela.
+   - Briefy autora i recenzenta wpisujesz do rejestru jak każdy istotny
+     brief. Wynik potwierdzony przez `qas.py verify` (folder, `seq`, linki
+     z Kroku 7 skilla) trafia do komentarza dostępności (pkt 5)
+     i do komunikatu końcowego.
+4. **Komentarz pieczętujący Buga — obowiązkowy, przed zmianą stanu.** Po
    naprawieniu buga dodaj do work itemu Buga (`wit_work_item_comment_write`)
    komentarz z **nazwą i lokalizacją testu, który go pieczętuje**, w stałym
    układzie:
@@ -1109,7 +1156,7 @@ Wykonaj w tej kolejności:
      (`npm test` / `dotnet test` — liczby);
    - **Commit:** hash i gałąź z `(Bug #<numer>)`.
 
-   Bez tego komentarza nie przechodzisz do pkt 4 — tester ma wiedzieć, co
+   Bez tego komentarza nie przechodzisz do pkt 5 — tester ma wiedzieć, co
    dokładnie chroni tę naprawę i gdzie to znaleźć, bez czytania diffu. Jeśli
    zaszedł wyjątek przeglądarkowy z Fazy 3, komentarz mówi to wprost
    i zamiast testu podaje: kroki odtworzenia, nazwę i skrót SHA-256
@@ -1117,10 +1164,10 @@ Wykonaj w tej kolejności:
    (PASS), zrzuty BEFORE/AFTER, kto dowodził, a kto łatał, wynik całego
    pakietu (`npm test` / `dotnet test` — liczby) oraz hash commita.
 
-4. **Komentarz dostępności wersji — obowiązkowy, do SAMEGO PBI albo Buga,
+5. **Komentarz dostępności wersji — obowiązkowy, do SAMEGO PBI albo Buga,
    po autoryzowanym commicie/pushu, PRZED zmianą stanu na `Ready for tests`.**
    Dla Buga nie piszesz drugiego komentarza — sekcję dostępności dopisujesz
-   do komentarza pieczętującego z pkt 3. Bez autoryzacji commit/push NIE
+   do komentarza pieczętującego z pkt 4. Bez autoryzacji commit/push NIE
    ogłaszasz publikacji ani NIE wysyłasz tego komentarza — wypełniony szablon
    odkładasz do raportu bramy (Faza 5). Bram autoryzacji ten punkt nie zmienia.
 
@@ -1136,6 +1183,7 @@ Wykonaj w tej kolejności:
    - BE wdrożony: <SemVer + SHA + build/run> albo "niezweryfikowane / niewdrożone".
    - Odczyt: https://pre.zebrani.pl/version.json i https://pre.zebrani.pl/api/version; w UI pasek/stopka FE · BE (dopiero gdy endpointy/UI istnieją — przed ich implementacją jawnie brak mechanizmu).
    - Warunek rozpoczęcia retestu: live zawiera commit funkcji/fix po obu wymaganych stronach; numer i commit porównane do komentarza; FE w otwartej karcie może być starszy niż aktualny endpoint — odświeżyć i sprawdzić wersję ZAŁADOWANEGO FE.
+   Przypadki testowe QA Sphere (projekt ZEB, folder "<ścieżka od korzenia projektu>"): nowe <seq, …>; zaktualizowane <seq, …>; https://dtcode.eu1.qasphere.com/project/ZEB/tcase/<seq> — albo "brak — <powód pominięcia lub blokady>".
    ```
 
    Zasady wypełniania:
@@ -1159,24 +1207,30 @@ Wykonaj w tej kolejności:
      Automatycznego deployu nie dodajesz ani nie domagasz się uprawnień do niego.
    - Wersje FE/BE są niezależne i mogą się różnić — tester porównuje
      wymagania osobno, per strona.
+   - Linia QA Sphere wymienia wyłącznie przypadki potwierdzone przez
+     `qas.py verify` w pkt 3, nie zawartość pliku podglądu. W tekście
+     odkładanym do raportu bramy (Faza 5) zostaje placeholderem, bo
+     przypadki powstają dopiero po bramie.
 
-5. **Stan PBI / Buga → "Ready for tests".** Przed zapisem zweryfikuj dokładną
+6. **Stan PBI / Buga → "Ready for tests".** Przed zapisem zweryfikuj dokładną
    nazwę stanu dla typu work itemu (`Task`, `Product Backlog Item` i `Bug`
    mogą się różnić) przez `mcp__azure-devops__wit_work_item`
    `action: get_type`, żeby nie trafić błędem API na literówkę w nazwie stanu.
-6. **Przypisanie PBI / Buga** (`System.AssignedTo`) na testera — **Piotr
+7. **Przypisanie PBI / Buga** (`System.AssignedTo`) na testera — **Piotr
    Tuński**, `Piotr.Tunski@DTCode.pl`.
-7. Zmiany 2, 5 i 6 rób przez `mcp__azure-devops__wit_work_item_write`
+8. Zmiany 2, 6 i 7 rób przez `mcp__azure-devops__wit_work_item_write`
    `action: update_batch`, jednym wywołaniem na wszystkie PBI/taski naraz,
    gdzie to możliwe. **Zweryfikuj przez zwróconą treść odpowiedzi API** —
    deklaracja sukcesu nie jest dowodem, dopiero zwrócony stan pola jest.
-8. **Komunikat końcowy** zaczyna się od `**[Krok N/N]** Domknięcie —
+9. **Komunikat końcowy** zaczyna się od `**[Krok N/N]** Domknięcie —
    zrobione · zostało: 0`; plik kroków ma wszystkie kroki `zrobione`.
-9. **Raport zużycia tokenów — ostatnia rzecz w komunikacie końcowym.**
-   Uruchom `python $env:USERPROFILE\.claude\bin\token-report.py report --task <numer>`
-   i wklej obie tabele bez zmian (per silnik → per model → sumy; szczegóły
-   per rola/brief) wraz ze stopką. Raport liczy z zapisów na dysku
-   (transkrypty Claude'a, rollouty Codexa, sesje muse) — nie szacuj, nie
-   pytaj o `/usage`. Ostrzeżenia `⚠` z raportu przepisz dosłownie. Sumy
-   pokazują kolumny cache osobno: surowa suma jest w większości odczytem
-   cache'u i bez podziału nic nie mówi o koszcie.
+   Zawiera wynik pkt 3: projekt i folder QA Sphere, liczbę nowych
+   i zaktualizowanych przypadków z `seq` i linkami — albo powód pominięcia.
+10. **Raport zużycia tokenów — ostatnia rzecz w komunikacie końcowym.**
+    Uruchom `python $env:USERPROFILE\.claude\bin\token-report.py report --task <numer>`
+    i wklej obie tabele bez zmian (per silnik → per model → sumy; szczegóły
+    per rola/brief) wraz ze stopką. Raport liczy z zapisów na dysku
+    (transkrypty Claude'a, rollouty Codexa, sesje muse) — nie szacuj, nie
+    pytaj o `/usage`. Ostrzeżenia `⚠` z raportu przepisz dosłownie. Sumy
+    pokazują kolumny cache osobno: surowa suma jest w większości odczytem
+    cache'u i bez podziału nic nie mówi o koszcie.
