@@ -4405,3 +4405,25 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
   - domyślna wartość wrappera (`-Effort max`).
 
 **Następny przegląd:** po kolejnych 10–15 istotnych briefach albo po wyniku próby testera, zależnie od tego, co nastąpi wcześniej. Osobno ocena Sparka `max` po 10–15 jego briefach.
+
+#### Zmiana modeli 2026-10-14 — linia Muse na Wonder Full (bez przeglądu wpisów)
+
+- **Powód:** istotna zmiana modeli (sekcja 5, pkt 2). W katalogu `muse` 1.4.8 na planie Power Usage są `muse-wonder-full-1.0` i `muse-wonder-1.0` (oba z 2026-10-12, warianty `-contributor`, efforty `minimal`–`max`). Dostęp potwierdzony sondą wrappera (`model_completed.model`). Gemini 4 Argon nadal poza `agy` 1.3.5.
+- **Decyzja:** właściciel — „użyjmy nowego Muse Wonder”; wariant Full wybrał architekt. Domyślny model każdej roli linii Muse (wykonawca, recenzent, audyt, autor QA Sphere, wyjątek CZERWONEGO): `muse-wonder-full-1.0-contributor` `max`. Wonder, Spark 1.3 albo niższy effort — tylko z uzasadnieniem w briefie i we wpisie.
+- **Przesłanki (AA, 2026-10-14; pewność niska, bez lokalnych wyników):**
+  - TB4: Wonder Full 0,571, Wonder 0,520, Spark 1.3 `max` 0,333; II 55,8 / 52,4 / 48,1;
+  - tokeny wyjścia na zadanie indeksu: 53,8 tys. / 54,2 tys. / 60,2 tys. — różnicę kosztu robi cena tokenu;
+  - koszt zadania: Wonder 4,52 $ wobec 1,60 $ Sparka `max` (ceny standardowe); Wonder Full bez ceny w AA;
+  - pula: 114 przebiegów Sparka po zmianie planu bez limitu; zapasu nikt nie podaje — sygnał `nieznany`.
+- **Bez zmian:** pliki niezmiennika high-stakes pisze `wykonawca-opus`; bramka końcowa `gpt-6.1-sol` `max`; preferencja Sol `high` / Gemini `high` przy recenzjach niskiej stawki (dane z przeglądu 1 dotyczą Sparka 1.3 — do ponownej oceny dla Wondera Full). Wonder i Spark to jedna rodzina recenzji.
+- **Ocena Sparka `max`** (od 2026-10-12) zamknięta przed progiem 10–15 briefów — jej wpisy zostają punktem odniesienia.
+- **Ocena Wondera Full po 10–15 istotnych briefach:** rundy z wykonania (bez rund z winy specyfikacji), czas do akceptacji, potwierdzone i obalone P0/P1 w recenzjach, komunikaty limitu puli — wobec przeglądu 1 (Spark `xhigh` 0,58, `high` 0,35 rundy z wykonania na brief) i briefów Sparka `max` z 2026-10-12…14. Pierwszy komunikat limitu → ponowna kwalifikacja wg reguły 2 i wpis.
+- **Wprowadzone w:**
+  - reguły 2, 6, 7, 8, 10, 13, 14 i 15 oraz macierz i odczyt AA globalnego `CLAUDE.md` (linia „Spark” → „Muse”);
+  - wspólna sekcja projektów (`sync-routing.py`, 20 kopii zgodnych);
+  - skill `implement-ado-feature-zebrani` v5.28;
+  - `qasphere-test-generator` v1.8;
+  - `external-workers`, `browser-check` (`CLI-WORKER.md`, `README.md`, `pwcli`);
+  - domyślny model wrappera (`-Model muse-wonder-full-1.0-contributor`) i komunikaty hooka limitów.
+
+**Następny przegląd:** po 10–15 istotnych briefach Wondera Full albo po pierwszym komunikacie limitu Muse, zależnie od tego, co nastąpi wcześniej.

@@ -26,7 +26,7 @@ description: >
   poda link lub numer Epic/Feature/PBI/Task/Bug z Azure DevOps projektu
   Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie i/lub naprawienie go
   — nawet jeśli nie padnie słowo "skill".
-version: '5.27'
+version: '5.28'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -75,11 +75,11 @@ brama → ADO) robi wyłącznie cztery rzeczy:
    dokumentacji wszystko, czym implementacja odeszła od dokumentu. Raport
    wykonawcy nigdy nie jest dowodem.
 4. **Otwiera i domyka w ADO** — po zatwierdzeniu planu ustawia `In Progress`
-   (Faza 1b); na końcu triażuje recenzje (Gemini, Spark, Sol, bramka końcowa)
+   (Faza 1b); na końcu triażuje recenzje (Gemini, Muse, Sol, bramka końcowa)
    i przegląd zgodności dokumentacji (Faza 4c), prowadzi bramę
    potwierdzenia, robi commit/push, uzgadnia przypadki testowe w QA Sphere
    (`qasphere-test-generator`, Faza 6, pkt 3) i statusy końcowe (MCP do ADO
-   mają też Spark i Gemini; Figmę — Claude i Codex).
+   mają też Muse i Gemini; Figmę — Claude i Codex).
 
 **Sesja główna nie pisze kodu, nie pisze testów, nie przepisuje po wykonawcy
 i nie czyta dwudziestu plików „żeby sprawdzić"** — każde z tych działań to
@@ -219,7 +219,7 @@ wszystkich kroków, a każda wiadomość mówi, na którym z nich jesteś.
    `**[Krok X/N]** <nazwa kroku> — <stan> · zostało: <N−X> (dalej: <nazwa następnego kroku>)`
 
    Stan to jedno z: `start`; `w toku — <konkret, np. 2 z 3 briefów
-   odebrane, czekam na Sparka (BE)>`; `zrobione — <dowód jednym zdaniem>`;
+   odebrane, czekam na Muse (BE)>`; `zrobione — <dowód jednym zdaniem>`;
    `czeka na Ciebie — <czego potrzebujesz>`; `zablokowane — <brakujący
    warunek>`. Początek i koniec każdego kroku to osobna wiadomość; plik
    kroków aktualizujesz w tym samym momencie.
@@ -413,7 +413,7 @@ prace pochodne ruszają naraz, w jednej wiadomości, a nie jedna po drugiej
 po kodzie:
 
 - **makiety w Figmie** → wybrana per brief linia z faktycznym dostępem
-  do Figmy (Claude lub Codex po potwierdzeniu dostępu; Spark i Gemini nie);
+  do Figmy (Claude lub Codex po potwierdzeniu dostępu; Muse i Gemini nie);
 - **dokumentacja produktowa** (`d:\projects\DTCode\Dokumentacja\Zebrani`,
   osobne repo, własny `AGENTS.md`, `status` w front matter) → linia
   kwalifikująca się do tego briefu; **obowiązkowo przy każdej zmianie
@@ -456,7 +456,7 @@ odrzuć pary model–native effort niespełniające choć jednego twardego warun
   Gemini nigdy nie dostaje briefu wysokiej stawki;
 - Figma: wykonawca ekranu z makiety sam pobiera kontekst projektu;
   wymagany jest faktyczny dostęp do Figmy. Link lub transkrypcja makiety
-  nie zastępuje dostępu. Spark i Gemini nie kwalifikują się do Figmy.
+  nie zastępuje dostępu. Muse i Gemini nie kwalifikują się do Figmy.
   Próba A/B linii Figmy zamknięta 2026-10-12: w linii Claude'a ekrany
   z Figmy zostają przy `wykonawca` (Sonnet 5.5 `high`);
 - próba testera zamknięta 2026-10-13 (reguła 14 globalnego `CLAUDE.md`):
@@ -470,7 +470,7 @@ odrzuć pary model–native effort niespełniające choć jednego twardego warun
   recenzent działa tylko do odczytu, ma kompetencje do stawki i zakresu
   oraz pochodzi z innej rodziny niż autor (Faza 4b). Niezależność końcowej
   bramki Sol (rodzina Codex) dotyczy plików niosących niezmiennik high-stakes: te
-  zawsze pisze `wykonawca-opus` (wyjątek CZERWONEGO: Spark `max`), więc
+  zawsze pisze `wykonawca-opus` (wyjątek CZERWONEGO: Muse Wonder Full `max`), więc
   bramka z rodziny Codex jest wobec nich niezależna. Codex może pisać
   briefy bez niezmiennika w funkcji high-stakes (ekrany, szablony, style,
   i18n, testy bez niezmiennika); ich niezależność zapewnia recenzja fali
@@ -550,18 +550,19 @@ bez wklejonego diffu.
 | sesja główna — Claude Opus `xhigh` | plan, decyzje, briefy, WCAG/tokeny, walidacja dowodów, triaż, domknięcie ADO | architekt; nigdy nie pisze kodu ani testów poza istniejącym jednolinijkowym wyjątkiem reguły 11 |
 | `wykonawca-opus` — Opus `xhigh` | pliki niosące niezmiennik high-stakes; briefy za trudne dla Sonneta | nie wolumen, ekran, szablon, styl ani i18n bez niezmiennika; obowiązuje hook; rodzina Claude — nie recenzuje Claude'a |
 | `wykonawca` — Sonnet 5.5 `high` | Figma MCP, kontekst sesji, repo FE/BE, implementacja; inne narzędzia po potwierdzeniu | jedna warstwa; wymagany faktyczny dostęp; nie przejmuje niezmienników wymagających Opusa; rodzina Claude — nie recenzuje Claude'a |
-| Spark — `muse-spark-1.3-contributor` (`minimal|low|medium|high|xhigh|max`; `none` i `ultra` wrapper odrzuca — `ultra` ma zamkniętą bramkę i biegnie jako `xhigh`); domyślnie `max` od 2026-10-12, niższy effort z uzasadnieniem w briefie | `-Access write`: Node z Windows przez interop, pętla własnych testów, MCP ADO, Playwright, Angular, QA Sphere, Mikrus; `-Access read`: audyt i recenzja | brak Figma MCP; high-stakes tylko w zachowanym wyjątku blokady hooka; bez gita i `npm install`; bez limitu slotów, ale rozłączne cele |
+| Muse (`-Engine spark`) — domyślnie `muse-wonder-full-1.0-contributor` `max` od 2026-10-14; `muse-wonder-1.0-contributor`, `muse-spark-1.3-contributor` albo niższy effort tylko z uzasadnieniem w briefie (`minimal|low|medium|high|xhigh|max`; `none` i `ultra` wrapper odrzuca — `ultra` ma zamkniętą bramkę i biegnie jako `xhigh`); Wonder i Spark to jedna rodzina | `-Access write`: Node z Windows przez interop, pętla własnych testów, MCP ADO, Playwright, Angular, QA Sphere, Mikrus; `-Access read`: audyt i recenzja | brak Figma MCP; high-stakes tylko w zachowanym wyjątku blokady hooka; bez gita i `npm install`; bez limitu slotów, ale rozłączne cele |
 | Gemini — `agy`, `gemini-3.8-flash-low`, `gemini-3.8-flash-medium`, `gemini-3.8-flash-high` (effort zakodowany w sufiksie identyfikatora) | zapis i pętla lint/test na Windows oraz MCP ADO, Playwright, Angular, QA Sphere, Mikrus; `-Access read` do recenzji | nigdy high-stakes ani Figma; ścieżki absolutne, jawny odczyt `AGENTS.md`, zakaz powłoki w briefie recenzji zgodnie z `external-workers` |
 | Codex — `gpt-6.1-sol` (`low|medium|high|xhigh|max|ultra`), `gpt-6-luna` (`low|medium|high|xhigh|max`) | implementacja, testy, research, audyt/recenzja; Figma i Playwright po potwierdzeniu dostępu w konkretnej sesji; `-Mode review` do odczytu | pełnoprawny kandydat, porcje ≤ 5 plików (implementacja/testy; recenzji nie dzielisz — bramka końcowa czyta cały diff w jednym przebiegu); nie zastępuje Opusa na high-stakes; nie recenzuje własnej rodziny; research bez poleceń powłoki; najmniejsza pula (Plus), sygnał zwykle `nieznany` — w funkcji high-stakes tylko krótkie briefy bez niezmiennika (≤ 5 plików, effort ≤ `high`), po limicie przed bramką brak kolejnych briefów tej funkcji |
 | `tester` — Haiku 5.5 `xhigh` (od 2026-10-13, po próbie z reguły 14 globalnego `CLAUDE.md`; wcześniej Sonnet 5.5 `medium`) | speci Vitest / AXE / xunit; czerwony test Buga | test przed łatką i bez edycji przez autora łatki; odrębne briefy testu i łatki; obowiązuje hook |
 | `mechanik` — Haiku 5.5 `low` | pojedyncze klucze i18n, rename, przeniesienie pliku | mechaniczne drobiazgi, nie implementacja wysokiej stawki |
 | `zwiadowca` — Haiku 5.5 `low` | fakty z repo przed decyzją | tylko odczyt |
 | `audytor-a11y` — Opus `high` | delegowany audyt kontrastu/fokusu/tokenów | audyt, nie przejęcie implementacji |
-| QA Sphere — autor Spark `max`; Gemini `-Access write`, gdy Spark zajęty albo z limitem | plik podglądu wg `qasphere-test-generator` | recenzja: plik Sparka → Gemini `-Access read`, plik Gemini → Spark `-Access read`; publikacja/poprawki/weryfikacja przez architekta skryptem `qas.py`; sesja nie pisze przypadków i nie woła `create_test_case` / `update_test_case` |
+| QA Sphere — autor Muse Wonder Full `max`; Gemini `-Access write`, gdy Muse zajęty albo z limitem | plik podglądu wg `qasphere-test-generator` | recenzja: plik Muse → Gemini `-Access read`, plik Gemini → Muse `-Access read`; publikacja/poprawki/weryfikacja przez architekta skryptem `qas.py`; sesja nie pisze przypadków i nie woła `create_test_case` / `update_test_case` |
 | bramka końcowa — `gpt-6.1-sol` `max` (od 2026-10-05, zamiast Astry) | cały feature high-stakes po recenzjach fal, osobno FE i BE, sekwencyjnie | bramka z Fazy 4b; niezależna wobec plików niosących niezmiennik (pisze je Opus); nie zastępuje recenzji fal, także dla plików bez niezmiennika pisanych przez Codex |
 
 **Preferencje jakościowe — nie hard gates.** Dotychczasowe wyniki recenzji
-Spark/Gemini, researchu Sola i audytu SCSS Sparka są wskazówkami do kroku 2.
+Spark/Gemini, researchu Sola i audytu SCSS Sparka (zmierzone na Sparku 1.3,
+nie na Wonderze) są wskazówkami do kroku 2.
 Historyczna próba researchu Gemini z 2026-09-24 (raport bez adresów
 źródeł) jest negatywnym sygnałem do ponownej oceny per brief — to nie hard
 gate i nie oznacza stałego przydziału rutynowego researchu do Sola `medium`.
@@ -602,7 +603,7 @@ Pułapki, które w tym skillu kosztowały najwięcej:
   wylicz dopuszczone pary dla wykonania lub recenzji wg kroków 1–2 i zapisz
   model/native effort, uzasadnienie, pewność i alternatywy nowej decyzji.
   Zachowany wyjątek przy CZERWONYM: brief `wykonawca-opus` może trafić
-  do Sparka `max` (nigdy do Gemini, Sonneta ani Codexa) albo czeka;
+  do Muse Wonder Full `max` (nigdy do Gemini, Sonneta ani Codexa) albo czeka;
   ten wyjątek nie otwiera high-stakes na Codexa. Figma nadal wymaga
   rzeczywistego dostępu, testy właściwego oracle, recenzja innej rodziny.
   Bramka Sol `max` zachowuje własny model i effort; jej limit nie
@@ -613,7 +614,7 @@ Pułapki, które w tym skillu kosztowały najwięcej:
   fallbacku. Zmianę linii meldujesz jednym zdaniem. Po resecie dostępności
   ponownie oceniasz kandydatów, nie wracasz automatycznie do stałej mapy.
   Sama cena tokenu albo odczyt `AGENTS.md` nie uzasadnia wyboru.
-- **Brief dla Sparka nie może wymagać transkrypcji makiet.** Spark i Gemini
+- **Brief dla Muse nie może wymagać transkrypcji makiet.** Muse i Gemini
   nie mają Figma MCP; dostają wyłącznie briefy opisane w całości tekstem.
   Ekran z makiety wymaga linii z faktycznym dostępem do Figmy (Claude
   lub kwalifikujący się Codex). Wykonawca sam pobiera `get_design_context`
@@ -628,8 +629,8 @@ Pułapki, które w tym skillu kosztowały najwięcej:
   feature, na końcu, nie na etap. Astra `max` wyczerpywała okno 5 h Plusa
   jednym przebiegiem (PBI #2137: 66 pkt okna i 10 % tygodnia; PBI #2370:
   limit po 6 min).
-- **Recenzent z tej samej rodziny co autor to nie recenzja.** Spark nie
-  recenzuje kodu Sparka, Gemini — kodu Gemini, Sol — kodu Codexa, a Fable
+- **Recenzent z tej samej rodziny co autor to nie recenzja.** Muse (Wonder
+  i Spark) nie recenzuje kodu Muse, Gemini — kodu Gemini, Sol — kodu Codexa, a Fable
   nie recenzuje wcale (rodzina Sonneta i Opusa). Nie dublujesz recenzentów
   równolegle. Wybór recenzenta per brief
   zawsze przechodzi kwalifikację. Brief wymaga sprawdzenia scenariusza
@@ -658,12 +659,12 @@ Wynik inny niż PASS triażujesz z raportu: defekt aplikacji → korekta do
 autora; wada scenariusza (cel, asercja, lokator) → poprawka i powtórka;
 `ERROR`, `TIMEOUT` lub `artifactError` → jedna powtórka. `browser-check`
 z Jev zostaje pierwszym krokiem; worker przeglądarkowy — wybrana per brief
-linia (Spark, Gemini lub Codex po potwierdzeniu narzędzia), nie subagent
+linia (Muse, Gemini lub Codex po potwierdzeniu narzędzia), nie subagent
 Claude'a (reguła 15 — zrzuty stron szybko puchną w kontekście) — wchodzi
 dopiero przy `NEED_FALLBACK`, `LOOP`, `MAX_STEPS`, FAIL, którego raport nie
 wyjaśnia, wyniku powtarzającym się po powtórce albo dla interakcji spoza
 scenariusza. **Od 2026-10-12 tam, gdzie działa, steruje przeglądarką przez
-Playwright CLI** (`Claude_Skills/browser-check/pwcli`; dziś linia Spark):
+Playwright CLI** (`Claude_Skills/browser-check/pwcli`; dziś linia Muse):
 łączy polecenia w jednym wywołaniu powłoki i celuje `find` / `--raw eval`
 zamiast pełnych snapshotów — w pomiarze ~3,3× mniej tokenów i ~2× mniej tur
 niż MCP przy tych samych 5 przejściach. Gemini i Codex zostają przy
@@ -690,7 +691,7 @@ powtarzaj zrobionego, zacznij od sprawdzenia stanu poleceniem X”. Nie
 wznawiasz starego agenta przez `SendMessage` — jego długi kontekst to
 właśnie koszt, przed którym chroni strażnik. W ocenie fal liczysz rundy
 korekty briefów z kontynuacją osobno od briefów bez niej. Workerów
-zewnętrznych (Spark, Gemini, Codex) strażnik nie widzi — ich pilnuje podział
+zewnętrznych (Muse, Gemini, Codex) strażnik nie widzi — ich pilnuje podział
 briefu na jedną warstwę.
 
 Gdy coś wizualnego po korekcie nadal wygląda źle albo jest tylko przybliżone
@@ -762,7 +763,7 @@ gwarancjami co test:
   (osobne `testData` albo sprzątnięcie).
 - **Błąd czysto wizualny** (np. odcień koloru — asercje `browser-check` nie
   sprawdzają stylu): worker przeglądarkowy (narzędzie jak w Fazie 3: CLI
-  w linii Spark, MCP w Gemini i Codexie) wykonuje **wyłącznie kroki 3
+  w linii Muse, MCP w Gemini i Codexie) wykonuje **wyłącznie kroki 3
   (BEFORE) i 6 (AFTER)** procedury `fix-devops-bug-zebrani` — macierz 2×2,
   mierzalna asercja przez `--raw eval` w CLI albo `browser_evaluate` w MCP
   (wyliczony styl wobec tokenu), spisane wartości i sparowane zrzuty
@@ -790,13 +791,13 @@ Arytmetykę liczy deterministyczny skrypt stdlib (kwalifikacja semantyczna jest 
 
 Zanim zgłosisz zadanie jako gotowe do mojej akceptacji, zlecasz przegląd
 **wszystkich zmodyfikowanych plików SCSS** wykonawcy audytu dobranemu
-wg kroków 1–2 Fazy 2. Spark (domyślnie `max`) pozostaje preferencją na podstawie
-dotychczasowej próby, nie wyłącznym przydziałem. Audyt: tylko odczyt,
+wg kroków 1–2 Fazy 2. Muse (domyślnie Wonder Full `max`; próba była na Sparku 1.3) pozostaje
+preferencją na podstawie dotychczasowej próby, nie wyłącznym przydziałem. Audyt: tylko odczyt,
 jeden przebieg bez pominiętego pliku; jawny model/native effort,
 uzasadnienie, pewność i alternatywy. Jeśli audyt pełni także rolę recenzji
 z Fazy 4b, wymaga innej rodziny niż autor; sam audyt jej nie zastępuje.
 Brief zawiera listę plików z `git diff --name-only` dostarczoną przez
-architekta (Spark nie uruchamia gita), kryteria dosłownie, zakaz modyfikacji
+architekta (Muse nie uruchamia gita), kryteria dosłownie, zakaz modyfikacji
 i raport „co zastąpić / co wydzielić / co zostawić i dlaczego” na stdout;
 po przebiegu `git status`. Gdy raport pominie plik, audyt nie jest odebrany:
 ponownie kwalifikujesz i wybierasz linię do pełnego przeglądu.
@@ -827,11 +828,12 @@ rodzina. Dla wyższej stawki wymagana jest wyższa klasa recenzji; tania
 konfiguracja bez tej zdolności odpada w kroku 1. Model/native effort,
 uzasadnienie, pewność, alternatywy i status dostępności zapisujesz
 w briefie recenzenckim. Sol jest kandydatem bez czekania na limit, ale
-nie recenzuje kodu rodziny Codexa; Spark nie recenzuje Sparka, Gemini
+nie recenzuje kodu rodziny Codexa; Muse nie recenzuje Muse, Gemini
 Gemini. Fable nie recenzuje (ta sama rodzina co Sonnet i Opus).
 Przy niskiej stawce preferujesz Sola `high` albo Gemini `high` przed
-Sparkiem (mniej zawyżonych P0/P1 do obalenia; decyzja właściciela
-2026-10-12); Spark `max` pozostaje kandydatem przy wyższej stawce.
+Muse (mniej zawyżonych P0/P1 do obalenia — zmierzone na Sparku 1.3;
+decyzja właściciela 2026-10-12, do ponownej oceny dla Wondera Full);
+Muse Wonder Full `max` pozostaje kandydatem przy wyższej stawce.
 
 Fala mieszana → recenzje po zbiorach plików per autor, każda przez inną
 rodzinę niż ten autor. Liczby recenzji nie limitujesz. Brief recenzenta
@@ -857,10 +859,10 @@ Przy mieszanej fali Sol dostaje `-BriefFile` z listą plików danego autora
 jako instrukcją przeglądu (wtedy wrapper nie dokleja `--uncommitted`).
 Nie wolno objąć recenzją kodu własnej rodziny.
 
-**Spark:** wrapper nie ma dla niego trybu `review`, a Spark nie uruchamia
+**Muse:** wrapper nie ma dla niego trybu `review`, a Muse nie uruchamia
 gita — diff przydzielonego zbioru plików innej rodziny (`git diff HEAD -- <pliki>`)
-i listę nowych plików wklejasz do briefu wg szablonu „Recenzja przez Sparka"
-z `external-workers`; `-Repo` to repozytorium, więc Spark czyta `AGENTS.md`
+i listę nowych plików wklejasz do briefu wg szablonu „Recenzja przez Muse"
+z `external-workers`; `-Repo` to repozytorium, więc Muse czyta `AGENTS.md`
 i dowolne pliki dla kontekstu. Po przebiegu `git status` — recenzja niczego
 nie zmienia.
 
@@ -893,7 +895,7 @@ feature'a (ta sama komenda, `-Model gpt-6.1-sol -Effort max`,
 bo błędna przesłanka zatrzymuje recenzję na klauzuli STOP. Bramka
 **uzupełnia** recenzje etapów, nigdy ich nie zastępuje. Jej niezależność dotyczy plików niosących
 niezmiennik high-stakes (pisze je `wykonawca-opus`, w wyjątku CZERWONEGO
-Spark `max`); briefy bez niezmiennika, także pisane przez Codex, mają
+Muse Wonder Full `max`); briefy bez niezmiennika, także pisane przez Codex, mają
 niezależność z recenzji fali z rodziny innej niż Codex — bramka czyta
 cały diff funkcji w jednym przebiegu (recenzji nie dzielisz na porcje
 ≤ 5 plików, te dotyczą implementacji/testów Codexa), ale dla nich nie
@@ -923,8 +925,8 @@ Co robisz z wynikiem — **triaż, nie posłuszeństwo** (skill
    nie zna konwencji repo — np. zgłasza brak `standalone: true`, `p-button`
    zamiast `[pButton]`, Cream zamiast białego jako „błąd"). Fałszywe alarmy
    wypisujesz z jednym zdaniem dlaczego; nie naprawiasz ich.
-2. Defekty wracają **do tej samej linii, która pisała kod** (Spark do
-   Sparka, Gemini do Gemini, `wykonawca` do `wykonawcy`, `wykonawca-opus`
+2. Defekty wracają **do tej samej linii, która pisała kod** (Muse do
+   Muse, Gemini do Gemini, `wykonawca` do `wykonawcy`, `wykonawca-opus`
    do `wykonawca-opus`, Codex do wybranej linii Codexa) jako brief korekty
    — nie łatasz sam. Po limicie albo rzeczywistym niepowodzeniu ponownie
    kwalifikujesz i wybierasz pary wg Fazy 2; brak bezpiecznej linii oznacza
@@ -991,7 +993,7 @@ mapę dokumentacji i dziennik rozbieżności, listy zmienionych i nowych plików
 kodu z obu repo (`git diff --name-only HEAD` + `git status --porcelain -uall`)
 oraz plików dokumentacji, kryteria akceptacji PBI/Buga, polecenie przeczytania
 `AGENTS.md` repo `Dokumentacja` i wymagany format wyniku. Linia bez gita
-(Spark, Gemini) dostaje te listy od architekta. Jeden przebieg obejmuje cały
+(Muse, Gemini) dostaje te listy od architekta. Jeden przebieg obejmuje cały
 zakres; gdy przekracza budżet briefu (reguła 15), dzielisz po grupach
 dokumentów — każda grupa w całości, z całym kodem, który ją realizuje. Przy
 diffie do ~5 plików i jednym–dwóch dokumentach przegląd robisz sam (reguła 11),

@@ -1,7 +1,7 @@
 # Worker przeglądarkowy — Playwright CLI
 
 Od 2026-10-12 worker przeglądarkowy steruje przeglądarką przez **Playwright CLI** z tego katalogu
-wszędzie tam, gdzie CLI działa — dziś w linii **Spark**. W Gemini i Codexie CLI nie działa (patrz
+wszędzie tam, gdzie CLI działa — dziś w linii **Muse** (`-Engine spark`). W Gemini i Codexie CLI nie działa (patrz
 [Wywołanie w każdej linii](#wywołanie-w-każdej-linii)), więc tam zostaje Playwright MCP z `--isolated`.
 Linię wybiera architekt per brief; przewaga kosztowa CLI jest argumentem w tej kwalifikacji, nie stałą
 trasą.
@@ -37,12 +37,12 @@ sprawdzenie” łapie też ulotne toasty, które w A i C znikały przed kolejną
 
 | Linia | Playwright CLI | Powód / polecenie |
 | --- | --- | --- |
-| Spark (WSL, `-Access write`) | **tak** | `/mnt/d/projects/DTCode/Claude_Skills/browser-check/pwcli` |
+| Muse (WSL, `-Access write`) | **tak** | `/mnt/d/projects/DTCode/Claude_Skills/browser-check/pwcli` |
 | Git Bash (ręczne odtworzenie przez architekta) | tak | `/d/projects/DTCode/Claude_Skills/browser-check/pwcli` |
 | Gemini (`agy`) | **nie → MCP** | `agy` po każdym `run_command` zabija drzewo procesów, także demona sesji CLI — kolejne wywołanie dostaje `Browser '<sesja>' is not open` (sonda 2026-10-12). Działa tylko łańcuch w jednym wywołaniu, a worker wchodzi właśnie po to, żeby oglądać wynik między krokami. |
 | Codex (`workspace-write`) | **nie → MCP** | piaskownica blokuje zapis do `%LOCALAPPDATA%\ms-playwright` (rejestr sesji `daemon\` i przeglądarek `b\`) — `EPERM` (sonda 2026-10-12). Serwer MCP działa poza piaskownicą. |
 
-- Sesja żyje między osobnymi wywołaniami powłoki w Sparku i w Git Bash (demon w tle; sprawdzone
+- Sesja żyje między osobnymi wywołaniami powłoki w Muse i w Git Bash (demon w tle; sprawdzone
   2026-10-12). Łańcuch `&&` służy oszczędności tur, nie utrzymaniu sesji.
 - `pwcli` w WSL woła `node.exe` Windows wprost, z pominięciem `cmd.exe`, więc cudzysłowy i polskie
   znaki przechodzą nietknięte (sprawdzone 2026-10-12).

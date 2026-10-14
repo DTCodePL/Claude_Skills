@@ -4,7 +4,7 @@ Małe narzędzie Node (ESM, bez kroku budowania) do szybkiego, deterministyczneg
 uruchomionej aplikacji webowej po implementacji. Tryb **matrix** robi macierz zrzutów ekranu
 (rozmiary okna × motyw Light/Dark) dla listy tras i raportuje błędy konsoli oraz sieci.
 Tryb **flows** (pętla Playwright + model decyzyjny Jev) to osobny moduł `lib/flows.mjs` — opis w [FLOWS.md](FLOWS.md).
-Gdy raport nie rozstrzyga, wchodzi worker przeglądarkowy — w linii Spark przez Playwright CLI (`pwcli`),
+Gdy raport nie rozstrzyga, wchodzi worker przeglądarkowy — w linii Muse przez Playwright CLI (`pwcli`),
 w Gemini i Codexie przez Playwright MCP — opis w [CLI-WORKER.md](CLI-WORKER.md).
 
 ## Uruchomienie

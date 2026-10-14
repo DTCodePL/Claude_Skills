@@ -2,16 +2,19 @@
 name: qasphere-test-generator
 description: Generuje kompletny zestaw test case'ów (happy + negative paths, dążąc do 100% pokrycia przypadków użycia) na podstawie wykonanego zadania/feature'a — najpierw przegląda przypadki, które już są w QA Sphere w obszarze zmiany (zostaje / aktualizacja / `[Removed]`), potem dodaje brakujące — i tworzy je bezpośrednio w QA Sphere — przez serwer MCP `qasphere`, a w środowisku bez MCP przez REST API. Test casy są po polsku, standalone, z pełnymi repro stepami (dane wejściowe, wyjściowe, instrukcje konfiguracji) tak, by wykonała je osoba widząca aplikację pierwszy raz. Skill sam mapuje repozytorium na właściwy projekt w QA Sphere. UŻYWAJ ZAWSZE, gdy user prosi o wygenerowanie test case'ów, pokrycie testowe, "testy do tego feature'a", "pokryj testami", "wrzuć testy do QA Sphere", "test casy z tego co zrobiliśmy" — nawet jeśli nie padnie słowo "skill" ani "QA Sphere" wprost, a kontekstem jest właśnie ukończone zadanie deweloperskie.
 user-invocable: true
-version: 1.7
+version: 1.8
 ---
 
-# QA Sphere — Test Generator (v1.7)
+# QA Sphere — Test Generator (v1.8)
 
 > Kanoniczna, wersjonowana wersja skilla. Źródło prawdy: `DTCodePL/Claude_Skills`.
 > Lokalnie używany jest tylko cienki loader, który pobiera ten plik z GitHuba.
 >
 > **Changelog**
 >
+> - **1.8** — autor pliku podglądu: Muse Wonder Full `max` (`muse-wonder-full-1.0-contributor`) zamiast Sparka 1.3
+>   `max` (2026-10-14, routing globalny reguła 8: nowy domyślny model linii Muse, Terminal-Bench 4.0 0,571 wobec
+>   0,333 przy tej samej liczbie tokenów wyjścia). Recenzja krzyżowa: plik Muse ↔ Gemini, bez zmian w procedurze.
 > - **1.7** — **przegląd istniejących przypadków i oznaczenie `[Removed]`** (Krok 2b, decyzja właściciela 2026-10-13): zestaw nie
 >   zaczyna od zera — każdy przypadek z zakresu przeglądu (`qas.py context --review-folder`, pełna treść
 >   w `existing[]`) dostaje werdykt `keep` / `update` / `retire` w `review[]`, a nowe przypadki pokrywają tylko luki.
@@ -90,9 +93,9 @@ workery na osobnych abonamentach; wysyłka to praca dla skryptu, nie dla modelu.
 | Krok                                                                   | Kto                                                                                                       | Jak                                                                                                                                                                                                                                 |
 | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 0–1, 4a, 2b — transport, projekt, custom fieldy, foldery, duplikaty, zakres przeglądu | architekt                                                                                  | `qas.py context --project <P> --search "<fraza>" [--folder-id <N>] --review-folder <N>… --out <katalog>\context.json` — jedno polecenie zamiast serii odczytów MCP; `--review-folder` (całe poddrzewo) daje `existing[]` z pełną treścią przypadków do przeglądu |
-| 2–4c + plik podglądu (5.1): werdykty przeglądu (`review`), poprawki (`updates`), `[Removed]` (`retire`), nowe (`testCases`) | **Spark `max`** (`-Access write`); Gemini `-Access write`, gdy Spark w tej fali zajęty albo zgłosił limit | brief z szablonu niżej; worker czyta ten plik jako specyfikację                                                                                                                                                                     |
+| 2–4c + plik podglądu (5.1): werdykty przeglądu (`review`), poprawki (`updates`), `[Removed]` (`retire`), nowe (`testCases`) | **Muse Wonder Full `max`** (`-Access write`); Gemini `-Access write`, gdy Muse w tej fali zajęty albo zgłosił limit | brief z szablonu niżej; worker czyta ten plik jako specyfikację                                                                                                                                                                     |
 | kontrola kształtu                                                      | architekt                                                                                                 | `qas.py lint <plik> --context <context.json>` — błędy wracają briefem korekty do tej samej linii                                                                                                                                    |
-| recenzja treści                                                        | inna rodzina niż autor: plik Sparka → Gemini `-Access read`, plik Gemini → Spark `-Access read`            | fakty (komunikaty dosłownie z `pl.json`/`en.json`, trasy, konta i dane z seedów), pokrycie kategorii Kroku 2, przypadki „obchodzące” znany defekt, werdykty przeglądu (2b); każde P0/P1 architekt obala jednym poleceniem, zanim zleci korektę              |
+| recenzja treści                                                        | inna rodzina niż autor: plik Muse → Gemini `-Access read`, plik Gemini → Muse `-Access read`                | fakty (komunikaty dosłownie z `pl.json`/`en.json`, trasy, konta i dane z seedów), pokrycie kategorii Kroku 2, przypadki „obchodzące” znany defekt, werdykty przeglądu (2b); każde P0/P1 architekt obala jednym poleceniem, zanim zleci korektę              |
 | poprawki po recenzji i po bramie                                       | linia autora — brief korekty                                                                               | architekt nie edytuje pliku; wyjątek: pojedyncza fraza wskazana przez użytkownika na bramie                                                                                                                                         |
 | brama (5.2–5.3)                                                        | architekt                                                                                                 | `qas.py table <plik>` → tabela dla użytkownika (z przeglądem i listą „Do usunięcia — [Removed]”); całego pliku architekt nie czyta — wyrywkowo przypadki `high`, te, których dotyczyła recenzja, i każdy `retire`                                                                                      |
 | wysyłka i kontrola (6)                                                 | architekt, skryptem                                                                                       | `qas.py folders` → `qas.py push --limit 1` → `qas.py verify --only <klucz>` → `qas.py push` (te cztery pomijasz przy pustym `testCases`) → `qas.py update` → `qas.py retire` → **jedno pełne `qas.py verify` na końcu** (pośrednio tylko `verify --only`, bo pełne liczy niewykonane jeszcze wpisy jako różnice); adresy z wyniku `retire` idą do użytkownika |
@@ -101,7 +104,7 @@ Twarde:
 
 - **Wysyłki nie robi żaden model.** Nie sesja; nie `wykonawca` (Sonnet przy przepisywaniu 45 przypadków do wywołań
   narzędzi wprowadził 7 literówek, 2026-09-27); nie `mechanik` (Haiku utworzył 20 poprawnych i 15 zmyślonych
-  przypadków); nie Spark (jego most MCP gubi parametry-tablice najwyższego poziomu — `upsert_folders`,
+  przypadków); nie Muse (jego most MCP gubi parametry-tablice najwyższego poziomu — `upsert_folders`,
   `create_test_case` padają). `qas.py` wysyła treść bajt w bajt z pliku, zapisuje `seq` po każdym przypadku
   i wznawia się po przerwie.
 - **`push` nie tworzy duplikatów.** Przed każdym `create_test_case` uzgadnia stan z serwerem: przypadek o tym samym

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Playwright CLI dla workera przeglądarkowego (od 2026-10-12 zamiast Playwright MCP) — CLI-WORKER.md.
 # Uruchamia playwright-cli z playwright zainstalowanego w browser-check, bez żadnej instalacji.
-# WSL (Spark): woła node.exe Windows wprost — argumenty omijają cmd.exe, więc cudzysłowy
+# WSL (Muse): woła node.exe Windows wprost — argumenty omijają cmd.exe, więc cudzysłowy
 # i polskie znaki przechodzą nietknięte. Git Bash: node z PATH.
 # Artefakty (.playwright-cli/) lądują w bieżącym katalogu — uruchamiaj z katalogu roboczego briefu.
 set -euo pipefail
