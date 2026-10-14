@@ -3729,6 +3729,565 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak do chwili wpisu.
 - Wymagane testy i dowody: każde znalezisko sprawdzone przez architekta w kodzie przed korektą; po korekcie 155 testów zielonych i próby na kontekście z żywych danych.
 
+### 2473-BE-1 (lustro subskrypcji u operatora, migracja, zawieszanie — łańcuch 1 → 1a → 1b → 1c → 1d) — 2026-10-13
+- Archetyp: Backend — serwis lustra stanu subskrypcji z SQL warunkowym, migracja, bramka operatora płatności
+- Stawka: wysoka / high-stakes (zapis okresu, miejsc, MRR, zawieszanie programów, płatność odnowienia, migracja)
+- Niepewność: wysoka (nowy przekrój, kolejność zdarzeń operatora, idempotencja)
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (BE-1 9,9 min → przekazanie przy 319 tys.; 1a 17,6 min, 100 wywołań; 1b 15,5 min, 98 wywołań, 340 tys.; 1c 4,6 min; 1d 6,2 min po recenzji)
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access read` (R-BE-1a 9,8 min, R-BE-1b 14,2 min)
+- Dopuszczone alternatywy: wykonawca — brak (twarda bramka); recenzent — Sol 6.1 `high` (pula Codexa odłożona na bramkę)
+- Powód wyboru: pliki niezmiennika; recenzja wyższej stawki z innej rodziny
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY, ok. 07:00Z); Spark nieznany (wrapper)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: przekazanie kontekstu po 10 min — brief za duży na jeden przebieg (lustro + migracja + bramka), podział na 1a/1b/1c
+- Rundy korekt: 1 (1d po recenzji; przekazania nie są rundą)
+- Czas do akceptacji: ~54 min wykonania w pięciu przebiegach + 2 recenzje ~24 min + walidacja
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-BE-1a ✓ 0,85, R-BE-1b ✓ 0,9 — P2/P3 potwierdzone, poprawione w 1d; odrzucone 0
+- Defekty po odbiorze: bramka końcowa — P1 spóźniona faktura odnowienia ≠ ostatnia faktura ginęła, P2 zwolnienie harmonogramu poza blokadą (wpis 2473-BE-6)
+- Wymagane testy i dowody: build 0/0, pełny `dotnet test` z SQL (6328), mutacje
+- Uwaga o specyfikacji: brief fali 1 łączył trzy warstwy — strażnik kontekstu rozdzielił je sam; kolejne briefy dzielone z góry.
+
+### 2473-FE-1 (kafelek „Następna płatność” — kwota niedostępna, data z bazy) — 2026-10-13
+- Archetyp: Frontend — prezentacja w istniejących komponentach ustawień, DTO, mapowanie widoku, i18n, specy Vitest/AXE
+- Stawka: średnia (ekran funkcji high-stakes bez niezmiennika)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` — Sonnet 5.5 / `high` (2,4 + 3,9 + 1,1 min w trzech wznowieniach)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (8,5 min)
+- Dopuszczone alternatywy: wykonawca — Spark `max`; Codex odpadł (> 5 plików przy sygnale `nieznany` w funkcji high-stakes); recenzent — Sol `high`
+- Powód wyboru: ekran bez niezmiennika, kontekst sesji; recenzja niskiej stawki wg reguły 13
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY); Gemini nieznany
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany
+- Rundy korekt: 0
+- Czas do akceptacji: ~7 min wykonania + recenzja 8,5 min + walidacja
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-FE-1 ✓, bez P0–P2
+- Defekty po odbiorze: brak (bramka FE zielona, 0 znalezisk)
+- Wymagane testy i dowody: `npm run lint`, `format:check`, `npm test` (4553), `npm run build`; browser-check `matrix` 4/4
+- Uwaga o specyfikacji: brak błędów briefu.
+
+### 2473-FIG-1 (makieta stanu „Kwota niedostępna”) — 2026-10-13
+- Archetyp: Frontend UI / Figma — wariant tekstu w istniejącym kafelku
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` — Sonnet 5.5 / `high`, Figma MCP (1,0 min)
+- Recenzent (linia / model / native effort): architekt (zrzut Figmy)
+- Dopuszczone alternatywy: Codex z potwierdzonym MCP — niepotwierdzony w sesji
+- Powód wyboru: jedyna linia z potwierdzonym Figma MCP
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany
+- Rundy korekt: 0
+- Czas do akceptacji: 1 min + zrzut
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: zrzut Figmy
+- Uwaga o specyfikacji: brak.
+
+### 2473-DOC (rewizje dokumentacji produktowej: DOC-1 przed falą 1, DOC-2 Faza 4c, DOC-3 po bramce) — 2026-10-13
+- Archetyp: Dokumentacja produktowa — datowane rewizje sześciu dokumentów, dziennik rozbieżności
+- Stawka: średnia (źródło prawdy funkcji high-stakes)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access write` (DOC-1 5,6 min + korekta 3,1 min; DOC-2 7,2 min; DOC-3 4,7 min)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (R-DOC-1 8,9 min; R-DOC-2 13,4 min; R-DOC-3 7,7 min)
+- Dopuszczone alternatywy: Sol `high` (pula Codexa dla bramki)
+- Powód wyboru: briefy tekstowe bez makiety; recenzja innej rodziny niż autor dokumentów i kodu
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark i Gemini nieznany (wrapper)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: DOC-1 do korekty po recenzji; DOC-2 i DOC-3 zaakceptowane
+- Rundy korekt: 1 (DOC-1); DOC-3 — P1 kolejności zdań i P2 kodów stanów poprawione przez architekta (reguła 11)
+- Czas do akceptacji: ~21 min wykonania łącznie + ~30 min recenzji
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-DOC-1 ✓ po korekcie; R-DOC-2 ✓ 1,0, 0 znalezisk; R-DOC-3 ✓ — P1 (kolejność zdań: alarm i korekta przypisane do złego przypadku) i P2 (kody stanów) potwierdzone; odrzucone 0
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: dziennik rozbieżności 35 wpisów, 0 otwartych; `git diff --stat` tylko dozwolone pliki
+- Uwaga o specyfikacji: brak.
+
+### 2473-BE-2 (zwrot odrzucony przez operatora po zapisie — procesor, SQL cofnięcia, stan „wstrzymane”) — 2026-10-13
+- Archetyp: Backend — procesor zdarzeń operatora z oceną pod blokadą, SQL warunkowy, alarmy
+- Stawka: wysoka / high-stakes (zwroty płatności, korekty faktur)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (18,0 min, 100 wywołań; korekty 13,1 min i 8,7 min)
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access read` (R-BE-2 10,5 min, R-BE-2-2 13,8 min, R-BE-2-3 7,6 min)
+- Dopuszczone alternatywy: wykonawca — brak; recenzent — Sol `high`
+- Powód wyboru: pliki niezmiennika
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY); Spark nieznany
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: wymagane korekty
+- Rundy korekt: 2
+- Czas do akceptacji: ~40 min wykonania + ~32 min recenzji + walidacje
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-BE-2 ✗ 0,85 i R-BE-2-2 ✗ 0,70 — P2 potwierdzone i poprawione; R-BE-2-3 ✓ 0,80 z 2 × P3 (odłożone przed bramkę)
+- Defekty po odbiorze: bramka końcowa — P1 zwrot odrzucony przed zapisem jako wykonany, P2 stan zwrotu nierozpoznany bez alarmu (wpis 2473-BE-6)
+- Wymagane testy i dowody: pełny `dotnet test` z SQL (6422), mutacje
+- Uwaga o specyfikacji: przypadek „zwrot odrzucony przed zapisem” był poza planem — złapała go dopiero bramka.
+
+### 2473-BE-3 (routing zdarzeń operatora, cykl uzgadniający, odczyt ustawień — 3a → 3b → kontynuacja) — 2026-10-13
+- Archetyp: Backend — przekrój webhooka, usługa tła, zapytanie odczytu
+- Stawka: wysoka / high-stakes (cichy błąd routingu zdarzeń płatności)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (3a 12,8 min; 3b 12,9 min → przekazanie przy 312 tys.; kontynuacja 11,3 min)
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access read` (R-BE-3a 5,5 min, R-BE-3b 12,0 min)
+- Dopuszczone alternatywy: wykonawca — brak; recenzent — Sol `high`
+- Powód wyboru: pliki niezmiennika; podział 3a/3b z góry ze względu na budżet kontekstu
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY); Spark nieznany
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany (3a: dyspozytor zamiast parametrów handlera wymuszony analizatorem S107)
+- Rundy korekt: 0 z wykonania
+- Czas do akceptacji: ~37 min wykonania + ~18 min recenzji
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-BE-3a ✓ 0,9 (4 × P3), R-BE-3b ✓ 0,85 (4 × P3) — wszystkie potwierdzone, odłożone przed bramkę i zrobione; odrzucone 0
+- Defekty po odbiorze: brak przypisanych
+- Wymagane testy i dowody: pełny `dotnet test` z SQL (6446)
+- Uwaga o specyfikacji: brak.
+
+### 2473-BE-4 (dokończenie przerwanej rezygnacji — wspólna droga, cykl dokończenia, idempotentne zakończenie — 4a → 4b → 4c) — 2026-10-13
+- Archetyp: Backend — usługa domeny pod blokadą, cykl tła, SQL kandydatów
+- Stawka: wysoka / high-stakes (zwrot gwarancji)
+- Niepewność: wysoka (lustro na starcie dokończenia, zbiór płatności po przyjęciu)
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (4a 15,7 min; 4b 14,4 min; 4c 19,4 min, 341 tys.)
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access read` (R-BE-4a 12,9 min, R-BE-4bc 8,8 min)
+- Dopuszczone alternatywy: wykonawca — brak; recenzent — Sol `high`
+- Powód wyboru: pliki niezmiennika
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY); Spark nieznany
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: 4a wymagał korekty (4c), 4b zaakceptowany
+- Rundy korekt: 1 (4c)
+- Czas do akceptacji: ~50 min wykonania + ~22 min recenzji
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-BE-4a ✓ 0,85 warunkowo — P2 kroki lustra giną przy 409/502 (błąd briefu architekta) + 2 × P3; R-BE-4bc ✓ 0,90 — 2 × P3 i P3-3 odrzucone przez architekta błędnie (okno gwarancji ma 30 dni) → przywrócone jako P2 (BE-5a)
+- Defekty po odbiorze: P2 odnowienie z okna gwarancji gubione przy pierwszym kliknięciu (BE-5a)
+- Wymagane testy i dowody: pełny `dotnet test` z SQL (6505), mutacje 4/4
+- Uwaga o specyfikacji: dwa błędy architekta — kolejność kroków lustra w briefie i błędne obalenie P3-3; recenzent miał rację w obu.
+
+### 2473-BE-5 (poprawki przed bramką — 5a, 5b, 5c, 5c-2, 5e, 5f; `wykonawca-opus`) — 2026-10-13
+- Archetyp: Backend — poprawki niezmienników po recenzjach fal (lustro przy pierwszym kliknięciu, przyjęcie przed lustrem, alarmy płatności odnowienia)
+- Stawka: wysoka / high-stakes
+- Niepewność: wysoka (wyścigi blokady, kolejność przyjęcia i lustra)
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (5a 14,8 min; 5b 12,9 min; 5c 15,4 min → przekazanie przy 344 tys.; 5c-2 16,2 min; 5e 8,4 min; 5f 14,2 min)
+- Recenzent (linia / model / native effort): Spark `max` (R-BE-5a 14,3 min, R-BE-5c 15,0 min); Gemini `gemini-3.8-flash-high` (R-BE-5b 6,8 min, R-BE-5e 15,8 min, R-BE-5f 6,9 min)
+- Dopuszczone alternatywy: wykonawca — brak; recenzent — Sol `high` (pula dla bramki)
+- Powód wyboru: pliki niezmiennika; recenzent przemienny Spark/Gemini dla świeżego spojrzenia
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY → ŻÓŁTY po południu); Spark i Gemini nieznany
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: każdy brief zaakceptowany z wykonania; recenzje znajdowały kolejne luki obok (łańcuch 5a → 5c → 5e → 5f)
+- Rundy korekt: 0 z wykonania na brief; 4 kolejne briefy z luk recenzji
+- Czas do akceptacji: ~82 min wykonania + ~59 min recenzji
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-BE-5a ✗ 0,8 — P1 (502 lustra przed przyjęciem + koniec u operatora = utrata gwarancji bez alarmu; błąd kolejności w briefie architekta) + 2 × P2 + 3 × P3; R-BE-5b ✓ 0,95 — P2 + 2 × P3; R-BE-5c ✗ 0,7 — 2 × P2; R-BE-5e ✓ 0,98 + 2 luki obok (P2, P2 obniżone z P1); R-BE-5f ✓ 1,0, P3 przyjęte bez zmian; odrzucone 0
+- Defekty po odbiorze: regresja uprzęży testów z 5a złapana pełną walidacją (5c pkt 5)
+- Wymagane testy i dowody: pełny `dotnet test` z SQL (6648 → 6676), mutacje po każdej poprawce
+- Uwaga o specyfikacji: główne P1 i dwa P2 pochodziły z kolejności kroków w briefach architekta, nie z wykonania.
+
+### 2473-BE-5d (Spark — anulowanie u operatora w „Następnej płatności”, testy lustra) — 2026-10-13
+- Archetyp: Backend — zapytanie odczytu bez niezmiennika + testy
+- Stawka: średnia (odczyt ustawień w funkcji high-stakes, bez pliku niezmiennika)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access write` (16,1 min)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (16,6 min)
+- Dopuszczone alternatywy: `wykonawca` Sonnet `high`; Codex odpadł (sygnał `nieznany`, pula dla bramki)
+- Powód wyboru: brief bez niezmiennika, odciążenie puli Claude'a przy ŻÓŁTYM
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark nieznany; Claude znany (hook ŻÓŁTY)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowany (925 z filtrów, 2 mutacje czerwone)
+- Rundy korekt: 0 (2 × P3 recenzji dołączone do BE-5f)
+- Czas do akceptacji: ~16 min + recenzja 16,6 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-BE-5d ✓ 0,98 — 2 × P3 potwierdzone; odrzucone 0
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: pełny `dotnet test` z SQL (6648)
+- Uwaga o specyfikacji: brak.
+
+### 2473-T-1 (testy SQL lustra i kandydatów cykli + testy orkiestracji T-1a; próba testera #5 A i #6 B) — 2026-10-13
+- Archetyp: Testy — xunit jednostkowe i integracyjne BE na prawdziwym SQL Server
+- Stawka: wysoka / high-stakes (dowody niezmienników lustra; pliki testów bez niezmiennika produkcji)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): T-1a — Claude / `tester` — Sonnet 5.5 / `medium` (13,7 min; korekty 7,2 + 1,4 min); T-1 — Claude / `tester-haiku` — Haiku 5.5 / `xhigh` (11,9 min → przekazanie; kontynuacja 8,0 min; korekta 8,4 min)
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access read` — stała kontrola próby (R-T-1a 10,8 min, R-T-1a-2 6,1 min, R-T-1 8,9 min, R-T-1-2 7,8 min)
+- Dopuszczone alternatywy: w próbie brak (ramię wybrane przed briefem)
+- Powód wyboru: próba testera (reguła 14), briefy #5 i #6
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY); Spark nieznany
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: T-1a — wymagane korekty (2 rundy); T-1 — 3 × P1 luk asercji po recenzji
+- Rundy korekt: T-1a 2, T-1 1
+- Czas do akceptacji: T-1a ~22 min + recenzje ~17 min; T-1 ~28 min + recenzje ~17 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-T-1a ✗ → R-T-1a-2 ✓ 0,85; R-T-1 ✗ 0,8 — 3 × P1 luk asercji potwierdzone w SQL, P2, 4 × P3 → R-T-1-2 ✓ 0,85 (8/8 domknięte, P3 komentarza)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: pełny `dotnet test` z SQL (6540 → 6571), mutacje 3 + 5 czerwonych; koszt próby #5 A 5,99 $, #6 B 1,59 + 0,74 $
+- Uwaga o specyfikacji: próba zamknięta 3:3 — Haiku 2,44 $/brief (0,60× Sonneta), rundy 1,00 wobec 1,33, defekty równe → Haiku przejmuje linię testera.
+
+### 2473-T-2 (testy SQL zwrotów i przepływów rezygnacji — T-2a, T-2b, T-2c; Spark) — 2026-10-13
+- Archetyp: Testy — xunit integracyjne BE (SQL, testy API na prawdziwym hoście)
+- Stawka: wysoka / high-stakes (dowody zwrotu gwarancji; pliki testów bez niezmiennika produkcji)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access write` (T-2a 17,3 min; T-2b 39,6 min; T-2c 8,3 min)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (R-T-2a 9,6 min; R-T-2b 9,1 min); T-2c — bramka końcowa Sol `max` na całym diffie
+- Dopuszczone alternatywy: `tester-haiku` (po zamknięciu próby); Sol `high` jako recenzent (pula dla bramki)
+- Powód wyboru: odciążenie puli Claude'a; testy poza próbą testera; recenzja innej rodziny
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark i Gemini nieznany; pierwszy przebieg R-T-2a Gemini odrzucony w 13 s — brief bez zakazu powłoki
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: T-2a — 2 × P2 filtrów w zapytaniach wsadowych do T-2b; T-2b — P1→P2 i 2 × P2 luk asercji
+- Rundy korekt: 1 (T-2c)
+- Czas do akceptacji: ~65 min wykonania + ~19 min recenzji
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-T-2a ✓ 0,95 — 2 × P2 + 2 × P3; R-T-2b ✗ 0,96 — P2 (obniżone z P1) + 2 × P2 + P3, wszystkie potwierdzone; odrzucone 0
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: `SubscriptionManagement` 2442/2442, mutacje 10/10 (T-2b), M-Used 10 czerwonych (T-2c); pliki produkcyjne mutowane i przywrócone — sprawdzone przez architekta
+- Uwaga o specyfikacji: przesłanka briefu T-2b o pliku `.Suspension.cs` była fałszywa — wykonawca zatrzymał się i zgłosił.
+
+### 2473-A-1 (narzędzie akceptacji lokalnej ze Stripe — zegary testowe) — 2026-10-13
+- Archetyp: Konfiguracja / DevOps — skrypt sesji do akceptacji na sandboxie operatora
+- Stawka: średnia (sandbox, bez danych produkcyjnych)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access write` (12,3 min)
+- Recenzent (linia / model / native effort): architekt — przebieg akceptacji 6 scenariuszy
+- Dopuszczone alternatywy: `wykonawca` Sonnet `high`
+- Powód wyboru: narzędzie poza repo produktu, tekstowy brief
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark nieznany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowany
+- Rundy korekt: 0
+- Czas do akceptacji: 12 min + akceptacja
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): n/d
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: akceptacja lokalna — 6 scenariuszy PASS (jedno samonaprawialne odchylenie: zwolnienie harmonogramu przy blokadzie zegara testowego + 429)
+- Uwaga o specyfikacji: brak.
+
+### 2473-GATE (bramka końcowa `gpt-6.1-sol` `max` — BE, potem FE) — 2026-10-13
+- Archetyp: Recenzja — bramka końcowa funkcji high-stakes (cały diff repozytorium, tylko odczyt)
+- Stawka: wysoka / high-stakes
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): n/d (recenzja)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review` (BE 30,3 min; FE 2,1 min STOP + 5,1 min); od przebiegu 9 (2026-10-14, decyzja właściciela „nie czekajmy na limity” po `usage_limit_exceeded` Codexa w przebiegu 8): Meta / `muse-spark-1.3-contributor` / `max`, `-Access read` (przebieg 9: 23,1 min — P1 potwierdzone, P2 obalone; przebieg 10: 17,0 min — ZIELONA, pewność 0,85, 3 × P3)
+- Dopuszczone alternatywy: brak — reguła 6
+- Powód wyboru: obowiązkowa bramka reguły 6; Codex nie dostał w tej funkcji innego briefu
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper), bez komunikatu limitu
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: BE CZERWONA — 2 × P1 + 2 × P2, wszystkie potwierdzone przez architekta w kodzie; FE — pierwszy przebieg STOP na błędnej przesłance briefu, drugi ZIELONY, 0 znalezisk
+- Rundy korekt: BE 8 (czerwone przebiegi 1–7 i 9 → BE-6, BE-7, BE-8/9, BE-10, BE-11, BE-12/13, BE-15, BE-16; przebieg 8 przerwany limitem Codexa); FE 0
+- Czas do akceptacji: BE 2026-10-13 → 2026-10-14 (10 przebiegów, w tym 2 na Sparku: 23,1 + 17,0 min); FE ~7 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone: P1 spóźniona opłacona faktura odnowienia ≠ ostatnia faktura subskrypcji ginęła bez alarmu; P1 zwrot odrzucony przed zapisem jako wykonany → ponowienie klucza idempotencji zapisywało fałszywy zwrot; P2 zwolnienie harmonogramu poza blokadą mogło usunąć nowy plan; P2 sam nierozpoznany stan zwrotu bez alarmu; odrzucone 0
+- Defekty po odbiorze: brak (stan przed wdrożeniem PRE)
+- Wymagane testy i dowody: każde P1 potwierdzone scenariuszem w kodzie przed poprawką
+- Uwaga o specyfikacji: wszystkie cztery znaleziska to przypadki spoza planu architekta; recenzje fal (Spark/Gemini, 16 przebiegów) ich nie zgłosiły — kolejny argument za bramką raz na funkcję.
+
+### 2473-BE-6 (poprawki po bramce — 6a, 6a-2, 6b, 6b-K1) — 2026-10-13
+- Archetyp: Backend — poprawki niezmienników po bramce (lustro faktury ze zdarzenia, dopasowanie pod blokadą, zwrot odrzucony przed zapisem, stan nierozpoznany)
+- Stawka: wysoka / high-stakes
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (6a 8,4 min → przekazanie przy 317 tys.; 6a-2 8,9 min; 6b 16,4 min, 314 tys.; 6b-K1 10,6 min)
+- Recenzent (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access read` (R-BE-6 9,6 min)
+- Dopuszczone alternatywy: wykonawca — brak; recenzent — Gemini `high`
+- Powód wyboru: pliki niezmiennika; recenzja wyższej stawki
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ŻÓŁTY); Spark nieznany
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: 6b zaakceptowany po korekcie zakresu a2 (6b-K1: tylko przy rezygnacji w toku, gałąź resztkowa jako ostrzeżenie)
+- Rundy korekt: 1 (6b-K1)
+- Czas do akceptacji: ~44 min wykonania + recenzja 9,6 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-BE-6 ✓ ZGODNE 0,85 — 4/4 znaleziska bramki zamknięte; P3 (przybliżenie „zwrot zlecony przez system”) potwierdzone, opisane komentarzem SQL i zdaniem dokumentacji (architekt, reguła 11); odrzucone 0
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: filtr 2554 → 2580 po testach T-3; pełny `dotnet test` po T-3c
+- Uwaga o specyfikacji: brief BE-6b-K1 zakładał istniejące testy gałęzi resztkowej — ich nie było, przeniesione do T-3c.
+
+### 2473-T-3 (testy poprawek po bramce — T-3a lustro, T-3b SQL i ocena, T-3c procesor i przepływ; `tester-haiku`) — 2026-10-13
+- Archetyp: Testy — xunit jednostkowe i na prawdziwym SQL Server, mutacje produkcji
+- Stawka: wysoka / high-stakes (dowody poprawek bramki; pliki testów bez niezmiennika produkcji)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / `tester-haiku` — Haiku 5.5 / `xhigh` (T-3a 13,6 min, 371 tys.; T-3b 9,7 min, 37 wywołań; T-3c 14,1 min, 48 wywołań, 332 tys. — próg miękki przekroczony, dokończony bez przekazania)
+- Recenzent (linia / model / native effort): architekt — mutacje produkcji przed i po, `cmp` przywróconych plików; zmiany testów czyta bramka nie ponownie (poprawki po bramce)
+- Dopuszczone alternatywy: Spark `max` `-Access write`
+- Powód wyboru: pierwszy brief po przejęciu linii testera przez Haiku (próba zamknięta 3:3)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ŻÓŁTY, 5 h 42–43 %)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: T-3a — mutacja M2 z `if (true)` i `#pragma` (przywrócona, produkcja czysta); T-3b zaakceptowany bez uwag (M3–M5 czerwone, mutacja `IF @Reverted = 0` równoważna); T-3c zaakceptowany (M6 → 3 czerwone, M7 → 1 czerwony; jedyne pokrycie gałęzi resztkowej procesora)
+- Rundy korekt: 0
+- Czas do akceptacji: ~37 min wykonania w trzech briefach + walidacje architekta
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): n/d — uwagi wykonawców o specyfikacji: T-3b 7 (2 przyjęte: brak asercji w istniejącym teście → T-3c, brak dowodu mutacyjnego S7 → mutacja równoważna), T-3c 10 (uwaga o korektach w gałęzi a2 rozstrzygnięta przez SQL)
+- Defekty po odbiorze: 0 (bramka przebiegi 2–3 bez znalezisk w testach T-3)
+- Wymagane testy i dowody: filtr 2554 → 2565 → 2580 → 2586; build `--no-incremental` 0/0, pełny `dotnet test` 6706/6706 z SQL, pominięto 0; mutacje M1–M7 czerwone, przywrócenia `cmp` identyczne
+- Uwaga o specyfikacji: pułapki mutacji (stara data modyfikacji przywróconego pliku, `return` na początku metody, nazwy czerwonych testów tylko w `verbosity=normal`) dopisywane do kolejnych briefów — T-3b i T-3c bez tych błędów.
+
+### 2473-BE-7 (cykle tła przechodzą całą zaległość — stronicowanie kluczem, po przebiegu 2 bramki) — 2026-10-13
+- Archetyp: Backend — dwa cykle tła i ich zapytania SQL (kursor), bezpiecznik postępu, testy SQL i jednostkowe, mutacje
+- Stawka: wysoka / high-stakes (cichy błąd cyklu lustra płatności i dokończenia zwrotu gwarancji)
+- Niepewność: średnia (plan zapytania z kursorem, pętla bez postępu)
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (31,7 min, 86 wywołań, 354 tys. — próg miękki przekroczony, dokończony bez przekazania)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review` — przebieg 3 bramki na całym diffie jako recenzja fali (inna rodzina niż Opus; bez dublowania osobnym recenzentem)
+- Dopuszczone alternatywy: wykonawca — brak (przy CZERWONYM Spark `max`); recenzent — Spark `max` / Gemini `high` (odrzucone jako dublowanie przebiegu 3)
+- Powód wyboru: pliki niezmiennika; jeden brief na oba cykle, bo to ta sama klasa błędu
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ŻÓŁTY, 5 h 0–6 % po resecie)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany z wykonania; wykonawca zmierzył plany zapytań i wybrał postać z dolną granicą zamiast dosłownego `OR` z briefu (dosłowna skanowałaby indeks od początku przy każdej stronie)
+- Rundy korekt: 0 (4 komentarze poprawione przez architekta, reguła 11)
+- Czas do akceptacji: 31,7 min + walidacja ~10 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): przebieg 3 bramki — P2 przebiegu 2 zamknięte, w plikach BE-7 brak nowych znalezisk
+- Defekty po odbiorze: 0
+- Wymagane testy i dowody: build `--no-incremental` 0/0, pełny `dotnet test` 6723/6723 z SQL, mutacje K1–K4 + K4b czerwone, atrapy ograniczone sekwencją (żaden test nie zawisa)
+- Uwaga o specyfikacji: postać SQL z briefu psuła plan — brief dopuszczał postać równoważną; wykonawca wykrył fałszywe twierdzenie o indeksie pokrywającym, obecne od fali 1 w migracji i diagramie.
+
+### 2473-BE-8 (anulowanie najpierw odzwierciedla odnowienie — P1 przebiegu 3 bramki) — 2026-10-13
+- Archetyp: Backend — handler komendy właściciela z lustrem pod blokadą, kroki po blokadzie, testy jednostkowe i API z prawdziwym lustrem, mutacje
+- Stawka: wysoka / high-stakes (miejsca, cena, zawieszenia programów i liczba miejsc u operatora płatności)
+- Niepewność: średnia (wyścig odnowienia z anulowaniem, kontrakt kroków po zatwierdzeniu)
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (28,6 min, 70 wywołań, 304 tys.)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review` — przebieg 4 bramki na całym diffie jako recenzja fali (inna rodzina niż Opus; bez dublowania)
+- Dopuszczone alternatywy: wykonawca — brak (przy CZERWONYM Spark `max`); recenzent — Spark `max` / Gemini `high` (odrzucone jako dublowanie przebiegu 4)
+- Powód wyboru: plik niezmiennika (anulowanie × zaplanowana zmiana × odnowienie)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook 2026-10-13 ~21:15: 5 h 9 %, tydzień 61 %)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany z wykonania; wykonawca obalił założenie mutacji M1 (drugi przebieg z kroku wyścigu sam domyka scenariusz bramki) i dołożył test API „zakończona u operatora → 409 bez operatora”, który M1 czerwieni; wskazał ryzyko tokenu żądania przy krokach po sukcesie
+- Rundy korekt: 0 z wykonania; 1 zmiana z winy specyfikacji (token żądania → `CancellationToken.None` przy sukcesie: linia architekta + 5 asercji przez `mechanik`)
+- Czas do akceptacji: 28,6 min + walidacja ~8 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): przebieg 4 bramki — P1-3 zamknięte (anulowanie najpierw odzwierciedla odnowienie); w plikach BE-8 brak nowych znalezisk; odrzucone 0
+- Defekty po odbiorze: brak — wdrożenie PRE i test dymny 2026-10-14 zielone (FE 1.4.0, BE 1.5.0)
+- Wymagane testy i dowody: build 0/0, filtr 2624/2624 z SQL, pełny 6744/6744 (raport wykonawcy), mutacje M1/M2/M3 (+M1+M3) czerwone, CRLF
+- Uwaga o specyfikacji: brief kazał przekazać token żądania krokom po sukcesie — błąd architekta (zerwane połączenie gubiło dopasowanie operatora, którego kolejne lustro nie odtworzy); wykonawca użył raz `sed -i.bak` wbrew zakazowi (bez śladu w repo).
+
+### 2473-BE-9 (znacznik faktury odnowienia czekającej na rozstrzygnięcie — P2 przebiegu 3 bramki, część produkcyjna) — 2026-10-13
+- Archetyp: Backend — pisarz lustra w transakcji (ustaw/wyczyść znacznik, alarm), migracja kolumny i indeksu, repozytoria i SQL
+- Stawka: wysoka / high-stakes (płatność odnowienia — zapis pieniędzy klienta)
+- Niepewność: średnia (kolejność obciążenia faktury u operatora, wyścig zdarzeń)
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (13,1 min, 67 wywołań, 322 tys. — strażnik kontekstu na 300 tys.)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review` — przebieg 4 bramki jako recenzja fali (bez dublowania)
+- Dopuszczone alternatywy: wykonawca — brak (przy CZERWONYM Spark `max`); recenzent — Spark `max` / Gemini `high` (odrzucone jako dublowanie)
+- Powód wyboru: plik niezmiennika (zapis płatności odnowienia)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook 2026-10-13 ~22:00: 5 h 17 %, tydzień 62 % przy 39 % tygodnia, ŻÓŁTY)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: przekazanie po strażniku — produkcja bez cyklu gotowa i odebrana przez architekta (pisarz 2a–2d, SQL, migracja, opcja); cykl i wszystkie testy przeszły do BE-9b (cykl, `wykonawca-opus`), BE-9c i BE-9d (testy, `tester`)
+- Rundy korekt: 0 z wykonania; przekazanie z winy specyfikacji (zakres za duży na jeden brief — wykonawca to wskazał)
+- Czas do akceptacji: 13,1 min (BE-9) + BE-9b/9c/9d osobno; walidacja pełna po BE-9d ~6 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): przebieg 4 bramki — P2-3 zamknięte dla gałęzi odnowienia; nowe P2-4 (faktura odnowienia nierozstrzygnięta bez znacznika przy końcu, odroczonym końcu i przebiegu bez zmian) potwierdzone — luka zakresu briefu architekta, nie wykonania → BE-10; odrzucone 0
+- Defekty po odbiorze: brak — wdrożenie PRE i test dymny 2026-10-14 zielone (FE 1.4.0, BE 1.5.0)
+- Wymagane testy i dowody: build 0/0; filtr 2594/2630 z 36 oczekiwanymi czerwonymi (ścisła atrapa pisarza); CRLF
+- Uwaga o specyfikacji: wykonawca słusznie wskazał (1) wymóg `@AccountId` w SQL lustra z kontraktu repozytorium, (2) brak decyzji, którym repozytorium czyścić pozycję odpiętą, (3) pominięcie 36 testów pisarza w zakresie dostosowania, (4) mylący tekst alarmu dla pozycji odpiętej (rozstrzygnięte w BE-9b parametrem {Stan}), (5) za duży zakres jak na jeden brief.
+
+### 2473-BE-9b (drugi przebieg cyklu uzgadniającego — faktury odnowienia czekające na rozstrzygnięcie) — 2026-10-13
+- Archetyp: Backend — cykl tła (stronicowanie kluczem, bezpiecznik postępu, token zatrzymania, alarm i czyszczenie), testy jednostkowe cyklu, mutacje
+- Stawka: wysoka / high-stakes (płatność odnowienia — alarm płatności niezapisanej)
+- Niepewność: niska (wzorzec stron BE-7)
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (14,6 min, 39 wywołań, 248 tys.; korekta: 20,5 min, 26 wywołań, do 288 tys.)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review` — przebieg 4 bramki jako recenzja fali (bez dublowania)
+- Dopuszczone alternatywy: wykonawca — brak (przy CZERWONYM Spark `max`); recenzent — Spark `max` / Gemini `high` (odrzucone jako dublowanie)
+- Powód wyboru: plik niezmiennika (cykl, który ma zapisać płatność albo podnieść alarm)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook 2026-10-13 ~22:20: 5 h 19–23 %, tydzień 63 %, ŻÓŁTY)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany z wykonania (32/32 testów cyklu, N2 + 5 dodatkowych mutacji czerwone); 1 korekta z winy specyfikacji — wspólne podsumowanie uzależniało alarm zbiorczy pierwszego przebiegu od powodzenia drugiego (wykonawca to zasygnalizował); po korekcie 33/33, R9 + mutacja czerwona
+- Rundy korekt: 0 z wykonania; 1 z winy specyfikacji
+- Czas do akceptacji: 14,6 + 20,5 min + walidacja ~5 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): przebieg 4 bramki — P2-3 zamknięte dla gałęzi odnowienia; nowe P2-4 (faktura odnowienia nierozstrzygnięta bez znacznika przy końcu, odroczonym końcu i przebiegu bez zmian) potwierdzone — luka zakresu briefu architekta, nie wykonania → BE-10; odrzucone 0
+- Defekty po odbiorze: brak — wdrożenie PRE i test dymny 2026-10-14 zielone (FE 1.4.0, BE 1.5.0)
+- Wymagane testy i dowody: build 0/0 (architekt), testy cyklu 33/33 (architekt), filtr 2613/2649 z 36 oczekiwanymi czerwonymi `SubscriptionStateMirrorTests.*` (architekt), CRLF
+- Uwaga o specyfikacji: wykonawca wskazał limit 100 w istniejących testach stronicowania (rozmiar strony testu) i niespójny przedrostek wpisów — oba przyjęte.
+
+### 2473-BE-9c (testy pisarza lustra — znacznik faktury odnowienia: harness, 36 testów, P1–P9, mutacje) — 2026-10-13
+- Archetyp: Testy BE — xUnit + Moq na ścisłej atrapie, dostosowanie istniejących testów do nowych wywołań, nowe przypadki, mutacje
+- Stawka: wysoka (testy niezmiennika płatności odnowienia; plik testów bez niezmiennika)
+- Niepewność: niska (wzorce harnessu)
+- Wykonawca (linia / model / native effort): Claude / `tester` — Haiku 5.5 / `xhigh` (13,9 min, 38 wywołań, 368 tys. — powyżej progu 300 tys., bez kontynuacji)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review` — przebieg 4 bramki (bez dublowania)
+- Dopuszczone alternatywy: wykonawca — `wykonawca-opus` (droższy, odrzucony przy ŻÓŁTYM), Spark `max`; recenzent — Spark `max` / Gemini `high` (dublowanie)
+- Powód wyboru: testy wg wzorców harnessu, linia `tester` po próbie 2026-10-13; ŻÓŁTY hook — Opus tylko na pliki niezmiennika
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook 2026-10-13 ~22:45: 5 h 23–24 %, tydzień 63 %, ŻÓŁTY)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowany z wykonania; 36 → 0 czerwonych, 13 nowych przypadków, N1 (5 czerwonych) i N1b (9 czerwonych), `cmp` pisarza zgodny; wyrywkowy przegląd P1/P4 — asercje dokładne
+- Rundy korekt: 0
+- Czas do akceptacji: 13,9 min + walidacja ~4 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): przebieg 4 bramki — P2-3 zamknięte dla gałęzi odnowienia; nowe P2-4 (faktura odnowienia nierozstrzygnięta bez znacznika przy końcu, odroczonym końcu i przebiegu bez zmian) potwierdzone — luka zakresu briefu architekta, nie wykonania → BE-10; odrzucone 0
+- Defekty po odbiorze: brak — wdrożenie PRE i test dymny 2026-10-14 zielone (FE 1.4.0, BE 1.5.0)
+- Wymagane testy i dowody: build `--no-incremental` 0/0 (architekt), filtr 2662/2662 z SQL (architekt), CRLF
+- Uwaga o specyfikacji: N1 literalnie nie buduje się (S1144 — metoda nieużywana; wykonawca zachował wywołanie); P9 przez orkiestrację nieosiągalny (`AlreadyEnded` przed operatorem — zrobiony na poziomie pisarza); pomocnik wyliczający niepotrzebny dla (b).
+
+### 2473-BE-9d (testy SQL znacznika, scenariusz bramki end-to-end cyklu, mutacje, pełny przebieg) — 2026-10-13
+- Archetyp: Testy BE — `[SqlServerFact]` na własnej bazie, end-to-end z prawdziwym lustrem, pisarzem, cyklem i repozytoriami (atrapa operatora), mutacje SQL i cyklu
+- Stawka: wysoka (testy niezmiennika płatności odnowienia; pliki testów bez niezmiennika)
+- Niepewność: średnia (złożenie prawdziwego lustra bez hosta)
+- Wykonawca (linia / model / native effort): Claude / `tester` — Haiku 5.5 / `xhigh`; część 1: 10,0 min, 31 wywołań, 321 tys. (strażnik — przekazanie); część 2 (świeży agent z przekazaniem): 19,0 min, 53 wywołania, 338 tys.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review` — przebieg 4 bramki (bez dublowania)
+- Dopuszczone alternatywy: wykonawca — `wykonawca-opus` (ŻÓŁTY, nie plik niezmiennika), Spark `max`; recenzent — Spark `max` / Gemini `high` (dublowanie)
+- Powód wyboru: testy wg wzorców, linia `tester`; ŻÓŁTY hook
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook 2026-10-13 ~23:00–23:20: 5 h 25–27 %, tydzień 63–64 %, ŻÓŁTY)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowany po kontynuacji; SQL 16 testów, E2E 2 testy zielone od razu (scenariusz na odebranym kodzie); N2 27 czerwonych (oba E2E + 25 cyklu), N3 → S4, N3b → C1, N4 → L1 ×2, L5, E2E; przywrócenia `fc.exe /b` zgodne
+- Rundy korekt: 0 z wykonania; architekt zaostrzył jedną asercję (`Times.AtMostOnce` → `Times.Once` na dopasowaniu operatora — luka wskazana przez wykonawcę, z winy specyfikacji przekazania; reguła 11)
+- Czas do akceptacji: 29 min + walidacja ~6 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): przebieg 4 bramki — P2-3 zamknięte dla gałęzi odnowienia; nowe P2-4 (faktura odnowienia nierozstrzygnięta bez znacznika przy końcu, odroczonym końcu i przebiegu bez zmian) potwierdzone — luka zakresu briefu architekta, nie wykonania → BE-10; odrzucone 0
+- Defekty po odbiorze: brak — wdrożenie PRE i test dymny 2026-10-14 zielone (FE 1.4.0, BE 1.5.0)
+- Wymagane testy i dowody: build `--no-incremental` 0/0 (architekt), pełny `dotnet test` 6800/6800 z SQL (architekt), E2E 2/2 po zaostrzeniu (architekt), CRLF
+- Uwaga o specyfikacji: brief podał N2 w formie niekompilowalnej, L3 bez izolacji gałęzi (odpięta w produkcji zawsze zakończona), bez czyszczenia stanu klasy listy, `cmp` niedostępny w PowerShell; przekazanie architekta dało `Times.AtMostOnce` (słaba asercja). Kontynuacja po strażniku bez rund korekty.
+
+### 2473-BE-10 (znacznik nierozstrzygniętej faktury odnowienia także przy końcu, odroczonym końcu i przebiegu bez zmian — P2 przebiegu 4 bramki) — 2026-10-14
+- Archetyp: Backend — pisarz lustra w transakcji (nowy krok zapisu znacznika i alarm), testy na ścisłej atrapie, e2e na prawdziwej bazie, mutacja
+- Stawka: wysoka / high-stakes (płatność odnowienia przy rezygnacji z pełnym zwrotem)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (16,6 min, 64 wywołania, 275 tys.)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review` — przebieg 5 bramki jako recenzja fali (bez dublowania)
+- Dopuszczone alternatywy: wykonawca — brak (przy CZERWONYM Spark `max`); recenzent — Spark `max` / Gemini `high` (dublowanie)
+- Powód wyboru: plik niezmiennika (pisarz lustra — płatność odnowienia)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook 2026-10-13 ~23:50: 5 h 28–31 %, tydzień 64 %, ŻÓŁTY)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany z wykonania; W1–W5, W7 + e2e scenariusz 3; M10 czerwieni W1–W5, e2e 3 i Payment open/draft; `fc` zgodny
+- Rundy korekt: 0
+- Czas do akceptacji: 16,6 min + walidacja ~5 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): przebieg 5 — bez regresji w BE-10; 1 × P2 potwierdzone (usunięcie konta przed odzwierciedleniem odnowienia) — droga spoza zakresu briefu (luka specyfikacji architekta, nie wykonania) → BE-11; 0 odrzuconych
+- Defekty po odbiorze: brak — wdrożenie PRE i test dymny 2026-10-14 zielone (FE 1.4.0, BE 1.5.0)
+- Wymagane testy i dowody: build `--no-incremental` 0/0 (architekt), pełny `dotnet test` 6807/6807 z SQL (architekt), CRLF
+- Uwaga o specyfikacji: błędna przesłanka o P7c (tam `LatestInvoice` NULL — test słusznie bez zapisu); W6 dublował P8; tekst alarmu (c) „do kolejnego odnowienia” przy (b′) — architekt zostawił (zamiana znacznika wymaga nowszej faktury cyklicznej u operatora); S1200 pisarza na granicy 30.
+
+### 2473-BE-11 (alarm przy usunięciu konta po minionym zapisanym okresie — P2 przebiegu 5 bramki) — 2026-10-14
+- Archetyp: Backend — handler przekrojowy (usunięcie konta) z alarmem krytycznym, testy na atrapach z rejestrującym loggerem, mutacja
+- Stawka: wysoka / high-stakes (płatność odnowienia przy usunięciu konta)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (13,3 min, 41 wywołań, 195 tys.)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review` — przebieg 6 bramki jako recenzja fali (bez dublowania)
+- Dopuszczone alternatywy: wykonawca — brak (przy CZERWONYM Spark `max`); recenzent — Spark `max` / Gemini `high` (dublowanie)
+- Powód wyboru: plik niezmiennika (usunięcie konta — płatność odnowienia, alarm)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook 2026-10-14 ~00:20: 5 h 32 %, tydzień 64 %, ŻÓŁTY); Codex nieznany
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany z wykonania; D1–D6, K1–K4 czerwienią oczekiwane testy (K1/K2 także D6), `fc` zgodny
+- Rundy korekt: 0 z wykonania; 1 korekta specyfikacji w trakcie przebiegu (architekt: odczyt chwili po zakończeniu u operatora — wykonawca zauważył okno sam, przed korektą)
+- Czas do akceptacji: 13,3 min + walidacja ~4 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): przebieg 6 — BE-11 domyka scenariusz przebiegu 5 (potwierdzone); 0 znalezisk w plikach BE-11; P2-6b to analogiczna droga w `RefundGuaranteeProcess` (luka specyfikacji architekta) → BE-13; 0 odrzuconych
+- Defekty po odbiorze: brak — wdrożenie PRE i test dymny 2026-10-14 zielone (FE 1.4.0, BE 1.5.0)
+- Wymagane testy i dowody: build `--no-incremental` 0/0 (architekt), pełny `dotnet test` 6813/6813 z SQL (architekt), CRLF
+- Uwaga o specyfikacji: pierwotny odczyt chwili na początku fazy zostawiał okno odnowienia w trakcie wywołania operatora (błąd architekta, poprawiony korektą); uwaga wykonawcy o fałszywym alarmie przy `past_due` odrzucona (lustro przesuwa okres niezależnie od płatności); alarm pada w istniejących testach z domyślnym `CurrentPeriodEndsAt` (szum w logach testów, bez asercji).
+
+### 2473-4C-B (Faza 4c — zgodność dokumentacji z kodem, grupa B: konto, anulowanie, ustawienia, usunięcie konta, FE) — 2026-10-14
+- Archetyp: Przegląd zgodności dokumentacji z implementacją (odczyt, dwa repozytoria + dokumentacja)
+- Stawka: średnia (dokumenty bez niezmiennika pieniędzy; niezmienniki pilnuje bramka Sol)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (7,6 min; pierwszy przebieg przerwany końcem sesji, bez wyniku)
+- Recenzent (linia / model / native effort): architekt — próbka twierdzeń (napisy D1 w `pl.json`/`en.json` wobec UI-KONTO-USTAWIENIA rew. 2026-10-13 pkt 1)
+- Dopuszczone alternatywy: Spark `max` read (zajęty grupą A), Sol `high` (pula Codexa dla bramki)
+- Powód wyboru: inna rodzina niż autor zmian dokumentacji (Claude); niska stawka grupy — preferencja Gemini `high` wg reguły 13
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany (brak komunikatu limitu), 2026-10-14 08:25
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowany — 0 rozbieżności, 52 twierdzenia zgodne w 11 sekcjach; 2 uwagi do briefu (niejednoznaczne „brak” w opisie D; „Wstrzymana” to stan techniczny — trafne)
+- Rundy korekt: 0
+- Czas do akceptacji: 7,6 min + ~3 min próbki
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 / 0
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: macierz zgodności (format Fazy 4c), próbka architekta
+- Uwaga o specyfikacji: pliki wejściowe muszą leżeć w `D:\projects\DTCode` (uprawnienie `read_file` agy) — scratchpad na C: niewidoczny.
+
+### 2473-4C-A (Faza 4c — zgodność dokumentacji z kodem, grupa A: lustro, zwroty, cykle, faktury) — 2026-10-14
+- Archetyp: Przegląd zgodności dokumentacji z implementacją (odczyt, BE + dokumentacja)
+- Stawka: wysoka (dokumenty niezmienników pieniędzy)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max`, `-Access read` (29,2 min; dwa wcześniejsze przebiegi bez wyniku — koniec sesji i aktualizacja WSL)
+- Recenzent (linia / model / native effort): architekt — każdy z 6 wierszy sprawdzony w kodzie i dokumencie
+- Dopuszczone alternatywy: Gemini `high` read (gdyby WSL nie wrócił), Sol `high` (pula Codexa dla bramki)
+- Powód wyboru: inna rodzina niż autor zmian dokumentacji (Claude); wyższa stawka grupy — Spark `max`
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark nieznany; przebieg 2 przerwany aktualizacją WSL (`ERROR_INSTALL_ALREADY_RUNNING`), 2026-10-14 ~08:34
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany — 0 × „kod odbiega”, 6 × „brak w dokumencie”: 5 potwierdzonych (R1, R3–R6), 1 doprecyzowanie (R2 — produktowo pokryte w UI-KONTO-USTAWIENIA); wszystkie domknięte zdaniami w rewizjach 2026-10-13
+- Rundy korekt: 0
+- Czas do akceptacji: 29,2 min + ~10 min triażu
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 5 potwierdzonych / 0 odrzuconych / 1 doprecyzowanie
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: macierz zgodności, triaż architekta w plikach
+- Uwaga o specyfikacji: indeks plików zawiera ścieżki sprzed przeniesienia trzech plików do `RefundCompletion/` (pokrycie niezagrożone); opis „Gwarancja (14 dni na zwrot)” w tabeli mylił okno 30 dni z terminem zwrotu 14 dni.
+
+### 2473-BE-12 (poprawka bramki przebieg 6: alarmy 6a i 6c w pisarzu lustra) — 2026-10-14
+- Archetyp: Poprawka po bramce końcowej — alarmy niezmiennika płatności (BE, lustro subskrypcji)
+- Stawka: wysoka (niezmiennik 14: opłacona faktura odnowienia → płatność albo alarm krytyczny)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 `xhigh` (19,9 min, 91 wywołań, ~291 tys. kontekstu)
+- Recenzent (linia / model / native effort): bramka końcowa `gpt-6.1-sol` `max` przebieg 7 (recenzja fali tej poprawki)
+- Dopuszczone alternatywy: brak (twarda bramka — plik niezmiennika)
+- Powód wyboru: pliki niosące niezmiennik płatności; przy ŻÓŁTYM Opus dopuszczony
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (ŻÓŁTY, 5 h ~7 %, tydzień 66 %), hook `[limity Claude]`, 2026-10-14
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany — build 0/0, 6827/6827, mutacje N1–N4 czerwone zgodnie z oczekiwaniem; jedno oczekiwanie istniejącego testu zmienione zasadnie (odnowienie z fakturą poprzedniego okresu daje teraz alarm 6a)
+- Rundy korekt: 0
+- Czas do akceptacji: 19,9 min + ~25 min walidacji (w tym próba operatora)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): przebieg 7 bramki — P2-6a/6b/6c zamknięte, w plikach poprawki brak regresji; nowe P2-7 (przestarzała lokalna flaga anulowania wyłączała alarm końca) potwierdzone → BE-15; odrzucone 0
+- Defekty po odbiorze: brak — wdrożenie PRE i test dymny 2026-10-14 zielone (FE 1.4.0, BE 1.5.0)
+- Wymagane testy i dowody: testy jednostkowe R1–R8 (14 przypadków), mutacje N1–N4, pełny przebieg, CRLF
+- Uwaga o specyfikacji: wykonawca wskazał (sekcja „What do you consider wrong”), że faktura przejścia harmonogramu może nie mieć `subscription_cycle` — architekt potwierdził próbą w trybie testowym operatora (`subscription_update`); to defekt BE-1 (luka specyfikacji architekta: brief BE-1 zdefiniował fakturę odnowienia po samym `subscription_cycle`, choć #1603 dokumentował `subscription_update` w `SubscriptionScheduleValues.cs`) → BE-14. Data w alarmie 6c bez „Z” — zaakceptowane (spójne z alarmem BE-11, baza w UTC).
+- Do uzupełnienia przy zamknięciu: we wpisie BE-1 w rejestrze — „Defekty po odbiorze: odnowienie ze zmianą okresu (`subscription_update`) bez płatności — wykryte 2026-10-14 przez wykonawcę BE-12, naprawione w BE-14”.
+
+### 2473-BE-13 (poprawka bramki przebieg 6: alarm dokończenia rezygnacji po minionym okresie + wspólny warunek) — 2026-10-14
+- Archetyp: Poprawka po bramce końcowej — alarm niezmiennika płatności, refaktor warunku do jednego miejsca (BE)
+- Stawka: wysoka (zwrot gwarancji, niezmiennik 14)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 `xhigh` (31,9 min, 51 wywołań, ~241 tys. kontekstu)
+- Recenzent (linia / model / native effort): bramka końcowa `gpt-6.1-sol` `max` przebieg 7 (recenzja fali tej poprawki)
+- Dopuszczone alternatywy: brak (twarda bramka — plik niezmiennika)
+- Powód wyboru: plik niezmiennika zwrotu gwarancji; przy ŻÓŁTYM Opus dopuszczony
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (ŻÓŁTY, 5 h ~8 %, tydzień 66 %), hook `[limity Claude]`, 2026-10-14
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany — build 0/0, pełny przebieg zielony (6841), mutacje L1–L4 czerwone; dane testowe konstruktora poprawione zasadnie (koniec okresu `default` spełniał nowy warunek)
+- Rundy korekt: 0
+- Czas do akceptacji: 31,9 min + ~20 min walidacji (diagnoza testu niestabilnego)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): przebieg 7 bramki — P2-6a/6b/6c zamknięte, w plikach poprawki brak regresji; nowe P2-7 (przestarzała lokalna flaga anulowania wyłączała alarm końca) potwierdzone → BE-15; odrzucone 0
+- Defekty po odbiorze: brak — wdrożenie PRE i test dymny 2026-10-14 zielone (FE 1.4.0, BE 1.5.0)
+- Wymagane testy i dowody: F1–F5, 8 przypadków granicznych warunku, mutacje L1–L4, pełny przebieg, CRLF
+- Uwaga o specyfikacji: wykonawca zgłosił jeden niezidentyfikowany czerwony test w 1 z 13 przebiegów — architekt odtworzył go w pełnym przebiegu (`AccountDeletionOpenCheckoutApiTests.Delete_WithOpenCheckout_ExpiredOnClose_…`) i ustalił przyczynę: `ExecutedAt` bez `DbType.DateTime2` (zaokrąglenie `datetime`), odsłonięte przez BE-11 — luka specyfikacji BE-11 (brief nie przewidział wpływu przesunięcia odczytu czasu na istniejące porównania chwil); poprawka jednej linii przez architekta. Oczekiwanie przy L4 (testy usunięcia konta) było nietrafne — granicę pilnuje wyłącznie test jednostkowy równości.
+
+### 2473-BE-14 (faktura odnowienia ze zmianą okresu rozliczenia — `subscription_update`) — 2026-10-14
+- Archetyp: Poprawka defektu wykrytego po odbiorze — kryterium faktury odnowienia w lustrze i routingu webhooka (BE)
+- Stawka: wysoka (zapis płatności odnowienia, niezmiennik 14)
+- Niepewność: średnia (kształt faktury operatora — rozstrzygnięty próbą architekta w trybie testowym)
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 `xhigh`; przebieg 1: kod + testy (13,7 min, 93 wywołania, ~326 tys., przekazanie przy 304 tys.); kontynuacja BE-14b: mutacje M1–M4 i 2 pełne przebiegi (13,7 min, 37 wywołań, ~168 tys.)
+- Recenzent (linia / model / native effort): bramka końcowa `gpt-6.1-sol` `max` przebieg 7 (recenzja fali tej poprawki)
+- Dopuszczone alternatywy: brak (twarda bramka — plik niezmiennika)
+- Powód wyboru: pliki niosące niezmiennik płatności; kontynuacja tej samej linii wg reguły 15
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (ŻÓŁTY, 5 h 15–21 %, tydzień 67 %), hook `[limity Claude]`, 2026-10-14
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany po kontynuacji — predykat `IsRenewalReason` w 4 miejscach, `grep` czysty; M1–M4 dały dokładnie przewidziane czerwone; 4 oczekiwania istniejących testów zmienione zasadnie (`subscription_update` było w nich błędnie uznane za dopłatę)
+- Rundy korekt: 0 (jedno przekazanie przy progu kontekstu)
+- Czas do akceptacji: ~28 min pracy wykonawców + ~25 min architekta (próba operatora, walidacja)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): przebieg 7 bramki — P2-6a/6b/6c zamknięte, w plikach poprawki brak regresji; nowe P2-7 (przestarzała lokalna flaga anulowania wyłączała alarm końca) potwierdzone → BE-15; odrzucone 0
+- Defekty po odbiorze: brak — wdrożenie PRE i test dymny 2026-10-14 zielone (FE 1.4.0, BE 1.5.0)
+- Wymagane testy i dowody: G1–G3, P1–P2, routing, procesor, mutacje M1–M4, 2 pełne przebiegi, CRLF; lokalny e2e zmiany okresu (krok bramy)
+- Uwaga o specyfikacji: zakaz `sed -i` złamany przez wykonawcę (podmiana poprawna, CRLF przywrócone, sprawdzone bajtowo); BE-14b wykrył błąd architekta przy poprawce testu niestabilnego (częściowe `DbType.DateTime2` rozjechało równość tej samej chwili) — cofnięte; kontrola CRLF przez `git diff --name-only` w briefie nie obejmowała plików nieśledzonych.
+
+### 2473-BE-15 (alarm końca nie ufa lokalnej fladze anulowania — P2 przebiegu 7 bramki) — 2026-10-14
+- Archetyp: Poprawka po bramce końcowej — warunek alarmu niezmiennika płatności (jedna linia) + odwrócenie testów (BE)
+- Stawka: wysoka (płatność odnowienia przy usunięciu konta i rezygnacji z pełnym zwrotem, niezmiennik 14)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 `xhigh` (10,5 min, 29 wywołań, ~166 tys.)
+- Recenzent (linia / model / native effort): bramka końcowa `gpt-6.1-sol` `max` przebieg 8 (recenzja fali tej poprawki)
+- Dopuszczone alternatywy: brak (twarda bramka — plik niezmiennika)
+- Powód wyboru: plik niezmiennika (wspólny warunek alarmu płatności odnowienia)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (ŻÓŁTY, 5 h 25 %, tydzień 68 %), hook `[limity Claude]`, 2026-10-14
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany — warunek bez flagi, 3 testy odwrócone, N1 czerwieni dokładnie te trzy, pełny przebieg 6849/6849
+- Rundy korekt: 0 (architekt poprawił 2 zdania opisów XML wołających, które brief kazał zostawić — luka specyfikacji, zgłoszona przez wykonawcę)
+- Czas do akceptacji: 10,5 min + ~5 min walidacji
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): przebieg 8 przerwany limitem Codexa (`usage_limit_exceeded`); recenzją fali był przebieg 9 bramki (Spark `max`) — P2-7 zamknięte, w plikach BE-15 brak nowych znalezisk; odrzucone 0
+- Defekty po odbiorze: brak — wdrożenie PRE i test dymny 2026-10-14 zielone (FE 1.4.0, BE 1.5.0)
+- Wymagane testy i dowody: N1, build `--no-incremental` 0/0, pełny `dotnet test` z SQL, CRLF
+- Uwaga o specyfikacji: brief zakazał ruszania opisów XML w obu miejscach wołania, które powtarzały stary warunek — wykonawca słusznie to wytknął; uwaga wykonawcy, że „lustro kończy wygasłą przed usunięciem” to założenie o kolejności, nie blokada — zgodne z uzasadnieniem briefu (fałszywy alarm w oknie opóźnionego lustra akceptowany).
+
+### 2473-QAS (przypadki QA Sphere — QAS-1 autor, R-QAS-1 recenzja krzyżowa, QAS-2 poprawki) — 2026-10-14
+- Archetyp: Przypadki manualne QA Sphere — podgląd JSON wg skilla `qasphere-test-generator` v1.7 (nowe + przegląd 109 istniejących, Krok 2b)
+- Stawka: średnia (dokumentacja testów, bez kodu produktu; błędne przypadki = fałszywe defekty u testera)
+- Niepewność: średnia (stan danych PRE, scenariusze z SQL i Stripe Dashboard)
+- Wykonawca (linia / model / native effort): Spark / `muse-spark-1.3-contributor` / `max` (procedura skilla)
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / `-Access read` (procedura skilla: plik Sparka → Gemini), 358 s
+- Dopuszczone alternatywy: Gemini `-Access write` jako autor przy zajętym Sparku; brak innych (procedura skilla twarda)
+- Powód wyboru: procedura pomocniczego skilla (autor Spark `max`, recenzja krzyżowa innej rodziny)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Spark i Gemini nieznany (wrappery bez zapasu), 2026-10-14
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: QAS-1 lint 0/0, 9 nowych, 30 `update`, 1 `retire`; 3 nowe przypadki (T1, T2, A2) i werdykt `keep` 1017 oparte na błędnej przesłance briefu architekta (`sub_stub_…` na kontach demo — na PRE `ProviderSubscriptionId` NULL), N1 przechodził niezależnie od badanej reguły
+- Rundy korekt: 1 z winy specyfikacji (QAS-2, Spark `max`, 529 s — T1/N1/1017 na skryptach z identyfikatorem nieznanym operatorowi, T2 scalony z 1017; wykonawca słusznie obalił 2 przesłanki briefu: 5e — R1 już miał asercję etykiety, 5d — lista nie pokazuje stanu) + 1 mechaniczna architekta (QAS-3, Spark `low`, 90 s — strażnik `UPDATE` w skrypcie A; luka QAS-2 wychwycona przy odbiorze)
+- Czas do akceptacji: QAS-1 + R-QAS-1 + QAS-2 + QAS-3 i akceptacja tabeli przez właściciela 2026-10-14; publikacja `push`/`verify` bez różnic
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-QAS-1 — potwierdzone: P0 T1, P0 T2 (znane architektowi z faktu 1 briefu recenzenta), P1 1017 `keep`→`update`, P1 A2 (tytuł), P1 N1 (brak izolacji reguły), P2 E1 (dosłowne oznaczenie stanu, uznane jako P3), P3 R1 (warunkowo); odrzucone: 3 × P2 luki pokrycia (idempotencja — jest I1, odrzucony zwrot — jest R1, pełny cykl dokończenia — jest A1; recenzent źle odczytał R1 jako „sukces zwrotu”); cytaty kodu w recenzji częściowo zmyślone (sygnatury `WillRenew`, wyjątek z enum i komunikatem) — wnioski trafne, dowody nie
+- Defekty po odbiorze: brak — wdrożenie PRE i test dymny 2026-10-14 zielone (FE 1.4.0, BE 1.5.0)
+- Wymagane testy i dowody: `qas.py lint` 0/0, tabela dla właściciela, po akceptacji `push --limit 1` → `verify --only` → pełne `verify`
+- Uwaga o specyfikacji: błędna przesłanka o danych PRE pochodziła z briefu architekta (nie sprawdzona zapytaniem przed briefem) — autor ją przyjął, recenzent wykrył; wniosek: fakty o danych PRE sprawdzać odczytem przed briefem przypadków
+
+### 2473-BE-16 (wcześniejszy koniec subskrypcji anulowanej z końcem okresu — P1 przebiegu 9 bramki) — 2026-10-14
+- Archetyp: Poprawka po bramce końcowej — warunek stanu końca w planerze lustra + przeklasyfikowanie testów (BE)
+- Stawka: wysoka (stan subskrypcji, zawieszenie programów, alarm ingerencji poza systemem)
+- Niepewność: niska (fakt operatora sprawdzony odczytem: 8 anulowań natychmiastowych + wygaśnięcie na zegarze testowym)
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 `xhigh` (2 podejścia: 6,1 min STOP + 6,5 min; 52 wywołania)
+- Recenzent (linia / model / native effort): bramka końcowa Spark `muse-spark-1.3-contributor` `max` przebieg 10 (recenzja fali tej poprawki)
+- Dopuszczone alternatywy: brak (twarda bramka — plik niezmiennika)
+- Powód wyboru: plik niezmiennika (stan końca subskrypcji i zawieszenie programów)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (ŻÓŁTY, 5 h 32 % → reset, tydzień 69 %), hook `[limity Claude]`, 2026-10-14
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: STOP słuszny — przesłanka briefu „istniejące testy zostają” fałszywa (fixture `EndedSnapshot()` modeluje koniec 5 s po starcie nowego okresu = przypadek przeklasyfikowany; 5 czerwonych testów W1/W6/R8/test 2/teoria); zmiana produkcyjna wykonana, testy wstrzymane do decyzji architekta
+- Rundy korekt: 1 z winy specyfikacji (decyzje o znaczeniu 5 testów: B dla wygaśnięcia w terminie i R8, C dla W1/W6, nowy test wcześniejszego końca); 0 z winy wykonania
+- Czas do akceptacji: ~13 min wykonania + ~10 min walidacji (pełny test 6856/6856)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): przebieg 10 bramki (Spark `max`, 17,0 min) — P1-9 zamknięte, 0 nowych P0–P2; 3 × P3 poza modelem zagrożenia (cicha opłacona faktura `subscription_update` z samych proracji; brak progu alarmu dla nieczytelnej faktury znacznika; nieaktualny komentarz routingu — poprawiony przez architekta, reguła 11); odrzucone 0
+- Defekty po odbiorze: brak — wdrożenie PRE i test dymny 2026-10-14 zielone (FE 1.4.0, BE 1.5.0)
+- Wymagane testy i dowody: 3 mutacje (sama flaga → 8 czerwonych dokładnie przewidzianych; bez pełnych sekund → 1; koniec z bazy → 4), build `--no-incremental` 0/0, pełny `dotnet test` z SQL 6856/6856, CRLF
+- Uwaga o specyfikacji: architekt nie sprawdził wspólnego fixture'u przed briefem — wykonawca wykrył i zatrzymał się zamiast „naprawić” testy po swojemu (wzorcowe zachowanie przy testach niezmiennika); dodatkowe 3 przypadki graniczne ponad brief, każdy dowodzi wymogu decyzji
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
