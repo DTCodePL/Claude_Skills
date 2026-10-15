@@ -2,16 +2,20 @@
 name: qasphere-test-generator
 description: Generuje kompletny zestaw test case'ów (happy + negative paths, dążąc do 100% pokrycia przypadków użycia) na podstawie wykonanego zadania/feature'a — najpierw przegląda przypadki, które już są w QA Sphere w obszarze zmiany (zostaje / aktualizacja / `[Removed]`), potem dodaje brakujące — i tworzy je bezpośrednio w QA Sphere — przez serwer MCP `qasphere`, a w środowisku bez MCP przez REST API. Test casy są po polsku, standalone, z pełnymi repro stepami (dane wejściowe, wyjściowe, instrukcje konfiguracji) tak, by wykonała je osoba widząca aplikację pierwszy raz. Skill sam mapuje repozytorium na właściwy projekt w QA Sphere. UŻYWAJ ZAWSZE, gdy user prosi o wygenerowanie test case'ów, pokrycie testowe, "testy do tego feature'a", "pokryj testami", "wrzuć testy do QA Sphere", "test casy z tego co zrobiliśmy" — nawet jeśli nie padnie słowo "skill" ani "QA Sphere" wprost, a kontekstem jest właśnie ukończone zadanie deweloperskie.
 user-invocable: true
-version: 1.8
+version: 1.9
 ---
 
-# QA Sphere — Test Generator (v1.8)
+# QA Sphere — Test Generator (v1.9)
 
 > Kanoniczna, wersjonowana wersja skilla. Źródło prawdy: `DTCodePL/Claude_Skills`.
 > Lokalnie używany jest tylko cienki loader, który pobiera ten plik z GitHuba.
 >
 > **Changelog**
 >
+> - **1.9** — **klucz API usunięty z transportu REST** (2026-10-15, PBI #2694): plik leży w publicznym repozytorium,
+>   więc jawny klucz był wystawiony w sieci. Transport REST bierze klucz ze zmiennej `QASPHERE_API_KEY` (tak jak `qas.py`);
+>   bez niej transport REST jest niedostępny — zgłoś to, nie szukaj klucza w innych plikach. Stary klucz wymaga rotacji
+>   w QA Sphere (historia gita go zachowuje).
 > - **1.8** — autor pliku podglądu: Muse Wonder Full `max` (`muse-wonder-full-1.0-contributor`) zamiast Sparka 1.3
 >   `max` (2026-10-14, routing globalny reguła 8: nowy domyślny model linii Muse, Terminal-Bench 4.0 0,571 wobec
 >   0,333 przy tej samej liczbie tokenów wyjścia). Recenzja krzyżowa: plik Muse ↔ Gemini, bez zmian w procedurze.
@@ -519,7 +523,7 @@ Używaj **tylko** wtedy, gdy Krok 0 nie znalazł narzędzi MCP `qasphere`, a `cu
 
 ```
 BASE_URL  = https://dtcode.eu1.qasphere.com/api/public/v0
-API_KEY   = apikey_eu13rznp1e.1CcVhdYnB_Tyomu8wuzDgcK.RvTs6WpatefApFqDFgDXauu
+API_KEY   = wartość zmiennej środowiskowej QASPHERE_API_KEY — klucza NIE wpisuje się do tego pliku ani repozytorium (repo jest publiczne)
 AUTH      nagłówek: Authorization: ApiKey <API_KEY>
 ```
 
