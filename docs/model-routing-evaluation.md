@@ -4642,6 +4642,286 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak w `qas.py verify` (14 sprawdzonych, 0 różnic); wysłane seq 1644–1653 (folder 174), zaktualizowane 998, 992, 999, 1000, wycofane 0; wykonanie przez testera jeszcze nie nastąpiło.
 - Wymagane testy i dowody: `qas.py lint` 0 błędów, `qas.py table`; po „ok”: `folders` → `push --limit 1` → `verify --only F1` → `push` → `update` → pełne `verify`.
 
+### 2722-FE-1 (nowa wartość enuma statusu dokumentu, mapa etykiet, pl+en, spec) — 2026-10-19
+- Archetyp: Frontend — enum + mapa etykiet + i18n + spec Vitest (5 plików), bez SCSS i bez Figmy.
+- Stawka: niska–średnia (ekran funkcji high-stakes bez niezmiennika; kontrakt z BE ustalony w planie).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high` / `-Access write`.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review`.
+- Dopuszczone alternatywy: wykonawca — Muse `muse-wonder-full-1.0-contributor` `max`, `wykonawca` Sonnet 5.5 `high`; recenzent — Muse Wonder Full `max` read.
+- Powód wyboru: krótki brief tekstowy bez niezmiennika i bez makiety; recenzja przy niskiej stawce — Sol `high` preferowany (reguła 13), brief ≤ 5 plików przy sygnale Codexa `nieznany` (reguła 7).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany, Codex nieznany (wrappery, brak komunikatów limitu, 2026-10-19 12:41 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowany po jednolinijkowej poprawce architekta (reguła 11) — wykonawca uciął zdanie istniejącego komentarza JSDoc enuma; 5 plików, 12 testów spec zielone, 312 s (12:41:43–12:46:54 UTC).
+- Rundy korekt: 0 (poprawka architekta jednej linii, bez zwrotu do wykonawcy).
+- Czas do akceptacji: ~10 min (z recenzją 72 s, 12:49:24–12:50:37 UTC).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 znalezisk; werdykt poprawny. Fałszywych P0/P1: 0.
+- Defekty po odbiorze: brak do bramki końcowej (krok 13).
+- Wymagane testy i dowody: `ng test --include` spec Historii faktur (12/12), `npm run lint`, `npm test`, `npm run build` architekta; klucz w obu locale.
+- Uwagi: Gemini przy edycji istniejącego komentarza potrafi uciąć zdanie — brief, który dotyka pliku z JSDoc, prosi o dopisanie akapitu bez zmiany istniejących linii, a odbiór porównuje diff komentarza.
+
+### 2722-DOC-1 (datowane rewizje dwóch dokumentów `zatwierdzony` z decyzji planu) — 2026-10-19
+- Archetyp: Dokumentacja produktowa — rewizja integracji (9 punktów) i rewizja interfejsu (4 punkty) z zatwierdzonych z góry decyzji D1–D4 i wyników rozpoznania.
+- Stawka: średnia (źródło prawdy dla kodu i QA Sphere funkcji high-stakes).
+- Niepewność: niska (decyzje i fakty rozpoznania podane w briefie).
+- Wykonawca (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access write` (repo Dokumentacja).
+- Recenzent (linia / model / native effort): w kroku przeglądu zgodności (Faza 4c) — Gemini / `gemini-3.8-flash-high` / `-Access read`.
+- Dopuszczone alternatywy: Gemini `high` write, `wykonawca` Sonnet 5.5 `high`.
+- Powód wyboru: tor poboczny z gotowymi decyzjami, linia bez wpływu na pulę Claude'a; domyślna para Muse (reguła 8).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany (wrapper, 2026-10-19 12:41 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowany bez korekty — 494 s (12:41:45–12:49:59 UTC); kotwica linku w pkt 11 poprzedniej rewizji poprawiona przez wykonawcę; front matter nietknięty.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~12 min do odbioru architekta; recenzja zgodności w kroku 15.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): uzupełnię po kroku 15.
+- Defekty po odbiorze: uzupełnię po kroku 15.
+- Wymagane testy i dowody: odczyt diffu przez architekta wobec dziennika rozbieżności (5 wpisów zamkniętych).
+
+### 2722-FIG-1 (stan „Anulowana” w czterech kompozycjach Historii faktur) — 2026-10-19
+- Archetyp: Frontend UI / Figma — podmiana wariantu Tagu, tekstu i ikony w instancjach (desktop Light/Dark, arkusz mobilny Light/Dark).
+- Stawka: niska (makieta, bez kodu).
+- Niepewność: średnia (miejsce kompozycji mobilnych nieznane w briefie).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` — Sonnet 5.5 / `high` (Figma MCP).
+- Recenzent (linia / model / native effort): architekt — `get_screenshot` i odczyt struktury (bez recenzji innej rodziny — makieta bez kodu).
+- Dopuszczone alternatywy: Codex z potwierdzonym Figma MCP (niepotwierdzony w tej sesji).
+- Powód wyboru: Figma wymaga MCP; próba A/B linii Figmy zamknięta 2026-10-12 → Sonnet.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany — hook ZIELONY (2026-10-19 ~12:40 UTC).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: wymagane korekty — cztery znaczniki ustawione poprawnie (wariant Danger, ikona `ban`, instancje nieodpięte), ale na mobile dłuższy tekst „Anulowana” uwidocznił istniejące przycinanie kontenera „Kwota i stan” (stan sprzed briefu, brief go nie przewidział).
+- Rundy korekt: 2 (obie z winy specyfikacji, nie wykonania): odblokowanie przycinania, potem przesunięcie kontenera statusu i zwężenie opisu (kontener 103×46, opis 117 px, wszystkie tagi HUG).
+- Czas do akceptacji: w obrębie fali 1 (~15 min od startu do odbioru zrzutów).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): zrzuty architekta — 1 potwierdzone (przycięty tag na mobile, P2, przyczyna istniejąca), usunięte w korektach.
+- Defekty po odbiorze: brak; kompozycja `3966:147335` poza zakresem nie zmieniona.
+- Wymagane testy i dowody: `get_screenshot` czterech kompozycji, odczyt `componentProperties`, `characters`, `mainComponent.name` ikony i pudełek sąsiadów.
+
+### 2722-BE-1 (schemat, opcje, odczyt dokumentu, endpoint powiadomień — pierwszy przebieg) — 2026-10-19
+- Archetyp: Backend — migracja + słownik + opcje + klient HTTP + endpoint z sekretem + zapis żądań, z testami SQL.
+- Stawka: wysoka / high-stakes (uwierzytelnienie powiadomienia, migracja danych, współbieżność kolejki).
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh`.
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access read` (po BE-1a i BE-1b).
+- Dopuszczone alternatywy: wykonawca — brak (przy CZERWONYM: Muse Wonder Full `max`); recenzent — Codex `gpt-6.1-sol` `xhigh` (pula Codexa oszczędzana na bramkę).
+- Powód wyboru: pliki niezmiennika high-stakes (reguły 2 i 7).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany — hook ZIELONY (2026-10-19 ~12:40 UTC).
+- Pewność decyzji: wysoka (bramka twarda).
+- Wynik pierwszego podejścia: odrzucony jako wykonanie — strażnik kontekstu przy ~310 tys. oddał raport przekazania bez żadnej zmiany w kodzie: całe przejście zużyte na rozpoznanie repozytorium i 8 słusznych uwag do specyfikacji (zakres klienta HTTP, dzierżawa wobec partii, zachowanie przy wyłączonej integracji, unikalny indeks wobec stałych w istniejących testach, białe znaki w sekrecie).
+- Rundy korekt: brief podzielony przez architekta na BE-1a (schemat, opcje, deploy, odczyt dokumentu) i BE-1b (endpoint, zapis żądań) z plikiem decyzji; wynik obu w osobnych wpisach.
+- Czas do akceptacji: nie dotyczy (przekazanie).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy.
+- Defekty po odbiorze: nie dotyczy.
+- Wymagane testy i dowody: nie dotyczy.
+- Uwagi: brief obejmujący osiem sekcji (schemat, seed, dbml, opcje, deploy, klient, endpoint, kolejka) dla Opusa `xhigh` przekracza budżet kontekstu jednego przebiegu jeszcze przed pierwszym zapisem — sygnał kosztu dla reguły 15: brief high-stakes z migracją i nowym endpointem dzielić z góry na warstwy (schemat + klient / endpoint + zapis), a fakty repozytorium (numery skryptów, wzorce testów, linie plików) zbierać tańszym rozpoznaniem przed briefem.
+
+### 2722-BE-1a (schemat, słowniki, opcje z bramkami, deploy, odczyt dokumentu przez API — kontynuacja po przekazaniu) — 2026-10-19
+- Archetyp: Backend — migracja DbUp + słownik + opcje + klient HTTP (GET z nagłówkiem `Bearer`) + testy SQL; kontynuacja z plikiem decyzji i raportem przekazania poprzednika.
+- Stawka: wysoka / high-stakes (migracja z unikalnym indeksem na istniejących danych, poświadczenie API w nowym kanale).
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (świeży agent tej samej linii, reguła 15).
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access read` (wspólnie z BE-1b, uzupełnię).
+- Dopuszczone alternatywy: wykonawca — brak (CZERWONY: Muse Wonder Full `max`); recenzent — Codex `gpt-6.1-sol` `xhigh`.
+- Powód wyboru: pliki niezmiennika high-stakes; kontynuacja w tej samej linii po przekazaniu.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany — hook ZIELONY (2026-10-19 ~12:53 UTC, okno 5 h ~30 %).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zaakceptowany — 1286 s, 87 wywołań, kontekst ~356 tys. (powyżej miękkiego progu, ale przebieg domknięty); 9 nowych plików, 12 zmienionych. Jedno naruszenie zakazu: `git add -N .` cofnięte przez wykonawcę samodzielnie i zgłoszone (indeks pusty — sprawdzone). Sześć uwag do specyfikacji, w tym trzy słuszne i przyjęte: domyślna dzierżawa 5 min nie przechodzi bramki przy limicie żądania 101–120 s (→ 6 min w BE-1b), brak porównania `id` odpowiedzi z żądanym (→ BE-1b), dokument Zebrani bez zapisanego `id` po awarii procesu (→ reguła BE-2). Przesłanka „stałe w istniejących testach kolidują z nowym indeksem” obalona przez wykonawcę.
+- Rundy korekt: 0 (drobne zmiany po odbiorze włączone do BE-1b jako decyzje architekta, nie poprawki wykonania).
+- Czas do akceptacji: ~30 min (start 12:53 UTC, raport ~13:15, walidacja architekta ~13:25).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): recenzja fali (Muse Wonder Full `max`, 958 s) — w plikach BE-1a: P1 potwierdzone (`GetString()` na samotnym surogacie w odpowiedzi 2xx rzuca mimo kontraktu klienta), P2 przyjęte (sekret webhooka równy tokenowi API — bramka startu), P3 częściowo (alfabet sekretu: najpierw komentarz, po raporcie poprawki bramka startu); fałszywych P0/P1: 0.
+- Defekty po odbiorze: P1 z recenzji (osłona odczytu tekstu) — naprawione w BE-1-fix.
+- Wymagane testy i dowody: `dotnet build` 0 ostrzeżeń; pełny `dotnet test` z bazą SQL architekta: 7455/7455 wykonanych i zielonych, 0 pominiętych; diff przeczytany (migracja z bramką duplikatów 51020, idempotencja, token tylko w nagłówku `Bearer`, anulowanie po `kind` albo fladze).
+
+### 2722-BE-1b (endpoint powiadomień ze wspólnym sekretem i współbieżny zapis żądań) — 2026-10-19
+- Archetyp: Backend API — kontroler anonimowy z surowym ciałem, komenda CQRS z parserem i porównaniem sekretu w stałym czasie, repozytorium z scalaniem i obsługą wyścigu 2601/2627, testy jednostkowe, integracyjne i SQL.
+- Stawka: wysoka / high-stakes (uwierzytelnienie powiadomienia, współbieżność, dane osobowe w ciele).
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh`.
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access read` (wspólnie z BE-1a, uzupełnię).
+- Dopuszczone alternatywy: wykonawca — brak (CZERWONY: Muse Wonder Full `max`); recenzent — Codex `gpt-6.1-sol` `xhigh`.
+- Powód wyboru: pliki niezmiennika high-stakes.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany — hook ZIELONY przy starcie (2026-10-19 ~13:28 UTC, okno 5 h 40 %), ŻÓŁTY przy odbiorze (52 %).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zaakceptowany — 1169 s, 116 wywołań, kontekst ~333 tys.; dwa świadome odstępstwa przyjęte: `LastReceivedAt` tylko do przodu (wykonawca wykrył w specyfikacji architekta ciche gubienie powiadomienia przy odwróconej kolejności dwóch zapisów — słuszne, P1 specyfikacji), sprawdzenie `id` odpowiedzi w interpreterze zamiast w kliencie (limit zależności klasy S1200). Zgłoszona luka: wyłączona integracja + błędne wartości sekcji → 500 zamiast 401 (bez zapisu) — do rundy poprawek. Sprawdzenie, że test potrafi być czerwony (podmiana SQL), wykonane i cofnięte.
+- Rundy korekt: 0 z wykonania (uzupełnię, jeśli recenzja coś potwierdzi).
+- Czas do akceptacji: ~25 min do odbioru architekta (start ~13:28 UTC, raport ~13:48, walidacja ~14:00); recenzja fali w toku.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): recenzja fali (Muse Wonder Full `max`) — w plikach BE-1b: P3 brak limitu żądań na anonimowym endpoincie (odrzucone — wzorzec webhooka Stripe, nie regresja), P3 `CancellationToken` nieprzekazywany do Dappera (odrzucone — dług systemowy `IDapperWrapper`), P3 interpolacja sekretu w skrypcie SSH (przyjęte jako alfabet sekretu). Fałszywych P0/P1: 0. Luka z raportu wykonawcy (wyłączona integracja + niewiążąca się wartość → 500) naprawiona w BE-1-fix.
+- Defekty po odbiorze: wykryty w BE-1-fix przez wykonawcę poprawek — parser webhooka rzucał na samotnym surogacie w NAZWIE pola przed sprawdzeniem sekretu (500 zamiast 401 dla nieuwierzytelnionego nadawcy, bez zmiany stanu); recenzent go nie zgłosił.
+- Wymagane testy i dowody: `dotnet build` 0 ostrzeżeń; pełny `dotnet test` z bazą SQL architekta: 7554/7554 wykonanych i zielonych, 0 pominiętych; diff kontrolera, handlera i SQL scalania przeczytany.
+
+### 2722-BE-1-fix (poprawki po recenzji fali 1: odczyt odporny na niepoprawny UTF-16, bramki sekretu, endpoint przy wyłączonej integracji) — 2026-10-19
+- Archetyp: Backend — poprawki po recenzji w plikach niezmiennika (parser i interpreter JSON, bramki startu, handler), z testami mutacyjnymi.
+- Stawka: wysoka / high-stakes (uwierzytelnienie powiadomienia, poświadczenie API).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (runda 2 przez kontynuację tego samego agenta).
+- Recenzent (linia / model / native effort): architekt (odbiór poprawek: diff, pełne testy); całość czyta bramka końcowa `gpt-6.1-sol` `max`.
+- Dopuszczone alternatywy: brak (pliki niezmiennika; poprawki wracają do autora — reguła 13).
+- Powód wyboru: autor kwalifikuje się nadal.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy — hook ŻÓŁTY (2026-10-19 ~13:57 UTC, okno 5 h 53 %).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: runda 1 zaakceptowana (752 s, 78 wywołań) z dwiema słusznymi uwagami do specyfikacji — samotny surogat w NAZWIE pola rzuca już przy `TryGetProperty`, także w parserze webhooka przed sprawdzeniem sekretu (500 zamiast 401), oraz alfabet sekretu tylko w komentarzu nie chroni przed cichym niedopasowaniem; runda 2 (1085 s, kontynuacja) domknęła oba wspólną kontrolą nazw w `Billing/Domain` i bramką alfabetu.
+- Rundy korekt: 1 (z winy specyfikacji — luki wykryte przez wykonawcę, nie defekt wykonania).
+- Czas do akceptacji: ~45 min (start ~13:57 UTC, akceptacja ~14:43 po pełnych testach).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy (runda poprawek); testy mutacyjne wykonawcy: 9 + 16 przypadków czerwonych po wyłączeniu poprawek.
+- Defekty po odbiorze: brak do bramki końcowej.
+- Wymagane testy i dowody: `dotnet build` 0 ostrzeżeń; pełny `dotnet test` z bazą SQL architekta: 7593/7593 wykonanych i zielonych.
+- Uwagi: recenzent z innej rodziny wskazał klasę błędu (P1), a wykonawca poprawek znalazł jej drugi, groźniejszy przypadek w pliku, którego recenzja nie zgłosiła — klauzula „What do you consider wrong” w briefie poprawek zwraca się także przy małych briefach.
+
+### 2722-BE-2 (cykl synchronizacji stanu dokumentów: zaklepanie, reguły 1–8, transakcja zastosowania i zamknięcia) — 2026-10-19
+- Archetyp: Backend — cykl w tle na `PeriodicCycleService` z dzierżawą (`UPDLOCK, READPAST`), rozstrzyganiem odczytu w jednej transakcji z zamknięciem żądania, ponowieniami z odstępem i wstawianiem korekty ręcznej; SQL repozytoriów, testy jednostkowe na harnessie i SQL.
+- Stawka: wysoka / high-stakes (współbieżność, cichy błąd księgowy, wartość dokumentów).
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh`; trzy przebiegi tej samej linii (reguła 15): 1 — warstwa danych i SQL (przekazanie przy 302 tys.), 2 — cykl, resolver, usługa, rejestracja, harness (przekazanie przy ~311 tys., 61 wywołań, 841 s), 3 — testy w dwóch briefach (A jednostkowe + poprawka, B bazodanowe); uzupełnię.
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access read` (po briefie B).
+- Dopuszczone alternatywy: wykonawca — brak (CZERWONY: Muse Wonder Full `max`); recenzent — Codex `gpt-6.1-sol` `xhigh` (pula Codexa oszczędzana na bramkę).
+- Powód wyboru: pliki niezmiennika high-stakes (współbieżność i naliczanie dokumentów).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany — hook ZIELONY przy przebiegach 2 i 3 (2026-10-19, okno 5 h 3–7 % po resecie, tydzień 9–10 %).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: kod produkcyjny przebiegów 1–2 przyjęty przez architekta po lekturze SQL, cyklu i resolvera, z jedną decyzją zmieniającą specyfikację (dokument z prefiksem Zebrani bez wiersza → `FOREIGN`, bo konto testowe Fakturowni jest wspólne dla lokalnego i PRE) i jedną poprawką wykrytą przy odbiorze (wyścig reguły 4 z cyklem wystawiania: wiersz po `IssueKey` z właśnie zapisanym tym samym `id` → fałszywe `FAILED`; poprawka w briefie A). Wykonawcy przebiegu 2 wydzielili `InvoiceSyncResolver` (limit S1200) i wskazali sprzeczność specyfikacji (reguła 4 „od razu FAILED” wobec listy testów „próba”) — słuszne.
+- Rundy korekt: 0 z wykonania przed recenzją (poprawka wyścigu i dokładne porównanie id to decyzje architekta po odbiorze; uzupełnię po recenzji).
+- Czas do akceptacji: uzupełnię (wykonanie ~2 h 10 min w czterech przebiegach, walidacja fali ~4 min).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Muse Wonder Full `max` (1028 s) — 0×P0–P2, 3×P3: przyjęte 2 (test logowania wyjątku deklarował niesprawdzany niezmiennik; brak testu SQL wykrycia korekty Zebrani), odrzucone 1 (okno anulowania między zaklepaniem a wysyłką e-mail — tej samej długości co pozostałe okno); fałszywych P0/P1: 0. Poprawki w BE-2-fix.
+- Defekty po odbiorze: wyścig reguły 4 (wykryty przez architekta przed testami). Wykonawca briefu B obalił założenie architekta o teście `READPAST` (blokada `UPDLOCK` samego indeksu klastrowego nie jest pomijana — `READPAST` działa tylko na przeglądanym indeksie) i zmierzył, że produkcyjne zapisy w transakcji blokują `IX_InvoiceSyncRequests_Due` — słuszne, bez defektu produkcyjnego.
+- Wymagane testy i dowody: brief A (681 s, 57 wywołań, ~247 tys.): poprawka wyścigu + 79 przypadków jednostkowych, test wyścigu czerwony bez poprawki (4 czerwone); brief B (992 s, 62 wywołania, ~303 tys.): 22 testy SQL z kontrolami pozytywnymi i mutacjami M1/M2. Walidacja architekta: `dotnet build` 0 ostrzeżeń, pełny `dotnet test` z bazą SQL 7695/7695 wykonanych i zielonych.
+- Uwagi: dwa kolejne przekazania przy ~300 tys. bez żadnego testu — brief cyklu high-stakes z SQL, regułami i testami jest dla Opusa `xhigh` za duży na jeden przebieg; z góry dzielić na: dane i SQL / cykl i rejestracja / testy jednostkowe / testy SQL (sygnał dla reguły 15).
+
+### 2722-BE-3a (kontrola D2 przed wystawieniem korekty zwrotu) — 2026-10-19
+- Archetyp: Backend — gałąź cyklu wystawiania + dwa pola odczytu SQL + testy bazodanowe cyklu z mutacjami.
+- Stawka: wysoka / high-stakes (wystawianie dokumentów księgowych przy zwrocie).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (BE-3 podzielony z góry na a i b po doświadczeniu BE-2).
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access read` (wspólnie z BE-3b, jeden przebieg 880 s, statyczny).
+- Dopuszczone alternatywy: wykonawca — brak (CZERWONY: Muse Wonder Full `max`); recenzent — Codex `gpt-6.1-sol` `xhigh`.
+- Powód wyboru: pliki niezmiennika high-stakes (cykl wystawiania faktur).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany — hook ZIELONY (2026-10-19, okno 5 h 15–17 %).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zaakceptowany — 775 s, 69 wywołań, ~254 tys. kontekstu (poniżej progu); 9 testów, 11 mutacji z czerwonymi testami; 3819/3819 testów Billing+SubscriptionManagement. Odstępstwa przyjęte: teksty w formacie istniejących („Wymaga…”, z kropką), testy cyklu bazodanowe (repo nie ma jednostkowych testów cyklu — przesłanka briefu błędna), `MarkExhaustedAsync` zwraca `bool`. Zgłoszone: okno wyścigu synchronizacji z wystawieniem korekty (odczyt → `CreateInvoiceAsync`), brak wznowienia po przywróceniu oryginału, „od razu” w dokumentacji (→ doprecyzowane).
+- Rundy korekt: 0.
+- Czas do akceptacji: ~15 min (start ~17:10 UTC, odbiór architekta po diffie).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0×P0–P2; 2×P3 potwierdzone, obie luki testów (korekta ręczna INNEGO oryginału nie blokuje — warunek `m.OriginalInvoiceId = o.InvoiceId` bez testu; brak testu pominięcia szczegółowego ostrzeżenia D2 po utracie dzierżawy) → T-BE-3 (`tester`); 0 odrzuconych. Werdykt poprawny, pewność 0,87.
+- Defekty po odbiorze: brak defektu kodu; dwie luki testów zamknięte w 2722-T-BE-3 (do bramki końcowej).
+- Wymagane testy i dowody: diff cyklu i SQL przeczytany przez architekta; testy z TRX wykonawcy; pełna walidacja fali 3 — `dotnet test` 7739/7739, build 0 ostrzeżeń, `browser-check` 4/4.
+- Uwagi: brief podzielony z góry na dwa przebiegi zmieścił się w ~250 tys. bez przekazania — potwierdza wniosek z BE-2.
+
+### 2722-BE-3b (zasada jednej korekty zwrotu i cofnięcie odrzuconego zwrotu bez korekt ręcznych, stan „Anulowana” w historii) — 2026-10-19
+- Archetyp: Backend — trzy zmiany SQL (strażnik korekty, cofnięcie zwrotu, odczyt historii) + mapowanie w handlerze zapytania + testy SQL i jednostkowe z mutacjami.
+- Stawka: wysoka / high-stakes (dokumenty księgowe przy zwrocie).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh`.
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access read` (wspólnie z BE-3a, jeden przebieg 880 s, statyczny).
+- Dopuszczone alternatywy: wykonawca — brak (CZERWONY: Muse Wonder Full `max`); recenzent — Codex `gpt-6.1-sol` `xhigh`.
+- Powód wyboru: pliki niezmiennika high-stakes (zwrot i korekta).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany — hook ZIELONY (2026-10-19, okno 5 h 17–21 %).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zaakceptowany — 757 s, 88 wywołań, ~263 tys.; 21 nowych wyników testów, 6 mutacji z czerwonymi testami; 3840/3840. Odstępstwo przyjęte: literał źródła z komentarzem zamiast wyszukiwania po kodzie z `THROW` (brief architekta wewnętrznie sprzeczny z precedensem fal 1–2 — słuszna uwaga). Zgłoszone dwa przypadki brzegowe (anulowana korekta Zebrani blokuje nową; alarm kroku c) dla korekty Zebrani anulowanej w Fakturowni) — rozstrzygnięte przez architekta jako zachowawcze, bez zmian.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~15 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 znalezisk dotyczących BE-3b (obie P3 recenzji dotyczyły testów BE-3a).
+- Defekty po odbiorze: brak do bramki końcowej.
+- Wymagane testy i dowody: diff handlera i SQL strażnika przeczytany przez architekta; pełna walidacja fali 3 — `dotnet test` 7739/7739, build 0 ostrzeżeń; `browser-check` 4/4 (360×530 i 1280×720, Light/Dark) na lokalnych danych syntetycznych: „Anulowana” czerwona z `pi pi-ban`, korekta ręczna „Korekta” 0,00 zł bez minusa.
+
+### 2722-BE-2-fix (poprawki po recenzji fali 2 + ostrzeżenie o anulowaniu faktury z korektą zwrotu) — 2026-10-19
+- Archetyp: Backend — poprawka dokumentacji klasy i testu logowania wyjątku, testy SQL wykrycia korekty Zebrani, nowe ostrzeżenie w resolverze i cyklu synchronizacji (wykrycie okna wyścigu z cyklem wystawiania).
+- Stawka: wysoka / high-stakes.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (poprawki wracają do linii autora, świeży agent).
+- Recenzent (linia / model / native effort): architekt (odbiór poprawek); całość czyta bramka końcowa `gpt-6.1-sol` `max`.
+- Dopuszczone alternatywy: brak (pliki niezmiennika; reguła 13).
+- Powód wyboru: autor kwalifikuje się nadal.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany — hook ZIELONY (2026-10-19, okno 5 h 21–24 %).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zaakceptowany — 792 s, 68 wywołań, ~266 tys.; 10 mutacji (jedna zablokowana przez analizator S6667 — sam pilnuje logowania obiektu wyjątku), 3854/3854. Wykonawca rozszerzył wykrycie na wszystkie trzy ścieżki reguły 1 (także wyścigowe) — słuszne. Zgłosił powtarzanie ostrzeżenia przy każdym kolejnym powiadomieniu o już anulowanej fakturze (przyjęte jako techniczne) i rozjazd pierwszego zdania pkt 6 dokumentacji z kodem (`PENDING`) — dokumentacja doprecyzowana.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~15 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy (runda poprawek).
+- Defekty po odbiorze: brak do bramki końcowej.
+- Wymagane testy i dowody: TRX wykonawcy; pełna walidacja architekta w fali 3.
+
+### 2722-T-BE-3 (dwa testy bazodanowe D2 po recenzji fali 3, z dowodem czerwieni przez mutację) — 2026-10-19
+- Archetyp: Testy BE — xunit `[SqlServerFact]` do istniejącego pliku + dekorator repozytorium w `Support`, dwie mutacje kodu produkcyjnego z przywróceniem po hashu.
+- Stawka: średnia (testy niezmiennika high-stakes, bez zmiany kodu produkcyjnego).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `tester` — Haiku 5.5 / `xhigh`.
+- Recenzent (linia / model / native effort): architekt (odbiór testów i mutacji); całość czyta bramka końcowa `gpt-6.1-sol` `max`.
+- Dopuszczone alternatywy: `wykonawca` Sonnet `high`; Codex `gpt-6.1-sol` `high` (≤ 5 plików, pula `nieznany` — oszczędzana na bramkę).
+- Powód wyboru: scenariusze nazwane w briefie, wzorzec w tym samym pliku — linia `tester` po próbie 2026-10-13.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany — hook ZIELONY (2026-10-19, okno 5 h 25–27 %).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zaakceptowany — 464 s, 35 wywołań, ~245 tys. tokenów; 2 testy + dekorator w nowym pliku `Support` (odstępstwo od „do istniejącego pliku” — słuszne, wzorzec katalogu), obie mutacje czerwone na właściwej asercji, hashe plików produkcyjnych zgodne z kopią, 44/44 w filtrze. Słuszne uwagi do briefu: mutacja „usuń warunek” zostawia `WHERE` bez warunku (zastąpiono `1 = 1`), postać blokowa mutacji 2 łamie S1199, test 1 wymagał rozstrzygnięcia dzierżawy między odczytem a cyklem (wygasła dzierżawa).
+- Rundy korekt: 0.
+- Czas do akceptacji: ~12 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy (domknięcie luk recenzji fali 3).
+- Defekty po odbiorze: brak do bramki końcowej.
+- Wymagane testy i dowody: build `--no-incremental` 0/0 i pełny `dotnet test` architekta po zmianie — 7741/7741 (7739 + 2 nowe), 0 ostrzeżeń.
+- Uwagi: Haiku `xhigh` zmieścił brief testów z mutacjami poniżej 250 tys. bez przekazania.
+
+### 2722-GATE-FE (bramka końcowa feature'a wysokiej stawki — FE) — 2026-10-19
+- Archetyp: Recenzja — bramka końcowa całego diffu FE funkcji (5 plików: enum, mapa etykiet, pl/en, spec), tylko odczyt.
+- Stawka: wysoka (bramka reguły 6; sam diff FE bez niezmiennika).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): nie dotyczy (autor FE-1: Gemini `gemini-3.8-flash-high`).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review`.
+- Dopuszczone alternatywy: brak (bramka reguły 6 bez obniżania).
+- Powód wyboru: bramka końcowa; uruchomiona przed BE, bo diff FE był ostateczny od fali 1, a BE czekał na testy — bramki nadal sekwencyjnie.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper bez zapasu, 2026-10-19 ~16:13 UTC); bez komunikatu limitu.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 243 s; 0 znalezisk. Recenzent sam sprawdził konsumentów `InvoiceStatus`, mapę etykiet i streszczenie „Ostatnia: …” z anulowaną pierwszą pozycją (skryptem tylko do odczytu); Vitest/AXE nieuruchamiane (piaskownica tylko do odczytu).
+- Rundy korekt: 0.
+- Czas do akceptacji: ~5 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: walidacja FE fali 1 (lint, 12/12 speców, build) i `browser-check` 4/4 w fali 3.
+
+### 2722-GATE-BE (bramka końcowa feature'a wysokiej stawki — BE) — 2026-10-19
+- Archetyp: Recenzja — bramka końcowa całego diffu BE funkcji (26 plików śledzonych + 69 nowych, trzy fale po recenzjach i poprawkach), tylko odczyt.
+- Stawka: wysoka / high-stakes (uwierzytelnienie powiadomienia, dokumenty księgowe przy zwrocie, współbieżność, migracja).
+- Niepewność: średnia (duży diff, współbieżność).
+- Wykonawca (linia / model / native effort): nie dotyczy (pliki niezmiennika: `wykonawca-opus`; testy T-BE-3: `tester`).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review`.
+- Dopuszczone alternatywy: brak (bramka reguły 6 bez obniżania).
+- Powód wyboru: bramka końcowa reguły 6, po recenzjach fal 1–3 (Muse Wonder Full `max`) i ich poprawkach.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper, 2026-10-19 ~16:17 UTC); bez komunikatu limitu.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 603 s; werdykt niepoprawny; 3 znaleziska. Znalazła tylko bramka (trzy recenzje fal Muse ich nie zgłosiły).
+- Rundy korekt: 1 (BE-GATE-fix u `wykonawca-opus`, oba defekty w jednym przebiegu).
+- Czas do akceptacji: ~45 min od startu bramki (bramka 10 min, triaż ~10 min, poprawka 14 min, walidacja ~6 min).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P1 potwierdzony — opis niepowodzenia odczytu spoza 2xx niesie oczyszczoną treść odpowiedzi z danymi nabywcy do `LastError` żądania i ostrzeżenia po wyczerpaniu prób (dziennik klienta czysty, cyklu nie); P2 potwierdzony — ostrzeżenie o korekcie ręcznej przy korekcie zwrotu bierze stan sprzed wstawienia, przeplot ze zwrotem i cyklem wystawiania gubi alarm z pkt 6; P2 odrzucony — „brak obsługi formularza”: błędna przesłanka briefu architekta (rozpoznanie ustaliło wyłącznie JSON, brief bramki powtórzył nieaktualne „JSON albo formularz” z planu).
+- Defekty po odbiorze: brak (po BE-GATE-fix).
+- Wymagane testy i dowody: po BE-GATE-fix — build 0/0, pełny `dotnet test` 7750/7750, mutacje obu poprawek czerwone (16 + 2 testy).
+- Uwagi: lekcja dla architekta — brief bramki składać z ustaleń rozpoznania i decyzji fal, nie z planu sprzed rozpoznania.
+
+### 2722-BE-GATE-fix (poprawki po bramce końcowej BE: opis błędu odczytu bez treści odpowiedzi, ostrzeżenie o korekcie ręcznej po wstawieniu) — 2026-10-19
+- Archetyp: Backend — stała opisu w interpreterze odczytu, ponowny odczyt w resolverze w transakcji, dokumentacja XML, testy klienta i cyklu z prawdziwym interpreterem w pętli, mutacje.
+- Stawka: wysoka / high-stakes (dane osobowe w dzienniku, alarm podwójnej korekty).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh` (poprawki wracają do linii autora).
+- Recenzent (linia / model / native effort): architekt (odbiór dowodem — reguła: po korekcie bez drugiej recenzji, ≤ 5 plików produkcyjnych, bez zmiany API).
+- Dopuszczone alternatywy: brak (pliki niezmiennika).
+- Powód wyboru: autor kwalifikuje się nadal.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany — hook ZIELONY (2026-10-19, okno 5 h 28–31 %).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zaakceptowany — 824 s, 72 wywołania, ~258 tys.; 3865/3865 w filtrze; mutacja G1 → 16 testów czerwonych, G2 → 2; hashe przywróconych plików zgodne. Odstępstwa przyjęte: hak w atrapie zamiast sekwencji wyników (pilnuje też kolejności odczytu), dwie asercje liczby odczytów w istniejących testach, mutacja G2 przez `_ =` (nieużywana zmienna łamie build). Słuszne uwagi: jedno zdanie dokumentacji `FakturowniaInvoiceReadResult` (dopisał architekt, reguła 11), założenie o RCSI niepilnowane testem, teoretyczne zakleszczenie przy skanie bez indeksu na `OriginalInvoiceId` (bez znalezionego przeplotu; ofiara dostaje regułę 8).
+- Rundy korekt: 0.
+- Czas do akceptacji: ~20 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy (runda poprawek bramki).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: pełny `dotnet test` architekta 7750/7750, build `--no-incremental` 0/0, diff resolvera i interpretera przeczytany.
+
+### 2722-DOC-REV (przegląd zgodności dokumentacji 4c — rewizje INT-FAKTUROWNIA i UI-KONTO-USTAWIENIA wobec kodu obu repo) — 2026-10-19
+- Archetyp: Recenzja — macierz zgodności dokumentacji produktu z kodem (2 dokumenty zmienione, 15 sekcji, 95 plików BE + 5 FE), tylko odczyt.
+- Stawka: średnia (dokumentacja funkcji wysokiej stawki; kod już po bramce końcowej).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): nie dotyczy (rewizje dokumentacji: Muse Wonder Full `max` w DOC-1, poprawki w falach).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` (effort w nazwie), `-Access read`.
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` (pula Codexa oszczędzana po bramce).
+- Powód wyboru: inna rodzina niż autor dokumentacji (Muse); przegląd czytający bez powłoki.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany (wrapper, 2026-10-19); bez 503 i bez komunikatu limitu.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 632 s; werdykt „zgodne z zastrzeżeniem” (0,98); 57 twierdzeń `zgodne`, 1 `dokument nieaktualny`.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~15 min (przebieg + triaż).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1 częściowo trafne — definicja sygnału „Płatność bez faktury” w UI-ADMINISTRATOR-DASHBOARD („płatność, której dokument…”) nie obejmuje dosłownie korekty bez płatności. Sygnału nie ma w kodzie (PBI #1727), a INT trzyma się zatwierdzonej konwencji „po stanie zlecenia” (rewizja 2026-10-13 pkt 1). Bez zmiany dokumentacji tego PBI; pytanie do właściciela (to samo co wpis 4 dziennika rozbieżności, zgłoszony wcześniej przez Muse w DOC-1).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: raport z `result.response` NDJSON; diff dokumentacji przeczytany przez architekta (2 pliki, +31/−1); `git status` repo bez zmian po przebiegu.
+- Uwagi: brief z mapą dokumentacji i listą plików generowaną skryptem (Python, `chr(92)`) — ścieżki Windows w heredocu Basha gubiły ukośniki.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
