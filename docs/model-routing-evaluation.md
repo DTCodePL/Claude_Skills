@@ -4607,6 +4607,41 @@ który kolejne wpisy mają potwierdzić albo obalić.
   - Gemini Flash `high` w briefie ADO wymyśla nazwy kodu, gdy brief ich nie podaje dosłownie. Brief ADO dla Gemini musi podawać nazwy kodu wprost albo kazać je cytować z `path:line`.
   - Przed zakładaniem PBI uzupełniających architekt przeszukuje backlog (WIQL po słowach kluczowych i odczyt opisów kandydatów).
 
+### 2715-PRE (zakup testowy na PRE jako dowód end-to-end wystawiania faktur — PRE-zakup-2715) — 2026-10-19
+- Archetyp: Worker przeglądarkowy — jedna płatność testowa na PRE przez Playwright CLI (nowe konto syntetyczne na `/kup`, Stripe sandbox), bez akcji poza scenariuszem.
+- Stawka: średnia (akcja nieodwracalna na PRE: jedna płatność i jedna faktura w Fakturowni; zakaz ponawiania kliknięcia płatności w briefie).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access write` (Playwright CLI `pwcli`, sesja `-s=zakup2715`).
+- Recenzent (linia / model / native effort): nie dotyczy (akcja w przeglądarce, bez kodu) — odbiór architekta po stronie serwera: wiersze `Invoices` (odczyt `sqlcmd`), faktura w Fakturowni (GET wybranych pól), Historia faktur przez API, porównanie tokenu z logiem BE bez wypisywania.
+- Dopuszczone alternatywy: Gemini albo Codex z Playwright MCP (CLI działa tylko w linii Muse, MCP ~3,3× więcej tokenów wejścia).
+- Powód wyboru: Playwright CLI tylko w linii Muse (reguła 15); limit tygodniowy Muse z 2026-10-15 zresetowany 2026-10-19 00:00 UTC.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany (wrapper, brak komunikatu limitu, 2026-10-19 09:33 UTC).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: PASS, 247 s (09:33:47–09:37:54 UTC), jedna płatność (kliknięcie 09:35:49, płatność zapisana 09:36:40); 16 wywołań powłoki, 64 polecenia CLI, 0 własnych snapshotów. Odchylenia drobne, obsłużone przez wykonawcę: domyślnie zaznaczona „Firma”, niejednoznaczny lokator pola hasła, kod SMS zatwierdzany automatycznie.
+- Rundy korekt: 0.
+- Czas do akceptacji: start 09:33 UTC; faktura wystawiona 09:38:27 (1 min 47 s po płatności), odbiór po odczytach serwera.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy. Sekcja „Co uważasz za błędne” — 4 uwagi słuszne: po płatności aplikacja nie pokazuje komunikatu sukcesu, więc kryterium PASS powinno być adresem powrotu; brief nie podał oczekiwanej kwoty ani okresu do sprawdzenia przed nieodwracalnym kliknięciem; stały numer telefonu zderzy się przy powtórce; adres `@example.com` nie potwierdzi konta, a Fakturownia oznacza wysyłkę na niego jako nieudaną.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: faktura `ISSUED` z numerem `DEMO/51/10/2026`; w Fakturowni pozycja „Abonament Zebrani.pl”, VAT 23 %, 369,00 zł, status opłacona, KSeF demo; Historia faktur przez API — `ISSUED`; token Fakturowni 0 razy w logu BE i w odpowiedziach.
+- Uwagi: brief przeglądarkowy z płatnością podaje oczekiwaną kwotę i okres do sprawdzenia przed kliknięciem oraz kryterium PASS jako adres powrotu, nie komunikat.
+
+### 2715-QAS (QA Sphere: przegląd 39 istniejących i 10 nowych przypadków — QAS-GEN-2715, QAS-REV-2715) — 2026-10-19
+- Archetyp: QA Sphere — przypadki manualne wg `qasphere-test-generator` (plik podglądu JSON, przegląd istniejących z Kroku 2b).
+- Stawka: średnia (przypadki manualne funkcji high-stakes — wystawianie faktur; publikacja dopiero po „ok” właściciela).
+- Niepewność: średnia (postaci e-maila Fakturowni nie ma w repozytoriach; tester bez dostępu do panelu Fakturowni i serwera).
+- Wykonawca (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access write` (QAS-GEN-2715).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (QAS-REV-2715).
+- Dopuszczone alternatywy: wykonawca — Gemini write (procedura skilla, gdy Muse zajęty); recenzent — Muse read tylko dla pliku Gemini (wykluczony, autor z rodziny Muse).
+- Powód wyboru: procedura skilla (Muse autor → Gemini recenzja).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany (wrapper, 2026-10-19 09:36 UTC); Gemini nieznany (wrapper, 10:00 UTC).
+- Pewność decyzji: średnia (drugi plik QA Sphere na Wonder Full).
+- Wynik pierwszego podejścia: zaakceptowany bez korekty — 1421 s (09:36:48–10:00:29 UTC), `lint` 0 błędów, 10 nowych (6 high, 4 medium), 39 werdyktów (35 zostaje, 4 aktualizacje, 0 `[Removed]`), 12 pominiętych kategorii z powodami. Uwagi autora do briefu słuszne albo informacyjne: 39 w `existing[]` plus osobno wycofany 996; niejednoznaczne odwołanie do „pkt 12” zmiany abonamentu; kryterium „ponawiana do 5 razy” wobec „najwyżej 5 prób” w INT pkt 1; postać e-maila Fakturowni niepotwierdzona; wątpliwość, czy ZEB-999/1000 mają dostać wymaganie #2715 (zostawione, zaakceptowane na bramie).
+- Rundy korekt: 0.
+- Czas do akceptacji: ~1 h 20 min (09:36 → ~10:53 UTC: przebieg autora 24 min, recenzja 18 min, triaż i próba architekta, brama właściciela, wysyłka i `verify`).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): QAS-REV (1088 s) — poprawny 0,98; 0×P0/P1; 3×P3: F1 obalone (tolerancja wystawionej już faktury jest w kroku 5 — fałszywe znalezisko), F2 odrzucone (brief zabrania opisywać brak SMTP Zebrani na PRE jako zachowanie oczekiwane, krok jest na to odporny), F8 bez skutku (wyszukiwanie w DevTools nie rozróżnia wielkości liter). Fałszywych P0/P1: 0. Próba architekta (F1, F5, F6, F8): napisy dosłownie z `pl.json`, ujemna kwota korekty w BE i w UI-KONTO-USTAWIENIA, trasy API, format telefonu.
+- Defekty po odbiorze: brak w `qas.py verify` (14 sprawdzonych, 0 różnic); wysłane seq 1644–1653 (folder 174), zaktualizowane 998, 992, 999, 1000, wycofane 0; wykonanie przez testera jeszcze nie nastąpiło.
+- Wymagane testy i dowody: `qas.py lint` 0 błędów, `qas.py table`; po „ok”: `folders` → `push --limit 1` → `verify --only F1` → `push` → `update` → pełne `verify`.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
