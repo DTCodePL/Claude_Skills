@@ -4940,6 +4940,178 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: `qas.py lint` 0 po każdej rundzie; `qas.py table`; fakty kroków sprawdzone na PRE (422 dla ostatniej faktury w numeracji, 405 dla GET, 401 z ProblemDetails, kreator programów na koncie bez programów).
 - Uwagi: Recenzent Gemini nie wychwycił twierdzenia sprzecznego z zachowaniem serwera, którego nie miał w faktach briefu — fakty z PRE (kształt odpowiedzi) warto podawać w briefie recenzji jawnie, nie tylko kod statusu.
 
+### 2371-BE-1 (pośrednik pobierania dokumentu z systemu fakturowego: klient, odczyt z zakresem konta, endpoint, testy) — 2026-10-19
+- Archetyp: Backend — nowy odczyt binarny w kliencie integracji (termin, limit rozmiaru, kontrola typu i sygnatury), zapytanie CQRS z zakresem konta, endpoint pliku, testy klienta, handlera i API.
+- Stawka: wysoka / high-stakes (niezmiennik: właściciel pobiera wyłącznie dokumenty swojego konta; nowa ścieżka użycia klucza API integracji).
+- Niepewność: średnia (odczyt strumienia z limitem i wspólnym terminem; zachowanie dostawcy zmierzone przed planem).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh`.
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access read` (wpis 2371-REV-BE); bramka końcowa 2371-GATE-BE.
+- Dopuszczone alternatywy: brak (pliki niezmiennika; przy CZERWONYM Muse Wonder Full `max`).
+- Powód wyboru: bramka twarda high-stakes (autoryzacja zakresu konta i poświadczenie integracji).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy — hook ŻÓŁTY (2026-10-19 ~19:18 UTC).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zaakceptowany — 1492 s, 117 wywołań; build 0 ostrzeżeń, pełny `dotnet test` 7838/0 pominiętych.
+- Rundy korekt: 1 (BE-K1 + kontynuacja K2: wyłącznie testy po 2×P3 recenzji — siatka bezpieczeństwa przy wiszącej treści, test jednego wspólnego terminu, statusy spoza 2xx z nieczytelną treścią także w bliźniakach ścieżki tekstowej; 1331 s łącznie, mutacje M1–M7 czerwone). Przesłanka briefu K1 częściowo błędna (sama siatka w wywołaniu nie zatrzyma zawieszenia, gdy kod przekazuje pusty token) — wykonawca słusznie przeniósł siatkę do atrap strumienia.
+- Czas do akceptacji: ~25 min pierwszy przebieg + ~30 min korekta testów.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): recenzja fali — 2×P3 potwierdzone (testy); bramka — 1×P2 potwierdzony jako dług systemowy (token anulowania nie trafia do warstwy dostępu do danych w całym repo), bez poprawki w PBI.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: build 0/0, pełny `dotnet test` 7842/0 po korekcie, diff przeczytany; curl na PRE po deployu (krok 12).
+
+### 2371-FE-1 (działanie pobrania w historii dokumentów: wspólny helper zapisu pliku, serwis, liść prezentacyjny, rodzic, i18n, speci) — 2026-10-19
+- Archetyp: Frontend UI / Figma — przycisk-ikona w tabeli i kartach wg makiety, wyniesienie istniejącego wzorca zapisu pliku do wspólnego serwisu, obsługa dwóch komunikatów błędu, AXE.
+- Stawka: średnia (ekran funkcji high-stakes bez niezmiennika — autoryzację trzyma BE).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` — Sonnet 5.5 / `high` (Figma MCP).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (wpis 2371-REV-FE); bramka końcowa 2371-GATE-FE.
+- Dopuszczone alternatywy: Codex z Figmą (niepotwierdzony w sesji, pula na bramkę).
+- Powód wyboru: wygląd przycisku z makiety wymaga MCP; próba A/B linii Figmy zamknięta → Sonnet.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy — hook ŻÓŁTY (2026-10-19 ~19:18 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowany z korektami — 523 s, 74 wywołania; lint/format/4583 testy/build zielone; browser-check 8/8 + przejście PASS.
+- Rundy korekt: 2 — FE-K1 po recenzji fali (148 s), FE-K2 po bramce (84 s: przerwanie pobrania przy zmianie konta w karcie, zgodnie z istniejącą regułą produktu).
+- Czas do akceptacji: ~55 min (z recenzją i bramką).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): recenzja fali — 3×P1 zgłoszone: 1 sporne, 2 obniżone do P3; 3×P2, 2×P3; bramka — 1×P2 potwierdzony (toast i zapis po zmianie konta w trakcie pobierania), którego recenzja fali nie zgłosiła.
+- Defekty po odbiorze: brak. Przy browser-check wykryty defekt sprzed PBI (komórka numeru z `inline-flex` rozjeżdżała kolumnę na desktopie) — poprawiony mechanicznie (`mechanik`, 46 s).
+- Wymagane testy i dowody: `npm run lint`, `format:check`, `npm test` 4585 (AXE w środku), `npm run build`; browser-check matrix 2×2 + flows; zrzuty obejrzane.
+
+### 2371-FIG-1 (piąta kolumna działania w tabeli desktopowej, Light i Dark) — 2026-10-19
+- Archetyp: Frontend UI / Figma — makieta (dodanie kolumny z instancją przycisku z biblioteki).
+- Stawka: niska.
+- Niepewność: średnia (struktura tabeli w makiecie nieznana przed briefem).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` — Sonnet 5.5 / `high` (Figma MCP).
+- Recenzent (linia / model / native effort): architekt — zrzuty i struktura węzłów (makieta bez kodu, jak 2722-FIG-1).
+- Dopuszczone alternatywy: brak (Figma MCP potwierdzony tylko w linii Claude).
+- Powód wyboru: jedyna linia z potwierdzonym Figma MCP.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy — hook ŻÓŁTY (2026-10-19 ~19:18 UTC).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: STOP bez zmian (65 s) — błędna przesłanka briefu: tabela nie jest komponentem głównym, tylko luźnymi ramkami bez auto-layoutu w dwóch niezależnych kopiach (Light/Dark). Klauzula STOP zadziałała.
+- Rundy korekt: 1 (z winy specyfikacji; wariant „dodaj w obu kopiach”, 208 s) — zaakceptowany.
+- Czas do akceptacji: ~10 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: zrzuty sekcji w obu motywach; 6 instancji przycisku z właściwościami identycznymi z arkuszem mobilnym.
+
+### 2371-DOC-1 (trzy datowane rewizje dokumentów zatwierdzonych: integracja, interfejs ustawień, reguła abonamentu) — 2026-10-19
+- Archetyp: Dokumentacja produktowa — rewizje w granicach decyzji właściciela.
+- Stawka: średnia (źródło prawdy funkcji high-stakes).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access write`.
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (Faza 4c, wpis 2371-DOC-4C).
+- Dopuszczone alternatywy: Gemini `high` write, Sonnet `high`.
+- Powód wyboru: decyzje gotowe, inna pula; precedens 2722-DOC-1 (0 korekt).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany (wrapper, 2026-10-19 19:28 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 484 s; rewizje poprawne, raport kontroli wpływu wskazał 5 miejsc sprzecznych z decyzją poza mapą briefu (zdanie o KSeF, „pusty odnośnik”, literały komunikatów w dwóch dokumentach, nazwa pliku korekty bez numeru, napisy brzegowe).
+- Rundy korekt: 1 (DOC-1b, 786 s — z winy specyfikacji: mapa dokumentacji w briefie pominęła te miejsca).
+- Czas do akceptacji: ~25 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Faza 4c — 4× `brak w dokumencie` potwierdzone (zachowania z kodu nieopisane: limit rozmiaru i sygnatura, `aria-busy`, przerwanie po opuszczeniu widoku) — dopisane przez architekta; 1× `kod odbiega` odrzucony.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: diff dokumentacji przeczytany (3 pliki); dziennik rozbieżności 11 wpisów, wszystkie zamknięte.
+- Uwagi: 2026-10-19 ~20:01 UTC pierwszy 429 Muse na planie Power Usage („Subscription quota exhausted”, reset 20:19:58 UTC) — po DOC-1 + DOC-1b i ~7,5 min recenzji na Wonder Full `max`. Pierwszy sygnał limitu linii Muse od zmiany planu.
+
+### 2371-REV-FE (recenzja fali FE + audyt SCSS w jednym przebiegu) — 2026-10-19
+- Archetyp: Recenzja — diff FE fali 1 (helper, serwis, liść, rodzic, i18n, speci) + audyt SCSS zmienionych arkuszy, tylko odczyt.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): nie dotyczy (autor: `wykonawca` Sonnet 5.5 `high`).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read`.
+- Dopuszczone alternatywy: Muse Wonder Full `max` read.
+- Powód wyboru: niska/średnia stawka → preferencja Sol `high` albo Gemini `high` przed Muse (reguła 13); Sol odpada, bo pula idzie na bramkę.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany (wrapper, 2026-10-19 19:44 UTC); bez 503.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 625 s; raport kompletny z audytem SCSS (wszystkie reguły, werdykt „zostawić”).
+- Rundy korekt: 0 (recenzja).
+- Czas do akceptacji: ~20 min z triażem.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 3×P1 zgłoszone — 1 sporne, 2 obniżone do P3 po sprawdzeniu scenariusza; 3×P2, 2×P3 — przyjęte do FE-K1. Przeoczył P2 zmiany konta w trakcie pobierania (znalazła dopiero bramka).
+- Defekty po odbiorze: 1×P2 znaleziony przez bramkę (FE-K2).
+- Wymagane testy i dowody: raport z logu wrappera; `git status` bez zmian po przebiegu.
+
+### 2371-REV-BE (recenzja fali BE: klient binarny, zakres konta, endpoint) — 2026-10-19
+- Archetyp: Recenzja — diff BE fali 1, tylko odczyt.
+- Stawka: wysoka / high-stakes.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): nie dotyczy (autor: `wykonawca-opus` Opus 5.5 `xhigh`).
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access read`.
+- Dopuszczone alternatywy: Gemini `flash-high` read (za słaby na high-stakes BE wg architekta); Sol odpada — pula na bramkę.
+- Powód wyboru: wyższa stawka → Muse Wonder Full `max` jako kandydat wyższej klasy, inna rodzina niż autor.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse zablokowany — 429 „Subscription quota exhausted” 2026-10-19 ~20:01 UTC (po 455 s przebiegu), reset 20:19:58 UTC; potem nieznany.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: przerwany limitem (455 s, exit 1); ponowiony po resecie — 2102 s (z ponowieniami „no first model event within 300000ms”), werdykt poprawny, pewność 0,90.
+- Rundy korekt: 0 (recenzja); ponowna kwalifikacja po limicie: czekanie zamiast zmiany linii.
+- Czas do akceptacji: ~60 min od pierwszego startu (w tym ~19 min czekania na reset).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0×P0–P2; 2×P3 potwierdzone (luki testów klienta) → BE-K1/K2. Nie zgłosił P2 tokenu anulowania (znalazła bramka, sklasyfikowany jako dług systemowy).
+- Defekty po odbiorze: brak defektu kodu funkcji.
+- Wymagane testy i dowody: raport z logu wrappera; `git status` BE bez zmian po przebiegu.
+
+### 2371-GATE-BE (bramka końcowa feature'a wysokiej stawki — BE) — 2026-10-19
+- Archetyp: Recenzja — bramka końcowa całego diffu BE funkcji, tylko odczyt.
+- Stawka: wysoka / high-stakes.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): nie dotyczy (pliki niezmiennika: `wykonawca-opus`).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review`.
+- Dopuszczone alternatywy: brak (reguła 6); przy limicie Codexa Muse Wonder Full `max` wg zgody właściciela dla tej funkcji.
+- Powód wyboru: bramka reguły 6 po recenzji fali i poprawkach.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper, 2026-10-19 21:22 UTC); bez komunikatu limitu.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 302 s; brak P0/P1, bezpieczeństwo (zakres konta, wyciek poświadczenia) bez uwag; 1×P2.
+- Rundy korekt: 0 — P2 (token anulowania nie trafia do zapytania Dappera) to wzorzec całego repo: interfejs dostępu do danych nie ma przeciążeń z tokenem; poprawka w PBI niespójna i poza zakresem → propozycja osobnego PBI refaktoru.
+- Czas do akceptacji: ~15 min (przebieg + triaż).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1×P2 potwierdzony jako dług systemowy (nie defekt funkcji).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: raport bramki; build 0/0, `dotnet test` 7842/0 (stan po BE-K1/K2).
+
+### 2371-GATE-FE (bramka końcowa feature'a wysokiej stawki — FE) — 2026-10-19
+- Archetyp: Recenzja — bramka końcowa całego diffu FE funkcji, tylko odczyt.
+- Stawka: wysoka / high-stakes (FE funkcji high-stakes; reguła 6 dla całego feature'a).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): nie dotyczy (autor: `wykonawca` Sonnet 5.5 `high`).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review`.
+- Dopuszczone alternatywy: brak (reguła 6).
+- Powód wyboru: bramka reguły 6 po recenzji fali i FE-K1.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper, 2026-10-19 20:11 UTC).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 329 s; 1×P2 — zmiana konta w karcie w trakcie pobierania kończyła się zapisem pliku poprzedniego konta albo toastem błędu (łamie istniejącą regułę zmiany konta w karcie).
+- Rundy korekt: 1 (FE-K2 u autora, 84 s); bez drugiej rundy bramki (2 pliki, bez zmiany API).
+- Czas do akceptacji: ~20 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1×P2 potwierdzony; znalazła tylko bramka.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: po FE-K2 — `npm test` 4585, build; dopisane zdanie dokumentacji (UI rew. 2026-10-19 pkt 4).
+
+### 2371-QAS (przypadki QA Sphere: przegląd 65 istniejących + 14 nowych dla pobierania dokumentu) — 2026-10-19
+- Archetyp: Autor QA Sphere — plik podglądu wg `qasphere-test-generator` (Krok 2b + nowe), recenzja krzyżowa innej rodziny.
+- Stawka: średnia.
+- Niepewność: średnia (zachowanie dostawcy fakturowego tylko w panelu sandboxa; anulowanie przez zmianę rodzaju dokumentu).
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write` (generator 656 s, korekta K1 635 s).
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access read` (1448 s).
+- Dopuszczone alternatywy: autor Muse Wonder Full `max` (domyślny w procedurze skilla).
+- Powód wyboru: procedura skilla — Gemini write, gdy Muse zajęty lub z limitem (Muse: recenzja BE w toku i 429 o ~20:01 UTC); plik Gemini → recenzja Muse read.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany; Muse zablokowany do 20:19:58 UTC, potem nieznany (wrapper, 2026-10-19).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 13 nowych, 65 keep, `qas.py lint` 0 — ale warunki wstępne niesamowystarczalne i oparte na danych seedu bez dokumentu u dostawcy.
+- Rundy korekt: 1 (K1 po recenzji: 14 nowych — high 6, medium 7, low 1 — 65 keep, lint 0).
+- Czas do akceptacji: ~70 min (generator, recenzja, korekta, kontrola wyrywkowa P1).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 4×P1 potwierdzone (wymyślona ścieżka anulowania w panelu sprzeczna z dokumentacją; brak uwagi o koncie bez profilu rozliczeniowego; pozycja „W przygotowaniu” cudzego konta w przypadku izolacji; pozycja seedowa bez dokumentu u dostawcy w dwóch przypadkach); 5×P2, 5×P3 przyjęte; 0 odrzuconych.
+- Defekty po odbiorze: do potwierdzenia w `qas.py verify` po zapisie.
+- Wymagane testy i dowody: `qas.py lint` 0 po każdej rundzie; P1 sprawdzone wyrywkowo w pliku.
+- Uwagi: Muse Wonder Full jako recenzent QA — 0 fałszywych P1 w tym przebiegu (wobec historycznej obserwacji Sparka `xhigh`).
+
+### 2371-DOC-4C (przegląd zgodności dokumentacji 4c — trzy rewizje wobec kodu obu repo) — 2026-10-19
+- Archetyp: Recenzja — macierz zgodności dokumentacji z kodem (3 dokumenty + notatka schematu, 12 sekcji), tylko odczyt.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): nie dotyczy (autor rewizji: Muse Wonder Full `max`).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read`.
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` (pula po bramkach).
+- Powód wyboru: inna rodzina niż autor dokumentacji; precedens 2722-DOC-REV.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany (wrapper, 2026-10-19 21:29 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 448 s; 42 `zgodne`, 4 `brak w dokumencie`, 1 `kod odbiega`.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~20 min (przebieg + triaż + dopisanie zdań).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 4 potwierdzone (limit rozmiaru i sygnatura dokumentu, `aria-busy`, przerwanie po opuszczeniu widoku — dopisane w dokumentach); 1 odrzucony (zapasowa nazwa pliku w FE dla korekty — gałąź nieosiągalna w kontrakcie, nazwę zawsze nadaje BE w nagłówku, ten sam adres `/api/`). Słuszna uwaga do briefu: streszczenie „usunięty = Anulowana → 410” w briefie było nieprecyzyjne (dokument mówi to precyzyjnie).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: raport z logu wrappera; każde „brak w dokumencie” sprawdzone w kodzie (`plik:linia`); `git status` bez zmian po przebiegu.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
