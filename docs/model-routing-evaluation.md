@@ -4922,6 +4922,24 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: raport z `result.response` NDJSON; diff dokumentacji przeczytany przez architekta (2 pliki, +31/−1); `git status` repo bez zmian po przebiegu.
 - Uwagi: brief z mapą dokumentacji i listą plików generowaną skryptem (Python, `chr(92)`) — ścieżki Windows w heredocu Basha gubiły ukośniki.
 
+### 2722-QAS (przypadki QA Sphere: przegląd 49 istniejących + 16 nowych do synchronizacji faktur z Fakturowni) — 2026-10-19
+- Archetyp: Autor QA Sphere — plik podglądu wg `qasphere-test-generator` (Krok 2b przegląd istniejących + nowe przypadki), recenzja krzyżowa innej rodziny.
+- Stawka: średnia (przypadki manualne funkcji wysokiej stawki; zapis do QA Sphere dopiero po bramie właściciela).
+- Niepewność: średnia (zachowanie Fakturowni sprawdzalne tylko w panelu sandboxa; wspólne konto z innym produktem).
+- Wykonawca (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access write` (generator 1137 s; poprawka K 395 s; poprawka K2 223 s).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` (effort w nazwie), `-Access read`, 372 s.
+- Dopuszczone alternatywy: autor — Gemini write (procedura skilla, gdy Muse zajęty); recenzent — brak poza Gemini (procedura skilla: plik Muse → Gemini read).
+- Powód wyboru: procedura pomocniczego skilla (Muse Wonder Full `max` autorem, krzyżowa recenzja Gemini); routing ogólny jej nie nadpisuje.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany, Gemini nieznany (wrapper, 2026-10-19); bez komunikatu limitu i bez 503.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 16 nowych (high 6, medium 8, low 2), przegląd 49 istniejących: 48 keep, 1 update (1651), 0 retire; `qas.py lint` 0 błędów.
+- Rundy korekt: 2 — K po recenzji (krok GET → 405 w A10, zamknięcie kreatora programów w warunkach wstępnych i w A13, stała kolejność z fakturą pomocniczą w A1/A7 zamiast warunku, uzasadnienie keep dla 1000), K2 po kontroli architekta (A10: odpowiedź 401 ma standardowy opis błędu w JSON, nie puste ciało; tytuł obejmuje GET → 405).
+- Czas do akceptacji: ~60 min (generator, recenzja, dwie poprawki, kontrole architekta).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 4 potwierdzone, 0 odrzuconych — 2×P2 (brak kroku GET → 405 w A10; brak zamknięcia kreatora w A13 na telefonie), 2×P3 (warunkowe obejście 422 Fakturowni w A1/A7; uzasadnienie keep dla 1000 bez wartości domyślnej źródła). Recenzent przeoczył 1 błąd faktu: A10 oczekiwał pustego ciała odpowiedzi 401 — architekt wykrył go kontrolą wyrywkową (`curl` na PRE: ProblemDetails 165 B), poprawiony w K2.
+- Defekty po odbiorze: brak (do potwierdzenia w `qas.py verify` po zapisie).
+- Wymagane testy i dowody: `qas.py lint` 0 po każdej rundzie; `qas.py table`; fakty kroków sprawdzone na PRE (422 dla ostatniej faktury w numeracji, 405 dla GET, 401 z ProblemDetails, kreator programów na koncie bez programów).
+- Uwagi: Recenzent Gemini nie wychwycił twierdzenia sprzecznego z zachowaniem serwera, którego nie miał w faktach briefu — fakty z PRE (kształt odpowiedzi) warto podawać w briefie recenzji jawnie, nie tylko kod statusu.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
