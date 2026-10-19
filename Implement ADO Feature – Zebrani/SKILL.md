@@ -26,7 +26,7 @@ description: >
   poda link lub numer Epic/Feature/PBI/Task/Bug z Azure DevOps projektu
   Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie i/lub naprawienie go
   — nawet jeśli nie padnie słowo "skill".
-version: '5.28'
+version: '5.29'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -90,6 +90,20 @@ z globalnego `CLAUDE.md`: jednolinijkowa zmiana, przy której brief kosztuje
 więcej niż robota. `xhigh` sesji (od 2026-09-28 — `max` to przerost formy nad
 treścią) jest po to, żeby decyzje i walidacja były najlepsze w całym łańcuchu
 — nie po to, żeby tym effortem pisać komponenty.
+
+**Pliki pracy (od 5.29, 2026-10-19).** Domyślnym miejscem na pliki pośrednie
+jest scratchpad sesji. Do `D:\projects\DTCode\_robocze\<numer>-<rodzaj>\`
+(np. `2715-qasphere`, `2715-recenzja`, `2715-weryfikacja`) idzie tylko to,
+co worker ma przeczytać sam (diff, `context.json`, plik podglądu, scenariusz
+— `agy` czyta wyłącznie `D:\projects\DTCode`, scratchpad na C: jest dla niego
+niewidoczny), oraz to, co musi przeżyć sesję. **Nigdy osobny folder
+w korzeniu `D:\projects\DTCode`** — dawne `_qasphere-*`, `_review-*`,
+`_weryfikacja-*`, `_pbi*` nie miały kroku sprzątania i zostawały na zawsze
+(32 foldery, ~1,2 GB, usunięte 2026-10-19). Katalogi zadania usuwa Faza 6
+(pkt 9); przerwane przed nią usuwa hook sesji
+`~/.claude/bin/sprzatanie-robocze.mjs` po 14 dniach bez zmian, chyba że
+w korzeniu folderu leży plik `.zachowaj`. Workerzy nie sprzątają — hook
+`dtcode-guard` blokuje im rekursywne usuwanie.
 
 ## Dokumentacja produktowa — źródło prawdy, nigdy pomijana
 
@@ -1238,6 +1252,11 @@ Wykonaj w tej kolejności:
    deklaracja sukcesu nie jest dowodem, dopiero zwrócony stan pola jest.
 9. **Komunikat końcowy** zaczyna się od `**[Krok N/N]** Domknięcie —
    zrobione · zostało: 0`; plik kroków ma wszystkie kroki `zrobione`.
+   Przed jego wysłaniem usuń katalogi robocze zadania
+   (`Remove-Item -Recurse -Force D:\projects\DTCode\_robocze\<numer>-*`,
+   sekcja „Pliki pracy”) — wyniki są w repo, ADO, QA Sphere i rejestrze
+   routingu. Zostawiasz tylko katalog niedokończonego zestawu QA Sphere
+   (Krok 7 skilla) i podajesz jego ścieżkę w komunikacie.
    Zawiera wynik pkt 3: projekt i folder QA Sphere, wynik przeglądu
    (zostaje / zaktualizowane / `[Removed]`) i liczbę nowych przypadków z `seq`
    i linkami — albo powód pominięcia — oraz listę adresów przypadków

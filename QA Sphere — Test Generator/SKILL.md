@@ -2,16 +2,20 @@
 name: qasphere-test-generator
 description: Generuje kompletny zestaw test case'ów (happy + negative paths, dążąc do 100% pokrycia przypadków użycia) na podstawie wykonanego zadania/feature'a — najpierw przegląda przypadki, które już są w QA Sphere w obszarze zmiany (zostaje / aktualizacja / `[Removed]`), potem dodaje brakujące — i tworzy je bezpośrednio w QA Sphere — przez serwer MCP `qasphere`, a w środowisku bez MCP przez REST API. Test casy są po polsku, standalone, z pełnymi repro stepami (dane wejściowe, wyjściowe, instrukcje konfiguracji) tak, by wykonała je osoba widząca aplikację pierwszy raz. Skill sam mapuje repozytorium na właściwy projekt w QA Sphere. UŻYWAJ ZAWSZE, gdy user prosi o wygenerowanie test case'ów, pokrycie testowe, "testy do tego feature'a", "pokryj testami", "wrzuć testy do QA Sphere", "test casy z tego co zrobiliśmy" — nawet jeśli nie padnie słowo "skill" ani "QA Sphere" wprost, a kontekstem jest właśnie ukończone zadanie deweloperskie.
 user-invocable: true
-version: 1.9
+version: 1.10
 ---
 
-# QA Sphere — Test Generator (v1.9)
+# QA Sphere — Test Generator (v1.10)
 
 > Kanoniczna, wersjonowana wersja skilla. Źródło prawdy: `DTCodePL/Claude_Skills`.
 > Lokalnie używany jest tylko cienki loader, który pobiera ten plik z GitHuba.
 >
 > **Changelog**
 >
+> - **1.10** — **katalog roboczy w `D:\projects\DTCode\_robocze\<nr>-qasphere\` i sprzątanie w Kroku 7** (2026-10-19):
+>   dotychczasowe `D:\projects\DTCode\_qasphere-<nr>\` nie miały kroku usunięcia i zostawały na zawsze (24 foldery
+>   w korzeniu `D:\projects\DTCode`, wszystkie usunięte 2026-10-19). Zadania przerwane przed Krokiem 7 sprząta hook
+>   sesji po 14 dniach bez zmian (plik `.zachowaj` w korzeniu folderu go wyłącza).
 > - **1.9** — **klucz API usunięty z transportu REST** (2026-10-15, PBI #2694): plik leży w publicznym repozytorium,
 >   więc jawny klucz był wystawiony w sieci. Transport REST bierze klucz ze zmiennej `QASPHERE_API_KEY` (tak jak `qas.py`);
 >   bez niej transport REST jest niedostępny — zgłoś to, nie szukaj klucza w innych plikach. Stary klucz wymaga rotacji
@@ -121,8 +125,11 @@ Twarde:
   i w `folders`. Brak korzenia → `folders` przerywa, chyba że podasz `--create-root`.
 - Worker generujący **nie woła narzędzi zapisu** QA Sphere; kontekst bierze z `context.json` (odczyty MCP ze
   skalarnymi parametrami — `list_test_cases(search)`, `get_test_case` — wolno mu uzupełniać).
-- **Katalog roboczy zestawu**: `D:\projects\DTCode\_qasphere-<nr work itemu>\` — poza repo i poza scratchpadem
-  (scratchpad ginie z sesją): brief, `context.json`, plik payloadów, raporty.
+- **Katalog roboczy zestawu**: `D:\projects\DTCode\_robocze\<nr work itemu>-qasphere\` — poza repo i poza
+  scratchpadem (scratchpad ginie z sesją, a `agy` czyta tylko `D:\projects\DTCode`): brief, `context.json`, plik
+  payloadów, raporty. Nigdy osobny folder w korzeniu `D:\projects\DTCode` — wspólny katalog `_robocze` sprząta
+  Krok 7, a zadania przerwane przed nim hook sesji (`~/.claude/bin/sprzatanie-robocze.mjs`: usuwa folder, w którym
+  nic się nie zmieniło od 14 dni, chyba że w jego korzeniu leży plik `.zachowaj`).
 - `qas.py` leży obok tego pliku: `scripts/qas.py` (lokalnie
   `D:\projects\DTCode\Claude_Skills\QA Sphere — Test Generator\scripts\qas.py`, w WSL `/mnt/d/…`). Klucz: zmienna
   `QASPHERE_API_KEY` albo wpis `qasphere` w `~/.claude.json`. Opis podkomend: `python qas.py --help`.
@@ -468,11 +475,17 @@ Zanim cokolwiek polecisz do QA Sphere:
 
 ### Krok 7 — Raport końcowy
 
-Podsumuj: projekt (code + title), ścieżkę folderu i `folderId`, liczbę utworzonych test case'ów z `seq` i tytułami, wynik przeglądu (ile zostaje, zaktualizowane `seq`, oznaczone `[Removed]` `seq` z adresami), ścieżkę pliku payloadów, ostrzeżenia (np. brak pola `automation`, elementy pominięte po błędzie). Linki do pojedynczych przypadków:
+Podsumuj: projekt (code + title), ścieżkę folderu i `folderId`, liczbę utworzonych test case'ów z `seq` i tytułami, wynik przeglądu (ile zostaje, zaktualizowane `seq`, oznaczone `[Removed]` `seq` z adresami), ostrzeżenia (np. brak pola `automation`, elementy pominięte po błędzie). Linki do pojedynczych przypadków:
 
 ```
 https://dtcode.eu1.qasphere.com/project/<PROJECT>/tcase/<seq>
 ```
+
+**Sprzątanie (od v1.10).** Po pełnym `verify` bez różnic i po raporcie usuń katalog roboczy zestawu
+(`Remove-Item -Recurse -Force D:\projects\DTCode\_robocze\<nr>-qasphere`). Treść żyje w QA Sphere — do późniejszej
+poprawki `qas.py context` odczyta ją od nowa. Katalog zostaje tylko przy zestawie niedokończonym (przerwany `push`,
+różnice w `verify`, poprawka czekająca na recenzję) — wtedy podaj jego ścieżkę w raporcie; po 14 dniach bez zmian
+usunie go hook sesji.
 
 ---
 
