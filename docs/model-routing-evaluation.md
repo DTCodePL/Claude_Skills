@@ -5476,6 +5476,42 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: `qas.py lint --strict` 0/0 po każdej rundzie; kontrola architekta skryptem po K1 (0 `example.test`/panelu/poświadczeń, placeholder w każdym skrypcie, skrypty A4 = 1642, dane A9 = 1646, reguła 1645 dosłownie); porównanie pól v1→v2 i v2→v3 (zmienione tylko zamierzone pola poza priorytetem A9); `push --limit 1` + `verify --only`, potem pełne `verify`.
 - Uwagi: dwa błędy briefu generatora — (1) „kopiuj słowo w słowo z 1633” i „sprawdzenie e-maila jak 1644–1650” to sprzeczne polecenia (1633 ma `@example.test`, 1645 wymaga odbieranej skrzynki) — brief musi z góry podać, który wzorzec wygrywa dla adresu; (2) brief wspomniał panel Fakturowni jako źródło do kopiowania — przy funkcjach z konwencją „panelu nie otwierasz” podać ją wprost. Błąd briefu K1: wyjaśnienie „Opłać teraz” kazane wszędzie, choć tylko A2/A4 mają tę akcję. Sonnet `high` jako recenzent QA trzeci raz bez fałszywych P1, tym razem także poprawił architekta.
 
+### 2751-B1 (skrypt danych demo: odległy termin zawieszenia i cofnięcie zamknięcia przez cykl, wiersz README, SemVer) — 2026-10-20
+- Archetyp: Backend — skrypt danych demo T-SQL (DbUp, zakres 950000+) + wiersz dokumentacji repo kodu.
+- Stawka: niska (dane demo, nigdy produkcja; dwa nazwane rekordy; kod cykli nietknięty).
+- Niepewność: niska (decyzje w całości w briefie; znane pułapki: zagnieżdżone `/*` w nagłówku, `QUOTED_IDENTIFIER` przy indeksie filtrowanym).
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `medium`, `-Access write` (73 s).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (wpis 2751-R1).
+- Dopuszczone alternatywy: Gemini `gemini-3.8-flash-high` write; `wykonawca` (Sonnet 5.5 `high`). Muse odrzucony (zablokowany).
+- Powód wyboru: ≤ 5 plików, w pełni rozpisane decyzje, potrzebna precyzja T-SQL — `medium` bez wyższego effortu nieuzasadnionego briefem.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper, przebiegi 11:26 i 12:50 UTC bez limitu); Muse zablokowany do 2026-10-26T00:00Z (429 tygodniowy, 08:12 UTC); Claude znany ZIELONY (hook).
+- Pewność decyzji: średnia (brak lokalnych wyników Codexa na seedach demo).
+- Wynik pierwszego podejścia: zaakceptowano — skrypt, nagłówek i wiersz README zgodne z briefem; jedyna niewykonana część to zapis SemVer: piaskownica Codexa zablokowała `python.exe` (alias `WindowsApps`), architekt wykonał `release_version.py --write` sam (reguła 11).
+- Rundy korekt: 0.
+- Czas do akceptacji: ~12 min (14:56 → ~15:09 UTC), w tym walidacja na bazie i pełne testy BE.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 (R1 bez znalezisk).
+- Defekty po odbiorze: brak (do weryfikacji na PRE po wdrożeniu).
+- Wymagane testy i dowody: przebieg na bazie lokalnej 2 → 0 wierszy (gałąź „zamknięty”, idempotencja); gałąź „zawieszony” w transakcji wycofanej (2 wiersze, wartości docelowe, `@@TRANCOUNT` 0); suma kontrolna pozostałych 45 wierszy `Programs` bez zmian; start BE — DbUp wpisał skrypt do `SchemaVersions`, cykle ostrzeżenia i zamknięcia: 0 grup / 0 kont, stan po cyklach bez zmian; `dotnet build -c Release` 0/0; `dotnet test` z SQL 7874/0/0.
+- Uwagi: w briefie Codexa z zapisem wersji podawaj interpreter spoza `WindowsApps` albo przenieś zapis SemVer do architekta — piaskownica `workspace-write` nie uruchamia aliasu `python.exe`. Brief błędnie wymagał końców linii LF (kopia robocza ma CRLF przy `core.autocrlf=true`) — wykonawca słusznie zignorował.
+
+### 2751-R1 (recenzja fali 1 BE — skrypt danych demo) — 2026-10-20
+- Archetyp: Recenzja — skrypt danych T-SQL i interakcja z cyklami tła.
+- Stawka: niska.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): — (recenzja diffu 2751-B1, autor Codex).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read`, bez powłoki, diff wklejony (380 s, 94 kroki).
+- Dopuszczone alternatywy: `wykonawca` (Sonnet 5.5 `high`) tylko do odczytu; Sol odpada (rodzina autora); Muse zablokowany.
+- Powód wyboru: inna rodzina niż autor; niska stawka → preferencja Gemini `high` / Sol `high` (reguła 13).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany (przebiegi 2026-10-20 udane; odczyt `/quota` nieudany — polecenie potraktowane jak prompt).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowano — werdykt „poprawny”, pewność 1,0; sprawdził pierwszeństwo operatorów, logikę trójwartościową, więzy CHECK i wyzwalacze `Programs`, indeksy filtrowane (w tym `IX_Programs_DataRetentionUntil`), oba cykle i uzgadnianie subskrypcji.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~8 min (15:01 → ~15:09 UTC).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 / 0; fałszywych P0/P1: 0.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `git status` po przebiegu — drzewo bez zmian recenzenta; wyrywkowo sprawdzone twierdzenie o indeksie (`Script000000:1170`).
+- Uwagi: gałąź zaległości cyklu zamknięcia (`UNPAID` z minionym `DunningStartedAt`, niezależna od terminu programu) recenzent opisał tylko pośrednio — architekt sprawdził ją sam zapytaniem o subskrypcje kont demo.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
