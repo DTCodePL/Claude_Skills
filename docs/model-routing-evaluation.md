@@ -5353,6 +5353,111 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: `qas.py lint --strict` 0/0 po każdej rundzie; porównanie przed/po K2 i K3 skryptem (zmienione tylko zamierzone pola); `verify` pełne.
 - Uwagi: trzy lekcje do briefu generatora — (1) podać seq i kroki przygotowania do skopiowania wprost; (2) podać z góry, że blokada w DevTools działa po fragmencie adresu (lekcja z 2747), więc odczyt blokuje się dopiero po wysłaniu płatności; (3) przy kopiowaniu warunków wstępnych z wcześniejszego zadania sprawdzić linię wersji. Sonnet `high` jako recenzent QA drugi raz bez fałszywych P1.
 
+### 2723-DOC-1 (datowane rewizje czterech dokumentów `zatwierdzony` — rewizja integracji + trzy sprostowania z decyzji zatwierdzonych z góry) — 2026-10-20
+- Archetyp: Dokumentacja produktowa — rewizje `zatwierdzonych` dokumentów (§10, §12), cztery pliki w dwóch obszarach (integracje, reguły, interfejs).
+- Stawka: średnia (zasady dokumentów księgowych w funkcji płatności; sama dokumentacja, bez kodu).
+- Niepewność: niska (punkty rewizji podane w briefie z decyzji właściciela D1–D3 i decyzji architekta).
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write`.
+- Recenzent (linia / model / native effort): Faza 4c — Claude / `wykonawca` Sonnet 5.5 `high`, tylko odczyt (wpis 2723-4C).
+- Dopuszczone alternatywy: Claude `wykonawca` Sonnet 5.5 `high` write; Muse Wonder `max` write — zablokowany.
+- Powód wyboru: 2747-DOC-1 i 2785-DOC-1 na Gemini `high` — 0 rund; przegląd 1: dokumentacja na Gemini 7 briefów / 0,1 rundy; rozłączny tor z falą BE (inne repo).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany (wrapper, przebiegi 2026-10-20 rano udane); Muse zablokowany do 2026-10-26T00:00Z (429 limitu tygodniowego, wrapper 08:12 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowano — 517 s, 4 pliki, sekcje rewizji na końcu dokumentów, odnośnik „zrealizowane” w zakresie odroczonym, końce linii każdego pliku zachowane (raport mylnie podał LF), 0 odchyleń, `zasoby/teczki/` nietknięte.
+- Rundy korekt: 0 z wykonania; 1 zdanie dopisane przez architekta po 4c (reguła 11).
+- Czas do akceptacji: ~15 min do odbioru diffu; zamknięcie po 4c tego samego dnia.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 4c — 1 rozbieżność potwierdzona (rewizja RB-ZWROT pkt 1 bez wyjątku konta bez danych rozliczeniowych — niedokładność wobec INT-FAKTUROWNIA pkt 5), 0 odrzuconych.
+- Defekty po odbiorze: brak poza poprawionym zdaniem.
+- Wymagane testy i dowody: `git diff -- Zebrani` repo Dokumentacja (4 pliki, same dopisania + 1 odnośnik), porównanie punktów z decyzjami planu, macierz 4c.
+
+### 2723-BE-1 (+K1) (zlecenie faktury VAT w transakcji zapisu płatności odnowienia — SQL, repozytorium, rejestrator, alarm pisarza) — 2026-10-20
+- Archetyp: Backend — plik niezmiennika płatności („dokładnie raz” dokumentu księgowego w transakcji lustra), SQL Dapper + warstwa aplikacji.
+- Stawka: wysoka / high-stakes (płatności Stripe, dokumenty VAT, idempotencja przy ponowionych zdarzeniach).
+- Niepewność: średnia (wzorzec dopłaty istniał; nowość — sprzężenie z cyklem uzgadniającym i alarm po zatwierdzeniu).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 `xhigh` (BE-1 i świeży agent K1).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `xhigh`, `-Mode review` (fala 1); bramka końcowa — wpis 2723-G-BE.
+- Dopuszczone alternatywy: brak dla pliku niezmiennika (CZERWONY → Muse Wonder Full `max`, tego dnia zablokowany → czekanie). Recenzent: Gemini `flash-high` read (słabszy przy high-stakes), Muse Wonder Full `max` — zablokowany.
+- Powód wyboru: twarda bramka high-stakes (reguła 2/6); recenzja fali na Solu `xhigh` przy małym diffie (~6 plików), żeby oszczędzić pulę Codexa przed bramką `max`.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, ~10:45 UTC: okno 21 %, tydzień 27 %); Codex nieznany (wrapper bez zapasu, bez komunikatów limitu); Muse zablokowany do 2026-10-26T00:00Z.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zaakceptowano z poprawką — 879 s, 84 wywołania, ~290 tys. kontekstu; build Release 0/0, testy filtrowane 3136/3138 (2 czerwone oczekiwane: testy zwrotu sprzed zmiany → fala testów). Wykonawca sam zgłosił, że alarm „płatność bez zlecenia” szedł wewnątrz transakcji — przyjęte przed recenzją.
+- Rundy korekt: 1 (K1 z własnego zgłoszenia wykonawcy: alarm po zatwierdzeniu, krotka z `string[]` zamiast nowego typu — limit sprzężenia klas S1200 = 30; 754 s, 59 wywołań, ~250 tys.).
+- Czas do akceptacji: ~1 h (dwa przebiegi + walidacje + recenzja 171 s).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): recenzja fali Sol `xhigh` — 0 znalezisk (przeczytał diff, cykl wystawiania, korekty); bramka Sol `max` — 0 defektów produkcji.
+- Defekty po odbiorze: brak (E2E na zegarach Stripe: wszystkie scenariusze zgodne).
+- Wymagane testy i dowody: build Release 0/0; pełny `dotnet test` z SQL Server 7874/7874, 0 pominiętych; mutacje architekta M1 (bez wywołania zlecenia → 43 czerwone) i M2 (VAT = netto → 4 czerwone); E2E architekta na zegarach testowych Stripe z prawdziwymi webhookami — odnowienie (1 zlecenie, ponowione zdarzenia bez duplikatu), zwrot odnowienia przy przerwanej rezygnacji (zlecenie + korekta do zera), nieudana płatność (0 zleceń), ponowienie skuteczne (1 zlecenie), dwie płatności „Opłać teraz” (2 zlecenia), 0 duplikatów NORMAL.
+
+### 2723-T-1 (+T-1b, K1, K2) (testy SQL, jednostkowe rejestratora i pisarza lustra, korekty zwrotu, atrapa repozytorium) — 2026-10-20
+- Archetyp: Testy BE — xunit `[SqlServerFact]` na prawdziwej bazie + Moq (harness lustra), scenariusze nazwane przez architekta.
+- Stawka: wysoka (testy niezmiennika płatności; fałszywa zieleń przepuszcza duplikat faktury albo alarm przed zatwierdzeniem).
+- Niepewność: średnia (ścisłe atrapy harnessu, kolejność zdarzeń transakcji, baza SQL Server).
+- Wykonawca (linia / model / native effort): Claude / `tester` — Haiku 5.5 `xhigh` (T-1, kontynuacja T-1b, K1, K2 — każdy świeży agent).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (wpis 2723-R2); bramka Sol `max` (wpis 2723-G-BE).
+- Dopuszczone alternatywy: `wykonawca-opus` (testy jak 2722); recenzent Codex Sol `high`.
+- Powód wyboru: linia testów po próbie 2026-10-13 (Haiku `xhigh` 0,60× kosztu Sonneta, bez dodatkowych rund); scenariusze i mutacje nazwane w briefie.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, cały dzień 4–30 % tygodnia).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: przekazanie przy ~306 tys. (strażnik kontekstu) — T-1 1066 s, 72 wywołania: SQL A (10 przypadków), B1, D (+ pomocnik korekt), harness/seeder; kontynuacja T-1b 964 s, 49 wywołań, ~342 tys.: 13 przypadków pisarza (C1–C7) + mutacje. Mutacja M2 (bez `NOT EXISTS`) zielona — obrona w głębi indeksu, przyjęte.
+- Rundy korekt: 2 — K1 po recenzji fali (327 s, 28 wywołań, ~220 tys.: kwoty faktury w pomocniku korekt, rejestracja zlecenia tylko przy wyniku, kolejność zdarzeń C6); K2 po bramce (564 s, 52 wywołania, ~260 tys.: alarm 0 w chwili `Commit()`, przypadek rzucającego `Commit()`, test atrapy repozytorium dla 2601/2627 `UQ_Invoices_PaymentId`).
+- Czas do akceptacji: ~4 h zegarowo (z recenzją, bramką i E2E pomiędzy), ~49 min pracy agentów.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R2 — 2×P2 + 1×P3 potwierdzone, 1 uwaga odrzucona; bramka — 2×P2 potwierdzone (P2-2 przyjęte w węższej formie: prawdziwe 2601 niewymuszalne, bo filtr indeksu = predykat `NOT EXISTS`).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: pełny `dotnet test` z SQL 7868 → 7874, 0 pominiętych; `dotnet format --verify-no-changes` na plikach testów; mutacje wykonawcy (C1/C2/C4/C5, M1 alarm przed `Commit()` → 2 czerwone, M-a bez `catch` → 2, M-b filtr bez nazwy indeksu → 1) i własne architekta (M1/M2 po K1, M-b po K2); skrót plików produkcyjnych niezmieniony po każdej rundzie.
+- Uwagi: przywrócenie mutanta `cp -p` zostawiło stary mtime → build przyrostowy trzymał mutanta (4 fałszywe czerwone) — brief K2 wymagał już aktualizacji czasu modyfikacji. Brief K2 podał `.sln` zamiast `.slnx` i mutację „na końcu `WritePlanAsync`” (metoda z wieloma `return`) — wykonawca poprawił sam.
+
+### 2723-R2 (recenzja fali testów) — 2026-10-20
+- Archetyp: Recenzja testów BE — tylko odczyt, inna rodzina niż autor (Haiku).
+- Stawka: średnia (testy niezmiennika; bramka `max` po niej).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): — (recenzja).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read`.
+- Dopuszczone alternatywy: Codex Sol `high` `-Mode review` (pula Codexa przed bramką); Muse — zablokowany.
+- Powód wyboru: średnia stawka, inna rodzina niż Claude, oszczędność puli Codexa przed bramką `max` (reguła 7).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany (wrapper, przebiegi udane); Muse zablokowany do 2026-10-26T00:00Z.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 722 s; 0 P0/P1, werdykt poprawny 0,95; wynik w strumieniowym JSON (złożony skryptem z `text_delta`).
+- Rundy korekt: 0 (recenzja).
+- Czas do akceptacji: ~20 min z triażem.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2×P2 + 1×P3 potwierdzone (kwoty faktury odnowienia w pomocniku korekt; atrapa rejestrująca zlecenie bez warunku wyniku; kolejność zdarzeń C6); 1 uwaga odrzucona (test API zwrotu bez faktury — pokrywa go istniejący przypadek „bez NORMAL nic nie wstawia”). Fałszywych P0/P1: 0.
+- Defekty po odbiorze: bramka znalazła jeszcze 2×P2 w testach (alarm względem `Commit()`, `catch` naruszenia indeksu) — R2 ich nie zgłosił.
+- Wymagane testy i dowody: triaż architekta względem kodu; czerwień nowych asercji K1 potwierdzona mutacją M2.
+
+### 2723-G-BE (bramka końcowa BE, cały diff funkcji) — 2026-10-20
+- Archetyp: Bramka końcowa high-stakes — recenzja całego diffu BE (produkcja + testy), tylko odczyt.
+- Stawka: wysoka / high-stakes.
+- Niepewność: niska (po dwóch recenzjach fal i E2E).
+- Wykonawca (linia / model / native effort): — (bramka).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `max`, `-Mode review`, jeden przebieg na całe repo BE.
+- Dopuszczone alternatywy: brak (reguła 6; limit → czekanie).
+- Powód wyboru: reguła 6 — niezależna rodzina wobec autora plików niezmiennika (`wykonawca-opus`).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper, 2026-10-20 12:50 UTC; wcześniejszy przebieg Sola `xhigh` tego dnia bez limitu).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 388 s; 0 defektów produkcji, 2×P2 w testach; bez uwag do briefu; pewności liczbowej nie podał (format `review`).
+- Rundy korekt: 1 (T-1-K2, tylko testy).
+- Czas do akceptacji: ~45 min (bramka + triaż + K2 + walidacja).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2×P2 potwierdzone — alarm sprawdzany osobno od kolejności `Commit()` (przeniesienie przed zatwierdzenie niezauważone); `catch` 2601/2627 bez testu. Odrzuconych 0. Fałszywych P0/P1: 0.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: po K2 — build Release 0/0, `dotnet test` z SQL 7874/7874, mutacje M1/M-a/M-b czerwone, skrót plików produkcyjnych niezmieniony (`787fa8d1…`).
+- Uwagi: bramka uruchomiona równolegle z końcówką E2E i przeglądem 4c (wszystko tylko do odczytu) — skrócenie czasu bez ryzyka dla puli, bo E2E nie zmieniało kodu.
+
+### 2723-4C (przegląd zgodności dokumentacji z kodem) — 2026-10-20
+- Archetyp: Przegląd zgodności dokumentacja ↔ kod, obie strony, tylko odczyt.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): — (przegląd).
+- Recenzent (linia / model / native effort): Claude / `wykonawca` — Sonnet 5.5 `high`, tylko odczyt.
+- Dopuszczone alternatywy: architekt sam (reguła 11); Codex (pula przed bramką); Muse — zablokowany.
+- Powód wyboru: inna rodzina niż autor rewizji (Gemini); precedens 2747/2785-4C.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, ~12:50 UTC: okno 6 %, tydzień 29 %).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 304 s, 39 wywołań, ~230 tys.; macierz: 1 rozbieżność, zgodne INT-FAKT 9/9 + 5/5, INT-PC 1/1, UI-ZMIANA 2/2, RB-ZARZ 3/3, RB-NIEUD 1/1, UI-UST 3/3; przeszukanie starych zdań — 4 miejsca, wszystkie prostowane rewizjami.
+- Rundy korekt: 0 (rozbieżność poprawiona zdaniem przez architekta).
+- Czas do akceptacji: ~10 min z triażem.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1 potwierdzona (rewizja RB-ZWROT bez wyjątku konta bez profilu); uwagi bez zmian: fałszywy alarm przy 2601 nieosiągalny, pulpit administratora liczy tylko `wyczerpane ponowienia` (zamierzone), brak odnośników przy dawnych zdaniach (spójność).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: każdy wiersz z cytatem dokumentu i `plik:linia`; poprawka sprawdzona w kodzie (`RefundGuaranteeSteps.cs:78-86`).
+- Uwagi: brief podał nieistniejącą ścieżkę `Dokumentacja\AGENTS.md` (właściwa `Dokumentacja\Zebrani\AGENTS.md` → `INSTRUKCJA-DLA-AI.md`) — recenzent znalazł sam; do poprawy w szablonie briefu 4c.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
