@@ -5112,6 +5112,176 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak.
 - Wymagane testy i dowody: raport z logu wrappera; każde „brak w dokumencie” sprawdzone w kodzie (`plik:linia`); `git status` bez zmian po przebiegu.
 
+### 2747-DOC-1 (datowana rewizja dokumentu interfejsu — 7 punktów z decyzji zatwierdzonych z góry) — 2026-10-20
+- Archetyp: Dokumentacja produktowa — rewizja `zatwierdzonego` dokumentu z kontrolą wpływu (§10, §12), jeden plik.
+- Stawka: średnia (dokument źródłowy funkcji wysokiej stawki; bez kodu).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write`.
+- Recenzent (linia / model / native effort): przegląd 4c (Muse Wonder Full `max` read) — po falach.
+- Dopuszczone alternatywy: Muse Wonder Full `max` write; Codex `gpt-6.1-sol` `high` (pula na bramkę).
+- Powód wyboru: dokumentacja na Gemini `high` — 7 briefów / 0,1 rundy (przegląd 1); Muse wolny na recenzje i B2.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany (wrapper, 2026-10-19 22:13 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowano — 326 s, +15 linii tylko w dokumencie docelowym, front matter bez zmian, kontrola wpływu na 3 dokumentach bez sprzeczności.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~10 min (przebieg + diff + triaż uwag).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): sekcja „co błędne w specyfikacji” — 4 uwagi: 1 przyjęta w tekście (dwuznaczne „pkt 3” → „pkt 3 rewizji 2026-10-14”); 1 słuszna poza zakresem (komunikat oczekiwania obiecuje „abonament znów zadziała” po 1. z 2 faktur — pytanie do właściciela); 2 odrzucone (podważały zatwierdzone D5 i D6; `p-message` ma `role=alert`, wzorzec fokusu `#arrearsError`).
+- Defekty po odbiorze: brak (do przeglądu 4c).
+- Wymagane testy i dowody: `git diff` repo Dokumentacja (1 plik, tylko dopisana sekcja), `git status` — cudza praca `zasoby/teczki/` nietknięta.
+
+### 2747-R1 (recenzja fali 1: logika przepływu opłaty zaległości — ponowny odczyt po płatności) — 2026-10-20
+- Archetyp: Recenzja — logika przepływu FE z niezmiennikiem płatności (1 plik kodu + 2 spece, ~800 linii diffu), tylko odczyt.
+- Stawka: wysoka.
+- Niepewność: średnia (nowy niezmiennik D3, wyścigi odczytu / sprawdzania / spóźnionego `PAID`).
+- Wykonawca (linia / model / native effort): nie dotyczy (autor B1: Claude `wykonawca-opus`, Opus 5.5 `xhigh`).
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` `max`, `-Access read`.
+- Dopuszczone alternatywy: Gemini `gemini-3.8-flash-high` read; Codex `gpt-6.1-sol` (pula zostaje na bramkę końcową).
+- Powód wyboru: wyższa stawka; inna rodzina niż autor; lokalnie 0 fałszywych P0/P1 Wondera Full w recenzjach 2694/2371.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany (wrapper, 2026-10-19 22:38 UTC; po resecie tygodniowym 2026-10-19 00:00 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 1146 s; werdykt „niepoprawny” (0,87); 1×P1, 1×P3.
+- Rundy korekt: 0 (recenzja); korekta autora B1-K1.
+- Czas do akceptacji: ~25 min (przebieg + triaż).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P1 potwierdzone — migawka tylko ostatnio opłaconej faktury pozwala starszej opłaconej wrócić do `Ready` (A → B → odczyt A; osiągalne przy niespójności operatora, niezmiennik D3 dosłownie złamany; spec sam modelował sekwencję B → A dla `PROCESSING`) → mapa wszystkich opłaconych; P3 potwierdzone jako brak testu, rozwiązane przez korektę architekta (wejście D3 zeruje komunikaty → zerowanie w `markPaid` nieosiągalne z `true`). 0 fałszywych P0/P1. Słuszna uwaga do briefu: zdanie „serwer odrzuca nieaktualną fakturę” nie jest siatką bezpieczeństwa, gdy odczyt na żywo zwraca opłaconą fakturę.
+- Defekty po odbiorze: do bramki końcowej.
+- Wymagane testy i dowody: raport z logu wrappera; `git status` bez zmian po przebiegu; scenariusz P1 prześledzony w kodzie przez architekta (`load()`, `settlePayment`, `readPollPhase`).
+
+### 2747-B1 (logika przepływu opłaty zaległości: ponowny odczyt po płatności, nowy niezmiennik) + B1-K1 — 2026-10-20
+- Archetyp: Algorytmika / Logika — przepływ FE z niezmiennikiem płatności (RxJS, sygnały, sprawdzanie), 1 plik kodu + 1 model + 3 spece.
+- Stawka: wysoka (obciążenie karty).
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 `xhigh` (B1 i korekta B1-K1 — świeży agent tej samej linii).
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` `max`, `-Access read` (wpis 2747-R1); bramka końcowa Sol `max` — później.
+- Dopuszczone alternatywy: brak (plik niezmiennika — twarda bramka; przy CZERWONYM Muse Wonder Full `max`).
+- Powód wyboru: plik niezmiennika płatności; speci wymagają znajomości nowej sekwencji żądań — jedna warstwa.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany — ZIELONY (hook, 2026-10-20 ~00:40: 5 h 34–46 %, tydzień 20–22 %).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: wymagane korekty — D1–D5 wdrożone, 9 scenariuszy, mutacje 9 niezmienników; 1×P1 z recenzji (pamięć tylko ostatnio opłaconej faktury) + 1 przypadek brzegowy zgłoszony przez samego wykonawcę (komunikat „kwota się zmieniła” przy wejściu w D3).
+- Rundy korekt: 1 z wykonania (P1) — przypadek brzegowy i złagodzenie komentarza to doprecyzowania specyfikacji.
+- Czas do akceptacji: ~70 min (B1 24 min + walidacja + recenzja 19 min + B1-K1 9 min + walidacja).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): patrz 2747-R1 (P1 i P3 potwierdzone, 0 odrzuconych). Słuszne uwagi wykonawcy do briefu: lista plików nie mieściła się w `sonarjs/max-lines` (nowy spec w B1-K1); scenariusz 2 korekty nie dowodził luki (zastąpiony testem trzech faktur).
+- Defekty po odbiorze: do bramki końcowej.
+- Wymagane testy i dowody: `ng test` trzech speców przepływu 120/120; pełne `lint`, `format:check`, `npm test` (450 plików / 4619 testów), `build` — exit 0; mutacje potwierdzone przez wykonawcę, sha pliku przywrócone.
+
+### 2747-B2 (warstwa widoku: komunikat kolejnej faktury, fokus, i18n pl/en, spec komponentu z AXE) — 2026-10-20
+- Archetyp: Frontend UI — szablon + efekt fokusu + i18n + spec komponentu (5 plików), bez Figmy.
+- Stawka: niska (widok bez niezmiennika w funkcji wysokiej stawki).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` `max`, `-Access write`.
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (wpis 2747-R2); bramka końcowa Sol `max` — później.
+- Dopuszczone alternatywy: Claude `wykonawca` Sonnet 5.5 `high`; Codex `gpt-6.1-sol` `high` (≤ 5 plików; pula na bramkę).
+- Powód wyboru: brief w całości tekstem (bez Figmy), własna pętla `ng test`; pierwsza próba Wondera Full jako wykonawcy FE.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany (wrapper, 2026-10-19 23:10 UTC).
+- Pewność decyzji: niska (brak lokalnych wyników Wondera Full jako wykonawcy FE).
+- Wynik pierwszego podejścia: zaakceptowano — 433 s; spec 41/41 (6 nowych, w tym AXE Light/Dark); pełna walidacja 450 plików / 4625 testów, lint/format/build exit 0.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~20 min (przebieg + walidacja + recenzja).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): patrz 2747-R2 (2×P3 bez poprawki). Słuszne uwagi wykonawcy do briefu: słownik `ARREARS_PL` w specu (brief go pominął) i limit `sonarjs/max-lines-per-function` pierwszego `describe` — obie obszedł sam w zakresie.
+- Defekty po odbiorze: do bramki końcowej.
+- Wymagane testy i dowody: diff 5 plików zgodny z briefem; `ng test` speca; pełna walidacja repo.
+
+### 2747-R2 (recenzja fali 2: warstwa widoku komunikatu kolejnej faktury) — 2026-10-20
+- Archetyp: Recenzja — szablon, fokus, i18n, spec komponentu (5 plików), tylko odczyt.
+- Stawka: niska.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): nie dotyczy (autor B2: Muse Wonder Full `max`).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read`.
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` (pula na bramkę).
+- Powód wyboru: niska stawka — preferencja reguły 13 (Sol `high` albo Gemini `high` przed Muse); inna rodzina niż autor.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany (wrapper, 2026-10-19 23:18 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 347 s; werdykt „poprawny” (0,98); 0×P0/P1, 2×P3.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~10 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2×P3 odrzucone jako defekt — ogólny selektor `div[tabindex="-1"]` (kontenery nie współistnieją; przy współistnieniu test błędu poczerwienieje, nie fałszywa zieleń), flaga ustawiana przed `create()` w teście pozycji DOM (test nie bada fokusu). Uwagi do briefu: kolor sukcesu (podważa zatwierdzoną D6 — odrzucone); utrata fokusu po `Loading → Ready` przy zwykłym `reload()` — słuszna, ale sprzed PBI, poza zakresem.
+- Defekty po odbiorze: do bramki końcowej.
+- Wymagane testy i dowody: raport z logu wrappera; `git status` bez zmian po przebiegu.
+
+### 2747-BR (dowód w przeglądarce 2×2 z podmianą odpowiedzi API — Playwright CLI) — 2026-10-20
+- Archetyp: Worker przeglądarkowy — dowód stanu, którego nie da się osiągnąć bez płatności (podmiana `GET …/arrears` i `POST …/arrears/payment`), zrzuty 360×530 / 1280×720 × Light/Dark.
+- Stawka: wysoka (obszar płatności; dowodem logiki są testy jednostkowe, przeglądarka dowodzi widoku i braku prawdziwego POST).
+- Niepewność: średnia (pierwszy dowód z `route` + `run-code` na nakładce zaległości).
+- Wykonawca (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access write`, `pwcli`.
+- Recenzent (linia / model / native effort): architekt (PNG obejrzane, log BE).
+- Dopuszczone alternatywy: Gemini albo Codex z Playwright MCP (`--isolated`) — CLI działa tylko w linii Muse.
+- Powód wyboru: `browser-check` nie podmienia odpowiedzi API; CLI ~3,3× taniej niż MCP (reguła 15).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany (wrapper, 2026-10-19 23:25 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowano — 463 s; S1–S3 PASS, 9 PNG; 3 POST opłaty, wszystkie podmienione (`PAID`); 0 żądań opłaty w logu BE.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~10 min (przebieg + oględziny).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak defektu UI. Słuszne uwagi do briefu: błędny adres Ustawień (`/ustawienia/konto` zamiast `/panel/ustawienia/konto`) — worker odnalazł właściwy w nawigacji; `request <n>` nie pokazuje ciała odpowiedzi (potrzebne `response-body <n>`); FAKTURA_B opisana różnicowo.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: PNG obejrzane przez architekta, `location.href` przed każdym zrzutem, `requests`/`response-body`, grep logu BE.
+
+### 2747-GATE-FE (bramka końcowa FE, runda 1 — cały diff funkcji) — 2026-10-20
+- Archetyp: Bramka końcowa high-stakes — przepływ opłaty zaległości (plik niezmiennika + widok + i18n + wersja), tylko odczyt.
+- Stawka: wysoka.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): nie dotyczy (autorzy: `wykonawca-opus` — przepływ; Muse WF `max` — widok; architekt — wersja).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review`.
+- Dopuszczone alternatywy: przy limicie Codexa — jednorazowo Muse WF `max` read (decyzja właściciela W3); brak słabszej bramki.
+- Powód wyboru: reguła 6 — niezależna rodzina wobec autora plików niezmiennika.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper, 2026-10-19 23:25 UTC).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 363 s; werdykt „niepoprawny”; 1×P2 potwierdzony.
+- Rundy korekt: 1 (K2, `wykonawca-opus`) + runda 2 bramki.
+- Czas do akceptacji: ~50 min z K2 i rundą 2 (wpis 2747-GATE-FE-R2).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P2 potwierdzony — przekazanie do zmiany metody płatności montuje NOWY kontener, `start()` zeruje komunikat i pamięć opłaconych faktur (sprzeczne z pkt 5 rewizji); test `reload()` jako „powrót ze zmiany metody” był fałszywą zielenią. Błędna przesłanka architekta (powrót = `reload()` tej samej instancji) przeszła przez R1 i R2 — wykryła ją dopiero bramka czytająca rodzica spoza listy plików.
+- Defekty po odbiorze: brak po K2 (runda 2 bez P0–P2).
+- Wymagane testy i dowody: skrypt w pamięci bramki (puste `settled` po montażu); poprawka z testem prawdziwego przekazania w specu rodzica.
+
+### 2747-K2 (korekta po bramce: migawka przepływu zaległości przez przekazanie do zmiany metody płatności) — 2026-10-20
+- Archetyp: Implementacja FE high-stakes — plik niezmiennika płatności + kontener + rodzic + 4 speci (przekrojowa poprawka jednego styku), 10 plików.
+- Stawka: wysoka.
+- Niepewność: średnia (cykl życia nakładek przy przekazaniu; błędna przesłanka architekta wykryta przez bramkę).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 / `xhigh`.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review` (bramka runda 2 — cały diff FE).
+- Dopuszczone alternatywy: brak dla pliku niezmiennika (CZERWONY → Muse WF `max`, Muse w tym czasie z limitem).
+- Powód wyboru: plik niezmiennika (twarda bramka); jedna spójna poprawka kontraktu zamiast dwóch briefów z ryzykiem rozjazdu.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook, ZIELONY 48 %, 2026-10-19 23:35 UTC).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zaakceptowano — 1009 s, 87 wywołań, 310 tys. tokenów; 353/353 testów w 15 plikach; test rodzica (prawdziwe przekazanie) czerwony przed poprawką (3/3), speci przepływu i kontenera dowiedzione mutacjami (3 rundy).
+- Rundy korekt: 0.
+- Czas do akceptacji: ~25 min (przebieg + walidacja).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): do rundy 2 bramki. Słuszne uwagi wykonawcy do briefu: nieistniejące `isCurrentGeneration()` (jest `isCurrentSession()`); drugi test z fałszywą etykietą (l. 276); dwuznaczność D6 „fokus w chwili pojawienia się” — architekt dopisał zdanie do pkt 6 rewizji.
+- Defekty po odbiorze: do bramki.
+- Wymagane testy i dowody: diff 10 plików zgodny z briefem; pełna walidacja repo (wal4).
+
+### 2747-GATE-FE-R2 (bramka końcowa FE, runda 2 — cały diff funkcji po K2) — 2026-10-20
+- Archetyp: Bramka końcowa high-stakes — ponowny przebieg po poprawce zmieniającej kształt API (> 5 plików), tylko odczyt.
+- Stawka: wysoka.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): nie dotyczy (autor K2: `wykonawca-opus`).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review`.
+- Dopuszczone alternatywy: Muse WF `max` read (W3) — w tym czasie z limitem (429 do 01:21 UTC).
+- Powód wyboru: reguła 6 + Faza 4b pkt 3 (korekta > 5 plików i nowy kształt API → druga runda); bramka zarazem niezależną recenzją delty wobec Opusa.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper, 2026-10-19 23:58 UTC).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 400 s; brak defektów funkcjonalnych (tsc, `git diff --check`, 6 scenariuszy w pamięci); 1×P3.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~7 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P3 odrzucone — helpery najwyższego poziomu w nowych specach („jedna deklaracja na plik”): praktyka repo (326/452 speców, sąsiednie speci zaległości przy HEAD 11–16 funkcji), lint ich nie zgłasza, zasada dotyczy artefaktów produkcyjnych.
+- Defekty po odbiorze: brak (do QA).
+- Wymagane testy i dowody: wal4 (452 pliki / 4645 testów, lint/format/build exit 0) przed bramką; drzewo bez zmian po przebiegu.
+
+### 2747-DOC-4C (przegląd zgodności dokumentacji z kodem, Faza 4c) — 2026-10-20
+- Archetyp: Przegląd zgodności dokumentacji — 1 dokument interfejsu + 2 dokumenty bez zmian, diff FE 19 plików, tylko odczyt.
+- Stawka: średnia (dokument źródła prawdy funkcji high-stakes).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` — Sonnet 5.5 / `high` (tryb tylko do odczytu z briefu; `git status` po przebiegu bez zmian).
+- Recenzent (linia / model / native effort): architekt (triaż macierzy).
+- Dopuszczone alternatywy: Muse WF `max` read (plan; 429 do 01:21 UTC); Codex Sol `high` read — odrzucony (funkcja high-stakes, sygnał `nieznany`, > 5 plików); Gemini — autor rewizji.
+- Powód wyboru: jedyna dopuszczona linia dostępna od razu; inna rodzina niż autor rewizji (Gemini).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook ŻÓŁTY, 55 %, 2026-10-20 00:05 UTC); Muse zablokowany (wrapper 429, 2026-10-19 23:44 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowano — 196 s, 23 wywołania, 237 tys. tokenów; 0 × „kod odbiega”; 4 wiersze (3 redakcyjne w granicach D2/D3/D5, 1 napis sprzed PBI → pytanie do właściciela).
+- Rundy korekt: 0.
+- Czas do akceptacji: ~8 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 3 luki redakcyjne (architekt dopisał zdania do pkt 2 i 5); 1 do decyzji właściciela (napis stopki w sprawdzaniu); słuszna uwaga o mapie — UI-KONTO-USTAWIENIA zgodny, sprawdzony sam.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: macierz z `plik:linia`; diff Dokumentacji tylko pliku zadania.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
