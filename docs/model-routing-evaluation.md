@@ -5300,6 +5300,59 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: `qas.py lint` 0 po każdej rundzie; porównanie skryptem kroków 1–7 A1/A2 z 1642 i 1–5 A5 z 1633 (identyczne poza kontem); P1 sprawdzone w kodzie; `verify` pełne.
 - Uwagi: przesłanka architekta w briefie generatora („nie zgaduj DevTools — pomiń”) prowadziła do pominięcia kryterium PBI; jednorazowa sonda metody przed briefem rozstrzyga taniej. Sonnet `high` jako recenzent QA: 0 fałszywych P1, wszystkie P1 trafne i z dowodem `plik:linia`.
 
+### 2785-DOC-1 (datowana rewizja dokumentu interfejsu — 4 punkty z decyzji zatwierdzonych z góry) — 2026-10-20
+- Archetyp: Dokumentacja produktowa — rewizja `zatwierdzonego` dokumentu z kontrolą wpływu (§10, §12), jeden plik.
+- Stawka: niska (napisy nakładki opłaty zaległości; zasady płatności i kod bez zmian).
+- Niepewność: niska (brzmienia PL/EN podane dosłownie w decyzjach planu).
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write`.
+- Recenzent (linia / model / native effort): architekt (Claude Opus `xhigh`, inna rodzina) — odbiór diffu bajt w bajt i przegląd 4c (reguła 11: jeden dokument).
+- Dopuszczone alternatywy: Muse Wonder Full `max` write; `wykonawca` Sonnet 5.5 `high`.
+- Powód wyboru: 2747-DOC-1 na tym samym dokumencie — 0 rund, 326 s; przegląd 1: dokumentacja na Gemini `high` 7 briefów / 0,1 rundy.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany (wrapper, ostatni przebieg 2026-10-19 23:18 UTC bez limitu).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowano — 287 s, +10 linii tylko w dokumencie docelowym (dopisana sekcja rewizji), front matter bez zmian, brzmienia bajt w bajt z decyzjami, `zasoby/teczki/` nietknięte.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~8 min (przebieg + diff + porównanie brzmień).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak; sekcja „co błędne w specyfikacji” — 1 uwaga przyjęta: brief wskazywał katalog `procesy\`, w repo jest `procesy-biznesowe\` (błąd ścieżki w briefie architekta; worker sam znalazł właściwy katalog do kontroli wpływu).
+- Defekty po odbiorze: brak (przegląd 4c: 4 punkty zgodne, 0 rozbieżności).
+- Wymagane testy i dowody: `git diff` i `status --porcelain` repo Dokumentacja (1 plik); brzmienia porównane z decyzjami bajt w bajt (wielokropek U+2026).
+
+### 2785-FE-1 (podmiana dwóch wartości i18n pl/en, 4 literały w specu, komentarz, SemVer patch) — 2026-10-20
+- Archetyp: Mechaniczna zmiana FE — wartości i18n i literały speca podane parami stary → nowy tekst, `release_version.py`.
+- Stawka: niska (napisy w funkcji płatności, ale bez pliku niezmiennika: przepływ, fazy i BE nietknięte).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `mechanik` — Haiku 5.5 `low`.
+- Recenzent (linia / model / native effort): brak recenzji fali (Faza 4b — diff czysto mechaniczny); dowód architekta: zgodność bajt w bajt, `lint`, `format:check`, `npm test`, `build`.
+- Dopuszczone alternatywy: Gemini `flash-high` write; Muse Wonder Full `max` write.
+- Powód wyboru: treść podana dosłownie, zero osądu, 5 plików + manifesty wersji; najtańsza linia przy zielonej puli Claude'a.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, 2026-10-20 rano).
+- Pewność decyzji: średnia (brak wcześniejszych wpisów `mechanik` na specach).
+- Wynik pierwszego podejścia: zaakceptowano — `ng test --include` speca 46/46, diff zgodny z briefem bajt w bajt; 11 wywołań, ~1,37 mln tokenów (1,23 mln cache read).
+- Rundy korekt: 0.
+- Czas do akceptacji: jeden przebieg bez korekt (czas nie mierzony osobno).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): — (bez recenzji); walidacja architekta bez uwag.
+- Defekty po odbiorze: brak (przegląd 4c zgodny; przypadki QA Sphere jeszcze niewykonane przez testera).
+- Wymagane testy i dowody: `JSON.parse` obu locale; wartości kluczy równe decyzjom (U+2026); `npm run lint`, `format:check`, `npm test` (4645), `build` — exit 0.
+- Uwagi: pierwszy lokalny wynik `mechanik` (Haiku 5.5 `low`) na specu — przy parach stary → nowy tekst i zakazie przepisywania JSON wystarczył.
+
+### 2785-QAS (przypadki QA Sphere: przegląd 17 istniejących + 3 nowe dla napisów sprawdzania płatności — generator, recenzja krzyżowa, K1–K3) — 2026-10-20
+- Archetyp: Autor QA Sphere — plik podglądu wg `qasphere-test-generator` (Krok 2b + nowe), recenzja krzyżowa innej rodziny.
+- Stawka: średnia (przypadki manualne w przepływie opłaty zaległości; błędny krok blokuje płatność albo daje fałszywy defekt).
+- Niepewność: średnia (blokada odczytu w DevTools w trakcie okna banku 3-D Secure; konto z zaległością na zegarze testowym Stripe).
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write` (generator 557 s, K1 737 s, K2 522 s, K3 160 s).
+- Recenzent (linia / model / native effort): Claude / `wykonawca` — Sonnet 5.5 `high`, tylko odczyt z briefu (314 s + recenzja delty 63 s, razem 23 wywołania; MD5 pliku niezmienione).
+- Dopuszczone alternatywy: autor Muse Wonder Full `max` (domyślny w procedurze skilla) — zablokowany; recenzent Muse read — zablokowany; Codex odrzucony (najmniejsza pula, brak lokalnych wyników recenzji QA).
+- Powód wyboru: procedura skilla dla autora (Gemini write przy limicie Muse); recenzent po ponownej kwalifikacji wg reguły 2 — precedens 2747-QAS (0 fałszywych P1).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse zablokowany — 429 limitu tygodniowego do 2026-10-26T00:00Z (wrapper, 08:13 UTC, przebieg 20 s); Gemini nieznany (przebiegi udane); Claude znany ZIELONY (hook).
+- Pewność decyzji: średnia (drugi lokalny wynik Sonneta jako recenzenta QA).
+- Wynik pierwszego podejścia: 3 nowe (A1–A3), 0 aktualizacji, 17 bez zmian, `lint` 0 — ale A2/A3 blokowały odczyt zaległości przed wysłaniem płatności (blokada po fragmencie adresu obejmuje też `…/arrears/payment`, więc płatność nie poszłaby), warunki wstępne na koncie demo bez zaległości, brak zapisu karty 3DS `3184`.
+- Rundy korekt: 3 — K1 po recenzji (przygotowanie słowo w słowo z ZEB/1686, zmiana metody płatności na kartę 3DS, blokada dopiero przy otwartym oknie banku); K2 po recenzji delty (2×P3: sprzeczny język w A3, brakujące zdanie o zawieszonych programach w A1); K3 po kontroli architekta (warunek wstępny skopiowany z 1686 wskazywał FE 1.7.0 zamiast 1.7.1).
+- Czas do akceptacji: ~45 min (08:13 → ~08:57 UTC), w tym ~39 min pracy workerów.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): pierwsza recenzja — 3×P1 potwierdzone (blokada przed wysłaniem płatności, konto demo bez zaległości, brak zapisu karty 3184), 3×P2 i 1×P3 przyjęte (asercja Escape/tła, statusy HTTP i nazwy z kodu w wynikach oczekiwanych); 1 uwaga odrzucona („ZEB/1686 zawsze przerwany” — pomiar przez CDP, a 1686 ma krok-strażnik). Delta: 0 P0/P1, 2×P3 przyjęte. Fałszywych P0/P1: 0. Znalezisko architekta poza recenzją: wersja FE w warunkach wstępnych (K3).
+- Defekty po odbiorze: brak w `qas.py verify` (3 sprawdzone, 0 różnic); nowe seq 1687 (A1), 1688 (A2), 1689 (A3) w folderze 178; zaktualizowane 0, wycofane 0; wykonanie przez testera jeszcze nie nastąpiło.
+- Wymagane testy i dowody: `qas.py lint --strict` 0/0 po każdej rundzie; porównanie przed/po K2 i K3 skryptem (zmienione tylko zamierzone pola); `verify` pełne.
+- Uwagi: trzy lekcje do briefu generatora — (1) podać seq i kroki przygotowania do skopiowania wprost; (2) podać z góry, że blokada w DevTools działa po fragmencie adresu (lekcja z 2747), więc odczyt blokuje się dopiero po wysłaniu płatności; (3) przy kopiowaniu warunków wstępnych z wcześniejszego zadania sprawdzić linię wersji. Sonnet `high` jako recenzent QA drugi raz bez fałszywych P1.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
