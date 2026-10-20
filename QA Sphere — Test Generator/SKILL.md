@@ -2,16 +2,20 @@
 name: qasphere-test-generator
 description: Generuje kompletny zestaw test case'ów (happy + negative paths, dążąc do 100% pokrycia przypadków użycia) na podstawie wykonanego zadania/feature'a — najpierw przegląda przypadki, które już są w QA Sphere w obszarze zmiany (zostaje / aktualizacja / `[Removed]`), potem dodaje brakujące — i tworzy je bezpośrednio w QA Sphere — przez serwer MCP `qasphere`, a w środowisku bez MCP przez REST API. Test casy są po polsku, standalone, z pełnymi repro stepami (dane wejściowe, wyjściowe, instrukcje konfiguracji) tak, by wykonała je osoba widząca aplikację pierwszy raz. Skill sam mapuje repozytorium na właściwy projekt w QA Sphere. UŻYWAJ ZAWSZE, gdy user prosi o wygenerowanie test case'ów, pokrycie testowe, "testy do tego feature'a", "pokryj testami", "wrzuć testy do QA Sphere", "test casy z tego co zrobiliśmy" — nawet jeśli nie padnie słowo "skill" ani "QA Sphere" wprost, a kontekstem jest właśnie ukończone zadanie deweloperskie.
 user-invocable: true
-version: 1.10
+version: 1.11
 ---
 
-# QA Sphere — Test Generator (v1.10)
+# QA Sphere — Test Generator (v1.11)
 
 > Kanoniczna, wersjonowana wersja skilla. Źródło prawdy: `DTCodePL/Claude_Skills`.
 > Lokalnie używany jest tylko cienki loader, który pobiera ten plik z GitHuba.
 >
 > **Changelog**
 >
+> - **1.11** — **autor i recenzent Muse wg archetypu** (2026-10-20, routing globalny reguła 8): plik podglądu pisze
+>   Muse Spark 1.3 `max`, a w funkcji high-stakes Muse Wonder `max`; tę samą parę dostaje Muse jako recenzent pliku
+>   Gemini. Wonder Full `max` w tej roli wyczerpał tygodniową pulę Muse w ~25 h (przebiegi QA Sphere były
+>   największe: 7–25 mln tokenów odczytu kontekstu na przebieg). Recenzja krzyżowa Muse ↔ Gemini bez zmian.
 > - **1.10** — **katalog roboczy w `D:\projects\DTCode\_robocze\<nr>-qasphere\` i sprzątanie w Kroku 7** (2026-10-19):
 >   dotychczasowe `D:\projects\DTCode\_qasphere-<nr>\` nie miały kroku usunięcia i zostawały na zawsze (24 foldery
 >   w korzeniu `D:\projects\DTCode`, wszystkie usunięte 2026-10-19). Zadania przerwane przed Krokiem 7 sprząta hook
@@ -101,7 +105,7 @@ workery na osobnych abonamentach; wysyłka to praca dla skryptu, nie dla modelu.
 | Krok                                                                   | Kto                                                                                                       | Jak                                                                                                                                                                                                                                 |
 | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 0–1, 4a, 2b — transport, projekt, custom fieldy, foldery, duplikaty, zakres przeglądu | architekt                                                                                  | `qas.py context --project <P> --search "<fraza>" [--folder-id <N>] --review-folder <N>… --out <katalog>\context.json` — jedno polecenie zamiast serii odczytów MCP; `--review-folder` (całe poddrzewo) daje `existing[]` z pełną treścią przypadków do przeglądu |
-| 2–4c + plik podglądu (5.1): werdykty przeglądu (`review`), poprawki (`updates`), `[Removed]` (`retire`), nowe (`testCases`) | **Muse Wonder Full `max`** (`-Access write`); Gemini `-Access write`, gdy Muse w tej fali zajęty albo zgłosił limit | brief z szablonu niżej; worker czyta ten plik jako specyfikację                                                                                                                                                                     |
+| 2–4c + plik podglądu (5.1): werdykty przeglądu (`review`), poprawki (`updates`), `[Removed]` (`retire`), nowe (`testCases`) | **Muse Spark 1.3 `max`**, w funkcji high-stakes **Muse Wonder `max`** (`-Access write`; para wg reguły 8 globalnego routingu); Gemini `-Access write`, gdy Muse w tej fali zajęty albo zgłosił limit | brief z szablonu niżej; worker czyta ten plik jako specyfikację                                                                                                                                                                     |
 | kontrola kształtu                                                      | architekt                                                                                                 | `qas.py lint <plik> --context <context.json>` — błędy wracają briefem korekty do tej samej linii                                                                                                                                    |
 | recenzja treści                                                        | inna rodzina niż autor: plik Muse → Gemini `-Access read`, plik Gemini → Muse `-Access read`                | fakty (komunikaty dosłownie z `pl.json`/`en.json`, trasy, konta i dane z seedów), pokrycie kategorii Kroku 2, przypadki „obchodzące” znany defekt, werdykty przeglądu (2b); każde P0/P1 architekt obala jednym poleceniem, zanim zleci korektę              |
 | poprawki po recenzji i po bramie                                       | linia autora — brief korekty                                                                               | architekt nie edytuje pliku; wyjątek: pojedyncza fraza wskazana przez użytkownika na bramie                                                                                                                                         |

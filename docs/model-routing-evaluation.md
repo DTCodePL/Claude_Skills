@@ -5456,3 +5456,35 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - **Do decyzji właściciela:** dopisać do globalnego `CLAUDE.md` (tabela budżetów i macierz, kolumna sygnału Muse) limit tygodniowy Power Usage z resetem w poniedziałek 00:00 UTC.
 
 **Następny przegląd:** po 10–15 istotnych briefach Wondera Full albo po kolejnym limicie Muse w tym samym tygodniu rozliczeniowym.
+
+#### Przegląd 2 linii Muse — 2026-10-20 (zmiana routingu: para per archetyp)
+
+- **Powód:** drugi limit tygodniowy Muse w drugim tygodniu z rzędu (próg „następnego przeglądu” z wpisu wyżej) i prośba właściciela: „wypłaszczyć, żeby nie zabijać limitu pierwszego dnia na gówno pracy i używać rozumowania tylko tam, gdzie trzeba”.
+- **Fakty z wrappera (429 „Subscription quota exhausted”, czas resetu w komunikacie):**
+  - 2026-10-15 08:45Z — reset 2026-10-19 00:00Z (tydzień); w tym tygodniu 110 przebiegów Sparka 1.3 `max`, 2 Sparka `low`, 5 Wondera Full `max`, 2 sondy;
+  - 2026-10-19 19:53Z i 23:42Z — reset po 19 min i po ~2 h (okno 5 h);
+  - 2026-10-20 01:22Z i 08:12Z — reset 2026-10-26 00:00Z (tydzień); od poniedziałku 00:00Z 20 przebiegów, wszystkie Wonder Full `max` — pula skończyła się po ~25 h pracy. Panel właściciela: „Weekly limit 99 % used, resets 26 paź 1:00”.
+  - `muse` 1.4.11 nie ma polecenia zużycia; `model-profile` nie pokazuje cen ani budżetu rozumowania.
+- **Pomiar puli (pewność niska — dwa wyczerpania, założenie równej puli tygodniowej i wag zbliżonych do cennika API):** tydzień ≈ 19 przebiegów Wondera Full `max` ≈ 180 Sparka `max` (110 Sparków ≈ 60 % tygodnia 12.10). Token Wondera Full ≈ 12–15× Sparka, ≈ 3,5–4× Wondera. W przebiegach Muse 85–95 % tokenów to odczyt cache, wyjście (na które działa effort) to ~15–25 % kosztu — effort jest słabą dźwignią puli, model i długość briefu mocną.
+- **AA 2026-10-20:** nowych modeli w abonamentach brak (`muse-spark-open`: II 38,9, TB4 0,081). Rekordy Muse tylko `max` (Wonder Full, Wonder, Spark 1.3) i `xhigh` (Spark 1.3). Koszt zadania indeksu: Spark `max` 1,60 $ (wejście 1,35 $), Spark `xhigh` 1,37 $, Wonder 4,52 $ (wejście 3,43 $); Wonder Full bez ceny. TB4: Full 0,571, Wonder 0,520, Spark `max` 0,333, `xhigh` 0,167.
+- **Lokalne wyniki Wondera Full `max` 15–20.10** (24 przebiegi, ~20 briefów):
+  - recenzje plików niezmiennika `wykonawca-opus` (8: GK3-R, R1F-R, 2722 fala 1, 2722 BE-2, 2722 BE-3, 2371-REV-BE, 2747-R1, 2371-QAS jako recenzent pliku Gemini): potwierdzone P1 w 2722-BE-1a, 2747-R1, R1F (znane) i 4×P1 w pliku QA Sphere Gemini; 0 obalonych P0/P1 — tu rozumowanie Full zarabia na siebie;
+  - autor (QA Sphere ×3, rewizje dokumentacji ×3, warstwa widoku, dowód w przeglądarce, zakup na PRE): 0,25 rundy z wykonania na brief (2 rundy w 2722-QAS po P2 recenzji) — ten sam poziom co Spark `max` 12–14.10 (2705-F1a/F1b/F2a 0, F4 1, 2694-T1/T2) za ~10× puli na przebieg.
+- **Decyzja architekta (bez pytania o routing, reguła 4):** linia Muse bez jednego domyślnego modelu; para per archetyp briefu (reguła 8 globalnego `CLAUDE.md`):
+  - Wonder Full `max` — wyjątek CZERWONEGO i recenzja fali plików niezmiennika high-stakes;
+  - Wonder `max` — autor i recenzent krzyżowy QA Sphere w funkcji high-stakes, recenzja średniej stawki, złożony brief bez niezmiennika (próba — lokalnych wyników brak);
+  - Spark 1.3 `max` — pozostała implementacja bez niezmiennika, testy, rewizje dokumentacji, audyt SCSS, QA Sphere poza high-stakes, korekty `-K`, recenzja niskiej stawki;
+  - Spark 1.3 `high` — worker przeglądarki `pwcli`, zakup na PRE, pozycje ADO, korekta z gotową treścią (≤ 3 pliki);
+  - Spark 1.3 `low` — sondy, podbicie wersji.
+  - Tempo: budżet tygodnia ≈ 19 ekwiwalentów Full (1 Full ≈ 4 Wonder ≈ 10 Sparka), dnia roboczego ≈ 3; liczba przebiegów od poniedziałku poleceniem z `external-workers` przed każdą parą Wonder/Full; po budżecie dnia — para niżej albo inna rodzina, CZERWONY czeka.
+- **Symulacja:** przebiegi 19–20.10 w nowym podziale zajęłyby ~45 % tygodnia zamiast 100 % (recenzje Full zostają, QA Sphere → Wonder, reszta → Spark).
+- **Bez zmian:** pliki niezmiennika high-stakes pisze `wykonawca-opus`; wyjątek CZERWONEGO → Wonder Full `max` albo czekanie; bramka końcowa `gpt-6.1-sol` `max`; preferencja Sol `high` / Gemini `high` przy recenzjach niskiej stawki (teraz także ze względu na pulę Muse); Wonder i Spark to jedna rodzina recenzji.
+- **Stan na 2026-10-20:** Muse `zablokowany` do 2026-10-26 00:00Z (429 z resetem tygodniowym). Do resetu: wyjątek CZERWONEGO czeka, QA Sphere pisze Gemini write, worker przeglądarki wraca do Playwright MCP (Gemini/Codex), recenzje plików niezmiennika kwalifikujesz ponownie (reguła 2).
+- **Wprowadzone w:**
+  - globalny `CLAUDE.md`: tabela budżetów (limit tygodniowy, pomiar), macierz (Muse, QA Sphere), odczyt AA 2026-10-20, reguły 8 i 13;
+  - wspólna sekcja projektów (`sync-routing.py`, 18 kopii);
+  - skill `implement-ado-feature-zebrani` v5.30; `qasphere-test-generator` v1.11;
+  - `external-workers` (limit tygodniowy, polecenie tempa, fallback wrappera);
+  - domyślny model wrappera: `-Model muse-spark-1.3-contributor`.
+
+**Następny przegląd:** po 10–15 istotnych briefach Muse w nowym podziale albo po kolejnym limicie tygodniowym przed piątkiem. Miary: czy tydzień dociąga do niedzieli, rundy z wykonania per para, P0/P1 recenzji Wondera wobec Full, przelicznik Wondera po jego pierwszych 5 przebiegach (`token-report.py`).
