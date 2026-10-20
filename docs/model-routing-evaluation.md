@@ -5282,6 +5282,24 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak.
 - Wymagane testy i dowody: macierz z `plik:linia`; diff Dokumentacji tylko pliku zadania.
 
+### 2747-QAS (przypadki QA Sphere: przegląd 14 istniejących + 3 nowe dla drugiej zaległej faktury — generator, recenzja krzyżowa, K1, K2) — 2026-10-20
+- Archetyp: Autor QA Sphere — plik podglądu wg `qasphere-test-generator` (Krok 2b + nowe), recenzja krzyżowa innej rodziny.
+- Stawka: średnia (przypadki manualne dla przepływu opłaty zaległości; błędny krok = fałszywy defekt albo niewykonalny test na PRE).
+- Niepewność: średnia (długie przygotowanie dwóch faktur zegarem testowym Stripe; wywołanie błędu odczytu narzędziami przeglądarki).
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write` (generator 525 s, K1 870 s, K2 208 s).
+- Recenzent (linia / model / native effort): Claude / `wykonawca` — Sonnet 5.5 `high`, tylko odczyt z briefu (412 s, 55 wywołań; MD5 pliku niezmienione).
+- Dopuszczone alternatywy: autor Muse Wonder Full `max` (domyślny w procedurze skilla — 429 limitu okna przy generatorze); recenzent Muse Wonder Full `max` read (procedura: plik Gemini → Muse) — zablokowany; Codex `gpt-6.1-sol` `high` odrzucony (`-Mode review` dotyczy diffu repo, nie pliku podglądu; najmniejsza pula).
+- Powód wyboru: procedura skilla dla autora (Gemini write przy limicie Muse); recenzent po ponownej kwalifikacji wg reguły 2 — Muse: limit tygodniowy, inna rodzina niż Gemini i ten sam precedens co 2747-DOC-4C.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse zablokowany — 429 limitu okna (reset 01:21 UTC), potem 429 limitu tygodniowego do 2026-10-26T00:00Z (wrapper, 01:39 UTC); Gemini nieznany (przebiegi udane); Claude znany ZIELONY (hook, 01:45 UTC).
+- Pewność decyzji: średnio-niska (pierwszy lokalny wynik Sonneta jako recenzenta QA).
+- Wynik pierwszego podejścia: 4 nowe (A1–A4) + update 1642, 13 keep, `lint` 0 — ale przygotowanie dwóch faktur odbiegało od seq 1642 (wymyślone „Smart Retries”, „+1 godzina”), kroki niewykonalne (trasa `/panel/settings/account`, stopka panelu, motyw przy otwartej nakładce modalnej), przypadek błędu ponownego odczytu pominięty.
+- Rundy korekt: 2 — K1 po recenzji (kroki 1–7 słowo w słowo z 1642, scalenie A2–A4, nowy A5 z krokiem-strażnikiem, 1642 bez zdania o bloku pod maską, jawne pominięcia); K2 po kontroli architekta (nazwy plików i selektorów w krokach testera, opis koloru w ciemnym motywie).
+- Czas do akceptacji: ~2 h 30 min (23:45 → 02:15 UTC), w tym ~1 h oczekiwania na reset Muse zakończonego limitem tygodniowym; praca netto ~75 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 3×P1 potwierdzone poleceniami (trasa i przełącznik języka — `app.routes.ts:161`, `logged-topbar.html:34`; motyw za maską modalu — `overlay-panel.html:40`; przygotowanie niezgodne z 1642 i z INT l.79); 4×P2 przyjęte (blok „Abonament” pod maską w 1642, pominięcie błędu odczytu, niepełna kolejność Tab, sprzeczny język w warunku A2); 3×P3 przyjęte, 1×P3 pominięte (wariant A1 z zapisem karty — ta sama ścieżka kodu). Fałszywych P0/P1: 0. Metoda recenzenta dla błędu odczytu („Block request URL”) tylko warunkowo poprawna — sonda architekta w Chrome 155: CDP `setBlockedURLs` (dopasowanie po fragmencie) blokuje też `…/arrears/payment`, `urlPatterns` (URLPattern) tylko odczyt; recenzent sam zgłosił niepewność. Stąd w A5 krok-strażnik `GET …/arrears/payment` → 405 (bez skutków ubocznych, sprawdzone `curl` na PRE).
+- Defekty po odbiorze: brak w `qas.py verify` (4 sprawdzone, 0 różnic); nowe seq 1684 (A1), 1685 (A2), 1686 (A5) w folderze 177, zaktualizowany 1642, wycofane 0; wykonanie przez testera jeszcze nie nastąpiło.
+- Wymagane testy i dowody: `qas.py lint` 0 po każdej rundzie; porównanie skryptem kroków 1–7 A1/A2 z 1642 i 1–5 A5 z 1633 (identyczne poza kontem); P1 sprawdzone w kodzie; `verify` pełne.
+- Uwagi: przesłanka architekta w briefie generatora („nie zgaduj DevTools — pomiń”) prowadziła do pominięcia kryterium PBI; jednorazowa sonda metody przed briefem rozstrzyga taniej. Sonnet `high` jako recenzent QA: 0 fałszywych P1, wszystkie P1 trafne i z dowodem `plik:linia`.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
