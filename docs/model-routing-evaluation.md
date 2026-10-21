@@ -5634,6 +5634,449 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak.
 - Wymagane testy i dowody: każdy wiersz z twierdzeniem dokumentu i realizacją w kodzie (metoda, test, mutacja); dziennik rozbieżności z samymi wpisami `zamknięty`.
 
+### 2210-BE-1 (migracja kolumny widoczności, zapis i odczyt zasad poziomów, ścieżka przeliczenia) — 2026-10-21
+- Archetyp: Backend — migracja danych + pliki niezmiennika przeliczenia poziomów (handler, repozytorium, SQL, harmonogram, applier, strażnik zlecenia).
+- Stawka: wysoka / high-stakes (migracja danych, naliczanie wartości, współbieżność zapisu przy zleconym przeliczeniu).
+- Niepewność: niska (wzorzec siostrzanego pola z #1762).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 `xhigh` (1175 s, 199 tur, maks. ~281 tys. kontekstu).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (R1-BE-N, 117 s, 33 pliki).
+- Dopuszczone alternatywy: Muse Wonder Full `max` tylko przy CZERWONYM — i tak zablokowany limitem tygodniowym; poza tym brak.
+- Powód wyboru: pliki niezmiennika — reguła 2/twarda bramka; recenzent spoza rodziny Claude, krótki diff — Sol `high` zamiast Muse (zablokowany).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, ~15:15 UTC: okno 5 %, tydzień 43 %); Codex nieznany (wrapper, ostatni przebieg 14:13 UTC bez limitu); Muse zablokowany do 2026-10-26T00:00Z (429, 08:13 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowany; build i testy po fali (zakaz `dotnet` w fali z 3 wykonawcami BE) zielone — 8062 testy.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~26 min (15:49 → ~16:15 UTC z walidacją fali).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 — recenzent przeczytał handler, strażnik, repozytorium, applier i SQL.
+- Defekty po odbiorze: brak (bramka BE `gpt-6.1-sol` `max`: 0 znalezisk).
+- Wymagane testy i dowody: `dotnet build` 0 ostrzeżeń, pełne `dotnet test` z SQLEXPRESS; testy migracji i zapisu w BE-T.
+- Uwagi: wykonawca sam zgłosił 3 trafne luki do briefów testerów (słaba asercja „nic nie zapisane” przy domyślnym `true`, nierozróżnialna zamiana pól w mapperze, kolejność wdrożenia BE → FE przez `[JsonRequired]`) — wszystkie weszły do BE-Ta/BE-Tb/BE-TK.
+
+### 2210-BE-2 (onboarding: zapis drugiego ustawienia widoczności i „Kopiuj z…”) — 2026-10-21
+- Archetyp: Backend API / CRUD bez niezmiennika.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` — Sonnet 5.5 `high` (107 s, 25 tur, ~143 tys.).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (R1-BE razem z BE-3, 720 s).
+- Dopuszczone alternatywy: Gemini Flash `high` write; Codex odrzucony (> 5 plików przy sygnale `nieznany` w funkcji high-stakes).
+- Powód wyboru: ~10 plików mechanicznie podobnych do pola siostrzanego; Sonnet z kontekstem repo szybszy niż samodzielny brief dla Gemini.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, ~15:15 UTC); Gemini nieznany (ostatni przebieg 14:24 UTC udany).
+- Pewność decyzji: niska (brak lokalnych wyników tego archetypu w tym obszarze).
+- Wynik pierwszego podejścia: zaakceptowany.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~26 min (z walidacją całej fali BE).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): w diffie BE-2/BE-3: 2×P2 potwierdzone (brak testów maskowania i wartości domyślnej — już w planie BE-Tb), 1×P3 obalone (asymetria domyślnej wartości w onboardingu to stan sprzed PBI, niewidoczny dla użytkownika).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: build/testy BE po fali; testy `null → true` i odczytu „Kopiuj z…” w BE-Tb.
+- Uwagi: brief podał ścieżki bez zagnieżdżonego `ZebraniBE\ZebraniBE\` — wykonawca znalazł sam.
+
+### 2210-BE-3 (+K S3358) (odczyt karty klienta: serwer wycina ukryte dane, flagi w odpowiedzi) — 2026-10-21
+- Archetyp: Backend API / odczyt bez niezmiennika (SQL, DAO, builder, DTO).
+- Stawka: średnia (wyciek danych ukrytych przez właściciela, bez wartości pieniężnej).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` — Sonnet 5.5 `high` (~5 min + korekta 48 s).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (R1-BE).
+- Dopuszczone alternatywy: Gemini Flash `high` write; Codex odrzucony jak w BE-2.
+- Powód wyboru: jak BE-2.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-2.
+- Pewność decyzji: niska.
+- Wynik pierwszego podejścia: wymagana korekta — build pada na analizatorze S3358 (zagnieżdżony operator warunkowy) w builderze; wykonawca nie mógł tego zobaczyć (zakaz `dotnet build` w fali).
+- Rundy korekt: 1 (S3358, wróciło do autora przez SendMessage).
+- Czas do akceptacji: ~26 min (z ponownym buildem i testami BE).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): wspólne z BE-2 (2×P2 → BE-Tb, 1×P3 obalone).
+- Defekty po odbiorze: brak (bramka BE 0 znalezisk).
+- Wymagane testy i dowody: build 0 ostrzeżeń, 8062 testy; macierz 4 kombinacji i najwyższy poziom w BE-Tb.
+- Uwagi: zakaz `dotnet build` przy > 1 wykonawcy BE przesuwa błędy analizatora na walidację architekta — koszt jednej krótkiej rundy, akceptowalny.
+
+### 2210-FE-S1 (stan zasad poziomów w Ustawieniach: drugie ustawienie przez każdą ścieżkę zapisu, podglądu i potwierdzenia) — 2026-10-21
+- Archetyp: Frontend — logika stanu z niezmiennikiem (wyścigi zapisu, wybór `applyMode`, blokada w karencji).
+- Stawka: wysoka / high-stakes.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` — Opus 5.5 `xhigh` (707 s, 92 tury, ~191 tys.).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (R1-FE-N, 112 s).
+- Dopuszczone alternatywy: brak poza wyjątkiem CZERWONEGO (Muse zablokowany).
+- Powód wyboru: plik niezmiennika — `wykonawca-opus`; recenzja krótkim diffem, inna rodzina.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-1.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowany — 384 testy ustawień zielone; mutacja potwierdziła przejście pola przez 8 ścieżek.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~17 min (15:49 → ~16:06 UTC z walidacją FE).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 (brak testu `showLevelLadder = false` był już w planie FE-T1).
+- Defekty po odbiorze: brak (bramka FE 0 znalezisk).
+- Wymagane testy i dowody: pełne FE (lint, format, 4684 testy, build); FE-T1 w fali 3.
+
+### 2210-FE-W (+mechanik) (kreator, krok 3: dwa przełączniki w jednym panelu, szkic, kopiowanie, ładunek) — 2026-10-21
+- Archetyp: Frontend UI + logika szkicu bez niezmiennika.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` — Sonnet 5.5 `high` (556 s, 63 tury, ~166 tys.); poprawka 360 px — `mechanik` Haiku 5.5 `low` (52 s).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (R1-FE razem z FE-C i I18N, 785 s).
+- Dopuszczone alternatywy: Gemini Flash `high` write.
+- Powód wyboru: ekran i szkic z kontekstem sesji; Figma nie była wymagana (tekstowy brief).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-2.
+- Pewność decyzji: niska.
+- Wynik pierwszego podejścia: zaakceptowany (29 speców onboardingu, 296 testów).
+- Rundy korekt: 1 — `browser-check` fali 2 pokazał ściśnięty przełącznik przy 360 px (brak `flex-shrink: 0`); poprawka z gotową treścią przez `mechanik`, zrzuty 8/8 po poprawce.
+- Czas do akceptacji: ~17 min do walidacji fali 1; poprawka wizualna ~1 h później (fala 2).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1-FE 3×P3 dla FE-W/FE-C (brak testów przełącznika i mapowania, niespójny warunek ukrywania drabiny) → testy fali 2.
+- Defekty po odbiorze: ściśnięty przełącznik na 360 px (wyżej); audyt SCSS — brak `cursor: pointer` i duplikat wiersza opcji z krokiem pieczątek → FE-SCSS-K.
+- Wymagane testy i dowody: specy onboardingu, `browser-check` matrix kroku 3 (Light/Dark × 360/1280).
+- Uwagi: `ng test` z Git Bash pada na „Vitest failed to find the runner” (mała litera dysku) — z PowerShella przechodzi; dopisać do szablonu briefu FE.
+
+### 2210-FE-C (karta klienta, widok kodu, nakładka po skanie — ukrywanie przez `@if`) — 2026-10-21
+- Archetyp: Frontend UI bez niezmiennika (DTO, model widoku, builder, 5 komponentów).
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` — Sonnet 5.5 `high` (507 s, 80 tur, ~189 tys.).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (R1-FE).
+- Dopuszczone alternatywy: Gemini Flash `high` write.
+- Powód wyboru: wiele powiązanych komponentów wspólnych (podgląd karty używany też przez sprzedawcę i kreator) — wymaga kontekstu repo.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-2.
+- Pewność decyzji: niska.
+- Wynik pierwszego podejścia: zaakceptowany (51 speców, 476 testów; eslint, prettier czyste).
+- Rundy korekt: 0.
+- Czas do akceptacji: ~17 min (z walidacją FE).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1-FE 3×P3 wspólne z FE-W → testy fali 2.
+- Defekty po odbiorze: brak (bramka FE 0; `browser-check` karty A2/B/C OK; smoke PRE 20/20).
+- Wymagane testy i dowody: FE-T3a/b/K/R; zrzuty kombinacji ustawień na lokalnej bazie demo.
+- Uwagi: wykonawca trafnie ostrzegł, że fixture'y z pustą drabiną dają teraz `levelCount = 0` — przekazane testerom.
+
+### 2210-I18N (wspólna grupa kluczy widoczności, pl+en, usunięcie starych kluczy kreatora skryptem) — 2026-10-21
+- Archetyp: Mechaniczna zmiana i18n z gotową treścią.
+- Stawka: niska.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `mechanik` — Haiku 5.5 `low` (40 s).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (R1-FE).
+- Dopuszczone alternatywy: Sonnet `high`.
+- Powód wyboru: dokładna treść 6 kluczy × 2 języki i skrypt.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-2.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zaakceptowany.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~17 min (z walidacją fali).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: kontrola kluczy pl/en, `npm test`.
+- Uwagi: wykonawca zgłosił, że usunięte klucze są jeszcze używane — przepięcie robił FE-W w tej samej fali (zgodnie z planem); brief powinien to mówić wprost, by worker nie musiał tego zgłaszać jako błędu.
+
+### 2210-DOC-1 (+DOC-1K) (6 datowanych rewizji, nowa decyzja, indeks; poprawki po recenzji wraz z separatorem w Figmie) — 2026-10-21
+- Archetyp: Dokumentacja normatywna po polsku (+ drobna poprawka Figmy w DOC-1K).
+- Stawka: średnia.
+- Niepewność: średnia (rewizja istniejącej rewizji 2026-09-28 w Ustawieniach, reguła „jeden rząd pieczątek”).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` — Sonnet 5.5 `high` (DOC-1 537 s, ~275 tys.; DOC-1K 317 s).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (R1-DOC, 613 s).
+- Dopuszczone alternatywy: Gemini Flash `high` write; Muse Spark `max` — zablokowany.
+- Powód wyboru: tekst normatywny wymagający kontekstu decyzji z planu; Figma w DOC-1K wymagała MCP (tylko Claude/Codex).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-2.
+- Pewność decyzji: niska.
+- Wynik pierwszego podejścia: wymagane korekty — stara treść normatywna w aktywnej sekcji Ustawień, bezwarunkowy opis paska w karcie, brak „Rozważonych wariantów” w DEC, reguła „jeden rząd” bez wyjątku.
+- Rundy korekt: 1 (DOC-1K).
+- Czas do akceptacji: ~40 min (15:49 → ~16:29 UTC).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2×P1 (1 potwierdzone, 1 obalone), 4×P2 i 3×P3 — poprawione w DOC-1K.
+- Defekty po odbiorze: brak (przegląd 4c: 104 zgodne, 0 rozbieżności).
+- Wymagane testy i dowody: linki względne i kotwice 0 martwych; front matter bez zmian; diff repo Dokumentacja.
+- Uwagi: wykonawca słusznie zakwestionował datę decyzji (potwierdzona w „Źródłach” PBI) i konflikt z `interfejsy/README.md` — oba rozstrzygnięte przez architekta.
+
+### 2210-FIG-1 (+1b, 1c) (karta klienta poziomów: zwinięta, nowa rozwinięta, widok kodu — warianty ukrytych elementów) — 2026-10-21
+- Archetyp: Frontend UI / Figma.
+- Stawka: niska.
+- Niepewność: wysoka (rozwiniętej karty poziomów w Figmie nie było).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` — Sonnet 5.5 `high` (FIG-1 139 s STOP; FIG-1b 825 s, przekazanie przy 301 tys.; FIG-1c 683 s, ~279 tys.).
+- Recenzent (linia / model / native effort): architekt — `get_screenshot` / `get_metadata` (Muse i Gemini bez Figmy).
+- Dopuszczone alternatywy: Codex z Figma MCP — niepotwierdzony w sesji; brak.
+- Powód wyboru: jedyna linia z potwierdzonym Figma MCP (próba A/B 2026-10-12: Figma zostaje u `wykonawca`).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-2.
+- Pewność decyzji: wysoka (brak alternatywy).
+- Wynik pierwszego podejścia: STOP — dwie błędne przesłanki (brak rozwiniętej karty poziomów do sklonowania; widok kodu na mobile to ekran pełny, nie arkusz).
+- Rundy korekt: 2 (FIG-1b po korekcie przesłanek; FIG-1c jako kontynuacja po strażniku kontekstu).
+- Czas do akceptacji: ~40 min (15:49 → ~16:29 UTC).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): przyjęte; uwagi do raportu bramy — nadpisanie `primaryAxisAlignItems=MIN` przy „Kreska ze znakiem” w istniejących ekranach (stan sprzed zadania), brak właściwości `Liczba pieczatek` na poziomie zestawu.
+- Defekty po odbiorze: drugi wiersz ustawień ma tę samą nazwę warstwy co pierwszy (kosmetyka, FIG-2/Ustawienia).
+- Wymagane testy i dowody: `get_metadata` 4106:22834 (zestaw `RozwinietaPoziomy`, 4 warianty), 4106:23583/24279 (BothOff Light/Dark), 4106:24536/24544 (widok kodu 1280/360).
+- Uwagi: błąd briefu architekta (przesłanka o istniejącej rozwiniętej karcie) kosztował rundę — przed briefem Figmy sprawdzić `get_metadata` strony, nie tylko dokument.
+
+### 2210-FIG-2 (kreator krok 3 i Ustawienia → Program: dwa przełączniki) — 2026-10-21
+- Archetyp: Frontend UI / Figma.
+- Stawka: niska.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` — Sonnet 5.5 `high` (400 s, 73 tury, ~241 tys.).
+- Recenzent (linia / model / native effort): architekt — `get_screenshot` / `get_metadata`; R1-DOC (Gemini) wskazał separator niezgodny z planem.
+- Dopuszczone alternatywy: brak (Figma MCP).
+- Powód wyboru: jak FIG-1.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak BE-2.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zaakceptowany z odchyleniami — 3 błędne przesłanki briefu (kreator miał `CheckboxMark`, nie przełącznik; „Adres lokalu” nie istnieje w makiecie kroku 3; `description` nie istnieje na `FRAME`).
+- Rundy korekt: 1 (usunięcie separatora między przełącznikami w 2 ekranach desktopowych — w DOC-1K).
+- Czas do akceptacji: ~40 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): separator — potwierdzony, poprawiony.
+- Defekty po odbiorze: brak „Adresu lokalu” w makiecie kroku 3 (luka sprzed zadania, raport bramy).
+- Wymagane testy i dowody: `get_metadata` 2391:3060 (Ustawienia, dwa wiersze przełączników).
+
+### 2210-FE-S2 (Ustawienia → Program: drugi przełącznik, wspólne teksty z kreatorem, bez etykiety stanu) — 2026-10-21
+- Archetyp: Frontend UI bez niezmiennika.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` — Sonnet 5.5 `high` (237 s, 27 tur, ~145 tys.).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (R2-FE, 502 s).
+- Dopuszczone alternatywy: Gemini Flash `high` write.
+- Powód wyboru: ekran zależny od FE-S1 i istniejącego speca — kontekst repo.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook; ZIELONY na starcie fali 1, ŻÓŁTY ~54 % okna pod koniec dnia); Gemini nieznany (przebiegi udane).
+- Pewność decyzji: niska.
+- Wynik pierwszego podejścia: zaakceptowany (28/28 w specu; 4 stare klucze usunięte, 0 użyć w `src`).
+- Rundy korekt: 0.
+- Czas do akceptacji: ~15 min (z walidacją fali 2).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1×P1 R2-FE (brak testu interakcji drugiego przełącznika) — pokryty zaplanowanym FE-T1, nie defekt FE-S2.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: FE-T1, `browser-check` Ustawień (8/8).
+
+### 2210-BE-T (BE-Ta, BE-Tb, BE-TK) (testy BE: migracja, zapis widoczności, karencja, odmowy, harmonogram, onboarding, karta klienta, nakładka; korekty po R2) — 2026-10-21
+- Archetyp: Testy integracyjne i jednostkowe BE (xunit na SQLEXPRESS).
+- Stawka: wysoka (testy plików niezmiennika).
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Claude / `tester` — Haiku 5.5 `xhigh` (BE-Ta 790 s, ~329 tys.; BE-Tb 639 s, ~304 tys.; BE-TK 568 s), sekwencyjnie (jedno drzewo, `dotnet test`).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (R2-BE, 542 s).
+- Dopuszczone alternatywy: Sonnet `high`; Codex odrzucony (pula przed bramką).
+- Powód wyboru: linia `tester` od 2026-10-13; scenariusze nazwane w briefie.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak FE-S2.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: BE-Ta i BE-Tb zielone (BE-Tb: 631 w filtrze), ale R2-BE wykazał nierozróżnialną zamianę pól i fałszywie zieloną asercję stanu bazy.
+- Rundy korekt: 1 (BE-TK, z dowodem rozróżnialności — mutacja handlera czerwona, przywrócenie sprawdzone sha256).
+- Czas do akceptacji: ~70 min (16:30 → ~17:41 UTC).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2×P1 — 1 potwierdzone (zamiana pól niewykrywalna), 1 obalone → P3; 3×P2 i 2×P3 potwierdzone (duplikat testu, podwójne `<summary>`, pozorne asercje maskowania w teście nakładki, podgląd bez `showLevelLadder: false`) → BE-TK.
+- Defekty po odbiorze: brak (bramka BE 0).
+- Wymagane testy i dowody: pełne BE — build 0 ostrzeżeń, 8094 testy, 0 pominiętych.
+- Uwagi: dwa przebiegi > 300 tys. kontekstu (strażnik miękki, bez przekazania). Test nakładki dowodzi tylko przekazania karty — maskowanie dowodzą testy zapytania (zgłosił tester; do raportu bramy).
+
+### 2210-FE-T2 (testy kreatora: dwa przełączniki, opisy, domyślne, zmiana kategorii, kopiowanie, ładunek) — 2026-10-21
+- Archetyp: Testy jednostkowe FE (Vitest).
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `tester` — Haiku 5.5 `xhigh` (338 s, ~229 tys.).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (R2-FE).
+- Dopuszczone alternatywy: Sonnet `high`.
+- Powód wyboru: linia `tester`.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak FE-S2.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowany (11 scenariuszy, 4 specy zielone).
+- Rundy korekt: 0.
+- Czas do akceptacji: ~20 min (z walidacją fali 2).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 dla FE-T2.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `npm test` pełny zielony.
+
+### 2210-FE-T3 (T3a, T3b, T3K, T3R) (testy karty klienta, widoku kodu i nakładki: kombinacje, najwyższy poziom, brak w DOM, AXE; korekty po R2 i R3) — 2026-10-21
+- Archetyp: Testy jednostkowe FE z AXE.
+- Stawka: średnia.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Claude / `tester` — Haiku 5.5 `xhigh` (T3a 392 s, T3b 416 s, T3K 411 s, T3R 330 s).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (R2-FE dla T3a/b, R3 dla T3K).
+- Dopuszczone alternatywy: Sonnet `high`.
+- Powód wyboru: linia `tester`; rozłączne pliki T3a/T3b równolegle.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak FE-S2.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zielone (T3a 109 testów w 5 specach, T3b 41/41), ale R2-FE: fałszywa zieleń ukrywania drabiny w specu ekranu kodu i brak wariantu `showLevelLadder: false` w specu dialogu.
+- Rundy korekt: 2 (T3K po R2-FE; T3R po R3 — zmiana 3 (P3) zamknięta bez poprawki, bo przekraczała `max-lines-per-function`, a parę „jest/nie ma” pokrywa inny spec).
+- Czas do akceptacji: ~80 min (16:26 → ~17:49 UTC).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R2-FE: 2×P1 potwierdzone, 1×P2 obalone (helper szukający w `document` — pomiar pokazał podpięty host), 1×P2 i 1×P3 potwierdzone; R3: 2×P2 i 2×P3 potwierdzone (1×P3 zamknięte bez poprawki z uzasadnieniem).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: pełne FE 4754 testy; AXE wariantów ukrytych.
+- Uwagi: przesłanka briefu T3b („poziom X z Y znika przy `levelCount` 0” w ekranie kodu) była nieprecyzyjna — decyzję podejmuje dialog; tester pokrył to na prawdziwym okablowaniu.
+
+### 2210-FE-T1 (testy Ustawień: stan, blokada, zlecone przeliczenie, potwierdzenie, UI drugiego przełącznika, AXE) — 2026-10-21
+- Archetyp: Testy jednostkowe FE pliku niezmiennika (stan zapisu).
+- Stawka: wysoka.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Claude / `tester` — Haiku 5.5 `xhigh` (742 s, ~295 tys.).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (R3, 600 s).
+- Dopuszczone alternatywy: Sonnet `high`.
+- Powód wyboru: linia `tester`.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak FE-S2.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowany (16 scenariuszy; testy przeniesione do `-edge-cases` z powodu `max-lines`).
+- Rundy korekt: 1 (2×P2 R3 — w T3R: brak asercji `label[for]` liczby, brak drugiego kliku powrotnego).
+- Czas do akceptacji: ~60 min (16:49 → ~17:49 UTC).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R3: 0×P0/P1; 2×P2 potwierdzone (wspólne z FE-T3 wyżej). Recenzent potwierdził scenariusz niezmiennika (drabina docelowa zlecenia, `applyMode: null`).
+- Defekty po odbiorze: brak (bramka FE 0).
+- Wymagane testy i dowody: pełne FE 4754.
+- Uwagi: brief wskazał zły zakres linii wzorca — tester sam zweryfikował zachowanie `confirm()` w kodzie.
+
+### 2210-R1-N (recenzje fali 1 plików niezmiennika: BE-1 i FE-S1) — 2026-10-21
+- Archetyp: Recenzja plików niezmiennika high-stakes, tylko odczyt.
+- Stawka: wysoka / high-stakes.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): — (recenzja).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (R1-BE-N 117 s, R1-FE-N 112 s).
+- Dopuszczone alternatywy: Muse Wonder Full `max` (reguła 8 dla tego archetypu) — zablokowany do 2026-10-26; Gemini Flash `high` — niższa klasa przy tej stawce.
+- Powód wyboru: ponowna kwalifikacja wg reguły 2 przy zablokowanym Muse; krótkie diffy (≤ 33 pliki) i `high` zamiast `max` — oszczędność puli Plusa przed bramką.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper, 16:06 i 16:15 UTC bez limitu); Muse zablokowany.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: oba czyste.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~2 min każda + odczyt raportu.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0/0.
+- Defekty po odbiorze: brak (bramki BE i FE 0 znalezisk).
+- Wymagane testy i dowody: raport z listą przeczytanych plików (handler, strażnik, repozytorium, applier, SQL; stan FE).
+- Uwagi: Sol `high` wobec Wondera Full `max` przy recenzji fal niezmiennika — 2 przebiegi bez znalezisk, potwierdzone czystą bramką `max`; za mało, by zmienić preferencję z reguły 8.
+
+### 2210-R1 (recenzje fali 1 bez niezmiennika: R1-BE, R1-FE, R1-DOC) — 2026-10-21
+- Archetyp: Recenzja niskiej/średniej stawki, tylko odczyt.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): — (recenzja).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (R1-BE 720 s, R1-FE 785 s, R1-DOC 613 s).
+- Dopuszczone alternatywy: Sol `high` (pula Codexa oszczędzana na bramkę); Muse — zablokowany.
+- Powód wyboru: reguła 13 — preferencja Sol/Gemini `high` przy niskiej stawce; inna rodzina niż autor (Claude).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany (przebiegi 16:06–16:30 UTC udane).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: raporty kompletne.
+- Rundy korekt: 0.
+- Czas do akceptacji: 10–13 min na przebieg + triaż.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1-BE 2×P2 potwierdzone, 1×P3 obalone; R1-FE 3×P3 potwierdzone; R1-DOC 2×P1 (1 potwierdzone, 1 obalone), 4×P2, 3×P3 potwierdzone. Fałszywych P0/P1: 1 (R1-DOC).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: każde P1 sprawdzone w dokumencie przed poprawką.
+
+### 2210-R2 (recenzje fali 2: R2-FE, R2-BE — testy i ekran Ustawień) — 2026-10-21
+- Archetyp: Recenzja testów FE/BE, tylko odczyt.
+- Stawka: średnia–wysoka (testy plików niezmiennika).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): — (recenzja).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (R2-FE 502 s, R2-BE 542 s).
+- Dopuszczone alternatywy: Sol `high` (pula przed bramką); Muse — zablokowany.
+- Powód wyboru: jak R1; autor (Haiku) z rodziny Claude.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany (przebiegi udane).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: raporty kompletne, ze scenariuszami.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~10 min na przebieg + triaż.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R2-FE 3×P1 (2 potwierdzone, 1 = zaplanowany FE-T1), 2×P2 (1 obalone pomiarem), 1×P3; R2-BE 2×P1 (1 potwierdzone, 1 obalone → P3), 3×P2 i 2×P3 potwierdzone. Fałszywych P0/P1: 2 z 5.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: każde P1 sprawdzone w kodzie przed korektą.
+- Uwagi: Gemini znalazł 3 realne P1 fałszywej zieleni w testach, których tester nie zauważył — wartość recenzji testów potwierdzona.
+
+### 2210-R3 (recenzja fali 3: FE-T1 i FE-T3K) — 2026-10-21
+- Archetyp: Recenzja testów FE, tylko odczyt.
+- Stawka: średnia–wysoka.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): — (recenzja).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (600 s, 9 plików).
+- Dopuszczone alternatywy: Sol `high`; Muse — zablokowany.
+- Powód wyboru: jak R2.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 0×P0/P1; scenariusz niezmiennika potwierdzony.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~10 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2×P2 i 2×P3 potwierdzone (1×P3 zamknięte bez poprawki z uzasadnieniem). Fałszywych P0/P1: 0.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: P2 sprawdzone w kodzie.
+
+### 2210-SCSS (+FE-SCSS-K) (audyt SCSS diffu i wydzielenie wspólnego wiersza opcji) — 2026-10-21
+- Archetyp: Audyt SCSS + mechaniczny refaktor.
+- Stawka: niska.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): audyt Gemini / `gemini-3.8-flash-high` `-Access read` (392 s); poprawka Claude / `mechanik` — Haiku 5.5 `low` (206 s).
+- Recenzent (linia / model / native effort): poprawka — R3/bramka FE (Gemini, Sol `max`) i zrzuty architekta.
+- Dopuszczone alternatywy: audyt Sol `high`; Muse Spark `max` (dotychczasowa linia audytu) — zablokowany.
+- Powód wyboru: Muse zablokowany; poprawka z dokładną treścią — `mechanik`.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany; Claude znany.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: audyt kompletny (oba pliki); poprawka zielona.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~15 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2×P2 (brak `cursor: pointer`, promień spoza skali) i 3×P3 (komentarze, nieużywane tokeny) — wydzielenie wiersza opcji, kursor i komentarze poprawione; linie sprzed zadania → raport bramy.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: stylelint, zrzuty kroku 3 poziomów i pieczątek 8/8.
+- Uwagi: komentarz „konsumują `stamp-rules` i `level-rules`” nad kilkoma mixinami w `_settings-shared.scss` jest nieaktualny (zgłosił `mechanik`) — kandydat na drobny refaktor.
+
+### 2210-G-BE (bramka końcowa BE, cały diff funkcji) — 2026-10-21
+- Archetyp: Bramka końcowa high-stakes — recenzja całego diffu BE, tylko odczyt.
+- Stawka: wysoka / high-stakes.
+- Niepewność: niska (po trzech recenzjach fal).
+- Wykonawca (linia / model / native effort): — (bramka).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `max`, `-Mode review`, jeden przebieg na całe repo BE (271 s).
+- Dopuszczone alternatywy: brak (reguła 6); przy limicie — jednorazowo Muse Wonder Full `max` od 26.10 (decyzja właściciela D4d), niepotrzebne.
+- Powód wyboru: reguła 6.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper, 17:46 UTC; R1-N bez limitu).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: „gotowe do wydania”, 0 znalezisk.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~5 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0.
+- Defekty po odbiorze: brak (PRE: BE 1.13.0, smoke 20/20).
+- Wymagane testy i dowody: build 0 ostrzeżeń, 8094 testy, 0 pominiętych.
+
+### 2210-G-FE (bramka końcowa FE, cały diff funkcji + kontrakt BE) — 2026-10-21
+- Archetyp: Bramka końcowa high-stakes — recenzja całego diffu FE, tylko odczyt.
+- Stawka: wysoka / high-stakes.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): — (bramka).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `max`, `-Mode review` (478 s, 61 plików).
+- Dopuszczone alternatywy: jak G-BE.
+- Powód wyboru: reguła 6; sekwencyjnie po bramce BE.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper, 17:51 UTC).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: „gotowe do wydania”, 0 znalezisk.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~8 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0.
+- Defekty po odbiorze: brak (PRE: FE 1.9.0, smoke 20/20).
+- Wymagane testy i dowody: lint, format, 4754 testy, build.
+- Uwagi: cała funkcja przeszła obie bramki bez znalezisk po 3 rundach recenzji Gemini/Sol `high` — tu bramka niczego nie dołożyła; wartość bramki zależy od jakości recenzji fal.
+
+### 2210-4C (przegląd zgodności dokumentacji z kodem) — 2026-10-21
+- Archetyp: Przegląd zgodności dokumentacja ↔ kod, obie strony, tylko odczyt.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): — (przegląd).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (555 s).
+- Dopuszczone alternatywy: Sol `high` (pula przed bramką — bramki już zakończone); Sonnet read (ta sama rodzina co autor rewizji — wykluczony); Muse — zablokowany.
+- Powód wyboru: inna rodzina niż autor rewizji (Claude).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany (17:53 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 104 twierdzenia zgodne, 0 rozbieżności.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~12 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 rozbieżności.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: macierz z cytatem dokumentu i `plik:linia`.
+- Uwagi: brief miał 5 błędnych przesłanek (ścieżka `AGENTS.md`, położenie §10/§14 w `INSTRUKCJA-DLA-AI.md`, zagnieżdżone ścieżki BE, statusy indeksów) — recenzent skorygował sam; to drugi raz (po 2723-4C) — szablon briefu 4c do poprawy.
+
+### 2210-QAS-A (QA Sphere: przegląd 100 istniejących + nowe przypadki kreatora i Ustawień → Program) — 2026-10-21
+- Archetyp: QA Sphere — autor pliku podglądu (przegląd istniejących + luki) w funkcji high-stakes.
+- Stawka: średnia (przypadki testowe, bez kodu; funkcja high-stakes).
+- Niepewność: średnia (stany karencji i programu zamkniętego osiągalne tylko skryptami SQL).
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write` (1010 s) + korekta K1 (673 s).
+- Recenzent (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high`, tylko odczyt (368 s).
+- Dopuszczone alternatywy: autor — Muse Wonder `max` (skill: w funkcji high-stakes) zablokowany limitem tygodniowym; recenzent — Muse Wonder `max` (twarda reguła skilla: plik Gemini → Muse) zablokowany do 2026-10-26 00:00Z → ponowna kwalifikacja wg reguły 2 na Sonneta read (precedens 2723-QAS, 2747, 2785); Sol `high` oszczędzany (pula Codexa po bramkach).
+- Powód wyboru: jedyna dostępna linia autora z QA Sphere MCP poza Muse; recenzent z innej rodziny niż Gemini.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany (wrapper, 18:14 UTC); Muse zablokowany (429 z resetem 2026-10-26T00:00Z, 08:13 UTC); Claude znany ZIELONY (hook, 18:30 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 17 nowych, 12 aktualizacji, 88 keep, lint --strict 0/0; recenzja: 5×P1 potwierdzone (konto `onboarding3` zamiast jednomiejscowego `onboarding1` w 369; K5 obiecywał okno przy zamknięciu X; U3/U4 bez przygotowania karencji, U4 z kodem 409 i nazwą błędu niewidocznymi dla testera; U5 bez sposobu zamknięcia programu), 0 obalonych.
+- Rundy korekt: 1 (K1: 12 punktów, nowy K10 — persystencja zapisu z kreatora w Ustawieniach).
+- Czas do akceptacji: ~85 min (autor → recenzja → K1 → kontrola wyrywkowa architekta → brama właściciela).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 5×P1 + P3 potwierdzone, 0 odrzuconych.
+- Defekty po odbiorze: brak; `verify` 0 realnych różnic (autolink w warunkach wstępnych i kolejność `requirements` 1375 — artefakty odczytu, normalizacja doraźna).
+- Wymagane testy i dowody: `qas.py lint --strict`, kontrola wyrywkowa U4/U5/K5/K10 względem kodu i dokumentacji, `verify` po wysyłce (seq 1743–1760).
+- Uwagi: błędy briefu architekta — zakaz SQL w `00-wspolne.md` kolidował z karencją i programem zamkniętym; brief zakładał ostrzeżenie przy X w kreatorze; wzorzec `beforeunload` (1117) leży w innym folderze; zła ścieżka klucza `LEVELS_PENDING`; `onboarding3` ma 3 miejsca. Szablon briefu QA Sphere: przy stanach nieosiągalnych w UI wskazywać od razu przypadki-źródła skryptów.
+
+### 2210-QAS-B (QA Sphere: przegląd 51 istniejących + nowe przypadki karty klienta, widoku kodu i nakładki po skanie) — 2026-10-21
+- Archetyp: QA Sphere — autor pliku podglądu (przegląd istniejących + luki) w funkcji high-stakes.
+- Stawka: średnia.
+- Niepewność: średnia (naliczenie kodem z paragonu zmienia stan wspólnej karty demo).
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write` (1046 s) + korekta K1 (1172 s).
+- Recenzent (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high`, tylko odczyt (487 s).
+- Dopuszczone alternatywy: jak 2210-QAS-A.
+- Powód wyboru: jak 2210-QAS-A.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak 2210-QAS-A.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 12 nowych, 5 aktualizacji, 45 keep, 1 retire (1146 — duplikat 1145, potwierdzony porównaniem treści), lint --strict 0/0; recenzja: 4×P1 potwierdzone (C9 z nieistniejącym w seedach sprzedawcą programu poziomów; skrypt przywracający 696 cofa licznik bez `CurrentLevelId` — defekt sprzed zadania, karta zostawała na Platynie; C8 z wymyślonym kodem paragonu; 1131/1140 — ręczne kroki dopisane do przypadków `Automated` z fixture'a), 0 obalonych.
+- Rundy korekt: 1 (K1: 8 punktów, nowe C7b, C7c, C8b; 1144 keep → update).
+- Czas do akceptacji: ~85 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 4×P1 + P3 potwierdzone, 0 odrzuconych.
+- Defekty po odbiorze: brak; `verify` 0 realnych różnic (`\_` w C5 — artefakt odczytu).
+- Wymagane testy i dowody: `qas.py lint --strict`, kontrola wyrywkowa C1/C7c/C8/C8b/C9/696/1146 względem kodu, `verify` po wysyłce (seq 1761–1775).
+- Uwagi: autor słusznie zgłosił konflikt briefu z lintem (`XXX-XXX-XXX` z oryginału 696 łapie reguła zaślepek `--strict`) i sformułował krok neutralnie. `qas.py retire` padał na 1146: `get_test_case` pomija klucz `tags`, gdy przypadek nie ma tagów — poprawka jednej linii w `_retire_live_case` (2026-10-21).
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
