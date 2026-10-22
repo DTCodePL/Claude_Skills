@@ -6252,6 +6252,128 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: `qas.py lint --strict`, kontrola w kodzie (status 0 → `ERRORS.HTTP.OFFLINE`, `SKIP_ERROR_TOAST` w poleceniach abonamentu, brak zapisu stanu przy 409, domyślny szkic kreatora kompletny po nazwie), `verify` po wysyłce (seq 1791–1808).
 - Uwagi: wariant „inny błąd po zamknięciu w toku” pominięty świadomie — DevTools nie przerywa deterministycznie żądania już wysłanego; ścieżkę pokrywają testy jednostkowe (FE-T1c/FE-TK). Recenzja Sonneta wyłapała w obu plikach po 2 P1 wykonalności, których lint nie widzi — przy autorze Gemini recenzja krzyżowa jest konieczna, nie formalna.
 
+### 2297-CORE (+K-CORE, K2-CORE) (przejście na ekran 500: token oznaczonego GET, usługa, interceptor, znacznik SSR, inicjalizator) — 2026-10-22
+- Archetyp: Logika przekrojowa FE z cichym błędem (cykl życia nawigacji, generacja żądań, SSR `RESPONSE_INIT`, nawigacja początkowa) — poza listą high-stakes reguły 6.
+- Stawka: średnio-wysoka (wyrzucenie z widoku, pętla, spóźniona odpowiedź, otwarte przekierowanie przez `from`).
+- Niepewność: wysoka (zachowanie silnika SSR i rutera Angulara 22 sprawdzane w `node_modules`).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 `xhigh` — CORE 17 min, K-CORE 12,5 min, K2-CORE 4,3 min.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `xhigh`, `-Mode review` (2297-R1); zgodność z dokumentacją — Sol `high` (2297-4C).
+- Dopuszczone alternatywy: brak (Sonnet — reguła „za trudne dla Sonneta”; Codex nie przejmuje cichej logiki przekrojowej w porcjach ≤ 5 plików przy 7 plikach + 3 specach).
+- Powód wyboru: logika przekrojowa z cichym błędem; lekcja 1605-G (spóźnione 500 po zmianie konta) wskazywała na cykl życia jako główne ryzyko.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, ~06:55 UTC: okno 4 %, tydzień 59 %).
+- Pewność decyzji: średnia (brak wcześniejszych wyników tego archetypu).
+- Wynik pierwszego podejścia: 4 nowe pliki + 3 specy, 3 zmienione + specy, 92/92 w zakresie, mutacje a–h czerwone; wykonawca sam zgłosił 6a (warunek „już na ekranie 500” czytał `router.url` zamiast celu trwającej nawigacji → cisza przy wyjściu z `/blad-serwera`) i 6c (SSR: przekierowanie strażnika + 500 → ograniczenie).
+- Rundy korekt: 2 (K-CORE: 6a + F2 z R1 — `browserUrl` przy błędzie w trakcie nawigacji, 72/72, mutacje m1–m4 czerwone; K2-CORE: `Cache-Control: no-store` dla ścieżki SSR oznaczonego GET z 4C, spec SSR).
+- Czas do akceptacji: ~67 min (07:12 → ~08:19 UTC z pełnym testem i buildem).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1 — 1×P2 potwierdzone (F2), 1×P2 odrzucone (F3 `void navigateByUrl` — idiom repo, ruter łapie odrzucenia); 4C — 1×P2 `kod odbiega` potwierdzone (`no-store`); własne 6a potwierdzone.
+- Defekty po odbiorze: brak do bramy (PRE po wdrożeniu).
+- Wymagane testy i dowody: specy z mutacjami czerwonymi; pełne lint 0, format 0, test 465/5018, build OK; V1 w przeglądarce (2297-V1).
+- Uwagi: błąd briefu architekta w K2 — twierdził, że `server-error-page.spec.ts` ma już blok `RESPONSE_INIT`; wykonawca dostosował się sam. Ograniczenia zostawione do decyzji przy oznaczaniu pierwszego widoku: SSR przekierowanie strażnika + 500, `replaceUrl` przerwanej nawigacji nie przechodzi na ekran 500.
+
+### 2297-SSR (+K-SSR) (middleware Expressa: ekran 500 przy awarii renderu SSR) — 2026-10-22
+- Archetyp: Pojedynczy middleware serwera SSR + spec z atrapą silnika.
+- Stawka: średnia.
+- Niepewność: niska (wyrocznia: spec z atrapą `engine.handle`).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high` — SSR 4,3 min, K-SSR 2,8 min.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `xhigh`, `-Mode review` (2297-R1).
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` (≤ 5 plików) — oszczędzany na recenzję R1 i 4C.
+- Powód wyboru: krótki brief jednej warstwy z jednoznaczną wyrocznią.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, ~06:55 UTC).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: `server-error-fallback.ts` + spec 16 testów, mutacje a/b/c czerwone, wpięcie w `server.ts`.
+- Rundy korekt: 1 (K-SSR: F1 z R1 — log przekazywał obiekt wyjątku z możliwym query stringiem → lokalne `describeError` z redakcją `?[…]`, 20/20, mutacja czerwona).
+- Czas do akceptacji: ~47 min (07:13 → ~08:00 UTC, z czekaniem na R1).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1×P2 potwierdzone (F1), 0 odrzuconych.
+- Defekty po odbiorze: brak do bramy.
+- Wymagane testy i dowody: spec 20/20, pełne test/build, V1 (podmiana odpowiedzi dokumentu na wynik middleware'u).
+
+### 2297-DOC (dokumenty ekranów 500 i 404 + WP przejścia na ekran 500 + 2 indeksy) — 2026-10-22
+- Archetyp: Dokumentacja produktowa — nowe dokumenty `do-weryfikacji` opisujące istniejący kod i decyzje właściciela.
+- Stawka: średnia.
+- Niepewność: średnia (ekrany #1880/#1881 bez dokumentów źródłowych — opis z kodu i Figmy).
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write` (565 s).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (2297-4C); lektura architekta.
+- Dopuszczone alternatywy: Codex Sol `medium`, `wykonawca` Sonnet; Muse zablokowany do 2026-10-26.
+- Powód wyboru: precedens 1605-DOC przyjęty; osobna pula, Codex oszczędzany na R1/4C.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini znany (`agy /quota`, ~06:50 UTC: tydzień 49 %, 5 h 100 %); Muse zablokowany (429, reset 2026-10-26T00:00Z).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 3 nowe dokumenty + 2 indeksy, front matter i linki poprawne; jedno zdanie („wejście po awarii” sugerowało `from` w pasku) poprawione przez architekta; wykonawca słusznie zgłosił etykietę 404 „Przejdź do panelu” dla gościa i lukę Konta/Zakupu.
+- Rundy korekt: 0 przez autora; architekt: 1 zdanie po DOC, 1 zdanie po R1 (F2), 5 doprecyzowań WP po 4C.
+- Czas do akceptacji: ~70 min (07:11 → ~08:20 UTC z 4C).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 4C — 4×P2 w WP potwierdzone (status 0 na serwerze, granice renderu zastępczego, wyciszanie tylko odczytów 1a, prerender), 0 odrzuconych.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: diff dokumentacji przeczytany, macierz 4C.
+
+### 2297-V1 (dowód w przeglądarce: znacznik 500, adres w pasku, „Spróbuj ponownie”, „Wstecz”, F5) — 2026-10-22
+- Archetyp: Worker przeglądarkowy — dowód z podmianą odpowiedzi dokumentu (Playwright `page.route`), bez zmian w repo.
+- Stawka: niska (dowód, nie kod).
+- Niepewność: średnia (czy podmiana dokumentu w Playwright MCP odda dokładnie odpowiedź middleware'u).
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write` (Playwright MCP wymaga zapisu w allow-liście `agy`), 446 s.
+- Recenzent (linia / model / native effort): — (architekt obejrzał zrzuty i log konsoli).
+- Dopuszczone alternatywy: Codex z Playwright MCP (oszczędzany na R1/4C); `browser-check` nie podmienia odpowiedzi; `pwcli` tylko w linii Muse (zablokowana).
+- Powód wyboru: jedyna dostępna linia z Playwright MCP poza oszczędzanym Codexem.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini znany (`agy /quota`, ~06:50 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: S0–S7 PASS; bez NG05xx/NG0500 (tylko zastane NG02960 logo i 502 API bez BE); zrzuty 500 Light/Dark pod `/o-nas`.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~10 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): —.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: zrzuty w `_robocze/2297-v1/` obejrzane, `location.href` przed każdym zrzutem.
+- Uwagi: błąd briefu — zakładał `h1` na `/o-nas` (strona jest pustym placeholderem); bez skutku. Gemini z Playwright MCP wymaga `-Access write` — tryb read blokuje narzędzia MCP.
+
+### 2297-R1 (recenzja fali 1 FE: CORE + SSR, cały diff) — 2026-10-22
+- Archetyp: Recenzja fali — logika przekrojowa FE + middleware SSR, tylko odczyt.
+- Stawka: średnio-wysoka.
+- Niepewność: wysoka.
+- Wykonawca (linia / model / native effort): —.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `xhigh`, `-Mode review` z `-BriefFile` (zakres w briefie — wrapper nie dodaje wtedy `--uncommitted`), 544 s.
+- Dopuszczone alternatywy: Gemini `flash-high` read (niższa klasa do cyklu życia); Muse zablokowany.
+- Powód wyboru: inna rodzina niż Claude; lekcja 1605 — Sol `high` przeoczył cykl życia, który złapał `max`; `xhigh` jako kompromis z pulą Plus.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper, ostatni przebieg 2026-10-21 23:19Z bez limitu).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 3×P2 — F1 log obiektu wyjątku (defekt), F2 adres w pasku przy błędzie w trakcie nawigacji (defekt), F3 `void navigateByUrl` (odrzucone).
+- Rundy korekt: 1 (K-SSR, K-CORE).
+- Czas do akceptacji: ~25 min (07:32 → ~07:57 UTC z korektami).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2×P2 potwierdzone, 1×P2 odrzucone (idiom repo ×37, ruter i `@angular/ssr` łapią odrzucenia); 6a z raportu CORE potwierdzone niezależnie przez architekta.
+- Defekty po odbiorze: brak do bramy.
+- Wymagane testy i dowody: mutacje czerwone w korektach.
+
+### 2297-4C (przegląd zgodności dokumentacji z kodem) — 2026-10-22
+- Archetyp: Przegląd zgodności dokumentacja ↔ kod, tylko odczyt.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): — (przegląd); poprawki — architekt (5 doprecyzowań WP), `wykonawca-opus` (K2-CORE).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (444 s).
+- Dopuszczone alternatywy: `wykonawca` Sonnet read — wykluczony (architekt Claude poprawiał dokumenty); Gemini — autor DOC; Muse zablokowany.
+- Powód wyboru: jedyna rodzina niezależna od autorów dokumentacji (Gemini, architekt Claude) i kodu (Claude).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper, 07:41 UTC, bez limitu).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 5×P2 — 4 w WP (2× `brak w dokumencie`, 2× `dokument nieaktualny`), 1× `kod odbiega` (`no-store` dla oznaczonego GET w SSR); ekrany, teksty PL/EN, front matter i linki zgodne; macierz w formacie z briefu.
+- Rundy korekt: 1.
+- Czas do akceptacji: ~18 min (08:01 → ~08:19 UTC).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 5×P2 potwierdzone, 0 odrzuconych.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: delta WP przeczytana, K2-CORE ze spekiem, pełne test/build.
+
+### 2297-QAS (QA Sphere: przegląd 14 istniejących stron błędów + przypadki przejścia na ekran 500, w większości automatyczne) — 2026-10-22
+- Archetyp: QA Sphere — autor pliku podglądu (przegląd istniejących + luki), poza high-stakes; przypadki automatyczne wskazujące testy Vitest (decyzja D6: na PRE nie da się wywołać awarii serwera).
+- Stawka: średnia (przypadki testowe, bez kodu).
+- Niepewność: średnia (pierwszy zestaw z przewagą przypadków `Automated` wskazujących konkretne testy).
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write` (670 s) + korekta K1 (814 s).
+- Recenzent (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high`, tylko odczyt (257 s).
+- Dopuszczone alternatywy: autor — Muse Spark `max` (skill, poza high-stakes) zablokowany limitem tygodniowym; recenzent — Muse (twarda reguła skilla: plik Gemini → Muse) zablokowany do 2026-10-26 00:00Z → ponowna kwalifikacja wg reguły 2 na Sonneta read (precedens 2210/1605-QAS); Codex Sol `high` dopuszczony (5 h 18 %, tydzień 48 % po R1/4C), nie wybrany — Sonnet ma lokalne wyniki tego archetypu.
+- Powód wyboru: jedyna dostępna linia autora z QA Sphere MCP poza Muse; recenzent z innej rodziny niż Gemini z potwierdzonymi P1 wykonalności w 1605-QAS.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini znany (`agy /quota` ~06:50 UTC, potem 3 przebiegi bez limitu); Muse zablokowany (429, reset 2026-10-26T00:00Z); Claude znany ZIELONY (hook, ~08:40 UTC: okno 23 %, tydzień 61 %).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 11 nowych (1 ręczny HTTP 200 przy bezpośrednim wejściu, 10 `Automated`), 14 keep, lint --strict 0/0, wszystkie nazwy testów istniały; recenzja: 2×P1 potwierdzone (w 7 przypadkach polecenie `ng test --include` uruchamiało 1 z 2–3 wskazanych speców — zielony wynik bez części testów; P5 obiecywał zachowanie danych formularza i brak ponowienia bez testu, który to sprawdza), 3×P2 potwierdzone („gałąź robocza” zamiast `main`/commit; brak testu wykluczeń `/api`/`/blad-serwera` w P2; `no-store` w P3 bez testu), 5×P3 przyjęte (żargon kodu w krokach, luka 4xx na oznaczonym GET → nowy P12, 792/793 → `update` z wymaganiem #2297, test generacji w P7, „Disable cache” w P1), 0 obalonych.
+- Rundy korekt: 1 (K1: 10 punktów; architekt sprawdził skryptem: pliki w poleceniu = pliki w warunku, nazwy testów = szablony `it.each`, brak żargonu w krokach).
+- Czas do akceptacji: ~33 min (08:24 → 08:57 UTC z wysyłką).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2×P1 + 3×P2 + 5×P3 potwierdzone, 0 odrzuconych.
+- Defekty po odbiorze: brak; `verify` 4 różnice — wszystkie znane artefakty odczytu (autolink, „01.”, `\_`).
+- Wymagane testy i dowody: `qas.py lint --strict` z `--context`, kontrola skryptowa K1, `verify` po wysyłce (folder 188, seq 1809–1820, aktualizacje 792/793).
+- Uwagi: błąd briefu architekta — kazał grupować przypadek automatyczny po regule WP (2–3 speki), a nie powiedział, że polecenie ma mieć `--include` na każdy plik; stąd masowy P1. Szablon briefu QA Sphere dla przypadków `Automated`: (1) polecenie z `--include` dla każdego wskazanego pliku; (2) każde zdanie `expected` musi mieć asercję we wskazanym teście; (3) stan kodu = `main` + commit; (4) identyfikatory kodu tylko w warunku wstępnym.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
