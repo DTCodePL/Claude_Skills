@@ -6653,6 +6653,142 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: 0 przy wdrożeniu PRE (2026-10-22 17:38 UTC: FE 1.12.0, BE 1.14.0, nowe trasy aktywne); retest testera w toku.
 - Wymagane testy i dowody: eslint/prettier 0; 135/135 w 4 specach; pełne FE: lint 0, format OK, 5420/5420, build OK.
 
+### 2148-DOC-A…D (nowa decyzja i interfejs + rewizje 12 dokumentów `zatwierdzony`, cztery briefy równolegle) — 2026-10-22
+- Archetyp: Dokumentacja produktowa — nowy dokument decyzji i interfejsu (12 stanów, tabela tekstów) oraz rewizje procesu, reguł, architektury technicznej, wymagań przekrojowych, interfejsów i kwestii otwartej; rozłączne pliki per brief.
+- Stawka: średnia (dokumentacja funkcji high-stakes — naliczanie, kody jednorazowe, limit prób — bez kodu; źródło prawdy dla PBI implementacyjnego).
+- Niepewność: średnia (nowe dokumenty bez lokalnego precedensu; decyzje W1–W5, D1–D12 i P1–P7 podane w briefach).
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write` (×4).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (wpis 2148-REV-DOC) + walidacja architekta.
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` write (`-CodexSandbox danger-full-access` przy odmowie zapisu); Claude `wykonawca` Sonnet 5.5 `high`; Muse — zablokowany.
+- Powód wyboru: rewizje dokumentacji na Gemini `high` 0 rund (2747/2785/2723-DOC-1); Muse zablokowany limitem tygodniowym; Claude ŻÓŁTY — pula Claude'a zostaje dla Figmy.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini znany (`agy /quota`, 2026-10-22 ~21:20Z); Muse zablokowany do 2026-10-26T00:00Z (429 tygodniowy, log wrappera 20:47Z); Claude ostrzegawczy (hook, ŻÓŁTY).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: wymagane korekty — 543 / 493 / 376 / 475 s, exit 0; walidacja architekta: 4 rozbieżności (sprawdzenie wstępne po stronie przeglądarki, stany 5 i 11 niezgodne ze wzorem nakładki, fokus po wejściu, zgubione zdanie w WP-OCHRONA), recenzja: 6 kolejnych.
+- Rundy korekt: 1 (wspólny brief 2148-DOC-K).
+- Czas do akceptacji: ~2,5 h (start 21:26Z, odbiór po DOC-K i walidacji fali 2).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): REV-DOC — potwierdzone 5×P2 + 1×P3, odrzucone 0.
+- Defekty po odbiorze: brak (macierz 4c bez rozbieżności).
+- Wymagane testy i dowody: `git diff` 16 plików, skrypt odnośników 615/0, front matter, macierz 4c; commit `e80d4ba`.
+
+### 2148-REV-DOC (recenzja dokumentacji fali 1) — 2026-10-22
+- Archetyp: Recenzja dokumentacji produktowej (14 plików, nowa decyzja i interfejs).
+- Stawka: średnia.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): — (recenzja).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review`, `-BriefFile` z wyroczniami D/W/P.
+- Dopuszczone alternatywy: Claude `wykonawca` Sonnet 5.5 `high` tylko odczyt (precedens 2723-4C); Muse — zablokowany.
+- Powód wyboru: inna rodzina niż autor (Gemini); Sol `high` preferowany przy niskiej/średniej stawce (reguła 13); brak bramki Sol `max` w PBI analitycznym — pula Codexa wolna.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper, 2026-10-22 21:38Z).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowano — 315 s, exit 0, raport kompletny.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~15 min (z triażem).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 5×P2 (sprzeczna reguła nadwyżki, sprzeczny warunek udziału, nakładka otwierana bez kodu, brak stanu programu niedostępnego, brak wyjścia ze stanu zapisywania po błędzie technicznym) + 1×P3 (kopie progów); odrzucone 0. Dwa znaleziska wymusiły nowe decyzje architekta (P8, P9).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: triaż każdego znaleziska w pliku dokumentacji; dziennik #13–#18.
+
+### 2148-FIG-1 (komponent karty wejścia z kodu, 22 warianty) — 2026-10-22
+- Archetyp: Figma — komponent z wariantami (Stan × Widok) z komponentów biblioteki, tryby zmiennych Light/Dark.
+- Stawka: niska (makieta bez niezmiennika).
+- Niepewność: średnia (nowy komponent; wzór `Zebrani/ScanCard`).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high` + Figma MCP.
+- Recenzent (linia / model / native effort): architekt (Opus `xhigh`) — `get_metadata` i zrzuty; inna rodzina z potwierdzonym Figma MCP niedostępna w sesji.
+- Dopuszczone alternatywy: brak (Codex Figma niepotwierdzona; Muse i Gemini bez Figmy).
+- Powód wyboru: zamknięta próba A/B — Figma zostaje w `wykonawca`; precedensy 1605-FIG-1, 2371-FIG-1.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook, ŻÓŁTY, 2026-10-22 wieczór).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowano — 702 s, 52 wywołania; 22 warianty, teksty zgodne z tabelą.
+- Rundy korekt: 0 (stan 12 dołożony osobnym briefem FIG-3 po decyzji P8).
+- Czas do akceptacji: ~20 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `get_metadata` (22 warianty), zrzuty Light, Dark w zrzutach FIG-2.
+
+### 2148-FIG-2 (strona Public/ReceiptCode, 11 sekcji × 4 ramki) — 2026-10-22
+- Archetyp: Figma — ekrany w layoucie publicznym z instancji komponentu, Mobile 360 / Desktop 1280 × Light / Dark.
+- Stawka: niska.
+- Niepewność: niska (kompozycja jak Public/Login, sekcje jak Logged/Client/Scan).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high` + Figma MCP.
+- Recenzent (linia / model / native effort): architekt — `get_metadata` i zrzuty każdej sekcji.
+- Dopuszczone alternatywy: brak (jak FIG-1).
+- Powód wyboru: jak FIG-1; zależność od komponentu FIG-1.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook, ŻÓŁTY).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowano — 352 s, 50 wywołań; 44 ramki.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~15 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): uwagi wykonawcy do briefu (wzór bez sekcji, minimalna wysokość 648) przyjęte bez zmian.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `get_metadata` 44 ramek, zrzuty sekcji 1, 4, 9.
+
+### 2148-FIG-3 (stan 12 „Program niedostępny” — 2 warianty i sekcja strony) — 2026-10-22
+- Archetyp: Figma — rozszerzenie komponentu i strony o nowy stan.
+- Stawka: niska.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high` + Figma MCP.
+- Recenzent (linia / model / native effort): architekt — zrzuty 4 ramek i obu wariantów.
+- Dopuszczone alternatywy: brak.
+- Powód wyboru: autor komponentu i strony, kontekst biblioteki.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook, ŻÓŁTY).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: wymagane korekty — 157 s; ikona `pause-circle` ~12 px zamiast 40 px (ograniczenia CENTER wektora).
+- Rundy korekt: 1 (107 s, przeskalowanie instancji).
+- Czas do akceptacji: ~15 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1 potwierdzone (rozmiar ikony, P2), 0 odrzuconych.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: zrzuty Mobile/Desktop × Light/Dark sekcji 12, warianty 4135:4517/4523.
+
+### 2148-DOC-K (korekty dokumentacji po walidacji i recenzji, 9 plików + 2 nowe rewizje) — 2026-10-22
+- Archetyp: Dokumentacja produktowa — korekty wielu dokumentów wg tabeli znalezisk i nowych decyzji P8/P9.
+- Stawka: średnia.
+- Niepewność: niska (każda korekta podana w briefie z miejscem i treścią decyzji).
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write`.
+- Recenzent (linia / model / native effort): architekt — diff każdego pliku i skrypt odnośników (reguła poprawek Fazy 4b).
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` write; Claude `wykonawca` Sonnet 5.5 `high`.
+- Powód wyboru: linia autora fali 1 (reguła poprawek).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini znany (`agy /quota`, tydzień 17 %, 2026-10-22 ~21:50Z).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zaakceptowano z dwiema poprawkami jednolinijkowymi architekta — 1104 s; etykieta briefu „K-A4” przeciekła do dokumentu UI; punkt 22 decyzji twierdził, że teksty nie są powielane, choć trzy punkty je cytują.
+- Rundy korekt: 0 (poprawki architekta, reguła 11).
+- Czas do akceptacji: ~40 min (z walidacją).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2 potwierdzone (P3), 0 odrzuconych; dwie uwagi wykonawcy do briefu odrzucone (nieidempotencja — świadomy kompromis; „stan 5 nakładki z nieaktywnym przyciskiem” — nakładka ma przycisk „Gotowe”).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: diff, `grep` etykiet briefu = 0, odnośniki 615/0, dziennik #8–#19 zamknięty.
+
+### 2148-QAS-A (QA Sphere: 36 nowych przypadków wejścia gościa z kodu — 33 + 3 z K1 — i przegląd 35 istniejących, z korektami K1–K3) — 2026-10-22
+- Archetyp: QA Sphere — autor pliku podglądu (`qas.py`), przypadki manualne zachowania docelowego PBI #2800 przed implementacją; przegląd poddrzewa „Skanowanie kodu przez klienta”.
+- Stawka: średnia (przypadki dla funkcji high-stakes — kody jednorazowe, limit prób, naliczanie — bez kodu; błąd daje przypadek niewykonalny albo fałszywy werdykt testera).
+- Niepewność: średnia (zachowanie docelowe bez implementacji; dane testowe PRE dla stanów programu i kodu bez gotowej procedury).
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write` (QAS-A + korekty K1, K2, K3).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (wpis 2148-QAS-R) + walidacja architekta.
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` write; Muse Wonder `max` (para skilla dla funkcji high-stakes) — zablokowany.
+- Powód wyboru: decyzja właściciela W5 (Muse wyczerpany do poniedziałku); rewizje dokumentacji na Gemini `high` bez rund.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini znany (`agy /quota`, tydzień 15 %, 2026-10-22 ~22:20Z); Muse zablokowany do 2026-10-26T00:00Z (429 tygodniowy).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: wymagane korekty — 820 s, `lint` 0/0; recenzja: 22×P2 (przygotowanie niewykonalne lub niesamodzielne, luki ponownej weryfikacji przy zapisie, zła trasa EN, wymóg `noindex` spoza dokumentacji); architekt dołożył 2 uwagi (TC13 treść żądania HTTP, TC23 „HTTP 429” — fakty spoza dokumentacji).
+- Rundy korekt: 3 (K1 1125 s — 23 pozycje + TC34–TC36; K2 375 s — TC36 i TC33 po sprostowaniu znacznika urządzenia; K3 551 s — TC32 odsyłał do TC31).
+- Czas do akceptacji: ~2 h 10 min (start 22:21Z, pełne `verify` po wysyłce ~23:30Z; wysyłka seq 1853–1888).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): QAS-R — potwierdzone 22×P2, odrzucone 0; 2 z nich wynikały z błędów briefu architekta (wolny numer sprawdzany na liście klientów jednego właściciela; okno prywatne w przypadkach limitu). Wykonawca w K1 obalił założenie dokumentacji i recenzenta (okno prywatne też dostaje znacznik — potwierdzone w `DeviceMarker.read()`), co dało poprawkę DEC i PB (`2892d89`, `df9e907`). W K1 dopisał w raporcie (nie w przypadkach) zmyślone adresy API i kody HTTP — do pilnowania w briefach Gemini.
+- Defekty po odbiorze: brak (pełne `qas.py verify`).
+- Wymagane testy i dowody: `qas.py lint` 0/0 po każdej rundzie, porównanie przypadków między przebiegami (zmienione tylko klucze z briefu), pełne `verify`.
+
+### 2148-QAS-R (recenzja przypadków QA Sphere fali QAS-A) — 2026-10-22
+- Archetyp: Recenzja przypadków manualnych QA Sphere (33 nowe, przegląd 35 istniejących) wobec dokumentacji, seedów i kodu.
+- Stawka: średnia.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): — (recenzja).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review`, `-BriefFile`, `-Repo` = Dokumentacja.
+- Dopuszczone alternatywy: Claude `wykonawca` Sonnet 5.5 `high` tylko odczyt; Muse — zablokowany.
+- Powód wyboru: decyzja właściciela W5; inna rodzina niż autor (Gemini); brak bramki Sol `max` w PBI analitycznym.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper, 2026-10-22 22:37Z).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowano — 452 s, exit 0; raport kompletny, ale zdublowany i przemieszany w stderr (do czytania z sekcji „Full review comments”).
+- Rundy korekt: 0.
+- Czas do akceptacji: ~45 min (z triażem i ustaleniem danych PRE: stały kod SMS poza produkcją wg DEC, korekta właściciela, brak w UI wstrzymania/zakończenia programu → zapytania SQL z przywróceniem).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 22×P2, odrzucone 0; 0 P0/P1. Jedno (TC23 — okno prywatne bez znacznika) oparte na nieprecyzyjnym zdaniu dokumentacji; poprawka nieszkodliwa (zwykły profil). Krytyka briefu autora trafna.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: triaż każdego znaleziska w dokumentacji, seedach (`Script9500*`), `pl.json`, `app.routes.ts`, `device-marker.ts`.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
