@@ -6374,6 +6374,285 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: `qas.py lint --strict` z `--context`, kontrola skryptowa K1, `verify` po wysyłce (folder 188, seq 1809–1820, aktualizacje 792/793).
 - Uwagi: błąd briefu architekta — kazał grupować przypadek automatyczny po regule WP (2–3 speki), a nie powiedział, że polecenie ma mieć `--include` na każdy plik; stąd masowy P1. Szablon briefu QA Sphere dla przypadków `Automated`: (1) polecenie z `--include` dla każdego wskazanego pliku; (2) każde zdanie `expected` musi mieć asercję we wskazanym teście; (3) stan kodu = `main` + commit; (4) identyfikatory kodu tylko w warunku wstępnym.
 
+### 1606-BE-1 (BE-1…1f + BE-1g) (fundament BE zakupu odnowienia: migracja rodzaju próby, kontekst odnowienia, start zakupu, kontroler) — 2026-10-22
+- Archetyp: Backend — zakup subskrypcji przez operatora płatności (zgoda, kwota, guard, jedna oczekująca próba, idempotencja) + migracja danych.
+- Stawka: wysoka / high-stakes.
+- Niepewność: średnia (mechanika zakupu z konta #2705 jako wzorzec; nowy rodzaj próby w istniejących odczytach).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 `xhigh` — łańcuch BE-1 → przekazanie przy progu kontekstu → BE-1b (plan reszty) → przekazanie → BE-1c, 1d, 1e, 1f (każdy jedna jednostka); BE-1g (awans 9 typów współdzielonych, tylko namespace) — `mechanik` Haiku 5.5 `low`.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (292 s).
+- Dopuszczone alternatywy: wykonawca przy CZERWONYM — Muse Wonder Full `max` (zablokowany do 2026-10-26 00:00Z); recenzent — Muse Wonder Full `max` (zablokowany).
+- Powód wyboru: pliki niezmiennika płatności i migracja (reguła 2, lista Zebrani).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, ~07:30 UTC: okno 28 %, tydzień 62 %); Codex nieznany (wrapper, 10:57 UTC); Muse zablokowany (429, reset 2026-10-26T00:00Z).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: pierwszy przebieg doszedł do progu 300 tys. po planie i migracji — dalszą pracę podzielono na krótkie ogniwa z planem przekazania; każde ogniwo odebrane w 1. przejściu (build 0/0, testy zielone).
+- Rundy korekt: 0 (R-BE-1 bez znalezisk).
+- Czas do akceptacji: ~75 min (≈ 09:45 → 11:02 UTC z recenzją).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 / 0.
+- Defekty po odbiorze: brak w plikach BE-1; dwa blokery domknięcia (indeksy unikalne zgody cyklicznej i instrumentu `pm_…`) wyszły w BE-2a — luka briefu architekta („bez zmian” dla zapisów współdzielonych z zakupem programu).
+- Wymagane testy i dowody: `dotnet build` 0/0, filtry testów; BE-T; test dymny w sandboksie; G-BE-1 bez znalezisk.
+- Uwagi: podział po pierwszym przekazaniu na ogniwa ≤ 1 jednostki zadziałał — żadne ogniwo nie wróciło z korektą.
+
+### 1606-FE-L1 (+FE-L1-K) (przepływ zakupu odnowienia: Stripe, kolejność sprawdzeń, odpytywanie, generacja sesji; serwis, DTO, enumy, czyste funkcje) — 2026-10-22
+- Archetyp: FE — przepływ płatności (niezmiennik: potwierdzenie u operatora, generacja sesji, kolejność sprawdzeń).
+- Stawka: wysoka / high-stakes.
+- Niepewność: średnia (wzorzec `program-purchase-flow` #2705; nowe: zapisana karta, wznowienie próby).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 `xhigh` (FE-L1; FE-L1-K świeży agent).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (273 s).
+- Dopuszczone alternatywy: jak 1606-BE-1.
+- Powód wyboru: logika płatności z cichym błędem.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak 1606-BE-1 (Codex nieznany, 10:11 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zachowanie zgodne z kontraktem; recenzja „niepoprawny”: 1×P1 (Stripe.js wczytywany po `200` startu bez kontroli generacji sesji → `confirmPayment` obciąża kartę konta A po zmianie konta) + 1×P2 (destruktor zrywa wysłany odczyt statusu → skutki rozliczenia nie trafiają do singletonów).
+- Rundy korekt: 1 (FE-L1-K: 2 punkty recenzji + 3 architekta).
+- Czas do akceptacji: ~2 h (z korektą).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1×P1 + 1×P2 potwierdzone, 0 odrzuconych.
+- Defekty po odbiorze: DEF-1 (FE-T1b: przy `publishableKey === null` przepływ wołał `confirmPayment`) — łatka jednolinijkowa architekta; G-FE-1 P1/P2 (sekret PaymentIntent w adresie po przekierowaniu banku; wznowiona próba z formularzem) — luki projektu architekta, nie briefu FE-L1 → FE-G1.
+- Wymagane testy i dowody: FE-T1a/b/c + FE-T1-K, test dymny (zapisana karta, 3DS nową kartą, wznowienie), bramka FE.
+
+### 1606-FE-V (+FE-V-K1) (komponenty prezentacyjne wariantu zakupu, przeniesienie pola karty i zgody, napisy pl/en) — 2026-10-22
+- Archetyp: Frontend UI / Figma — widoki bez niezmiennika w funkcji high-stakes.
+- Stawka: średnia.
+- Niepewność: niska (precedens 1605-FE-V).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high` + Figma MCP (FE-V; FE-V-K1 po uwadze właściciela).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (877 s).
+- Dopuszczone alternatywy: Codex z potwierdzonym MCP Figmy (pula zarezerwowana na bramki); recenzent Sol `high`.
+- Powód wyboru: ekran z makiety — linia z Figma MCP; lokalne wyniki 1605-FE-V.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, ~07:30 UTC); Gemini nieznany (wrapper, 10:11 UTC).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zaakceptowano; recenzja „poprawny” 0,98, bez P0–P2; wskazała 2 błędne przesłanki briefu (warunek znacznika „wszystkie wrócą” przy miejscach > czekających; `focusCard()` przy polu w ramce operatora) — wykonawca obszedł je już sam.
+- Rundy korekt: 1 (FE-V-K1 — właściciel: wiersze „✓ wróci” w karcie przywracania brzydkie; status po prawej, wyciszony, bez ikon wg makiety; zrzuty 8/8).
+- Czas do akceptacji: ~1 h (FE-V); FE-V-K1 ~15 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 / 0 (+2 trafne uwagi do briefu).
+- Defekty po odbiorze: A-SCSS 1×P2 + 3×P3 (kopia `muted-note` zamiast mixinu) → `mechanik`.
+- Wymagane testy i dowody: specy z AXE (FE-T2), browser-check matrix 12/12, zrzuty karty 8/8.
+
+### 1606-D (D-1a, D-1b) (datowane rewizje 5 dokumentów: UI zmiany abonamentu, UI ustawień, INT płatności cyklicznych, WP zgód, PB odnowienia) — 2026-10-22
+- Archetyp: Dokumentacja produktu — rewizje z treścią podyktowaną w briefie.
+- Stawka: średnia (źródło prawdy).
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write` (506 s, 469 s, równolegle).
+- Recenzent (linia / model / native effort): architekt (zgodność z decyzjami) + 4c Codex / `gpt-6.1-sol` `high`.
+- Dopuszczone alternatywy: `wykonawca` Sonnet (pula Claude); Muse zablokowany.
+- Powód wyboru: tekst bez niezmiennika, pula Claude oszczędzana na pliki niezmiennika.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany (wrapper, 09:50 UTC).
+- Pewność decyzji: niska (brak lokalnych wyników rewizji Gemini).
+- Wynik pierwszego podejścia: przesłanka briefu obalona słusznie — „nowe okno gwarancji nigdy, także przy braku subskrypcji” przeczyło zatwierdzonemu RB-ABONAMENT-ZWROT; plan i pkt 15 rewizji poprawione przez architekta.
+- Rundy korekt: 1 (architekt: pkt 15, wiersz tabeli; później dopiski architekta z odbioru BE-2a-K i FE-G1).
+- Czas do akceptacji: ~30 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 4c — 3 luki w treści rewizji (UI: stan niewczytanego pola karty, rytm i budżet odpytywania; INT: 400 a 409 dla kwoty, 502 `PAYMENT_PROVIDER_ERROR`) potwierdzone i uzupełnione przez architekta; 0 sprzeczności z decyzjami.
+- Defekty po odbiorze: luki opisane wyżej (zachowania dodane w falach 2–3, po rewizji).
+- Wymagane testy i dowody: tabela napisów PL | EN zgodna z kodem (4c: 42 wiersze, 108 brzmień).
+
+### 1606-FIG-1 (+FIG-1b, FIG-1c) (zgoda, szybkie wybory, stany „Zmień kartę” i „mniej miejsc”, warianty Dark) — 2026-10-22
+- Archetyp: Figma — uzupełnienie makiety do decyzji.
+- Stawka: niska.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high` + Figma MCP (FIG-1 → przekazanie przy progu → FIG-1b → FIG-1c).
+- Recenzent (linia / model / native effort): architekt na zrzutach (inne rodziny bez Figmy).
+- Dopuszczone alternatywy: brak (Figma MCP).
+- Powód wyboru: precedens 1605-FIG-1.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, ~07:30 UTC).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: wymagane korekty — w ramkach „mniej miejsc” szybkie wybory liczone od bieżącej wartości zamiast od startowej i „Zostaną” zamiast „Pozostaną”.
+- Rundy korekt: 1 (FIG-1c).
+- Czas do akceptacji: ~1 h.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2 potwierdzone (architekt), 0 odrzuconych.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `get_screenshot` ramek, zmienne związane.
+
+### 1606-BE-2 (2a, 2a-K, 2b, 2c) (domknięcie zakupu odnowienia z przywróceniem programów, status, webhook, cykl uzgadniania, retencja) — 2026-10-22
+- Archetyp: Backend — aktywacja subskrypcji i przywracanie programów (naliczanie wartości), idempotencja domknięcia.
+- Stawka: wysoka / high-stakes.
+- Niepewność: wysoka (indeksy unikalne tabel współdzielonych z zakupem programu, rodzaj próby w webhooku).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 `xhigh` ×4, sekwencyjnie (wspólne repozytorium prób).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (168 s).
+- Dopuszczone alternatywy: jak 1606-BE-1 (Muse Wonder Full `max` od 2026-10-26).
+- Powód wyboru: niezmiennik przywracania i domknięcia.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, ~11:00 UTC: okno 1 %, tydzień 68 %); Codex nieznany (wrapper, 12:15 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: BE-2a zielone, ale raport wykonawcy sam wskazał dwa blokery domknięcia rodzaju 2 (druga aktywna zgoda cykliczna; ta sama karta = konflikt indeksu instrumentu) — luka briefu architekta.
+- Rundy korekt: 1 (BE-2a-K: wycofanie poprzednich zgód cyklicznych, instrument „pobierz albo wstaw”, 2 testy regresji czerwone bez poprawki; odebrane w 1. przejściu).
+- Czas do akceptacji: ~2 h (2a → 2c z korektą).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 / 0.
+- Defekty po odbiorze: brak (G-BE-1 bez znalezisk).
+- Wymagane testy i dowody: build 0/0, 3879/3879 filtra; DYMNY-2 (zapisana karta: próba COMPLETED, 3 programy przywrócone, `FirstChargeAt` bez zmian, jedna zgoda, brak nowej roli) i DYMNY-3 (3DS nową kartą z wznowieniem próby).
+- Uwagi: raport Opusa zgłaszający blokery zamiast obchodzić je po cichu — klauzula „co błędne w specyfikacji” zarobiła na siebie.
+
+### 1606-FE-L2 (+FE-L2-K) i 1606-FE-E (kontener nakładki w wariancie zakupu; wejścia z Ustawień i zakładki Program) — 2026-10-22
+- Archetyp: Frontend — składanie kontenera bez niezmiennika (logika w FE-L1) + wejścia.
+- Stawka: średnia.
+- Niepewność: średnia (kontener blisko limitu `max-lines`).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high` — FE-L2 (325 tys., 56 wywołań), FE-L2-K (świeży, 162 tys.), FE-E (przekwalifikowany z Codex `gpt-6.1-sol` `medium`: 8 plików > 5 i pula Codexa na bramki).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read`, jeden przebieg na oba (794 s).
+- Dopuszczone alternatywy: `wykonawca-opus`; recenzent Sol `high` (pula na bramki).
+- Powód wyboru: precedens 1605 (przepływ ≠ kontener ≠ wejścia).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, ~11:00 UTC); Gemini nieznany (wrapper, 11:42 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: FE-L2 — zachowanie zgodne, ale `sonarjs/max-lines` 1104 > 1000 (brief zakazał wydzielania — błąd briefu); FE-E — zaakceptowane, architekt dopisał jedną regułę SCSS spoza listy briefu.
+- Rundy korekt: 1 (FE-L2-K: pochodne do `RenewalOverlayView`, kontener 962) + poprawka `mechanik` 2 testów konsumenta (`subscription-and-invoices-resume`) — brief kontenera nie kazał uruchomić speców konsumentów.
+- Czas do akceptacji: ~1,5 h.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 / 0 („poprawny” 0,98); 2 zmyślone nazwy w opisie recenzji.
+- Defekty po odbiorze: G-FE-1 P2 — wznowiona próba renderowała formularz (luka projektu architekta) → FE-G1.
+- Wymagane testy i dowody: 5018/5018, browser-check matrix 12/12 + flows (przywrócenie, mniej miejsc, arkusz) z PASS.
+
+### 1606-DYMNY (DYMNY-1…3) (test dymny zakupu odnowienia w sandboksie operatora, ręczne odtworzenie) — 2026-10-22
+- Archetyp: Weryfikacja w przeglądarce — worker z Playwright MCP (`--isolated`), płatność testowa.
+- Stawka: wysoka (dowód ścieżki płatności przed deployem).
+- Niepewność: średnia (lokalny BE z operatorem, zegar testowy klienta).
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write` (566 s, 741 s, 562 s).
+- Recenzent (linia / model / native effort): architekt — stan bazy, Stripe CLI, zrzuty.
+- Dopuszczone alternatywy: Muse Spark `max` z `pwcli` (zablokowany); Codex z MCP (pula na bramki).
+- Powód wyboru: jedyna dostępna linia z Playwright poza Claude'em.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany (wrapper, 12:27 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: DYMNY-1 — przesłanka obalona słusznie (lokalny BE bez operatora — błąd architekta); worker czytał sekcję operatora w pliku konfiguracji → w kolejnych briefach jawny zakaz.
+- Rundy korekt: 2 (DYMNY-2: zapisana karta zielona, 3DS przerwany przeładowaniem `ng serve` po łatce architekta w trakcie; DYMNY-3: 3DS nową kartą z wznowieniem próby — zielony).
+- Czas do akceptacji: ~50 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): —.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: zrzuty, wiersze prób/subskrypcji/zgód/programów w bazie, metadata `kind` w sandboksie, webhook 200; sprzątanie subskrypcji dymnych.
+- Uwagi: lekcje — sprawdzić konfigurację BE przed briefem; żadnych edycji kodu aplikacji w trakcie testu na `ng serve`.
+
+### 1606-BE-T (BE-T1 cz. 1–3, BE-T2a, BE-T2b cz. 1–3, BE-T-K) (xunit: kontekst, start, domknięcie, przywracanie, status, webhook, retencja) — 2026-10-22
+- Archetyp: Testy BE (jednostkowe + SQL na SQLEXPRESS).
+- Stawka: wysoka (oracle niezmiennika).
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Claude / `tester` Haiku 5.5 `xhigh` — 8 przebiegów (podział po przekazaniach przy progu).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (599 s).
+- Dopuszczone alternatywy: recenzent Sol `high` (pula na bramki), Muse Wonder `max` (zablokowany).
+- Powód wyboru: linia `tester` po próbie z 2026-10-13.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy ŻÓŁTY (hook, ~14:00 UTC: tydzień 74 % przy 64 % upływu); Gemini nieznany (wrapper, 14:09 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: każdy przebieg odebrany (0 defektów produkcyjnych); luka BE-T2a — czekające seedowane tylko z `SEAT_REDUCTION` (główna ścieżka = `SUBSCRIPTION_EXPIRED`) → dopisane do BE-T2b.
+- Rundy korekt: 1 (BE-T-K, K1–K6).
+- Czas do akceptacji: ~2,5 h.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1×P1 (słaba asercja klucza publicznego) + 1×P2→P3 + 1×P2→P3 + 1×P3 potwierdzone; 1×P3 obalone (zdublowany JSON webhooka).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: pełne `dotnet test` 8309/8309, 0 pominiętych; mutacje K2/K5 czerwone.
+- Uwagi: błąd briefu — dosłowna mutacja K2 nie kompilowała się (S1481/CS9113).
+
+### 1606-FE-T (FE-T1a/b/c, FE-T2a, FE-T2b + C1/C2, FE-T1-K, FE-T2-K) (Vitest + AXE: przepływ, czyste funkcje, komponenty, kontener, wejścia) — 2026-10-22
+- Archetyp: Testy FE (harness przepływu płatności, AXE).
+- Stawka: wysoka (oracle niezmiennika przepływu).
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Claude / `tester` Haiku 5.5 `xhigh` (7 przebiegów + 2 korekty; FE-T2b przekazanie po 327 tys. → C1 ∥ C2).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` — R-FE-T-2 (575 s), R-FE-T-1 (865 s po ponowieniu; 1. przebieg exit 3 — próba powłoki, zakaz dopisany).
+- Dopuszczone alternatywy: Sol `high` (pula na bramki).
+- Powód wyboru: linia `tester`; recenzent innej rodziny.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY → ŻÓŁTY (hook, 12:00–14:00 UTC); Gemini nieznany (wrapper, 13:16 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: odebrane; FE-T1b wykrył defekt produkcyjny DEF-1 (FE-L1); recenzje „niewystarczające” (0,92 i 0,95).
+- Rundy korekt: 1 na zestaw (FE-T1-K, FE-T2-K).
+- Czas do akceptacji: ~2,5 h.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-FE-T-1: 2×P1 (fałszywa zieleń `≥ 1`, brak asercji) + 1×P1→P2 + 2×P2 + 2×P3 potwierdzone, 1×P3 odrzucone; R-FE-T-2: 1×P1→P2 + 1×P1 (brak stanu Pending — luka briefu) + 3×P2 + 2×P3 potwierdzone.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: pełne `npm test` 5416/5416, lint 0, build OK.
+
+### 1606-SCSS (audyt SCSS wariantu zakupu) — 2026-10-22
+- Archetyp: Audyt SCSS, tylko odczyt.
+- Stawka: niska.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): poprawki — `mechanik` Haiku 5.5 `low` (24 wywołania).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (419 s).
+- Dopuszczone alternatywy: Spark `max` (zablokowany).
+- Powód wyboru: SCSS pisał Sonnet — inna rodzina.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany (wrapper, 13:23 UTC).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 1×P2 (kopia `muted-note`) + 3×P3.
+- Rundy korekt: 1.
+- Czas do akceptacji: ~20 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1×P2 + 3×P3 potwierdzone, 0 odrzuconych.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: stylelint/prettier 0, build w walidacji fali.
+
+### 1606-G-FE (bramka końcowa FE, 2 przebiegi; poprawka FE-G1 + korekta) — 2026-10-22
+- Archetyp: Bramka końcowa high-stakes — cały diff FE (156 plików), tylko odczyt.
+- Stawka: wysoka / high-stakes.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): poprawka — Claude / `wykonawca-opus` Opus 5.5 `xhigh` (FE-G1 + korekta przez kontynuację tego samego agenta).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `max`, `-Mode review` (568 s, 665 s).
+- Dopuszczone alternatywy: brak (reguła 6; przy limicie decyzja właściciela 5 — Spark `max` po resecie Muse).
+- Powód wyboru: reguła 6.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper, 13:57 / 14:37 UTC).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 1×P1 (sekret PaymentIntent zostaje w adresie po pełnym przekierowaniu banku) + 1×P2 (wznowiona próba renderuje formularz w Confirming/Pending).
+- Rundy korekt: 1 (FE-G1: stałe parametrów powrotu, czyszczenie jedną nawigacją, `resumedWaiting`; korekta: 409 oczekiwania = wznowienie, własny klucz napisu) → przebieg 2: 0 znalezisk.
+- Czas do akceptacji: ~55 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1×P1 + 1×P2 potwierdzone, 0 odrzuconych.
+- Defekty po odbiorze: 0 przy wdrożeniu PRE (2026-10-22 17:38 UTC: FE 1.12.0, BE 1.14.0, nowe trasy aktywne); retest testera w toku.
+- Wymagane testy i dowody: mutacje czerwone; lint 0, format, 5416/5416, build OK.
+- Uwagi: oba znaleziska to luki projektu architekta (powrót z przekierowania, wznowienie bez sekcji zamówienia), których nie złapały recenzje fal na węższych diffach.
+
+### 1606-G-BE (bramka końcowa BE) — 2026-10-22
+- Archetyp: Bramka końcowa high-stakes — cały diff BE, tylko odczyt.
+- Stawka: wysoka / high-stakes.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): —.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `max`, `-Mode review` (616 s).
+- Dopuszczone alternatywy: brak (reguła 6).
+- Powód wyboru: reguła 6.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper, 14:48 UTC).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: brak defektów (testy w piaskownicy niewykonane — pełne `dotnet test` architekta 8309/8309).
+- Rundy korekt: 0.
+- Czas do akceptacji: ~10 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 / 0.
+- Defekty po odbiorze: 0 przy wdrożeniu PRE (2026-10-22 17:38 UTC: FE 1.12.0, BE 1.14.0, nowe trasy aktywne); retest testera w toku.
+- Wymagane testy i dowody: build 0 ostrzeżeń, 8309/8309.
+
+### 1606-QAS (QA Sphere — plik podglądu, recenzja krzyżowa, korekty K1–K5) — 2026-10-22
+- Archetyp: QA Sphere w funkcji high-stakes — autor pliku podglądu (32 nowe przypadki, 7 aktualizacji, 83 wpisy `review`).
+- Stawka: średnia (przypadki testowe funkcji high-stakes, bez kodu).
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write` (generator 1005 s; K1 1776 s; K2 1134 s; K3 722 s; K4 650 s — praca wykonana, końcowe 503 wrappera; K5 845 s).
+- Recenzent (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high`, tylko odczyt (precedens #1605) + automatyczne porównanie cytatów z `pl.json`/`en.json` (skrypt architekta).
+- Dopuszczone alternatywy: autor Muse Wonder `max` — zablokowany (429 tygodniowy do 2026-10-26 00:00Z); recenzent Sol `high` — pula Codexa zarezerwowana na bramki i 4c.
+- Powód wyboru: reguła 8 (Wonder `max` dla QA Sphere w high-stakes) niedostępna → Gemini write wg skilla QA Sphere; recenzja innej rodziny.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse zablokowany (429, 2026-10-20); Gemini nieznany (wrapper); Claude znany (hook).
+- Pewność decyzji: niska.
+- Wynik pierwszego podejścia: recenzja — „plik wymaga korekty” (pewność 0,85): błędy w 11 przypadkach (szybkie wybory, fokus/komunikat danych do faktury, okno zwrotu na świeżym koncie, przypadki płatności na koncie demo bez karty, SQL przywracający hurtowo). Odbiór K1 przez architekta: cytaty nieistniejące w aplikacji (także w R01–R03, które recenzent oznaczył jako sprawdzone), błędny komunikat R23.
+- Rundy korekt: 5 (K1: 12 punktów faktów; K2: konta świeże z `/kup`, SQL przywracający dokładnie, R23, R30, R34; K3: 6 cytatów spoza `pl.json`; K4: okres R13 i R22; K5: kolejność R22 — mój błąd w K4, wykryty przez autora — i pełny przepis konta w 21 warunkach wstępnych skróconych mimo K2).
+- Czas do akceptacji: ~2 h 50 min od startu generatora (5 przebiegów korekt ~85 min pracy workera).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone P1 w R04, R10, R21 (+ P2/P3 w pozostałych z 11), 0 odrzuconych; recenzja przeoczyła zmyślone cytaty, które wykrył dopiero skrypt.
+- Defekty po odbiorze: 0 — publikacja 32 nowych (seq 1821–1852) i 7 aktualizacji; pełne `verify` 0 realnych różnic (fałszywe: eksport `\_` i kolejność `requirements` w 985).
+- Wymagane testy i dowody: `qas.py lint --strict` 0/0, skrypt cytatów czysty (poza nazwami programów i treścią spoza i18n), `qas.py verify` po publikacji.
+- Uwagi: Gemini jako autor QA na funkcji z płatnością zmyśla napisy i myli okres z kwotą (K3: 369 zł → „miesięczny”); automatyczne porównanie cytatów z plikami i18n powinno iść PRZED recenzją krzyżową, nie po niej. Moje briefy korekt miały 3 błędne przesłanki (tabela cen, numery linii, klucz `RENEWAL.ERRORS.DECLINED`) — workerzy zgłosili je poprawnie.
+
+### 1606-4C (przegląd zgodności dokumentacji, grupy A i B) — 2026-10-22
+- Archetyp: Faza 4c — zgodność dokumentacji z implementacją (5 dokumentów UI/WP + INT/PB/RB/DBML), tylko odczyt.
+- Stawka: wysoka (dokumentacja funkcji high-stakes).
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): — (poprawki: dokumentacja — architekt, kod — `wykonawca`, wpis 1606-FE-4C-K1).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Access read` (A: 414 s, B: 594 s; wcześniejsze przebiegi przerwane: A — 10 nieistniejących ścieżek z listy, A2 i B — limit okna 5 h Plusa po bramkach).
+- Dopuszczone alternatywy: Muse Wonder `max` — zablokowany do 2026-10-26 00:00Z; Gemini wykluczony (autor rewizji).
+- Powód wyboru: reguła 13 — inna rodzina niż autor dokumentacji (Gemini), stawka wysoka.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex zablokowany 17:10–19:02 (komunikat limitu), potem nieznany.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: A — 3 rozbieżności (1× kod odbiega, 2× brak w dokumencie); B — 7 (2× kod odbiega, 3× brak w dokumencie, 2× dokument nieaktualny).
+- Rundy korekt: 1 (kod: FE-4C-K1; dokumentacja: architekt).
+- Czas do akceptacji: ~1 h 40 min od wznowienia po resecie (bez czasu blokady).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 7 (fokus faktury → kod; stan pola karty, rytm odpytywania, 400/502, DBML ×2 → dokumentacja); 1 fałszywy alarm (przyczyna `NULL` — stan nieosiągalny); 2 „kod odbiega” w B to zachowania sprzed #1606 we wspólnym kodzie (`FirstChargeAt` = czas domknięcia, przywracanie bez filtra terminu) + 1 luka RB (remis dat) → `czeka na właściciela`.
+- Defekty po odbiorze: 0 przy wdrożeniu PRE (2026-10-22 17:38 UTC: FE 1.12.0, BE 1.14.0, nowe trasy aktywne); retest testera w toku.
+- Wymagane testy i dowody: macierze zgodności (A: 14 wierszy zgodnych, 320 linków; B: 7 zgodnych, 157 linków), dziennik bez wpisów `otwarty`/`w toku`.
+- Uwagi: Sol `high` w 4c rozróżnia „kod odbiega” od zachowania wspólnego kodu sprzed zadania dopiero po pytaniu o historię — triaż wymaga `git log` wspólnych plików. Dwie grupy równolegle + bramki FE/BE wyczerpały okno 5 h Plusa — przy kolejnej funkcji high-stakes planować 4c po resecie okna albo sekwencyjnie.
+
+### 1606-FE-4C-K1 (poprawka z 4c: fokus i błędy pól danych do faktury) — 2026-10-22
+- Archetyp: Poprawka UI bez niezmiennika (kontener + wiersz faktury + specy), 4 pliki.
+- Stawka: niska/średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high` (188 s).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (614 s).
+- Dopuszczone alternatywy: Sol `high` (pula Codexa po 4c).
+- Powód wyboru: autor kontenera FE-L2; recenzja delty innej rodziny (Faza 4c — „poprawka kodu wraca do przeglądu na swojej delcie”).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, 19:10); Gemini nieznany.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: poprawny; test kontenera czerwony z przywróconym `focusSaveAction()`.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~25 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 potwierdzonych; odrzucone 2×P1 + 2×P2 (zwinięty formularz nieosiągalny w tej ścieżce; podwójny fokus na ten sam element — P3; zagnieżdżony `afterNextRender` — wzorzec istniejący; test na tej samej gałęzi) — Gemini nadal zawyża P1 bez sprawdzenia kolejności efekt → render.
+- Defekty po odbiorze: 0 przy wdrożeniu PRE (2026-10-22 17:38 UTC: FE 1.12.0, BE 1.14.0, nowe trasy aktywne); retest testera w toku.
+- Wymagane testy i dowody: eslint/prettier 0; 135/135 w 4 specach; pełne FE: lint 0, format OK, 5420/5420, build OK.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
