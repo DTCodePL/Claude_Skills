@@ -6789,6 +6789,228 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak.
 - Wymagane testy i dowody: triaż każdego znaleziska w dokumentacji, seedach (`Script9500*`), `pl.json`, `app.routes.ts`, `device-marker.ts`.
 
+### 1806-BE-1 (BE-1, BE-1a, BE-1b, BE-1bK) (slice ShopService: kwalifikacja rekordu, lista, logo, wejście z konta, `HasStaffAccess`) — 2026-10-22
+- Archetyp: BE — pliki niezmiennika high-stakes (PIN sprzedawcy, sesja personelu, kwalifikacja dostępu), jeden slice + testy xunit (unit + integracja SQLEXPRESS).
+- Stawka: wysoka.
+- Niepewność: średnia (jedna definicja kwalifikacji dla listy, menu i 4 wywołań `HasStaffAccess`; stan „zamknięty” pochodny, bez migracji).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 `xhigh` (BE-1 → strażnik 300 tys. → BE-1a); testy: Claude / `tester` Haiku 5.5 `xhigh` (BE-1b, BE-1bK).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (plan: Muse Wonder Full `max` — 429 tygodniowy).
+- Dopuszczone alternatywy: przy CZERWONYM Muse Wonder Full `max` albo czekanie (zablokowany); recenzja Gemini wykluczona (high-stakes).
+- Powód wyboru: pliki niezmiennika → `wykonawca-opus`; testy na istniejącym wzorcu → `tester`; recenzent przekwalifikowany po 429 Muse na jedyną dopuszczoną rodzinę spoza Claude'a, z uwagą na pulę Codexa przed bramką.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook, ZIELONY, 2026-10-22 ~20:45Z); Muse zablokowany do 2026-10-26T00:00Z (429 tygodniowy, 20:47Z); Codex nieznany (wrapper).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: przekazanie strażnika — BE-1 568 s / 64 wywołania (302 tys.), BE-1a 1100 s / 102 wywołania; testy BE-1b 900 s / 52 wywołania; 2 testy logo błędne → BE-1bK 125 s.
+- Rundy korekt: 1 (BE-1bK — testy, nie kod).
+- Czas do akceptacji: ~1 h 10 min (z walidacją architekta i recenzją).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 potwierdzonych; 1×P2 odrzucone (id ≤ 0 → 400 to walidacja wejścia, nie wyciek istnienia rekordu).
+- Defekty po odbiorze: bramka końcowa BE znalazła P1 we wspólnym SQL zmiany PIN-u (wpis 1806-G-BE) — w kodzie fali 2/drogi właściciela, nie w tym slice.
+- Wymagane testy i dowody: `dotnet test` 8376/8376 (architekt), testy integracyjne zamiast curl (401, `no-store`, 409, sesja `EnteredFromAccountSession`, `LastLoginAt`).
+
+### 1806-FE-1 (+FE-1K) (warstwa danych obsługi sklepu: sesja, DTO, API bez SSR i transfer cache, fasada działań) — 2026-10-22
+- Archetyp: FE — pliki niezmiennika high-stakes (sesja, przepływ wejścia do obsługi, PIN poza SSR), serwisy + specy.
+- Stawka: wysoka.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 `xhigh`.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (plan: Muse Wonder Full `max` — 429).
+- Dopuszczone alternatywy: jak 1806-BE-1.
+- Powód wyboru: sesja i przepływ wejścia to niezmiennik → `wykonawca-opus`; recenzent jak BE-1.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak 1806-BE-1.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: wymagane korekty — 1590 s, 63 wywołania; kontrakt błędów fasady niespójny z briefem (recenzja).
+- Rundy korekt: 1 (FE-1K, `wykonawca-opus`, 172 s).
+- Czas do akceptacji: ~1 h.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1 potwierdzone (P2), 0 odrzuconych.
+- Defekty po odbiorze: bramka końcowa FE — odpięcie nadpisywało flagę serwera lokalną liczbą kart (P2, wpis 1806-G-FE).
+- Wymagane testy i dowody: lint, format, `npm test` 5456/5456, build; SSR `/panel/obsluga-sklepu` bez PIN-u.
+
+### 1806-FE-1b (przeniesienie `pin-cells` do `logged/components`, `revealed` jako `model()`, enum odbiorcy, i18n) — 2026-10-22
+- Archetyp: FE — refaktor przeniesienia komponentu prezentacyjnego z drugim konsumentem, bez niezmiennika.
+- Stawka: niska.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write` (plan: Muse Spark 1.3 `max` — 429 po 20 s).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (recenzja fali 1 FE razem z FE-1).
+- Dopuszczone alternatywy: Claude `wykonawca` Sonnet 5.5 `high`.
+- Powód wyboru: archetyp Sparka `max`; po 429 Gemini — Node z Windows i własny lint/test, refaktor bez Figmy i bez niezmiennika.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse zablokowany (429, 20:47Z); Gemini nieznany (wrapper).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowano — 884 s, 142 wywołania.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~40 min (z walidacją fali).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak dotyczących FE-1b.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: specy `pin-cells` i Sprzedawców zielone, `npm test` całości, `pin-cells.scss` przeniesiony bajt w bajt.
+
+### 1806-DOC-1 (+DOC-1K) (datowane rewizje 2026-10-22: UI obsługi sklepu, layout zalogowany, WP formatu PIN-u, PB zmiany PIN-u, AT logowania personelu) — 2026-10-22
+- Archetyp: Dokumentacja produktowa — rewizje dokumentów `zatwierdzony` w granicach decyzji właściciela D1–D3.
+- Stawka: średnia.
+- Niepewność: niska (każda zmiana z mapy planu).
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write` (DOC-1, DOC-1K) (plan: Muse Spark 1.3 `max` — 429).
+- Recenzent (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high` (tylko odczyt).
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` (oszczędzany na bramki).
+- Powód wyboru: archetyp rewizji dokumentacji; po 429 Gemini (dotychczasowe rewizje 0 rund); recenzent z innej rodziny niż autor, bez zużycia puli Codexa.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse zablokowany; Gemini nieznany; Claude znany (hook).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: wymagane korekty — 958 s, 115 wywołań.
+- Rundy korekt: 1 (DOC-1K, 740 s).
+- Czas do akceptacji: ~1 h.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 4×P2 + 1×P3 potwierdzone, 0 odrzuconych.
+- Defekty po odbiorze: przegląd 4c znalazł 6 braków dokumentu wobec kodu (wpis 1806-4C) — zachowania doprecyzowane dopiero w falach 2–3 i bramkach.
+- Wymagane testy i dowody: diff każdego pliku, dziennik rozbieżności.
+
+### 1806-BE-2 (BE-2a, BE-2aT, BE-2b, BE-2K) (własna zmiana PIN-u, rezygnacja z e-mailem 105, wyścig z cofnięciem odebrania dostępu) — 2026-10-22
+- Archetyp: BE — pliki niezmiennika high-stakes (PIN, dostęp, sesje urządzeń), handlery + testy xunit.
+- Stawka: wysoka.
+- Niepewność: średnia (skutki identyczne z drogą właściciela; współbieżność z `UndoSellerRevocation`).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 `xhigh` (BE-2a, BE-2K); testy: Claude / `tester` Haiku 5.5 `xhigh` (BE-2aT, BE-2b).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review`, 2 przebiegi (plan: Muse Wonder Full `max` — 429).
+- Dopuszczone alternatywy: jak 1806-BE-1.
+- Powód wyboru: jak 1806-BE-1; testy osobnym briefem po strażniku.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook); Muse zablokowany; Codex nieznany.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: przekazanie strażnika — BE-2a 1256 s / 84 wywołania (314 tys.); testy BE-2aT 740 s, BE-2b 761 s (101 testów ShopService, bez Skip).
+- Rundy korekt: 1 (BE-2K, 886 s: okno i przyczyna atomowo w jednym UPDATE, anulowanie między próbami).
+- Czas do akceptacji: ~1 h 40 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): przebieg 1 (52 s) — STOP na błędnej przesłance briefu architekta (`RunAsync` nie ponawia zakleszczeń), przesłanka poprawiona; przebieg 2 (232 s) — 2×P2: wyścig cofnięcie ↔ rezygnacja potwierdzony, anulowanie potwierdzone częściowo (`IDapperWrapper` bez tokenu = dług repo).
+- Defekty po odbiorze: bramka końcowa BE — znak wodny `PinChangedAt` cofał się przy równoległych zmianach PIN-u (P1, wpis 1806-G-BE); recenzja fali tego nie wychwyciła.
+- Wymagane testy i dowody: `dotnet test` 8445/8445 (architekt), API lokalnie: `pin-changes` 200 `no-store`, `resignations` 200, 409, wiersz outboxu 105 (pl, parametry).
+
+### 1806-FE-2 (FE-2, FE-2c1, FE-2c2, FE-2K, FE-2K2) (ekran „Obsługa sklepu” z Figmy: lista kart, stany, okna Zmień PIN / Odepnij się, trasa, i18n) — 2026-10-22
+- Archetyp: FE — ekran z Figmy w funkcji high-stakes, bez plików niezmiennika (korzysta z fasady FE-1).
+- Stawka: średnia (UI pokazuje PIN i wyzwala działania high-stakes).
+- Niepewność: średnia (stany karty, mobilny stan pusty i okna w Dark poza makietą — z opisu PBI).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high` + Figma MCP (FE-2 → strażnik → FE-2c1, FE-2c2); korekty: Gemini / `gemini-3.8-flash-medium` (FE-2K, po walidacji), `gemini-3.8-flash-high` (FE-2K2, po recenzji).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (plan: Muse Wonder `max` — 429).
+- Dopuszczone alternatywy: brak dla FE-2 (jedyna linia z potwierdzonym Figma MCP); recenzent Gemini `high`.
+- Powód wyboru: Figma MCP + ekran bez niezmiennika. Korekty przekwalifikowane z autora na Gemini — powód nie został zapisany w kroku; reguła poprawek każe wracać do autora, o ile się kwalifikuje — do pilnowania.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook); Muse zablokowany; Gemini, Codex nieznane.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: przekazanie strażnika — FE-2 446 s / 51 wywołań (319 tys.), FE-2c1 143 s, FE-2c2 360 s; walidacja (browser-check 28/28 + 4/4) → FE-2K 268 s (okna wg makiety, komunikat stanu z ikoną, fokus po nieudanym wejściu).
+- Rundy korekt: 2 (FE-2K po walidacji, FE-2K2 223 s po recenzji).
+- Czas do akceptacji: ~1 h 30 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 4×P2 potwierdzone (blokada przy przeładowaniu, PIN po filtrze, fokus po odpięciu z filtrem, fokus po 409), 0 odrzuconych.
+- Defekty po odbiorze: brak (bramka FE — patrz 1806-G-FE, defekt w fasadzie/stronie stanu menu).
+- Wymagane testy i dowody: lint, format, `npm test` 5551/5551, build; `browser-check` matrix 2×2 i flows; SSR z ciasteczkiem bez PIN-u.
+
+### 1806-FE-3 (FE-3a, FE-3a-cont, FE-3b, FE-3K) (Vitest + AXE: strona, karta, okna, stany listy) — 2026-10-22
+- Archetyp: Testy FE — specy UI i AXE na istniejącym wzorcu, scenariusze z briefu.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `tester` Haiku 5.5 `xhigh`.
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read`.
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` (recenzja); Muse Spark `max` (wykonanie) — zablokowany.
+- Powód wyboru: linia `tester` po próbie z 2026-10-13; recenzja niskiej/średniej stawki poza Codexem (pula przed bramkami).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook); Gemini nieznany.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: FE-3a 678 s (33 testy, strażnik → FE-3a-cont 257 s — podział pod lint), FE-3b 498 s (62 testy, 0 skip).
+- Rundy korekt: 1 (FE-3K, 299 s).
+- Czas do akceptacji: ~1 h 10 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 7 potwierdzonych (1×P1 obniżony do P2 — fokus po 409 w oknach; Success wejścia, fokus po anulowaniu, ponowne ukrycie PIN-u, pozorne `toBeDefined`, symetria, korzeń w teście wycieku); 1 przesłanka (`document.body`) bez skutku. Mutacja (wyłączone `scheduleFocusRestore()`) → 8 testów czerwonych; przesłanka briefu FE-3K o anulowaniu błędna (fokus wraca też przez nakładkę).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `npm test` 5555/5555 (AXE w środku), lint 0, format, build.
+
+### 1806-SCSS (audyt SCSS 6 plików + FE-SCSS-K) — 2026-10-22
+- Archetyp: Audyt SCSS (tokeny, mixiny, zakaz nadpisań PrimeNG) + poprawki wg przyjętych pozycji.
+- Stawka: niska.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): audyt Gemini / `gemini-3.8-flash-high`, `-Access read`; poprawki Gemini / `gemini-3.8-flash-high`, `-Access write` (plan: Muse Spark 1.3 `max` — 429).
+- Recenzent (linia / model / native effort): architekt (triaż audytu, diff poprawek, specy).
+- Dopuszczone alternatywy: Claude `wykonawca` Sonnet 5.5 `high`.
+- Powód wyboru: preferencja audytu SCSS na Sparku niedostępna; Gemini bez puli Claude'a.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse zablokowany; Gemini nieznany.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: audyt 480 s, 6/6 plików przeczytanych; przyjęte: `[fluid]`, `d-block`, skala odstępu, `[dt]` plakietek, 3 mixiny; odrzucone: `.mb-4`, mixin stron list, scalenie okien i wspólny ListStateView (→ propozycja PBI refaktoru).
+- Rundy korekt: 1 (FE-SCSS-K, 640 s) + 1 poprawka komentarza mixinu przez architekta (reguła 11).
+- Czas do akceptacji: ~40 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): —.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: specy 62 + seller-card 13 + batch-card 28 zielone, zrzuty kart i okien po poprawkach.
+
+### 1806-G-BE (+BE-GK) (bramka końcowa BE) — 2026-10-23
+- Archetyp: Bramka końcowa high-stakes — cały diff BE w jednym przebiegu.
+- Stawka: wysoka.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): poprawka Claude / `wykonawca-opus` Opus 5.5 `xhigh` (BE-GK).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `max`, `-Mode review`.
+- Dopuszczone alternatywy: D7 — Muse Wonder Full `max` (zablokowany).
+- Powód wyboru: reguła 6.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper, 2026-10-22 23:11Z).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 442 s, exit 0.
+- Rundy korekt: 1 (BE-GK, 619 s: monotoniczny CASE w `UpdateAssignmentPinAsync.sql` + 4 testy SQL Server; test sesji czerwony na starym SQL wg raportu).
+- Czas do akceptacji: ~35 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1×P1 potwierdzone — znak wodny `PinChangedAt` cofa się przy równoległych zmianach PIN-u (wspólny SQL, także droga właściciela) → ożywa unieważniona sesja; znalezione tylko przez bramkę.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `dotnet test` 8449/8449 (architekt), diff BE-GK.
+
+### 1806-G-FE (+FE-GK) (bramka końcowa FE) — 2026-10-23
+- Archetyp: Bramka końcowa high-stakes — cały diff FE w jednym przebiegu.
+- Stawka: wysoka.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): poprawka Claude / `wykonawca-opus` Opus 5.5 `xhigh` (FE-GK: fasada + strona + testy).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `max`, `-Mode review`.
+- Dopuszczone alternatywy: D7 — Muse Wonder Full `max` (zablokowany).
+- Powód wyboru: reguła 6.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper, 23:21Z); po przebiegu 5 h 70 %, tydzień 17 % (raport tokenów).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 676 s, exit 0.
+- Rundy korekt: 1 (FE-GK, 348 s; 59/59 w 3 specach, 4 mutacje czerwone).
+- Czas do akceptacji: ~30 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2×P2 — odpięcie nadpisuje flagę serwera lokalną liczbą kart (potwierdzone); oczekujące wejście przy zmianie konta (sporne, bez zmiany: anulowanie nie cofa `Set-Cookie`; pytanie właściciela o życie sesji personelu po końcu sesji konta).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: lint 0, format, `npm test` 5557/5557, build.
+
+### 1806-4C (przegląd zgodności dokumentacji z kodem, 2 przebiegi) — 2026-10-23
+- Archetyp: Przegląd zgodności 4c — mapa dokumentów × kod, macierz werdyktów.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): — (przegląd).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (plan: Gemini `high`; po 429 Muse autorem dokumentacji został Gemini, więc recenzent z innej rodziny).
+- Dopuszczone alternatywy: Claude `wykonawca` Sonnet 5.5 `high` tylko odczyt.
+- Powód wyboru: inna rodzina niż autor dokumentacji (Gemini); Codex po bramkach z zapasem tygodnia.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex znany po przebiegu (5 h 70 %, tydzień 17 %, 23:21Z).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: przebieg 1 (38 s) — STOP na błędnej przesłance briefu (§10/§14 są w `INSTRUKCJA-DLA-AI.md`); przebieg 2 (430 s): 0× kod odbiega, 6× brak w dokumencie. `-Mode review` przeformatował wynik na komentarze P2 — macierz z liczbami `zgodne` na sekcję przepadła (pamięć `codex-review-gubi-format-macierzy`).
+- Rundy korekt: 1 (poprawiona przesłanka).
+- Czas do akceptacji: ~25 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 6 potwierdzonych (braki w dokumencie, P2), 0 odrzuconych → DOC-2.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: triaż każdego braku w kodzie FE/BE.
+
+### 1806-DOC-2 (uzupełnienia dokumentacji po bramkach i 4c, 2 pliki) — 2026-10-23
+- Archetyp: Dokumentacja produktowa — uzupełnienie dokumentów `zatwierdzony` o zachowania z kodu (dziennik 12–14, 16–18).
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write`.
+- Recenzent (linia / model / native effort): architekt (diff 2 plików, CRLF).
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` write (`-CodexSandbox danger-full-access`).
+- Powód wyboru: linia autora rewizji fali 1 (reguła poprawek).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini nieznany (wrapper, 23:50Z).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zaakceptowano z dwiema poprawkami architekta (reguła 11) — 594 s; etykieta briefu „(punkt f)” przeciekła do dokumentu UI; zdanie o 409 uogólnione na „każdą odmowę” bez rozróżnienia działań.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~20 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2 potwierdzone (P3), 0 odrzuconych. Drugi raz w dwóch dniach etykieta briefu przecieka do dokumentu w Gemini (por. 2148-DOC-K) — brief Gemini powinien zakazywać etykiet roboczych wprost.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: diff, `grep` etykiet briefu = 0.
+
+### 1806-QAS (QA Sphere: obsługa sklepu — lista, karta, wejście, Zmień PIN, Odepnij się; przegląd 112 istniejących) — 2026-10-23
+- Archetyp: QA Sphere — autor pliku podglądu w funkcji high-stakes (PIN, sesja personelu, limity dostępu); przegląd folderów Obsługa sklepu, Personel i Sprzedawcy oraz nowe przypadki ręczne z przygotowaniem SQL na wspólnym PRE.
+- Stawka: wysoka (przypadki zmieniają PIN-y i odpinają rekordy na wspólnym PRE; skrypty SQL zapisujące).
+- Niepewność: wysoka (pierwszy zestaw z syntetycznym programem zakończonym i postarzaniem dat pod granice 30 dni).
+- Wykonawca (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access write` — generator (964 s); K1 (1923 s, wrapper `failed` exit 3: raport ucięty limitem wyjścia, plik kompletny); K2 (858 s); K3 (488 s, `failed` — 429 limitu tygodniowego, plik nietknięty).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode exec -Access read` — R1 (541 s); R2: 189 s do limitu okna 5 h, ponowienie po resecie 891 s.
+- Dopuszczone alternatywy: autor — Muse Wonder `max` (skill, high-stakes) zablokowany do 2026-10-26T00:00Z → Gemini write (skill: „gdy Muse zgłosił limit”); recenzent — Muse read (twarda reguła skilla: plik Gemini → Muse) zablokowany → ponowna kwalifikacja wg reguły 2 na Sol `high` read (precedens 2148-QAS-R); po limicie Gemini przy K3 skill nie dopuszcza trzeciej linii autora → `zablokowane`, decyzja właściciela.
+- Powód wyboru: jedyna linia autora dopuszczona przez skill przy zablokowanym Muse; recenzent z innej rodziny z lokalnymi wynikami tego archetypu.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse zablokowany (429, reset 2026-10-26T00:00Z); Gemini nieznany do K3, potem zablokowany (429 RESOURCE_EXHAUSTED „Resets in 78h8m5s”, 03:52Z); Codex nieznany, zablokowany 01:34Z (limit okna, reset 05:26 lokalnie), znany po resecie; Claude ostrzegawczy (hook ŻÓŁTY, tydzień 90 % przy 72 % upływu).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 20 nowych, 112 przejrzanych; lint 0 błędów; R1: 2×P1 (D07 zmieniał wspólny PIN, SQL L06 dotykał cudzego rekordu) i ~20×P2 (dane i adresy API, sesje, przygotowanie, etykiety, tabela outboxu, granice, autoryzacja). Architekt przed R2 znalazł 3 defekty SQL, których R1 nie zgłosił: zamknięcie i „przywrócenie” na ACTIVE programu z seeda (Stara Piekarnia jest celowo CLOSED), 6 wierszy z tym samym PIN-em wbrew `UQ_StaffAssignments_Phone_Pin`, sprzątanie zostawiające sprzedawcę.
+- Rundy korekt: 2 zakończone (K1: 29 przypadków, 1 update; K2: syntetyczny program zakończony, sprzedawca-znacznik, sprzątanie), K3 zablokowana limitem linii autora.
+- Czas do akceptacji: nie zaakceptowano (stan `zablokowane` od 03:52Z; pierwsza linia autora wolna 2026-10-26T00:00Z).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1 2×P1 + ~20×P2 potwierdzone, 0 odrzuconych; R2 2×P1 potwierdzone (D10 i D12 zmieniały PIN i odpinały wspólną kartę „Program demonstracyjny”), 1×P1 odrzucony (ZEB-913: postarzenie zgłoszeń SMS to zamierzone zdjęcie limitu), ~13×P2 + 3×P3 przyjęte.
+- Defekty po odbiorze: n/d (zestaw niewysłany).
+- Wymagane testy i dowody: `qas.py lint` z `--context` (0 błędów, 1 zamierzona uwaga), porównanie kluczy z kopią sprzed przebiegu, przegląd architekta wszystkich `INSERT`/`UPDATE`/`DELETE` wobec seedów `Script9500*` i indeksów unikalnych z `filter_definition`.
+- Uwagi: (1) Sol `high` w R1 nie zauważył SQL psującego seed innego zestawu — przegląd skryptów zapisujących to obowiązek architekta przed recenzją (pamięć `qas-skrypty-sql-nie-ruszaja-seedow`); (2) zasada wspólnej karty konta testowego musi stać w briefie generatora z góry, inaczej wraca w kolejnych korektach (K1 dodała dwa nowe naruszenia); (3) przy zablokowanych Muse i Gemini skill QA Sphere nie ma trzeciej linii autora — luka procedury do decyzji właściciela.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
