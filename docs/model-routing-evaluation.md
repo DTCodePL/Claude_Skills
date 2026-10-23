@@ -7011,6 +7011,76 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: `qas.py lint` z `--context` (0 błędów, 1 zamierzona uwaga), porównanie kluczy z kopią sprzed przebiegu, przegląd architekta wszystkich `INSERT`/`UPDATE`/`DELETE` wobec seedów `Script9500*` i indeksów unikalnych z `filter_definition`.
 - Uwagi: (1) Sol `high` w R1 nie zauważył SQL psującego seed innego zestawu — przegląd skryptów zapisujących to obowiązek architekta przed recenzją (pamięć `qas-skrypty-sql-nie-ruszaja-seedow`); (2) zasada wspólnej karty konta testowego musi stać w briefie generatora z góry, inaczej wraca w kolejnych korektach (K1 dodała dwa nowe naruszenia); (3) przy zablokowanych Muse i Gemini skill QA Sphere nie ma trzeciej linii autora — luka procedury do decyzji właściciela.
 
+### 2807-T (czerwone testy dwóch Bugów BE: xunit jednostkowy kolizji indeksu unikalnego + integracyjny precyzji czasu na SQL Server) — 2026-10-23
+- Archetyp: Testy — czerwony test Buga przed łatką (xunit, Moq `Strict`, `[SqlServerFact]`).
+- Stawka: wysoka (PIN personelu, sesja personelu).
+- Niepewność: średnia (pierwszy brief Buga linii `tester` na Haiku; w próbie testera nie było briefu Buga).
+- Wykonawca (linia / model / native effort): Claude / `tester` Haiku 5.5 `xhigh`.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (recenzja fali objęła testy i łatkę — wpis 2807-R).
+- Dopuszczone alternatywy: Claude `wykonawca` Sonnet 5.5 `high`. Muse i Gemini zablokowane. Codex odpadł, bo jego testy wymagałyby recenzji fali spoza Codexa, a żadna taka linia nie była wolna.
+- Powód wyboru: linia testera; gotowe wzorce w repo (sekwencje Moq z wyjątkami SQL, fikstura SQL Server).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook ŻÓŁTY, tydzień ~91 %, 2026-10-23 rano); Muse zablokowany do 2026-10-26T00:00Z; Gemini zablokowany do ok. 2026-10-26 10:00Z.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowano, ~7,4 min. 7 testów czerwonych z właściwego powodu (`SqlException` z handlera, `Assert.Null` sesji, różnica tyknięć `datetime`), 13 zielonych. Czerwień nie pochodziła z mocka `Strict` — w briefie Buga potwierdzony warunek „bez fałszywego czerwonego”, którego próba testera nie sprawdziła.
+- Rundy korekt: 0 (korekta K1 po recenzji fali — wpis 2807-R).
+- Czas do akceptacji: ~15 min (z przebiegiem architekta i hashami plików testów).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1×P2 potwierdzone w recenzji fali — mocki zapisu w testach kolizji przyjmowały dowolne połączenie; 0 odrzuconych.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `dotnet test --filter` architekta z `ZEBRANI_TEST_SQLSERVER` (7 czerwonych, 13 zielonych), SHA-256 trzech plików testów przed łatką.
+- Uwagi: tester wykrył błąd briefu — pominięty drugi indeks unikalny (`UQ_StaffAssignments_Program_Phone`); rozwiązał go wierszem nieaktywnym zamiast obchodzić asercję. Wzorce grep w briefach były po angielsku, a wyjście `dotnet` jest po polsku — brief BE musi podawać wzorce polskie (`Zakończone|Niepowodzenie|Łączna liczba`).
+
+### 2807-P (łatka dwóch Bugów BE, 8 plików produkcyjnych: ponowienie transakcji przy kolizji indeksu, `DbType.DateTime2` dla czasów personelu i sesji) — 2026-10-23
+- Archetyp: Backend — niezmiennik PIN-u i sesji personelu (ponowienie całej transakcji od świeżego odczytu, typy parametrów Dappera).
+- Stawka: wysoka.
+- Niepewność: niska (wzór ścieżki własnej z PBI #1807 i `DbType.DateTime2` już w repo).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 `xhigh`.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (fala); bramka Codex / `gpt-6.1-sol` `max`.
+- Dopuszczone alternatywy: przy CZERWONYM Muse Wonder Full `max` (zablokowany) albo czekanie.
+- Powód wyboru: pliki niezmiennika high-stakes (PIN, sesja personelu).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook ŻÓŁTY, 2026-10-23 rano).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zaakceptowano, ~6,4 min. Testy T zielone, hashe plików testów bez zmian, build 0 ostrzeżeń, pełny pakiet 8457/8457. Raport wskazał 3 słabości w otoczeniu: 9 z 13 parametrów bez testu (faktycznie 12 do zmiany i 1 już `DateTime2`), sprzeczny opis klasy testów w HEAD, słaba asercja `seenTaken` w HEAD. Wszystkie trzy przeszły do K1.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~20 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): recenzja fali — 0 defektów kodu produkcyjnego; bramka — 0 znalezisk.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `dotnet test` 8465/8465 na SQL Server (po K1), CI `main` i gałęzi zielone, PRE BE 1.15.1 na docelowym SHA.
+
+### 2807-R (+K1) (recenzja fali: cały niescommitowany diff BE — łatka Opusa i testy Haiku) — 2026-10-23
+- Archetyp: Recenzja fali high-stakes — pliki niezmiennika i testy dowodzące.
+- Stawka: wysoka.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): poprawka Claude / `tester` Haiku 5.5 `xhigh` (K1).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review`.
+- Dopuszczone alternatywy: Muse Wonder Full `max` (para reguły 8 dla recenzji plików niezmiennika) zablokowany do 2026-10-26T00:00Z; Gemini `high` zablokowany; brak innej wolnej rodziny spoza Claude'a → przy limicie Codexa czekanie.
+- Powód wyboru: inna rodzina niż autorzy (Claude), jedyna wolna; ponowna kwalifikacja wg reguły 2 przy zablokowanym Muse.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper, 2026-10-23 07:24Z).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 187 s, exit 0; 0 defektów produkcyjnych, 1×P2 w testach.
+- Rundy korekt: 1 (K1, ~9,2 min: osobne połączenie na próbę w mockach, opis klasy testów, asercja `seenTaken`, 8 strażników `DateTime2` dla pozostałych parametrów; mutacja w kopii repo bez `DbType.DateTime2` — 11/11 czerwonych).
+- Czas do akceptacji: ~30 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1×P2 potwierdzone, 0 odrzuconych, 0 fałszywych P0/P1.
+- Defekty po odbiorze: brak (bramka 0 znalezisk).
+- Wymagane testy i dowody: pełny pakiet 8465/8465, 0 pominiętych; SHA-256 plików testów po K1.
+
+### 2807-G (bramka końcowa BE) — 2026-10-23
+- Archetyp: Bramka końcowa high-stakes — cały diff BE w jednym przebiegu.
+- Stawka: wysoka.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): — (0 znalezisk, bez poprawki).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `max`, `-Mode review`.
+- Dopuszczone alternatywy: brak (reguła 6; przy limicie czekanie na reset).
+- Powód wyboru: reguła 6.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper, 2026-10-23 07:44Z); po przebiegu 5 h 24 %, tydzień 25 % (raport tokenów).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 312 s, exit 0; 0 znalezisk. Przeczytała cały `git diff HEAD`, oba handlery zmiany PIN-u, `GlobalExceptionHandler`, wyjątek, SQL sesji, DI, testy i WP.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~10 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: raport bramki; architekt — pełny pakiet 8465/8465, CI, PRE 1.15.1.
+- Uwagi: przy małym diffie po recenzji fali bramka nie dołożyła znaleziska (por. 1806-G-BE, gdzie jedyny P1 znalazła bramka). Recenzja fali i bramka z jednej rodziny (Codex) są dopuszczalne, bo niezależność liczy się wobec autora (Claude).
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
