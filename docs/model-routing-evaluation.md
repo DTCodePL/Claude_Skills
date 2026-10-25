@@ -7376,6 +7376,40 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak.
 - Wymagane testy i dowody: dziennik bez wpisów `otwarty`; commit dokumentacji `f1bcff7`.
 
+### 1402-Q (Q-1, Q-1b, Q-1c, Q-K1) (plik podglądu QA Sphere: przegląd 87 istniejących, 55 nowych przypadków) — 2026-10-25
+- Archetyp: QA Sphere — plik podglądu (Kroki 2–5 skilla v1.12) w funkcji high-stakes.
+- Stawka: średnia (treść testów, bez niezmiennika w kodzie).
+- Niepewność: średnia (warunki PRE: brak skrzynki, Turnstile wyłączony, logowanie dostawcą niedziałające).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high` — 3 przebiegi autorskie (dwa z przekazaniem przy strażniku 300 tys.) i 1 przebieg korekty.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode exec -Access read` (piaskownica `read-only`), wpis 1402-Q-R.
+- Dopuszczone alternatywy: Codex Sol `high` jako autor (odrzucony: okno 258 tys. przy kontekście ~130 tys.); Muse Spark `max` i Gemini `-Access write` (linie skilla) — zablokowane do 2026-10-26.
+- Powód wyboru: wyjątek właściciela 2026-10-25 „nie czekaj do poniedziałku, zmień model po prostu” od linii autorów skilla QA Sphere; para autor Claude ↔ recenzent Codex zachowuje różne rodziny.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany, ZIELONY, 5 h 20–34 %, tydzień 3–5 % (hook, 2026-10-25 11:20–13:40Z); Muse zablokowany do 2026-10-26T00:00Z (429); Gemini zablokowany do 2026-10-26T10:01Z; Codex nieznany.
+- Pewność decyzji: niska (pierwsza para Sonnet/Sol w tym archetypie).
+- Wynik pierwszego podejścia: przekazanie bez zapisu. Q-1 zatrzymał się na 300 tys. po samym czytaniu — za szeroki brief i `context.json` 385 kB. Q-1b zapisał przegląd i 28 przypadków, potem przekazanie. Q-1c dopisał 22 przypadki, `lint` 0/0.
+- Rundy korekt: 1 (Q-K1 — 12 × P2 z recenzji, 5 nowych przypadków, 7 werdyktów `keep` → `update`).
+- Czas do akceptacji: ~2 h 20 min (11:20–13:40Z), w tym 4 przebiegi autora po 5–11 min i recenzja 10 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 12 × P2 (5 błędów treści, 4 luki pokrycia, 3 błędne werdykty `keep`); odrzucone 0. Recenzent wskazał też skrót architekta w przekazaniu („`keep` po tytule” wbrew Krokowi 2b) — błędne `keep` wyłapał jego pełny przegląd.
+- Defekty po odbiorze: brak (stan na publikację).
+- Wymagane testy i dowody: `qas.py lint` 0/0; `push --limit 1` + `verify --only A1`; `push` 54; `update` 8; pełne `verify` 63 pozycje, 0 różnic (seq 1889–1943, folder 191). Uwaga do przeglądu archetypu: Sonnet w tym archetypie dwa razy uderzył w strażnika kontekstu; następnym razem brief z jawnym podziałem przegląd/nowe przypadki i zapisem przyrostowym od startu.
+
+### 1402-Q-R (recenzja krzyżowa pliku podglądu QA Sphere) — 2026-10-25
+- Archetyp: Recenzja — treść manualnych przypadków testowych względem kodu FE/BE i dokumentacji.
+- Stawka: średnia.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Access read`.
+- Recenzent (linia / model / native effort): architekt Opus 5.5 `xhigh` — triaż znalezisk w kodzie (`evaluate-rules.ts`, `account-logout.ts`, `ProtectionConfiguration.cs`, `new-password-outcome.html`).
+- Dopuszczone alternatywy: Muse i Gemini `-Access read` (linie skilla) — zablokowane do 2026-10-26.
+- Powód wyboru: inna rodzina niż autor (Claude); wyjątek właściciela j.w.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany przed przebiegiem; po przebiegach #1402 wrapper: 5 h 16 %, tydzień 3 %.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowano — 12 × P2, 0 × P0/P1, werdykt „wymaga poprawek”, pewność 0,94.
+- Rundy korekt: 0.
+- Czas do akceptacji: 10 min 27 s.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 12 × P2 potwierdzonych, 0 odrzuconych; jedno przypisanie fragmentu poprawki do złego seq (113/118) — wykonawca korekty rozpoznał je sam.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: raport w `_robocze` (usunięty przy domknięciu); poprawki odebrane `verify` 63/0.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
