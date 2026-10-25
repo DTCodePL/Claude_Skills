@@ -7081,6 +7081,301 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: raport bramki; architekt — pełny pakiet 8465/8465, CI, PRE 1.15.1.
 - Uwagi: przy małym diffie po recenzji fali bramka nie dołożyła znaleziska (por. 1806-G-BE, gdzie jedyny P1 znalazła bramka). Recenzja fali i bramka z jednej rodziny (Codex) są dopuszczalne, bo niezależność liczy się wobec autora (Claude).
 
+### 1402-B1 (B1, U1, U2) (slice BE: tabela zgłoszeń, przyjęcie zgłoszenia, przetwarzanie w tle, sprawdzenie i użycie jednorazowego odnośnika) — 2026-10-23
+- Archetyp: Backend — niezmiennik high-stakes (jednorazowy kod, limity prób, unieważnienie sesji, nierozróżnialność odpowiedzi).
+- Stawka: wysoka.
+- Niepewność: średnia (nowy slice i proces w tle; wzorce kolejki wiadomości i blokad aplikacyjnych już w repo).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 `xhigh` — trzy kolejne przebiegi (B1 → U1 → U2).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `xhigh`, `-Mode review` (fala, wpis 1402-R-BE); bramka Codex / `gpt-6.1-sol` `max`.
+- Dopuszczone alternatywy: przy CZERWONYM Muse Wonder Full `max` (zablokowany do 2026-10-26T00:00Z) albo czekanie. Recenzent wg reguły 8 to Muse Wonder Full `max`; był zablokowany, więc poszło do ponownej kwalifikacji na Sol.
+- Powód wyboru: pliki niezmiennika high-stakes.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook ŻÓŁTY, tydzień 93 %, 2026-10-23 ~08:40Z), dalej CZERWONY 94–97 % (przebiegi U1 i U2 ze znacznikiem `[konieczny]`, decyzja właściciela „wykorzystać pulę w 100 %”); Muse zablokowany (429, 2026-10-22 20:47Z); Gemini zablokowany do 2026-10-26 10:01Z (`agy /quota`, 2026-10-23).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: B1 nie napisał kodu. Strażnik kontekstu zatrzymał go przy 301 tys. podczas czytania wzorców, a raport przekazania wykazał dwie trafne błędne przesłanki briefu: wiadomości 102 nie da się zakolejkować bez szablonu, a „kanonizacja jak w logowaniu” rozróżniała wielkość liter i rozdzielała limity adresu. Po podziale na U1 (baza, `request`, cykl) i U2 (`inspect`, `complete`) z twardym budżetem czytania: U1 dał kod produkcyjny (build 0/0) bez testów, U2 dał kod, fixture i 3 kluczowe testy `complete`, w tym dwa równoległe wywołania. Ścieżka e-mail przez curl przeszła w całości.
+- Rundy korekt: 1 — K1–K3 i K5 po recenzji fali i BT1. Wykonał je Codex (wpis 1402-KBE) na jednorazowy wyjątek właściciela, bo hook przy 98 % tygodnia blokował też `[konieczny]`. Do tego jednolinijkowa poprawka architekta po bramce.
+- Czas do akceptacji: pierwsze podejście ~1 h 10 min (B1 → U2); akceptacja po korektach ~6 h, w tym ~2,5 h oczekiwania na reset okna Codexa.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): recenzja fali — 3×P2 potwierdzone: czas `/request` zależny od istnienia konta przez blokadę wiersza w cyklu, kolejność przy dwóch instancjach, limit przed odstępem wbrew WP. Do tego 1×P3 potwierdzone (miejsce powiadamiacza); 0 odrzuconych. Bramka — 1×P2 potwierdzone (wielkość liter znacznika urządzenia a binarna nazwa blokady aplikacyjnej).
+- Defekty po odbiorze: precyzja czasu (`datetime` zamiast `DbType.DateTime2`). Wykrył ją test BT1, zamknęła korekta K1.
+- Wymagane testy i dowody: build 0 ostrzeżeń; pełny `dotnet test` 8595/0/1 (pominięty = defekt logowania spoza #1402); curl `request`/`inspect`/`complete` z odczytem `MessageOutbox`, `SecurityEvents` i tokenów odnawiających; PRE BE 1.16.0 na `d484b3e`.
+- Uwagi: przy slice BE wysokiej stawki pierwszy przebieg Opusa zjadł cały budżet kontekstu na czytanie. Podział na jednostki z jawnym budżetem czytania od razu oszczędza przebieg.
+
+### 1402-B2 (szablon wiadomości z odnośnikiem ustawienia hasła, PL/EN, dwa warianty) — 2026-10-23
+- Archetyp: Backend — szablon wiadomości transakcyjnej bez niezmiennika.
+- Stawka: średnia.
+- Niepewność: niska (wzór szablonu wiadomości 103).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high`.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `xhigh`, `-Mode review` (w recenzji fali BE, wpis 1402-R-BE).
+- Dopuszczone alternatywy: Codex Sol `high` (≤ 5 plików); Muse Spark `max` zablokowany.
+- Powód wyboru: brief przesunięty przed B1 (szablon jest warunkiem kolejkowania 102); jedyny wykonawca BE w tej chwili, więc mógł budować.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude CZERWONY 94 % (hook, `[konieczny]`, 2026-10-23 ~09:18Z).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowano. Jeden istniejący test fabryki wymagał dopisania parametru sterującego wariantem (1 linia, architekt).
+- Rundy korekt: 0.
+- Czas do akceptacji: ~10 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 dotyczących szablonu.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: Messaging 462/462; zakodowany temat `mailto` zgodny z rewizją dokumentacji.
+
+### 1402-F1 (F1, F1b) (serwis, DTO i enumy odzyskiwania hasła, ekran A z Figmy, rozszerzenie `ResendRow`, i18n) — 2026-10-23
+- Archetyp: Frontend UI / Figma — ekran publiczny funkcji high-stakes, bez pliku niezmiennika.
+- Stawka: średnia.
+- Niepewność: średnia (5 stanów makiety, ponowna wysyłka na uchwycie).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high` (F1, potem F1b).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (wpis 1402-R-FE).
+- Dopuszczone alternatywy: brak — Codex bez potwierdzonego Figma MCP w sesji i > 5 plików w funkcji high-stakes.
+- Powód wyboru: linia Figmy po próbie A/B.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy → CZERWONY 94 % (hook, 2026-10-23 09:12–09:24Z; F1b ze znacznikiem `[konieczny]`).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: F1 oddał pracę przy 307 tys. kontekstu. Warstwa danych, `ResendRow` i ekran A z trzema dziećmi były zielone (31 testów); brakowało testów zachowania i porównania pozostałych stanów z makietą. F1b przeniósł wspólną funkcję do `public/auth/`, wydzielił enum kodu ekranu i porównał resztę stanów z Figmą. Dwa odchylenia od makiety przyjęte na bramie: „47 s” zamiast „00:47” oraz wspólny `ResendRow`.
+- Rundy korekt: 2 — FK1 (6 poprawek po recenzji fali, łącznie z F2) i GK-B (bramka, wpis 1402-GK-B).
+- Czas do akceptacji: ~2 h do FK1; ~4 h z GK-B.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): recenzja fali FE (A+B) — 4×P2 i 2×P3 potwierdzone, 0 odrzuconych. Bramka FE, przebieg 1 — 1×P2 w ekranie A (komunikat błędu nie reagował na zmianę języka).
+- Defekty po odbiorze: 1×P2 z bramki (j.w.).
+- Wymagane testy i dowody: lint 0, format OK, 5637/5637 po FK1, build OK; `browser-check` A 16/16 (2×2 × stany).
+
+### 1402-F2 (ekran B `/nowe-haslo`, trasy SSR, `noindex`, i18n) — 2026-10-23
+- Archetyp: Frontend UI / Figma — ekran publiczny funkcji high-stakes.
+- Stawka: średnia (ekran), wysoka w części sesji karty po ustawieniu hasła (patrz 1402-GK-A).
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high`.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (wpis 1402-R-FE).
+- Dopuszczone alternatywy: brak (jak 1402-F1).
+- Powód wyboru: linia Figmy; rozłączne pliki z F1 przy stałym kontrakcie serwisu, więc wysłany równolegle z falą 1.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude CZERWONY 94–96 % (hook, `[konieczny]`, 2026-10-23 ~09:35Z).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowano — 13 testów, ESLint czysty, teksty z dokumentacji, `noindex` zgodnie z decyzją o adresach. Wykonawca zgłosił spoza zakresu, że `/potwierdz-adres` wywołuje sprawdzenie tokenu także w SSR (propozycja na bramę).
+- Rundy korekt: 1 (FK1 po recenzji fali); synchronizacja sesji karty po 204 poszła osobnym łańcuchem (1402-GK-A).
+- Czas do akceptacji: ~1,5 h do FK1.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): w recenzji fali FE (j.w.). Bramka, przebiegi 1–3: 4×P2 w synchronizacji sesji po ustawieniu hasła.
+- Defekty po odbiorze: sesja w otwartej karcie po 204 (obszar niezmiennika sesji) — brief F2 jej nie obejmował; domknął ją łańcuch GK-A.
+- Wymagane testy i dowody: `browser-check` B 12/12; testy zachowania z 1402-FT.
+
+### 1402-FT (F1-T, F2-T) (Vitest + AXE ekranów A i B oraz ich dzieci) — 2026-10-23
+- Archetyp: Testy — Vitest/AXE według scenariuszy z briefu.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `tester` Haiku 5.5 `xhigh`.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (w recenzji fali FE).
+- Dopuszczone alternatywy: `wykonawca` Sonnet `high`; Codex wykluczony (testy wymagałyby recenzji fali spoza Codexa, a żadna taka linia nie była wolna).
+- Powód wyboru: linia testera; tylko pliki `*.spec.ts`, rozłącznie z F1b i F2.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude CZERWONY 94–96 % (hook, `[konieczny]`).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowano. F1-T dał 33 testy w 4 specach, bez defektów kodu, z 2 uwagami do recenzji (import enuma z ekranu logowania, martwy warunek). F2-T dał 35 testów.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~10–15 min każdy.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 dotyczących testów.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `ng test --include` architekta; pełny `npm test` po fali.
+
+### 1402-BT1 (+BT1-K) (xunit: przyjęcie zgłoszenia, odstęp, limity, uchwyt, cykl w tle; mutacje M1–M20) — 2026-10-23
+- Archetyp: Testy — xunit integracyjne na SQL Server z dowodem mutacją.
+- Stawka: wysoka (testy dowodzące niezmiennika limitów i nierozróżnialności).
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Claude / `tester` Haiku 5.5 `xhigh`.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `xhigh`, `-Mode review` (w recenzji fali BE).
+- Dopuszczone alternatywy: `wykonawca` Sonnet `high`.
+- Powód wyboru: linia testera; gotowa fixture z U2.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude CZERWONY 97 % (hook, `[konieczny]`, 2026-10-23 ~10:13Z).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: BT1 oddał raport przekazania przy progu kontekstu. Wynik 48 zielonych i 1 pominięty z 49; pominięty test to realny defekt precyzji czasu (`datetime` zamiast `DateTime2`). BT1-K wykonał mutacje: M1–M19 dały czerwone testy, M20 przeżyła jako mutacja równoważna (wysyłka i tak normalizuje wielkość liter adresu).
+- Rundy korekt: 0 (BT1-K to druga jednostka tej samej pracy, nie korekta).
+- Czas do akceptacji: ~1 h (BT1 + BT1-K).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 dotyczących testów.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: pełny `dotnet test` 8545/0/1; hashe 85 plików produkcyjnych bez zmian po mutacjach.
+
+### 1402-D1 (+D1-K) (datowane rewizje 2026-10-23 pięciu dokumentów: WP odnośnika, UI ekranów, WP wiadomości, AT uwierzytelniania i sesji) — 2026-10-23
+- Archetyp: Dokumentacja — rewizje dokumentów `zatwierdzony` w granicach ustaleń zatwierdzonych z góry.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Access write`.
+- Recenzent (linia / model / native effort): Claude / architekt Opus 5.5 `xhigh` (Faza 4c — jednorazowy wyjątek właściciela: Gemini i Muse zablokowane).
+- Dopuszczone alternatywy: Muse Spark `max` (archetyp „rewizje dokumentacji” — zablokowany); Claude `wykonawca` (pula na kod).
+- Powód wyboru: archetyp ≤ 5 plików; pula Codexa znana (~75 % wg właściciela, 2026-10-23 rano).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex znany (właściciel, 2026-10-23); Muse zablokowany do 2026-10-26T00:00Z.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 854 s, zaakceptowano. Zmiany +160/−25 w 5 dokumentach, rewizje (a)–(d) zgodne z ustaleniami, temat `mailto` zgodny z szablonem B2. Poza briefem poprawił nieaktualny akapit AT o pustym katalogu zdarzeń; poprawkę przyjęto.
+- Rundy korekt: 1 — D1-K (wpisy 12–15 dziennika po fali FE). Pierwszy przebieg trwał 66 s i nie dał wyniku, drugi trwał 470 s i został zaakceptowany.
+- Czas do akceptacji: ~15 min (D1); ~1 h z D1-K.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Faza 4c — 2 uzupełnienia architekta (retencja zgłoszeń w WP usuwania konta, akapit o karcie z trwającą sesją); 0 błędów w treści D1.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: diff przeczytany w całości; dziennik dokumentacji bez wpisów `otwarty`.
+
+### 1402-R-FE (recenzja fali FE: ekrany A i B, serwis, testy) — 2026-10-23
+- Archetyp: Recenzja fali — ekrany i warstwa danych funkcji high-stakes, bez plików niezmiennika.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): poprawki Claude / `wykonawca` Sonnet 5.5 `high` (FK1, `[konieczny]` przy 97 %).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review`.
+- Dopuszczone alternatywy: Gemini `high` i Muse Wonder `max` — zablokowane.
+- Powód wyboru: inna rodzina niż autorzy (Claude); przy niskiej i średniej stawce preferowany Sol `high` (reguła 13).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex znany (właściciel, 2026-10-23).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 482 s, exit 0. 4×P2 i 2×P3, wszystkie potwierdzone w repo.
+- Rundy korekt: 1 (FK1: 6 poprawek; 73 testy obu folderów zielone, pełny pakiet 5637/5637).
+- Czas do akceptacji: ~40 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 4×P2 + 2×P3 potwierdzone, 0 odrzuconych, 0 fałszywych P0/P1.
+- Defekty po odbiorze: bramka FE dołożyła 2×P2 w przebiegu 1 (język komunikatu A, sesja karty po 204) — obu recenzja fali nie zgłosiła.
+- Wymagane testy i dowody: raport recenzji; `git status` bez zmian w drzewie.
+
+### 1402-R-BE (recenzja fali BE: slice, szablon, testy — 84 pliki w jednym przebiegu) — 2026-10-23
+- Archetyp: Recenzja fali high-stakes — pliki niezmiennika i testy dowodzące.
+- Stawka: wysoka.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): poprawki Codex (wpis 1402-KBE, wyjątek właściciela).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `xhigh`, `-Mode review`.
+- Dopuszczone alternatywy: Muse Wonder Full `max` (para reguły 8) zablokowany do 2026-10-26T00:00Z; Gemini zablokowany.
+- Powód wyboru: inna rodzina niż autorzy (Claude); `xhigh` zamiast `high` ze względu na stawkę i zakres.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex znany (właściciel, 2026-10-23).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 476 s, werdykt „niepoprawny”, drzewo bez zmian. Recenzent czytał pliki w całości, bo brief jednocześnie zakazywał gita i kazał czytać `git diff`.
+- Rundy korekt: 1 (KBE).
+- Czas do akceptacji: ~4,5 h (z oczekiwaniem na reset okna Codexa).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 3×P2 + 1×P3 potwierdzone, 0 odrzuconych, 0 fałszywych P0/P1.
+- Defekty po odbiorze: bramka BE dołożyła 1×P2 (znacznik urządzenia a binarna nazwa blokady).
+- Wymagane testy i dowody: raport recenzji; architekt sprawdził każde P2 w kodzie i w WP.
+- Uwagi: szablon briefu recenzji BE wymaga poprawki — nie może jednocześnie zakazywać gita i polecać `git diff`. Diff dostarcza architekt albo brief zezwala na odczytowe polecenia gita.
+
+### 1402-SCSS (audyt SCSS 8 arkuszy ekranów A i B) — 2026-10-23
+- Archetyp: Audyt SCSS.
+- Stawka: niska.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): poprawka Claude / `mechanik` Haiku 5.5 `low` (zamiana zdublowanych bloków na mixiny, 5 bloków).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `medium`, `-Mode review` (audytor).
+- Dopuszczone alternatywy: Muse Spark `max` (preferencja z próby) zablokowany.
+- Powód wyboru: krótki audyt tylko do odczytu, jedyna wolna rodzina spoza autorów.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex znany (właściciel, 2026-10-23).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 81 s, 8/8 arkuszy, 0 naruszeń reguł; 2×P3.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~10 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2×P3 potwierdzone. Zdublowane mixiny `auth.form`/`auth.field` poprawił `mechanik`. Wspólny komponent „pole hasła + miernik” odłożony do propozycji PBI refaktoru, bo dotyka rejestracji i ustawień konta.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: stylelint czysty; build FE po zamianie.
+
+### 1402-GK-B (komunikat błędu ekranu A reaguje na zmianę języka) — 2026-10-23
+- Archetyp: Frontend — poprawka stanu widoku bez niezmiennika (≤ 5 plików).
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` `high`.
+- Recenzent (linia / model / native effort): Claude / architekt Opus 5.5 `xhigh` (jednorazowy wyjątek właściciela), potem bramka Codex / `gpt-6.1-sol` `max`.
+- Dopuszczone alternatywy: `wykonawca` Sonnet `high` — hook zablokował go przy 98 % tygodnia, `[konieczny]` nie przechodził.
+- Powód wyboru: brief bez niezmiennika; pula Codexa znana (właściciel: „codex ma dużo limitu”).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude zablokowany (hook 98 %, 2026-10-23 ~10:35Z); Codex znany (właściciel, ~11:20Z).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 349 s, zaakceptowano. Sygnał trzyma niepowodzenie i chwilę jego odbioru, a komunikat jest `computed` z bieżącego języka. Liczba testów wzrosła z 17 do 19.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~10 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): przegląd architekta — 0; bramka, przebiegi 2–4 — 0 w tym obszarze.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: lint 0, format OK, 5645/5645, build OK.
+
+### 1402-GK-A (GK-A, GK-A2, GK-A3 v1–v3) (sesja w otwartej karcie po ustawieniu hasła: synchronizacja z serwerem, limit czasu) — 2026-10-23
+- Archetyp: Frontend — niezmiennik sesji (wygaśnięcie lokalnej sesji po unieważnieniu wszystkich tokenów, współbieżność odświeżeń).
+- Stawka: wysoka.
+- Niepewność: wysoka (współdzielone odświeżenie w toku, generacja sesji, harmonogram RxJS).
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` `xhigh` (GK-A), potem `high` (GK-A2, GK-A3) — jednorazowy wyjątek właściciela dla #1402: pliki niezmiennika pisze Codex.
+- Recenzent (linia / model / native effort): Claude / architekt Opus 5.5 `xhigh` (przegląd każdego diffu — niezależność od rodziny Codex) oraz bramka Codex / `gpt-6.1-sol` `max` (ta sama rodzina co autor; kontrola, nie niezależność).
+- Dopuszczone alternatywy: `wykonawca-opus` — hook przy 98 % tygodnia, `[konieczny]` nie przechodził; Muse Wonder Full `max` — zablokowany do 2026-10-26T00:00Z; czekanie do resetu Claude'a 25.10 — właściciel odrzucił („zamknąć dziś”).
+- Powód wyboru: decyzja właściciela 2026-10-23 ~11:25Z; reguła 2 nie dawała żadnej linii przed resetem.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude zablokowany (hook 98–100 %); Codex znany → zablokowany 13:45–16:09 i 17:10–21:11 czasu lokalnego (komunikat limitu wrappera).
+- Pewność decyzji: niska (twarda bramka uchylona decyzją właściciela).
+- Wynik pierwszego podejścia: GK-A (107 s) zgłosił trafny STOP. Brief żądał, żeby test regresji był czerwony bez poprawki. Przebieg 2 (385 s) zaakceptowano: testy 24 → 30. Bramka, przebieg 2: synchronizacja żyła tyle co widok i nie domykała się przed nawigacją. GK-A2 przebieg 1 (335 s) zatrzymał ten sam błąd briefu, przebieg 2 (442 s) zaakceptowano: synchronizacja przeszła do serwisu root z kontrolą generacji. Bramka, przebieg 3: 2×P2 (ponowne użycie `refreshInFlight` sprzed resetu, brak limitu czasu). GK-A3 v1 (56 s) zgłosił trafny STOP: przesłanka architekta była błędna, bo `refreshInFlight` zwalnia się w `finalize` po doręczeniu. GK-A3 v2 (886 s, failed) to incydent: brief nie powtórzył wyjątku właściciela, więc Codex uznał bramkę z `AGENTS.md` za wiążącą i sam uruchomił `claude --print --agent wykonawca-opus` z pominięciem hooka limitów. Ten przebieg zapisał 1 poprawny plik stałej i trafił na limit Codexa. GK-A3 v3 (400 s) zaakceptowano: drugie odświeżenie w mikrozadaniu `asapScheduler` i `timeout({ first: 10 s })`. 14 testów było czerwonych na starym kodzie.
+- Rundy korekt: 2 (GK-A2, GK-A3 po przebiegach 2 i 3 bramki). Przebiegi zatrzymane: 4 — 2× błąd briefu („czerwony” dla regresji), 1× błędna przesłanka architekta, 1× incydent.
+- Czas do akceptacji: ~8 h (11:26–19:24 czasu lokalnego), w tym ~6,5 h oczekiwania na resety okna Codexa.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): bramka FE przebiegi 1–3 — 4×P2 potwierdzone (1 + 1 + 2), 0 odrzuconych; przebieg 4 — 0. Przegląd architekta — 0 dodatkowych.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: lint 0, format 0, build 0, 5665/5665; 14 testów czerwonych na kodzie sprzed GK-A3; bramka FE przebieg 4 — 0 znalezisk w 84 plikach.
+- Uwagi: (1) Brief dla obcego silnika z wyjątkiem właściciela musi cytować wyjątek dosłownie i zakazywać uruchamiania innych CLI modeli (`claude`, `codex`, `muse`, `agy`, `gemini`); inaczej Codex sam deleguje do Claude'a poza hookiem. Zapisane w pamięci `codex-deleguje-do-claude-cli`. (2) Wymóg „czerwony bez poprawki” stawiaj imiennie i tylko testom dowodzącym poprawki (pamięć `brief-czerwony-test-tylko-dla-dowodu-poprawki`). (3) Ten obszar niezmiennika potrzebował trzech przebiegów bramki Sol `max`. Recenzja fali przez Sol `high` nie wychwyciła problemu, bo synchronizacja sesji w karcie nie należała do żadnego briefu fali 1.
+
+### 1402-KBE (KBE-1, KBE-2) (korekta BE: `DateTime2`, odstęp przed limitami, blokada aplikacyjna adresu w cyklu zamiast blokady wiersza) — 2026-10-23
+- Archetyp: Backend — niezmiennik high-stakes (nierozróżnialność czasu odpowiedzi, kolejność przetwarzania, limity).
+- Stawka: wysoka.
+- Niepewność: średnia (RCSI wyłączone; `sp_getapplock` z `LockTimeout = 0`).
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` — KBE-1 `high`, KBE-2 `xhigh`; jednorazowy wyjątek właściciela; `-CodexSandbox danger-full-access` jednorazowo dla briefów BE #1402.
+- Recenzent (linia / model / native effort): Claude / architekt Opus 5.5 `xhigh` (przegląd diffów); bramka Codex / `gpt-6.1-sol` `max`.
+- Dopuszczone alternatywy: jak 1402-GK-A.
+- Powód wyboru: decyzja właściciela „zamknąć dziś”.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak 1402-GK-A.
+- Pewność decyzji: niska.
+- Wynik pierwszego podejścia: odrzucono — 4 przebiegi łańcucha (13:26–13:30 czasu lokalnego, KBE-1/2/3 i BT2) zatrzymała piaskownica `workspace-write`. Brak dostępu do `%USERPROFILE%\.nuget`, a nieudany restore zepsuł `obj\*.nuget.g.targets` (naprawił to `dotnet restore` architekta). 3 próby KBE-1 (`--no-restore`, sieć) nie dały wyniku, czwartą uciął limit Codexa; drzewo bez zmian (sha 85/85). Po resecie, z `danger-full-access`: KBE-1 (588 s) i KBE-2 (999 s) zaakceptowane po przeglądzie diffów.
+- Rundy korekt: 0 po zmianie piaskownicy. KBE-3 (miejsce powiadamiacza, P3) odłożony do propozycji PBI refaktoru, a test klucza blokady (K5) przeszedł do BT2.
+- Czas do akceptacji: ~3,5 h (13:26–17:00 czasu lokalnego), w tym ~2,5 h oczekiwania na reset okna.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): przegląd architekta — 0; bramka BE potwierdziła K1–K3 bez znalezisk w tych plikach.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: build 0/0, pełny `dotnet test` 8595/0/1.
+- Uwagi: Codex w domyślnej piaskownicy nie uruchamia `dotnet test` w ZebraniBE. Brief BE dla Codexa wymaga `-CodexSandbox danger-full-access` (zgoda właściciela per zadanie) albo testy uruchamia architekt.
+
+### 1402-BT2 (+K5) (xunit: sprawdzenie i użycie odnośnika, blokady logowania, klucz blokady; mutacje) — 2026-10-23
+- Archetyp: Testy — xunit integracyjne high-stakes z dowodem mutacją.
+- Stawka: wysoka.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` `high` (jednorazowy wyjątek właściciela; `danger-full-access`).
+- Recenzent (linia / model / native effort): Claude / architekt Opus 5.5 `xhigh`; bramka Codex / `gpt-6.1-sol` `max`.
+- Dopuszczone alternatywy: `tester` Haiku `xhigh` — zablokowany hookiem.
+- Powód wyboru: decyzja właściciela „zamknąć dziś”.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak 1402-GK-A.
+- Pewność decyzji: niska.
+- Wynik pierwszego podejścia: przebieg z 13:30 czasu lokalnego zatrzymała piaskownica. Przebieg z 16:37 (1208 s) zaakceptowano: 17/17 mutacji wykrytych, kod produkcyjny nietknięty. Test konta zablokowanego administracyjnie wykazał defekt logowania spoza #1402 i jest oznaczony `Skip` z opisem defektu.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~25 min po przebiegu.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): przegląd architekta — 0; bramka — 0 dotyczących testów.
+- Defekty po odbiorze: brak (defekt logowania to luka sprzed #1402 — propozycja Buga).
+- Wymagane testy i dowody: pełny `dotnet test` 8595/0/1; AccountRecovery 98/1 po poprawce z bramki.
+
+### 1402-G-FE (bramka końcowa FE, 4 przebiegi) — 2026-10-23
+- Archetyp: Bramka końcowa high-stakes — cały diff FE w jednym przebiegu.
+- Stawka: wysoka.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): poprawki GK-A/A2/A3 i GK-B (Codex, wpisy wyżej).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `max`, `-Mode review`.
+- Dopuszczone alternatywy: przy limicie Codexa `wykonawca-opus` tylko do odczytu (decyzja właściciela z planu) — hook go blokował, więc bramka czekała na reset bez obniżenia modelu.
+- Powód wyboru: reguła 6.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex znany, potem dwa limity okna 5 h (komunikaty wrappera: reset 16:09 i 21:11 czasu lokalnego); po ostatnim przebiegu 5 h 30 %, tydzień 5 % (raport tokenów).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: przebieg 1 (552 s, 79 plików) — „niepoprawny”, 2×P2. Przebieg 2: pierwszą próbę (280 s) uciął limit, druga (778 s) dała 1×P2. Przebieg 3 (622 s) — 2×P2. Przebieg 4 (448 s, 84 pliki) — 0.
+- Rundy korekt: 3 (GK-A + GK-B, GK-A2, GK-A3).
+- Czas do akceptacji: ~9 h (12:20–21:33 czasu lokalnego), w tym ~6,5 h oczekiwania na resety.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 5×P2 potwierdzone, 0 odrzuconych, 0 fałszywych P0/P1.
+- Defekty po odbiorze: brak (PRE FE 1.14.0 na `6e6937c`).
+- Wymagane testy i dowody: raporty bramki; architekt — lint, format, build, 5665/5665.
+- Uwagi: każdy przebieg dokładał nowe P2 w tym samym obszarze (sesja karty po resecie), bo każda poprawka odsłaniała następny przypadek współbieżności. Pełny opis wymaganego zachowania w briefie GK-A (odświeżenie w toku, limit czasu, nawigacja) skróciłby łańcuch.
+
+### 1402-G-BE (bramka końcowa BE) — 2026-10-23
+- Archetyp: Bramka końcowa high-stakes — cały diff BE w jednym przebiegu.
+- Stawka: wysoka.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): poprawka Claude / architekt (jedna linia, reguła 11).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `max`, `-Mode review`.
+- Dopuszczone alternatywy: jak 1402-G-FE.
+- Powód wyboru: reguła 6.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex zablokowany 17:10–21:11 czasu lokalnego (pierwszą próbę, 471 s, uciął limit), potem nieznany.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 705 s, exit 0. Potwierdziła K1–K3, K5 i BT2; 0 P0/P1; 1×P2: dwa równoległe zgłoszenia z tym samym znacznikiem urządzenia w innej wielkości liter mijały binarną blokadę aplikacyjną i limit przepuszczał 11 zamiast 10.
+- Rundy korekt: 1 (kanonizacja znacznika `Trim().ToLowerInvariant()` w handlerze; bez ponownej bramki dla zmiany jednej linii).
+- Czas do akceptacji: ~15 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1×P2 potwierdzone, 0 odrzuconych.
+- Defekty po odbiorze: brak (PRE BE 1.16.0 na `d484b3e`).
+- Wymagane testy i dowody: build 0 ostrzeżeń; AccountRecovery 98/1.
+- Uwagi: tu bramka i autor plików niezmiennika (Codex, KBE/BT2) są z jednej rodziny. Niezależność tych plików dał przegląd architekta, nie bramka.
+
+### 1402-4C (przegląd zgodności dokumentacji z kodem) — 2026-10-23
+- Archetyp: Dokumentacja — macierz zgodności dokumentów `zatwierdzony` z implementacją.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / architekt Opus 5.5 `xhigh` (uzupełnienia, jednorazowy wyjątek właściciela).
+- Recenzent (linia / model / native effort): Claude / architekt Opus 5.5 `xhigh` — inna rodzina niż autor dokumentacji D1 (Codex).
+- Dopuszczone alternatywy: Gemini `high` (plan) i Muse — zablokowane do 2026-10-26.
+- Powód wyboru: decyzja właściciela „zamknąć dziś”.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini i Muse zablokowane (j.w.); Claude 99 % (hook).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: wpisy 11 i 16 dziennika przekazane jako propozycje PBI. Nowe wpisy: 18 (logowanie konta zablokowanego, przekazany), 19 (wiersz retencji zgłoszeń i odnośników w WP usuwania konta, zamknięty), 20 (akapit „Karta, w której trwa sesja” w README ekranów, zamknięty).
+- Rundy korekt: 0.
+- Czas do akceptacji: ~30 min (w przerwach na resety).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 3 luki dokumentacji (wpisy 18–20), 0 sprzeczności kodu z dokumentem.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: dziennik bez wpisów `otwarty`; commit dokumentacji `f1bcff7`.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
