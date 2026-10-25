@@ -7410,6 +7410,163 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak.
 - Wymagane testy i dowody: raport w `_robocze` (usunięty przy domknięciu); poprawki odebrane `verify` 63/0.
 
+### 2813-U (U1, U2, U2-K) (slice BE: migracja `EnteredFromAccountId`, sprawdzenie przy wejściu do obsługi, pięć zdarzeń konta kończących sesje obsługi) — 2026-10-25
+- Archetyp: Backend — niezmiennik high-stakes (sesja, migracja danych, protokół blokad wiersza konta).
+- Stawka: wysoka.
+- Niepewność: średnia (współbieżność wejścia i zdarzeń bez RCSI; wzorce `UPDLOCK` i `AccountErasure` już w repo).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 `xhigh` — trzy przebiegi sekwencyjne (U1 → U2 → U2-K).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (wpis 2813-R1); bramka Codex / `gpt-6.1-sol` `max` (wpis 2813-G-BE).
+- Dopuszczone alternatywy: przy CZERWONYM Muse Wonder Full `max` (zablokowany do 2026-10-26T00:00Z) albo czekanie.
+- Powód wyboru: pliki niezmiennika high-stakes; jedna warstwa BE na brief, jeden wykonawca BE naraz (wspólny build).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY, okno 41 %, tydzień 6 %, 2026-10-25 ~13:10Z); Muse zablokowany do 2026-10-26 00:00Z; Gemini zablokowany do 2026-10-26 10:01Z.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: U1 (16 min, 127 wywołań) dał migrację, zapis konta w sesji i odmowę 401 `ACCOUNT_SESSION_ENDED` przy wejściu; trzy drobne poprawki z przeglądu diffu architekta dołączono do briefu U2. U2 (15 min, 143 wywołania) podpiął cztery z pięciu zdarzeń i przeniósł powiadamiacz. Odmówił zakończenia sesji przy ustawieniu hasła z linku, bo ósmy parametr konstruktora łamał S107 (`error`) — trafna przesłanka. Architekt rozstrzygnął: kroki transakcji do współpracownika `PasswordResetCompletion` (wzór `AccountErasure`). U2-K domknął to w 10 min.
+- Rundy korekt: 2 — K1 po recenzji fali (P1: chwila zmiany hasła brana przed blokadą wiersza) i jednolinijkowa poprawka architekta po bramce (`DbType.DateTime2`), wpis 2813-K.
+- Czas do akceptacji: pierwsze podejście ~45 min (14:30–15:14Z); akceptacja po korektach ~2 h 40 min (do walidacji końcowej 17:12Z).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): recenzja fali — 1×P1 potwierdzone (j.w.); bramka — 1×P2 potwierdzone (zaokrąglenie `datetime` zapisu hasła przesuwało `.999` na następną sekundę wbrew kontraktowi „ta sama sekunda”); 0 odrzuconych.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: build 0 ostrzeżeń; pełny `dotnet test` 8664/0/1 (pominięty = znany `Skip` spoza #2813); `dotnet format` czysty; Script000025 idempotentny na bazie fixture'u.
+- Uwagi: przy podziale na jednostki z jawnym budżetem czytania (wniosek z 1402-B1) żaden przebieg Opusa nie oddał pracy strażnikowi kontekstu.
+
+### 2813-D (D-1, D-1K, D-1K2, D-1K3) (rewizje sześciu dokumentów `zatwierdzony` i trzy dopiski po recenzjach) — 2026-10-25
+- Archetyp: Dokumentacja — rewizje datowane w granicach decyzji właściciela.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high` (D-1); poprawki z dokładną treścią — Claude / `mechanik` Haiku 5.5 `low` (D-1K, D-1K2, D-1K3).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, exec tylko do odczytu (wpis 2813-4C).
+- Dopuszczone alternatywy: Codex Sol `medium` (pula oszczędzana na bramkę); Muse Spark `max` zablokowany.
+- Powód wyboru: tor poboczny równolegle z U1, bez niezmiennika kodu.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak 2813-U.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: D-1 zaakceptowany (3 min, 25 wywołań); dwie poprawki z treścią podaną przez architekta (D-1K): niewdrożona ścieżka rejestracji społecznościowej i korekta językowa.
+- Rundy korekt: 2 — D-1K2 (przyjęte ograniczenie dokładności sekundy, po R1) i D-1K3 (źródło `iat` i odroczone usunięcie przez administratora, po 4c); każda < 1 min.
+- Czas do akceptacji: ~2 h 40 min (zależny od recenzji kodu).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 4c — 2 rozbieżności potwierdzone („brak w kodzie”, „brak w dokumencie”), 0 sprzeczności. Mechanik zgłosił `ACCOUNT_IDENTITY_MISSING` jako nowy kod — fałszywy alarm (kod istnieje w `MissingAccountIdentityException.cs:12`).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: dziennik rozbieżności 9/9 `zamknięty`; LF; commit dokumentacji `b3986b2`.
+
+### 2813-T (T1, T2, T2-K) (xunit: wejście do obsługi, pięć zdarzeń, kolejność blokad, dowód czerwieni) — 2026-10-25
+- Archetyp: Testy — xunit integracyjne na SQL Server z dowodem mutacją.
+- Stawka: wysoka (testy dowodzące niezmiennika sesji i protokołu blokad).
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Claude / `tester` Haiku 5.5 `xhigh` (T1, T2, T2-K sekwencyjnie).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (w recenzji fali, wpis 2813-R1).
+- Dopuszczone alternatywy: `wykonawca` Sonnet 5.5 `high`.
+- Powód wyboru: linia testera; wzorce `ShopServiceEntryApiTests` i testów kolejności blokad w repo.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak 2813-U.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: T1 zaakceptowany (13 min, 58 wywołań) — 38 testów zielonych w trzech powtórkach, mutacja odmowy czerwieni 6 testów. T2 (zdarzenia, scalony z planowanych T2a/T2b) oddał raport przekazania przy miękkim progu kontekstu po 5 z 11 grup scenariuszy (8 testów). T2-K domknął resztę: 9 testów API w trzech powtórkach, 13 jednostkowych i dowód czerwieni obu handlerów, z SHA plików produkcyjnych przed i po.
+- Rundy korekt: 2 — K1-T (po R1: kolejność kroków w teście blokad zmiany numeru i chwila zmiany hasła po blokadzie) i K2-T (po bramce: precyzja zapisu `PasswordChangedAt`), wpis 2813-K.
+- Czas do akceptacji: T1 ~14 min; T2 + T2-K ~26 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1 — 1×P2 potwierdzone (test kolejności blokad zmiany numeru przechodził bez `LockAccountAsync`); bramka — 1×P2 potwierdzone (atrapa blokady nie sprawdzała chwili zmiany względem końca oczekiwania).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: pełny `dotnet test` 8664/0/1; mutacje opisane w raportach.
+- Uwagi: zakomentowanie kodu łamie build (S125, CS9113), więc mutacje w BE podmieniają albo usuwają instrukcję. Scalenie T2a/T2b w jeden brief przekroczyło próg kontekstu — przy 11 grupach scenariuszy dwa briefy byłyby tańsze.
+
+### 2813-R1 (recenzja fali BE: cały diff z nowymi plikami) — 2026-10-25
+- Archetyp: Recenzja — fala BE high-stakes (pliki niezmiennika i testy).
+- Stawka: wysoka.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review`.
+- Recenzent (linia / model / native effort): architekt Opus 5.5 `xhigh` — triaż znalezisk w kodzie.
+- Dopuszczone alternatywy: brak — Muse Wonder Full `max` (reguła 8) zablokowany do 2026-10-26, Gemini wykluczony stawką.
+- Powód wyboru: jedyna dopuszczona rodzina spoza Claude'a; `high` z uwagą na pulę Codexa przed bramką (reguła 7).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper bez zapasu), 2026-10-25 16:02Z.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 13 min 19 s, exit 0. 1×P1 (chwila zmiany hasła brana przed weryfikacją i liczeniem skrótu, więc token odświeżony w tej przerwie mógł jeszcze otworzyć obsługę) i 1×P2 (test).
+- Rundy korekt: nie dotyczy (korekty — 2813-K).
+- Czas do akceptacji: ~15 min z triażem.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1×P1 i 1×P2 potwierdzone, 0 odrzuconych.
+- Defekty po odbiorze: bramka znalazła jeszcze 2×P2 (wpis 2813-G-BE).
+- Wymagane testy i dowody: raport w logu wrappera; `git status` bez zmian po przebiegu.
+
+### 2813-K (K1, K1-T, poprawka architekta, K2-T) (korekty po recenzji fali i bramce) — 2026-10-25
+- Archetyp: Backend + testy — korekty niezmiennika high-stakes z dowodem czerwieni.
+- Stawka: wysoka.
+- Niepewność: niska (znaleziska z dokładnym scenariuszem).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 `xhigh` (K1); Claude / `tester` Haiku 5.5 `xhigh` (K1-T, K2-T); architekt — jedna linia `DbType.DateTime2` w `AccountPasswordRepository.cs:59` (reguła 11).
+- Recenzent (linia / model / native effort): K1/K1-T — Codex / `gpt-6.1-sol` `max` (bramka); K2-T i poprawka jednolinijkowa — architekt na diffie i czerwonym/zielonym teście, bez ponownej bramki.
+- Dopuszczone alternatywy: jak 2813-U i 2813-T.
+- Powód wyboru: korekty wracają do linii autora.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY, okno ~17 %, tydzień 11 %).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: K1 zaakceptowany (11 min, 56 wywołań): chwila zmiany hasła brana po `LockAccountAsync`, tuż przed zapisem skrótu, w zmianie hasła i w ustawieniu z linku; 341 testów dotkniętych obszarów zielonych. K1-T (11 min) — przesłanka briefu częściowo błędna: test API hasła i tak czeka na `UPDATE Accounts`. Przyjęto, bo kolejności pilnują testy jednostkowe. K2-T (9 min) dodał `AccountPasswordChangedAtPrecisionTests` z czerwienią przed poprawką.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~25 min po R1; ~15 min po bramce.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): bramka na K1 — 2×P2 (wpis 2813-G-BE).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: build 0 ostrzeżeń; pełny `dotnet test` 8664/0/1; format czysty.
+
+### 2813-G-BE (bramka końcowa BE) — 2026-10-25
+- Archetyp: Bramka końcowa high-stakes — cały diff BE w jednym przebiegu.
+- Stawka: wysoka.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): poprawki — architekt (jedna linia) i `tester` (K2-T), wpis 2813-K.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `max`, `-Mode review`.
+- Dopuszczone alternatywy: przy limicie Codexa `wykonawca-opus` tylko do odczytu (decyzja właściciela dla tej funkcji, ta sama rodzina co autor — niezależność słabsza); nie było potrzebne.
+- Powód wyboru: reguła 6.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, 2026-10-25 16:46Z.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 10 min 39 s, exit 0, werdykt „niepoprawny”: 0 P0/P1, 2×P2 — zaokrąglenie `datetime` przy zapisie hasła (brak `DbType.DateTime2` w `UpdatePasswordAsync`) i luka testu chwili zmiany względem końca oczekiwania na blokadę.
+- Rundy korekt: 1 (bez ponownej bramki — poprawka jednolinijkowa plus testy z dowodem czerwieni).
+- Czas do akceptacji: ~25 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2×P2 potwierdzone, 0 odrzuconych.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: build 0 ostrzeżeń; pełny `dotnet test` 8664/0/1.
+- Uwagi: pliki niezmiennika pisał `wykonawca-opus`, więc bramka z rodziny Codex była wobec nich niezależna. Ten sam brak `DbType.DateTime2` złapała w #1402 korekta K1 — warto go dodać do listy kontrolnej briefów BE z `PasswordChangedAt`.
+
+### 2813-4C (przegląd zgodności dokumentacji z kodem) — 2026-10-25
+- Archetyp: Dokumentacja — macierz zgodności dokumentów `zatwierdzony` z implementacją.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode exec -Access read` z `-BriefFile`.
+- Recenzent (linia / model / native effort): architekt Opus 5.5 `xhigh` — sprawdzenie obu rozbieżności w kodzie.
+- Dopuszczone alternatywy: Muse Spark `max` po 2026-10-26 00:00Z.
+- Powód wyboru: autorzy kodu i dokumentacji z rodziny Claude; `-Mode review` gubi format macierzy.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, 2026-10-25 16:58Z.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 9 min 8 s, exit 0 — 159 twierdzeń zgodnych w 19 sekcjach, brak sprzeczności między dokumentami, 2 rozbieżności: usunięcie konta przez administratora nie ma ścieżki w kodzie; źródło chwili wydania tokenu (`iat`) i odpowiedź na token bez niego nie były opisane.
+- Rundy korekt: 1 (D-1K3, wpis 2813-D).
+- Czas do akceptacji: ~12 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2 potwierdzone, 0 odrzuconych.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: dziennik 9/9 `zamknięty`.
+
+### 2813-Q (Q-1, Q-1b, Q-K1, Q-K2) (plik podglądu QA Sphere: przegląd 31 istniejących, 12 nowych przypadków) — 2026-10-25
+- Archetyp: QA Sphere — przypadki ręczne funkcji high-stakes (sesje, zdarzenia konta) z przeglądem folderu.
+- Stawka: średnia (przypadki testowe, bez kodu; sprzątanie danych na wspólnym PRE).
+- Niepewność: średnia (kroki zależne od UI desktop/mobile, wspólnych kont demo i seedów).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high` (wszystkie cztery przebiegi).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode exec -Access read` (wpis 2813-Q-R).
+- Dopuszczone alternatywy: Muse Spark 1.3 `max` (domyślny autor wg reguły 8) i Gemini `-Access write` — oba zablokowane do 2026-10-26.
+- Powód wyboru: decyzja właściciela z 2026-10-25 na czas blokady Muse i Gemini (pamięć `do-poniedzialku-tylko-claude-i-codex`).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY, okno 27–41 %, tydzień 13 %); Muse i Gemini zablokowane (429 z resetem tygodniowym), 2026-10-25.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: Q-1 (290 s, 56 wywołań) oddał raport przekazania przy miękkim progu 302 tys. po samym researchu — kontekst przeglądu 1,19 MB (214 przypadków) zawężony potem do folderu 192 (31). Q-1b (510 s, 49 wywołań) — plik 12 przypadków, lint 0/0. Autor obalił dwie przesłanki briefu: hasło ustawia się na `/nowe-haslo`, nie `/odzyskiwanie-hasla`; termin 48 h liczy się od `ExpiresAt` potwierdzenia, z czyszczeniem co godzinę.
+- Rundy korekt: 2 — Q-K1 (510 s, 66 wywołań; 6 z 7 poprawek po recenzji, punkt dwóch programów słusznie wstrzymany — drugi program właściciela jest zawieszony) i Q-K2 (168 s, 28 wywołań; A1 z programem innego właściciela; autor obalił hasło konta demo podane w briefie).
+- Czas do akceptacji: ~2 h 10 min od briefu Q-1 do akceptacji właściciela (z dwiema recenzjami).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Q-1R — 2×P1 i 5×P2, 1×P3; 7 przyjętych, 1 odrzucone (wpis 2813-Q-R). Q-1R2 — 0 nowych.
+- Defekty po odbiorze: brak (`qas.py verify` 12/12, 0 różnic).
+- Wymagane testy i dowody: `qas.py lint` 0/0; folder 195; seq 1975–1986; 31 × zostaje, 0 aktualizacji, 0 `[Removed]`.
+- Uwagi: trzy przesłanki architekta w briefach (trasa ustawienia hasła, zawieszony program, hasło konta demo) obalił autor przed wykonaniem — klauzula STOP zadziałała trzy razy. Oba P1 recenzji to błędy, których lint nie łapie: sprzątanie „dla każdego sprzedawcy z listy” na wspólnym programie i kroki pulpitu z przyciskami tylko mobilnymi przy oknie 1280×720. Do briefów QA Sphere warto dopisywać stałą regułę sprzątania tylko własnych rekordów i wariant UI wynikający z rozmiaru okna.
+
+### 2813-Q-R (Q-1R, Q-1R2) (recenzja krzyżowa pliku podglądu QA Sphere i ponowna recenzja poprawek) — 2026-10-25
+- Archetyp: Recenzja — przypadki QA Sphere funkcji high-stakes.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode exec -Access read` z `-BriefFile` (oba przebiegi).
+- Recenzent (linia / model / native effort): architekt Opus 5.5 `xhigh` — triaż znalezisk w kodzie FE/BE i seedach.
+- Dopuszczone alternatywy: Gemini `-Access read` (domyślny recenzent pliku Muse) — zablokowany do 2026-10-26 10:01Z; Muse Spark `max` (rodzina inna niż autor) — zablokowany do 2026-10-26 00:00Z.
+- Powód wyboru: autor z rodziny Claude; decyzja właściciela z 2026-10-25 (Sol `high` recenzuje QA Sphere na czas blokady Muse i Gemini).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper bez zapasu), 2026-10-25 17:38Z i 18:04Z; bramka funkcji już za nami, więc ograniczenie puli przed bramką nie obowiązywało.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: Q-1R 624 s, exit 0, werdykt „wymaga poprawek” (0,96): 2×P1 (sprzątanie rusza cudzych sprzedawców; kroki pulpitu na niewidocznych przyciskach mobilnych), 5×P2 (dowód `ACCOUNT_SESSION_ENDED` w Network, stary token po odzyskaniu hasła, dwa programy jednego konta, świeży numer klienta, osobny przypadek wydania nagrody), 1×P3 (rozliczenie kategorii). Q-1R2 281 s, exit 0, werdykt „akceptowalny” (0,94): 7/7 poprawek zamkniętych, 0 nowych, uzasadnienie odrzucenia potwierdzone w kodzie.
+- Rundy korekt: nie dotyczy (korekty — 2813-Q).
+- Czas do akceptacji: Q-1R ~15 min z triażem; Q-1R2 ~5 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2×P1, 4×P2 i 1×P3 potwierdzone; 1×P2 odrzucone (wydanie nagrody przechodzi przez to samo uwierzytelnienie sesji personelu co pieczątka — `StaffOperationsController.cs:19`, `FindSessionByTokenHashAsync.sql:25`).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `git status` ZebraniBE i ZebraniFE bez zmian po obu przebiegach.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
