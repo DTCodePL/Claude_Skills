@@ -7564,3 +7564,29 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
   - domyślny model wrappera: `-Model muse-spark-1.3-contributor`.
 
 **Następny przegląd:** po 10–15 istotnych briefach Muse w nowym podziale albo po kolejnym limicie tygodniowym przed piątkiem. Miary: czy tydzień dociąga do niedzieli, rundy z wykonania per para, P0/P1 recenzji Wondera wobec Full, przelicznik Wondera po jego pierwszych 5 przebiegach (`token-report.py`).
+
+#### Przegląd 3 linii Muse — 2026-10-25 (cennik, kalibracja puli, limit Wondera)
+
+- **Powód:** właściciel: „muse-wonder-1.0 jest BARDZO drogim modelem, możemy go używać, ale musimy robić to racjonalnie, bo 21 przebiegów zabiło nasz tygodniowy limit. A za to Spark 1.3 contributor jest bardzo tanim modelem” — ze zrzutem cennika.
+- **Cennik (zrzut właściciela, za 1M tokenów, cache / wejście / wyjście):** Wonder 1.0 (`muse-wonder-1.0`) standard 0,20 / 4,00 / 20,00 $, tryb contributor „Not available”; Spark 1.3 contributor 0,002 / 0,10 / 0,20 $, standard 0,15 / 1,25 / 4,25 $. Wondera Full zrzut nie obejmuje. Katalog `muse` i `model_completed.model` w sesjach nadal podają `muse-wonder-full-1.0-contributor` (891 wywołań modelu) — sufiks nie oznacza tańszego trybu.
+- **Fakty (statusy wrappera):** 21 przebiegów tygodnia od 19.10 to Wonder Full `max` (19.10: 16 udanych + 2 przerwane, 20.10: 2 przerwane, 21.10: 1 przerwany), nie Wonder 1.0 — ten ma w puli jeden przebieg (sonda 14.10).
+- **Kalibracja puli (`token-report.py`, pewność średnia — dwa wyczerpania, założenie równej puli tygodniowej):**
+  - tydzień 12.10: 110 Sparków `max` = 734 mln tokenów (94 % cache, 6,7 mln na przebieg) + 5 Full `max` = 44 mln (8,8 mln na przebieg);
+  - tydzień 19.10: 21 Full `max` = 100 mln tokenów (95 % cache, 4,8 mln na przebieg) + 4 Sparki = 5 mln;
+  - wynik: token Full ≈ 13× Sparka contributor; tydzień ≈ 100 mln tokenów Full ≈ 1,3 mld tokenów Sparka ≈ 21 przebiegów Full ≈ 190 Sparków `max`; przebieg Full ≈ 9–17 Sparków (~5 % tygodnia), Spark ~0,5 %.
+  - cennik daje przy naszym profilu ~60× (Wonder 1.0 wobec Sparka contributor) — pula liczy łagodniej albo Full jest tańszy od Wondera 1.0; rozstrzygnąć się tego nie da bez przebiegów Wondera 1.0, więc liczy się go jak Full.
+- **Obalone założenie:** „Full ≈ 3,5–4× Wondera” z przeglądu 2 (szacunek przy porównaniu z ceną standardową Sparka) — Wonder 1.0 nie ma trybu contributor, więc nie jest tanim pośrednim szczeblem.
+- **Decyzja architekta (bez pytania o routing, reguła 4):**
+  - Wonder Full `max` — tylko wyjątek CZERWONEGO i recenzja fali plików niezmiennika high-stakes; limit Wondera (Full i 1.0 razem, z przerwanymi) **2 przebiegi na dzień roboczy i 6 na tydzień** (~30 % puli); brief Wondera tylko z diffem plików niezmiennika i ich specyfikacją;
+  - Wonder 1.0 — bez archetypu (tylko z powodem w briefie i rejestrze, liczony jak Full);
+  - Spark 1.3 `max` przejmuje archetypy Wondera 1.0: QA Sphere w funkcji high-stakes (autor i recenzent krzyżowy), recenzja średniej stawki, złożony brief bez niezmiennika; dochodzi ponowna recenzja poprawek;
+  - po limicie Wondera recenzja plików niezmiennika → Sol `high` (pula Codexa przed bramką, reguła 7) albo następny dzień; CZERWONY czeka;
+  - Spark zawsze z `-contributor` (bez niego 12–75× drożej wg cennika).
+- **Stan na 2026-10-25:** Muse `zablokowany` do 2026-10-26 00:00Z; od resetu obowiązuje nowy limit.
+- **Wprowadzone w:**
+  - globalny `CLAUDE.md`: tabela budżetów, macierz (Muse, QA Sphere), akapit „Cennik Muse i kalibracja puli”, reguły 8 i 13;
+  - wspólna sekcja projektów (`sync-routing.py`, 18 kopii);
+  - skill `implement-ado-feature-zebrani` v5.31; `qasphere-test-generator` v1.12;
+  - `external-workers` (cennik, limit Wondera w poleceniu tempa).
+
+**Następny przegląd:** po 10–15 istotnych briefach Muse w tym podziale albo po kolejnym limicie tygodniowym przed piątkiem. Miary: czy tydzień dociąga do niedzieli, liczba przebiegów Wondera wobec limitu 6, rundy z wykonania Sparka `max` w dawnych archetypach Wondera 1.0, potwierdzone i obalone P0/P1 Sparka `max` w recenzjach średniej stawki.

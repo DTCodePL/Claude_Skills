@@ -26,7 +26,7 @@ description: >
   poda link lub numer Epic/Feature/PBI/Task/Bug z Azure DevOps projektu
   Zebrani.pl i poprosi o zaplanowanie, zaimplementowanie i/lub naprawienie go
   — nawet jeśli nie padnie słowo "skill".
-version: '5.30'
+version: '5.31'
 language: pl
 project: Zebrani.pl
 organization: DTCode
@@ -564,14 +564,14 @@ bez wklejonego diffu.
 | sesja główna — Claude Opus `xhigh` | plan, decyzje, briefy, WCAG/tokeny, walidacja dowodów, triaż, domknięcie ADO | architekt; nigdy nie pisze kodu ani testów poza istniejącym jednolinijkowym wyjątkiem reguły 11 |
 | `wykonawca-opus` — Opus `xhigh` | pliki niosące niezmiennik high-stakes; briefy za trudne dla Sonneta | nie wolumen, ekran, szablon, styl ani i18n bez niezmiennika; obowiązuje hook; rodzina Claude — nie recenzuje Claude'a |
 | `wykonawca` — Sonnet 5.5 `high` | Figma MCP, kontekst sesji, repo FE/BE, implementacja; inne narzędzia po potwierdzeniu | jedna warstwa; wymagany faktyczny dostęp; nie przejmuje niezmienników wymagających Opusa; rodzina Claude — nie recenzuje Claude'a |
-| Muse (`-Engine spark`) — para per archetyp briefu od 2026-10-20 (reguła 8 globalnego `CLAUDE.md`): `muse-wonder-full-1.0-contributor` `max` tylko wyjątek CZERWONEGO i recenzja fali plików niezmiennika; `muse-wonder-1.0-contributor` `max` — QA Sphere w funkcji high-stakes, recenzja średniej stawki, złożony brief bez niezmiennika; `muse-spark-1.3-contributor` `max` — pozostała implementacja, testy, dokumentacja, audyt SCSS, korekty; Spark `high` — przeglądarka `pwcli`, PRE, ADO; para wyższa tylko z powodem w briefie; limit tygodniowy (reset pon. 00:00 UTC) — tempo wg liczby przebiegów od poniedziałku (`minimal|low|medium|high|xhigh|max`; `none` i `ultra` wrapper odrzuca — `ultra` ma zamkniętą bramkę i biegnie jako `xhigh`); Wonder i Spark to jedna rodzina | `-Access write`: Node z Windows przez interop, pętla własnych testów, MCP ADO, Playwright, Angular, QA Sphere, Mikrus; `-Access read`: audyt i recenzja | brak Figma MCP; high-stakes tylko w zachowanym wyjątku blokady hooka; bez gita i `npm install`; bez limitu slotów, ale rozłączne cele |
+| Muse (`-Engine spark`) — para per archetyp briefu od 2026-10-25 (reguła 8 globalnego `CLAUDE.md`; dwa szczeble kosztu: Spark contributor ~0,5 % tygodnia na przebieg, Wonder ~5 % — tryb contributor go nie obejmuje): `muse-wonder-full-1.0-contributor` `max` tylko wyjątek CZERWONEGO i recenzja fali plików niezmiennika, w limicie Wondera 2 przebiegi dziennie i 6 tygodniowo; `muse-wonder-1.0-contributor` bez archetypu (liczy się do limitu jak Full); `muse-spark-1.3-contributor` `max` — pozostała implementacja, złożony brief bez niezmiennika, testy, dokumentacja, audyt SCSS, QA Sphere (także w funkcji high-stakes), korekty, recenzja niskiej i średniej stawki; Spark `high` — przeglądarka `pwcli`, PRE, ADO; para wyższa tylko z powodem w briefie; limit tygodniowy (reset pon. 00:00 UTC) — tempo wg liczby przebiegów Wondera od poniedziałku (`minimal|low|medium|high|xhigh|max`; `none` i `ultra` wrapper odrzuca — `ultra` ma zamkniętą bramkę i biegnie jako `xhigh`); Wonder i Spark to jedna rodzina | `-Access write`: Node z Windows przez interop, pętla własnych testów, MCP ADO, Playwright, Angular, QA Sphere, Mikrus; `-Access read`: audyt i recenzja | brak Figma MCP; high-stakes tylko w zachowanym wyjątku blokady hooka; bez gita i `npm install`; bez limitu slotów, ale rozłączne cele |
 | Gemini — `agy`, `gemini-3.8-flash-low`, `gemini-3.8-flash-medium`, `gemini-3.8-flash-high` (effort zakodowany w sufiksie identyfikatora) | zapis i pętla lint/test na Windows oraz MCP ADO, Playwright, Angular, QA Sphere, Mikrus; `-Access read` do recenzji | nigdy high-stakes ani Figma; ścieżki absolutne, jawny odczyt `AGENTS.md`, zakaz powłoki w briefie recenzji zgodnie z `external-workers` |
 | Codex — `gpt-6.1-sol` (`low|medium|high|xhigh|max|ultra`), `gpt-6-luna` (`low|medium|high|xhigh|max`) | implementacja, testy, research, audyt/recenzja; Figma i Playwright po potwierdzeniu dostępu w konkretnej sesji; `-Mode review` do odczytu | pełnoprawny kandydat, porcje ≤ 5 plików (implementacja/testy; recenzji nie dzielisz — bramka końcowa czyta cały diff w jednym przebiegu); nie zastępuje Opusa na high-stakes; nie recenzuje własnej rodziny; research bez poleceń powłoki; najmniejsza pula (Plus), sygnał zwykle `nieznany` — w funkcji high-stakes tylko krótkie briefy bez niezmiennika (≤ 5 plików, effort ≤ `high`), po limicie przed bramką brak kolejnych briefów tej funkcji |
 | `tester` — Haiku 5.5 `xhigh` (od 2026-10-13, po próbie z reguły 14 globalnego `CLAUDE.md`; wcześniej Sonnet 5.5 `medium`) | speci Vitest / AXE / xunit; czerwony test Buga | test przed łatką i bez edycji przez autora łatki; odrębne briefy testu i łatki; obowiązuje hook |
 | `mechanik` — Haiku 5.5 `low` | pojedyncze klucze i18n, rename, przeniesienie pliku | mechaniczne drobiazgi, nie implementacja wysokiej stawki |
 | `zwiadowca` — Haiku 5.5 `low` | fakty z repo przed decyzją | tylko odczyt |
 | `audytor-a11y` — Opus `high` | delegowany audyt kontrastu/fokusu/tokenów | audyt, nie przejęcie implementacji |
-| QA Sphere — autor Muse: Spark 1.3 `max`, w funkcji high-stakes Wonder `max`; Gemini `-Access write`, gdy Muse zajęty albo z limitem | plik podglądu wg `qasphere-test-generator` | recenzja: plik Muse → Gemini `-Access read`, plik Gemini → Muse `-Access read`; publikacja/poprawki/weryfikacja przez architekta skryptem `qas.py`; sesja nie pisze przypadków i nie woła `create_test_case` / `update_test_case` |
+| QA Sphere — autor Muse: Spark 1.3 `max`, także w funkcji high-stakes (od 2026-10-25); Gemini `-Access write`, gdy Muse zajęty albo z limitem | plik podglądu wg `qasphere-test-generator` | recenzja: plik Muse → Gemini `-Access read`, plik Gemini → Muse `-Access read`; publikacja/poprawki/weryfikacja przez architekta skryptem `qas.py`; sesja nie pisze przypadków i nie woła `create_test_case` / `update_test_case` |
 | bramka końcowa — `gpt-6.1-sol` `max` (od 2026-10-05, zamiast Astry) | cały feature high-stakes po recenzjach fal, osobno FE i BE, sekwencyjnie | bramka z Fazy 4b; niezależna wobec plików niosących niezmiennik (pisze je Opus); nie zastępuje recenzji fal, także dla plików bez niezmiennika pisanych przez Codex |
 
 **Preferencje jakościowe — nie hard gates.** Dotychczasowe wyniki recenzji
@@ -848,7 +848,8 @@ Przy niskiej stawce preferujesz Sola `high` albo Gemini `high` przed
 Muse (mniej zawyżonych P0/P1 do obalenia — zmierzone na Sparku 1.3,
 decyzja właściciela 2026-10-12 — oraz tygodniowa pula Muse); przy wyższej
 stawce Muse jest kandydatem z parą z tabeli reguły 8: Wonder Full `max`
-dla plików niezmiennika, Wonder `max` dla średniej stawki.
+dla plików niezmiennika (w limicie Wondera), Spark `max` dla średniej
+stawki (od 2026-10-25; wcześniej Wonder `max`).
 
 Fala mieszana → recenzje po zbiorach plików per autor, każda przez inną
 rodzinę niż ten autor. Liczby recenzji nie limitujesz. Brief recenzenta
