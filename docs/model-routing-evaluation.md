@@ -7567,6 +7567,176 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak.
 - Wymagane testy i dowody: `git status` ZebraniBE i ZebraniFE bez zmian po obu przebiegach.
 
+### 1936-A0 (A0-A, A0-B1, A0-B2, A0-C) (audyt autoryzacji wszystkich endpointów BE, cztery rozłączne obszary, tylko odczyt) — 2026-10-25
+- Archetyp: Audyt — bezpieczeństwo i izolacja danych kont (macierz endpoint → tożsamość → SQL → odpowiedź dla cudzego zasobu → test).
+- Stawka: wysoka.
+- Niepewność: średnia (45 kontrolerów, 115 endpointów i 3 spoza kontrolerów; cichy błąd przekrojowy).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 `xhigh`, cztery przebiegi równolegle.
+- Recenzent (linia / model / native effort): architekt Opus 5.5 `xhigh` — weryfikacja każdej `LUKA` w repo (handler → SQL); poprawki przeszły przez recenzję fali (1936-R1) i bramkę (1936-G-BE).
+- Dopuszczone alternatywy: Muse Wonder Full `max` (zablokowany do 2026-10-26 00:00Z, limit Wondera).
+- Powód wyboru: niezmienniki bezpieczeństwa i logika przekrojowa → Opus; pula Codexa oszczędzana na recenzję i bramkę (reguła 7).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY, okno 29 %, tydzień 13 %, 2026-10-25 18:19Z); Codex znany z ostatniego rolloutu (~18:10Z); Muse zablokowany do 2026-10-26 00:00Z; Gemini zablokowany do 2026-10-26 10:01Z.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowano wszystkie cztery macierze bez korekt:
+  - A0-A — 10,8 min, 96 wywołań;
+  - A0-B1 — 8,3 min, 72 wywołania;
+  - A0-B2 — 7,7 min, 63 wywołania;
+  - A0-C — 12,1 min, 108 wywołań.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~12 min równolegle + ~20 min weryfikacji architekta.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet):
+  - potwierdzone: 2 luki izolacji (blokada drabiny cudzego programu przed sprawdzeniem własności; imię osoby spoza programu przy identyfikacji) oraz odmowy narzędzi deweloperskich 400/415;
+  - obalone: 1 („nieistniejący SetupIntent → 502” — kod zamienia 404 operatora na 409 `SETUP_INTENT_INVALID`);
+  - poza zakresem: 4 znaleziska bezpieczeństwa → osobne Bugi #2825–#2828;
+  - sprzeczność reguły z zatwierdzonymi kontraktami (409 zamiast 404) → pytanie do właściciela.
+
+  Wyciek 405 z routingu audyt przeoczył; wykryła go dopiero sonda U-1.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: macierze w `_robocze\1936-audyt` (usunięte przy domknięciu); dziennik rozbieżności dokumentacji.
+
+### 1936-U (U-1, U-2) (łaty izolacji: własność przed blokadą drabiny, identyfikacja bez imienia, bramka narzędzi przed routingiem) — 2026-10-25
+- Archetyp: Backend — niezmiennik high-stakes (autoryzacja, izolacja danych kont, blokady aplikacyjne, potok middleware).
+- Stawka: wysoka.
+- Niepewność: średnia (kolejność middleware wobec CORS i routingu; blokada bez RCSI).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 `xhigh` — U-1, potem U-2 (jeden wykonawca BE naraz).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (1936-R1); bramka Codex / `gpt-6.1-sol` `max` (1936-G-BE).
+- Dopuszczone alternatywy: przy CZERWONYM Muse Wonder Full `max` (zablokowany) albo czekanie.
+- Powód wyboru: pliki niezmiennika; test-first (T-RED → U → ten sam test zielony).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak 1936-A0.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia:
+  - U-1 zaakceptowany (11,8 min, 70 wywołań): czerwone testy A1–A3 zielone bez zmian. Sonda U-1 wykryła 405 z `Allow` na złą metodę trasy narzędzia.
+  - U-2 (18,5 min, 38 wywołań) ZATRZYMAŁ się na błędnej przesłance architekta: bramka „przed CORS” zdradza prefiks, bo CORS odpowiada 204 na każdy preflight i dokleja nagłówki. Pokazał to pomiarem. Przesłanka przyjęta, kontynuacja (6,3 min, 9 wywołań) postawiła bramkę za `UseCors` i przed `UseRouting`.
+- Rundy korekt: 0 w kodzie produkcyjnym (R1: kod poprawny, 0,91; bramka: 0 znalezisk).
+- Czas do akceptacji: U-1 ~15 min; U-2 ~30 min z kontynuacją.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 w kodzie produkcyjnym (R1 i bramka).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody:
+  - 24 przypadki 404 bramki i nieodróżnialność od nieistniejącej trasy;
+  - kontrola CORS: przestawienie bramki przed `UseCors` daje 24 czerwone;
+  - pełny `dotnet test` 8740/0/1;
+  - BE 1.16.2.
+- Uwagi: kolejny przypadek, w którym klauzula STOP uratowała projekt przed błędem architekta. Przy przywracaniu pliku do sprawdzenia w obie strony `Copy-Item` zostawił starą datę modyfikacji, więc build przyrostowy go pominął. Trzeba ustawić `LastWriteTime` albo użyć `--no-incremental`.
+
+### 1936-T (T-RED-1 + K-1, T-ARCH + T-SWEEP, T-RED-2, T-CROSS-1…4, K-2a, K-2b) (xunit: czerwone testy luk, straż architektury, 401 bez poświadczeń, testy cudzego zasobu, korekty po R1) — 2026-10-25
+- Archetyp: Testy — xunit API na SQL Server i testy architektury z atrapami łamiącymi regułę.
+- Stawka: wysoka (testy dowodzące izolacji danych kont i trwała straż w CI).
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Claude / `tester` Haiku 5.5 `xhigh`, briefy sekwencyjne (wspólny build BE).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (1936-R1); bramka Codex / `gpt-6.1-sol` `max` (1936-G-BE).
+- Dopuszczone alternatywy: `wykonawca` Sonnet 5.5 `high`.
+- Powód wyboru: linia testera; wzorce `ProgramsApiTests` i `PersistenceTypesDoNotLeakTests` w repo.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak 1936-A0; przy K-2 Claude ZIELONY (okno 11 %, tydzień 18 %, ~21:00Z).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: wszystkie briefy zaakceptowane bez odesłania:
+
+  | Brief | Czas | Wywołania | Wynik |
+  | --- | --- | --- | --- |
+  | T-RED-1 + K-1 | 13,7 min | 54 | — |
+  | T-ARCH + T-SWEEP | 13,6 min | 60 | — |
+  | T-RED-2 | 9,5 min | 52 | — |
+  | T-CROSS-1 | 10,9 min | 42 | 19 testów + 25 CORS |
+  | T-CROSS-2 | 8,4 min | 43 | 17 testów |
+  | T-CROSS-3 | 7,0 min | 47 | 15 testów |
+  | T-CROSS-4 | 10,2 min | 49 | 11 testów |
+
+  Fałszywe twierdzenia testera o LF w plikach wzorcowych obalono pomiarem bajtów.
+- Rundy korekt: 1 — K-2a (straż: 14,5 min, 53 wywołania; filtr 102 → 114 zielonych) i K-2b (cudzy zasób: 11,0 min, 52 wywołania; 30/30) po 6×P2 z R1.
+- Czas do akceptacji: ~2 h 30 min dla całej linii testów, z R1 i K-2.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1 — 6×P2 potwierdzonych, 0 odrzuconych:
+  - katalog bez kontrolerów POCO;
+  - reguła prefiksu narzędzi tylko po `[Route]` klasy;
+  - przeciążenia anonimowe zlane w kluczu;
+  - licznik wiadomości bez powiadomień adresowanych do konta;
+  - skrót PIN-u w rekordzie porównywanym w asercji;
+  - scenariusz mieszany cofnięcia bez dowodu.
+
+  Bramka: 0.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody:
+  - pełny `dotnet test` 8840/0/1 (pominięty = istniejący `Skip` „DEFEKT” spoza #1936);
+  - build `--no-incremental` 0 ostrzeżeń;
+  - `dotnet format` 36 plików czysty (ścieżki względne, kontrola dodatnia LF → exit 2);
+  - CRLF 36/36.
+- Uwagi: `dotnet format --include` ze ścieżką bezwzględną daje exit 0 bez sprawdzenia — brief musi żądać ścieżek względnych i kontroli dodatniej.
+
+### 1936-D (D-1 + dopiski architekta) (rewizja AT-UWIERZYTELNIANIE-I-SESJA „Dostęp do zasobów konta”, `AGENTS.md` BE, `.editorconfig`) — 2026-10-25
+- Archetyp: Dokumentacja — rewizja datowana w granicach decyzji właściciela.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high` (D-1, 1,1 min, 10 wywołań). Dopiski po U-2, decyzjach właściciela, K-2a i 4c robił architekt: dokładna treść w granicach rewizji zatwierdzonej z góry.
+- Recenzent (linia / model / native effort): Codex / `gpt-6-luna` `max` (1936-4C); bramka czytała `AGENTS.md` (1936-G-BE).
+- Dopuszczone alternatywy: Muse Spark `max` (zablokowany).
+- Powód wyboru: tor poboczny bez niezmiennika kodu.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak 1936-A0.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowano. Zdanie „backend stosuje je dziś bez wyjątku” było niesprawdzalne przed audytem i zastąpiono je weryfikowalnym.
+- Rundy korekt: 4 dopiski architekta (reguła 2 po decyzji właściciela, prefiks narzędzi po U-2, linia strażników po K-2a, 4×P2 z 4c), każdy poniżej 5 min.
+- Czas do akceptacji: zależny od kodu, ~3 h.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 4c — 4×P2 potwierdzone, 0 odrzuconych.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody:
+  - dziennik rozbieżności 18/18 zamknięty; wpis 13 (odsyłacz w UI-SPRZEDAWCA) zgłoszony właścicielowi w raporcie;
+  - `AGENTS.md` = `.claude/CLAUDE.md` (cmp);
+  - commit dokumentacji `2f02164`.
+
+### 1936-R1 (recenzja fali BE: cały diff z nowymi plikami, jeden przebieg) — 2026-10-25
+- Archetyp: Recenzja — fala BE high-stakes (pliki niezmiennika i testy).
+- Stawka: wysoka.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review`.
+- Recenzent (linia / model / native effort): architekt Opus 5.5 `xhigh` — triaż znalezisk w kodzie.
+- Dopuszczone alternatywy: Muse Wonder Full `max` po 00:00Z (plan). Właściciel polecił nie czekać i zastąpić Muse inną linią. Gemini wykluczony stawką.
+- Powód wyboru: jedyna dopuszczona rodzina spoza Claude'a dostępna od ręki; `high` z uwagą na pulę Codexa przed bramką (reguła 7).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper bez zapasu), 2026-10-25 20:58Z.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 408 s, exit 0. Kod produkcyjny poprawny (0,91), testy 6×P2.
+- Rundy korekt: nie dotyczy (korekty — 1936-T, K-2a/K-2b).
+- Czas do akceptacji: ~15 min z triażem.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 6×P2 potwierdzonych, 0 odrzuconych (lista w 1936-T).
+- Defekty po odbiorze: bramka nie znalazła nic więcej.
+- Wymagane testy i dowody: `git status` bez zmian po przebiegu.
+
+### 1936-4C (przegląd zgodności dokumentacji z kodem) — 2026-10-25
+- Archetyp: Recenzja — zgodność dokumentacji `zatwierdzony` z kodem i testami.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Codex / `gpt-6-luna` `max`, exec tylko do odczytu, równolegle z R1.
+- Recenzent (linia / model / native effort): architekt Opus 5.5 `xhigh` — sprawdzenie każdego znaleziska w kodzie.
+- Dopuszczone alternatywy: Muse Spark `max` (zablokowany, właściciel: nie czekać); Codex Sol `high` (zajęty R1).
+- Powód wyboru: autorzy z rodziny Claude; Luna — lżejsza waga wiadomości Plusa przed bramką.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, 2026-10-25 20:58Z.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 543 s, exit 0; 4×P2 dokumentacji; brak kontrprzykładu dla reguł izolacji.
+- Rundy korekt: nie dotyczy.
+- Czas do akceptacji: ~20 min z poprawkami architekta.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 4×P2 potwierdzone:
+  - druga jawna lista endpointów spoza kontrolerów;
+  - kontrakt identyfikacji osoby spoza programu;
+  - preflight CORS pod prefiksem;
+  - zawężenie „dla każdej przyczyny”.
+
+  0 odrzuconych. Jedna słabość dowodowa: zły plik cytowany przy blokadzie drabiny (`GetProgramCustomersQueryHandler` zamiast `GetProgramRulesQueryHandler`).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: dziennik rozbieżności; `git status` bez zmian.
+
+### 1936-G-BE (bramka końcowa BE) — 2026-10-25
+- Archetyp: Recenzja — bramka końcowa funkcji high-stakes (reguła 6).
+- Stawka: wysoka.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` `max`, `-Mode review`, cały diff BE w jednym przebiegu (12 diffów kodu produkcyjnego w briefie, 27 nowych plików do przeczytania).
+- Recenzent (linia / model / native effort): architekt Opus 5.5 `xhigh` — kontrola pokrycia (bramka otworzyła wszystkie kluczowe pliki) i `git status`.
+- Dopuszczone alternatywy: przy limicie Codexa — `wykonawca-opus` tylko do odczytu (decyzja właściciela 4, słabsza niezależność); niepotrzebne.
+- Powód wyboru: reguła 6; pliki niezmiennika pisała rodzina Claude.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, 2026-10-25 21:35Z; bez komunikatu limitu po trzech przebiegach tego wieczoru.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 376 s, exit 0. PRZECHODZI: kod 0,88, testy 0,83, 0 znalezisk.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~10 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: pełny `dotnet test` 8840/0/1 równolegle z bramką; `git status` bez zmian (35 wpisów); commit BE `423bc45`.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
