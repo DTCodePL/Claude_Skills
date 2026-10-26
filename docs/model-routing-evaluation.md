@@ -7737,6 +7737,193 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak.
 - Wymagane testy i dowody: pełny `dotnet test` 8840/0/1 równolegle z bramką; `git status` bez zmian (35 wpisów); commit BE `423bc45`.
 
+### 2826-T (B-T1…B-T6) (xunit API na SQL Server: czerwone testy limitu prób PIN-u personelu, wyrocznia z dwóch recenzji, testy jednostkowe części B) — 2026-10-25…26
+- Archetyp: Testy — xunit API na SQL Server (wyrocznia Buga, test-first) i testy jednostkowe handlerów.
+- Stawka: wysoka (limit prób PIN-u, wyrocznia łatki high-stakes).
+- Niepewność: wysoka — algorytm zmieniał się po decyzjach właściciela 9–10 i rozstrzygnięciach architekta w trakcie fali 1.
+- Wykonawca (linia / model / native effort): Claude / `tester` Haiku 5.5 `xhigh`, briefy sekwencyjne (wspólny build BE).
+- Recenzent (linia / model / native effort): Muse / `muse-spark-1.3-contributor` `max`, `-Access read` (R1-T, R1-T2, R1-T3); bramka Codex / `gpt-6.1-sol` `max` (2826-G-BE).
+- Dopuszczone alternatywy: `wykonawca` Sonnet 5.5 `high`.
+- Powód wyboru: linia testera; wzorce `ShopServiceApiFixture` i `LoginThrottleRow` w repo; 1936-T przyjęty bez odesłania.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany, hook ZIELONY (okno 17 %, tydzień 19 %, 2026-10-25 ~22:20Z; 2026-10-26 rano ZIELONY).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia:
+
+  | Brief | Czas | Wywołania | Wynik |
+  | --- | --- | --- | --- |
+  | B-T1 | 13,2 min | 49 | 12 czerwonych + regresje |
+  | B-T2 (decyzje 9–10) | ~18 min | 70 | przerwany limitem sesji przed raportem; stan odebrał architekt |
+  | B-T3 (korekta A6/A6b) | 10,4 min | 32 | 40 testów, 24 czerwone |
+  | B-T4 (po R1-T) | 29,4 min | 63 | 22 nowe scenariusze, szczeble drabinki |
+  | B-T5 (po R1-T2) | 23,4 min | 70 | 75 testów: 63 zielone, 12 czerwonych tylko z części B, 0 pominiętych |
+  | B-T6 (jednostkowe części B) | 12,3 min | 52 | scenariusze 1–7 zielone bez zmian kodu |
+
+  Fałszywa obawa testera o LF w plikach (drzewo ma CRLF przez `core.autocrlf=true`) obalona pomiarem bajtów.
+- Rundy korekt: 3 — B-T3 (A6/A6b), B-T4 (R1-T), B-T5 (R1-T2); do tego jedna linia seeda testu B18 dopisana przez architekta po bramce (seed z upsertem, bo pomocnik `LockNumberAsync` robi UPDATE na istniejącym wierszu).
+- Czas do akceptacji: ~4 h zegarowo (z przerwą nocną na limit), w tym trzy recenzje.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet):
+  - R1-T: przyjęte 3×P0, 6×P1, 8×P2, 6×P3 (szczeble drabinki, format numeru, asercje liczników urządzenia, rekordy bez aktywnego dostępu, reguły czasu w 429);
+  - R1-T2: 21 z 22 znalezisk R1-T domknięte, 14 nowych luk przyjętych (w tym 4×P1: szczebel pary 11, szczebel numeru 23, dodanie rekordu nie zeruje liczników, licznik po odmowie limitu);
+  - R1-T3: wyrocznia poprawna (0,9), 3×P3 — dwa mylące nagłówki klas poprawił `mechanik` (M1), tolerancja F1 zostaje (recenzent wykazał, że nie przepuszcza złej łatki).
+- Defekty po odbiorze: 1×P2 z bramki BE — test B18 sprawdzał zerowanie licznika numeru na nieistniejącym wierszu (fałszywa zieleń); poprawione seedem.
+- Wymagane testy i dowody: zamrożenia SHA-256 v1–v4 (9 plików, po łatce bez zmian poza jawnie odblokowanym B18); pełny `dotnet test` 9021/0/1 (pominięty `Skip` sprzed zadania); build `-warnaserror` 0; `dotnet format` czysty; CRLF bajtowo.
+- Uwagi: przy czterech rundach recenzji wyroczni (R1-T…R1-T3 + bramka) bramka i tak znalazła fałszywą zieleń w teście — wyrocznia Buga high-stakes potrzebuje recenzji scenariusza „stan początkowy istnieje”, nie tylko asercji.
+
+### 2826-D (D1, D1b, D1c, D1d, D1e + dopiski architekta) (DEC polityki prób PIN-u personelu i 8 rewizji dokumentów `zatwierdzony`) — 2026-10-25…26
+- Archetyp: Dokumentacja — nowa decyzja i datowane rewizje w granicach decyzji właściciela.
+- Stawka: wysoka (dokumentacja jest wyrocznią algorytmu bezpieczeństwa).
+- Niepewność: wysoka — decyzje 9–10 i rozstrzygnięcia D1b–D1e w trakcie fali.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high`.
+- Recenzent (linia / model / native effort): Muse / `muse-spark-1.3-contributor` `max`, `-Access read` (R1-D, R1-D2); zgodność 4c — Muse Spark `max` (2826-4C).
+- Dopuszczone alternatywy: Codex Sol `medium`; Muse Spark `max` (zablokowany do 2026-10-26 00:00Z).
+- Powód wyboru: tor poboczny bez niezmiennika kodu; 1936-D przyjęty.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak 2826-T.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia:
+
+  | Brief | Czas | Wywołania | Wynik |
+  | --- | --- | --- | --- |
+  | D1 | 8,4 min | 42 | DEC + rewizje zgodne z decyzjami 1–8 |
+  | D1b (decyzje 9–10) | 8,9 min | 51 | — |
+  | D1c (K \ T puste) | 4,8 min | 27 | — |
+  | D1d (po R1-D) | 7,7 min | 38 | — |
+  | D1e (aktywny rekord) | 4,0 min | 23 | 150 linków bez błędu; zgłosił lukę sprzed #2826 (zmiana PIN-u rekordu nieaktywnego) |
+
+- Rundy korekt: 1 (D1d po R1-D) + 3 krótkie poprawki brzmienia architekta po R1-D2 (gotowa treść).
+- Czas do akceptacji: ~11 h zegarowo (z przerwą nocną), ~35 min pracy wykonawcy.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1-D — 3×P1, 5×P2, 3×P3; dwa P1 rozstrzygnięte przez architekta w granicach decyzji (m.in. numer bez rekordów ma licznik — odrzucona propozycja pominięcia); R1-D2 — 1×P1, 1×P2, 1×P3, wszystkie poprawione; 4c — 0 rozbieżności.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: dziennik rozbieżności 28/28 zamknięty; paczka DS i kopia w `~/.claude/skills/zebrani-design/` identyczne (SHA); commit dokumentacji `42acf1a`.
+
+### 2826-R1 (R1-D, R1-D2, R1-T, R1-T2, R1-T3) (recenzje fali 1: dokumentacja i wyrocznia testów) — 2026-10-26
+- Archetyp: Recenzja — dokumentacja i wyrocznia testów funkcji high-stakes.
+- Stawka: wysoka.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` `max`, `-Access read`.
+- Recenzent (linia / model / native effort): architekt Opus 5.5 `xhigh` — triaż w kodzie i dokumentach.
+- Dopuszczone alternatywy: Codex Sol `high` (pula przed bramką, reguła 7); Wonder Full `max` (plik niezmiennika nie był przedmiotem tych recenzji — średnia stawka recenzji wyroczni wg reguły 8).
+- Powód wyboru: autorzy z rodziny Claude; Spark `max` dla recenzji średniej stawki i ponownej recenzji poprawek (reguła 8 od 2026-10-25).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany po resecie tygodniowym 2026-10-26 00:00Z, bez 429 (rekordy wrappera, 08:44Z sonda `low`).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: R1-D 8,1 min, R1-D2 5,7 min, R1-T 11,5 min, R1-T2 9,9 min, R1-T3 6,0 min; wszystkie exit 0, `git status` bez zmian.
+- Rundy korekt: nie dotyczy (korekty — 2826-T, 2826-D).
+- Czas do akceptacji: ~10–20 min triażu na recenzję.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): w 2826-T i 2826-D. Spark `max` dał w R1-T 3×P0, z czego przyjęte wszystkie (luki wyroczni, nie fałszywe alarmy); w R1-D jedno P1 odrzucone merytorycznie.
+- Defekty po odbiorze: fałszywa zieleń B18 przeszła przez R1-T…R1-T3 (wykryła ją bramka).
+- Wymagane testy i dowody: `git status` bez zmian po każdym przebiegu.
+
+### 2826-P (B-P1, B-P1a, B-P1b, B-P1c) (łatka BE: polityka prób PIN-u, zaufane urządzenie per rekord, zdjęcie blokady zmianą PIN-u, limit losowań) — 2026-10-26
+- Archetyp: Backend — pliki niezmiennika high-stakes (limit prób, PIN, liczniki w transakcji).
+- Stawka: wysoka.
+- Niepewność: wysoka.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 `xhigh`.
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` `max`, `-Access read` (R2-BE, 1. przebieg Wondera w tygodniu); bramka Codex / `gpt-6.1-sol` `max` (2826-G-BE).
+- Dopuszczone alternatywy: brak (CZERWONY → Wonder Full `max` albo czekanie; nie wystąpił).
+- Powód wyboru: pliki niezmiennika — reguła high-stakes.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany, hook ZIELONY (2026-10-26 09:53Z).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia:
+
+  | Brief | Czas | Wywołania | Wynik |
+  | --- | --- | --- | --- |
+  | B-P1 (całość) | 6,7 min | 37 | zatrzymany strażnikiem kontekstu przy 307 tys. bez edycji — brief za szeroki → podział na A i B |
+  | B-P1a (logowanie) | 24,9 min | 83 | 621 testów, czerwone tylko 4 testy zmiany PIN-u (część B) |
+  | B-P1b (zmiana PIN-u, losowania) | 19,3 min | 71 | raport przekazania przy 303 tys., kod skończony; wyrocznia 75/75 u architekta |
+  | B-P1c (po bramce) | 12,2 min | 45 | zapytanie zawężone do T w trakcie blokady numeru |
+
+  SemVer BE 1.16.3 i nagłówki testów — `mechanik` Haiku 5.5 `low` (M1, 0,8 min, 7 wywołań).
+- Rundy korekt: 1 (B-P1c po bramce).
+- Czas do akceptacji: ~2 h 50 min od B-P1 do odbioru B-P1c.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R2-BE (Wonder Full `max`, 19,3 min) — poprawny 0,85, 0×P0–P2, 2×P3 bez zmian w kodzie; bramka — 1×P2 w kodzie (PIN porównywany z rekordami spoza T w trakcie blokady numeru — wynik i liczniki identyczne, ale wbrew krokowi 3 DEC), potwierdzone.
+- Defekty po odbiorze: 1×P2 z bramki (wyżej); recenzja fali Wondera go nie znalazła.
+- Wymagane testy i dowody: wyrocznia 75/75 i 4 nowe testy jednostkowe B-P1c; pełny `dotnet test` 9021/0/1; build `-warnaserror` 0; `dotnet format` czysty (ścieżki względne, kontrola dodatnia); CRLF; commit BE `1df6cf0`, PRE 1.16.3.
+- Uwagi: pierwszy brief obejmował dwie warstwy logiki (logowanie + zmiana PIN-u i losowania) i padł na strażniku bez jednej edycji — przy łatce high-stakes ~20 plików dzielić od razu.
+
+### 2826-F (F, F-K1, F-K2) (FE: komunikat blokady w minutach i godzinach, komunikat limitu losowań w oknach właściciela, poprawki po recenzji i bramce) — 2026-10-26
+- Archetyp: Frontend — ekran i i18n bez niezmiennika w funkcji high-stakes; serwis HTTP i interceptor (wyciszenie toastu po kodzie).
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): F i F-K1 — Muse / `muse-spark-1.3-contributor` `max`, `-Access write`; F-K2 — Claude / `wykonawca` Sonnet 5.5 `high`.
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (R2-FE dla F, R3-FE dla F-K2); bramka Codex / `gpt-6.1-sol` `max` (2826-G-FE).
+- Dopuszczone alternatywy: `wykonawca` Sonnet 5.5 `high` (plan); Codex wykluczony dla > 5 plików przy sygnale `nieznany` w funkcji high-stakes (reguła 7).
+- Powód wyboru: F i F-K1 — po resecie Muse samodzielny brief tekstowy bez Figmy na osobnej puli (Spark contributor), Sonnet zostaje na Figmę i kontekst sesji; F-K2 — korekta przekrojowa po bramce (interceptor w `core/`, serwis, ekran, 7 plików) → `wykonawca`; alternatywa Muse Spark `max` write.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany (bez 429, 09:07Z); Gemini zablokowany do 10:01Z (pierwsze R2-FE 09:21Z — exit 3 po 6 s), potem nieznany.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: F 12,5 min, zaakceptowany po pełnej walidacji (lint, format, 513 plików testów, build); F-K1 8,0 min; F-K2 5,2 min, 27 wywołań.
+- Rundy korekt: 2 — F-K1 (R2-FE: formater wybierał jednostkę przed zaokrągleniem — „60 minut” zamiast „1 godzinę”), F-K2 (bramka: podwójny komunikat przy limicie losowań; migawka dla czytnika nie zmieniała języka).
+- Czas do akceptacji: ~3 h 20 min (z oczekiwaniem na reset Gemini i bramkę).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R2-FE — przyjęte 1×P1 (granica godziny) i 1×P2 (napis „Zbyt wiele prób.” jako poprawka dokumentacji); odrzucone 1×P1 (brak terminu — zachowanie sprzed #2826) i 1×P2 (typ w oknie PIN); 1×P2 obniżone do P3 (przesunięcie zegara); R3-FE — poprawny 0,95, 2×P3 odrzucone (wartość liczona w spoczynku jest niewidoczna; wyciszenie po kodzie celowe).
+- Defekty po odbiorze: 2×P2 z bramki FE (wyżej); migawka była regresją wprowadzoną w F, której R2-FE nie zauważył.
+- Wymagane testy i dowody: `npm run lint`, `format:check`, 514 plików / 5704 testy z AXE, build; kontrole dodatnie F-K2; `browser-check` matrix `/logowanie-personelu` 4/4; commit FE `5aedc44`, PRE 1.14.1.
+
+### 2826-G1 (Figma: napis odliczania w stanie blokady karty logowania personelu) — 2026-10-26
+- Archetyp: Figma — mechaniczna zmiana napisu w istniejącym wariancie.
+- Stawka: niska.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high` (Figma MCP).
+- Recenzent (linia / model / native effort): architekt — `get_screenshot` wariantu `2766:1448` i ekranu Mobile Light `2758:90699`; recenzja innej rodziny pominięta z uzasadnieniem (zmiana mechaniczna).
+- Dopuszczone alternatywy: Codex z potwierdzonym MCP (niepotwierdzony w sesji).
+- Powód wyboru: wymaga Figma MCP.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany, ZIELONY, 09:07Z.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zaakceptowano (1,8 min, 19 wywołań).
+- Rundy korekt: 0.
+- Czas do akceptacji: ~4 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: zrzuty obu węzłów.
+
+### 2826-G-BE, 2826-G-FE (bramki końcowe BE i FE) — 2026-10-26
+- Archetyp: Recenzja — bramka końcowa funkcji high-stakes (reguła 6), osobno BE i FE, cały diff w jednym przebiegu.
+- Stawka: wysoka.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` `max`, `-Mode review`.
+- Recenzent (linia / model / native effort): architekt Opus 5.5 `xhigh` — triaż każdego znaleziska w kodzie, `git status`.
+- Dopuszczone alternatywy: przy limicie Codexa — `wykonawca-opus` tylko do odczytu (decyzja właściciela 7, słabsza niezależność); niepotrzebne.
+- Powód wyboru: reguła 6; pliki niezmiennika pisała rodzina Claude.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper bez zapasu), 11:39Z i 12:00Z; bez komunikatu limitu.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: BE 16,7 min, „niegotowe”, 2×P2; FE 11,1 min, „niegotowe”, 2×P2.
+- Rundy korekt: 1 na repozytorium (B-P1c + seed B18; F-K2 + R3-FE).
+- Czas do akceptacji: BE ~40 min, FE ~45 min od startu bramki.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 4×P2 potwierdzone, 0 odrzuconych — wszystkie cztery przeszły przez recenzje fal (Muse Spark, Wonder Full, Gemini).
+- Defekty po odbiorze: brak (4c bez rozbieżności, PRE wdrożone).
+- Wymagane testy i dowody: `git status` bez zmian po obu przebiegach; po poprawkach pełne BE i FE zielone.
+
+### 2826-4C (przegląd zgodności dokumentacji z kodem) — 2026-10-26
+- Archetyp: Recenzja — zgodność dokumentacji `zatwierdzony` z kodem i testami.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` `max`, `-Access read`, `-Repo` dokumentacji.
+- Recenzent (linia / model / native effort): architekt Opus 5.5 `xhigh` — wyrywkowa kontrola twierdzeń macierzy w kodzie.
+- Dopuszczone alternatywy: Codex Luna `max` (1936-4C); Codex Sol `high`.
+- Powód wyboru: autorzy dokumentacji z rodziny Claude; Spark `max` — średnia stawka (reguła 8), pula Codexa oszczędzana na bramki.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany, bez 429, 12:36Z.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 9,9 min, exit 0; 138 zgodnych twierdzeń, 0 rozbieżności.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~15 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: dziennik rozbieżności 28/28 zamknięty; `git status` bez zmian.
+
+### 2826-Q (Q1, RQ1, K1) (QA Sphere: 28 nowych przypadków limitu prób i losowań PIN-u, przegląd 65 istniejących) — 2026-10-26
+- Archetyp: QA Sphere — plik podglądu przypadków manualnych w funkcji high-stakes, recenzja krzyżowa, korekta z gotową treścią.
+- Stawka: średnia (przypadki manualne; dowodem poprawki są testy API).
+- Niepewność: średnia (dane testowe PRE: numery bez weryfikacji SMS, zaufane urządzenie przez znacznik w `localStorage`).
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` `max`, `-Access write` (Q1); korekta K1 — Muse / `muse-spark-1.3-contributor` `high`.
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (RQ1); architekt Opus 5.5 `xhigh` — triaż w kodzie, wyrywkowo L4, L10, W1, L7.
+- Dopuszczone alternatywy: Gemini `-Access write` jako autor i Muse `-Access read` jako recenzent (skill QA Sphere); Codex Sol `high` jako recenzent.
+- Powód wyboru: reguła 8 — QA Sphere także w funkcji high-stakes na Sparku `max`; recenzja z innej rodziny wg skilla; K1 — korekta z gotową treścią (Spark `high`).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany, bez 429 (tydzień od 26.10 00:00Z), 12:50Z; Gemini nieznany, wrócił po 10:01Z, bez 503.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: Q1 13,6 min, lint 0/0, 28 przypadków, 65 × keep; RQ1 8,4 min, „wymaga poprawek”, pewność 0,95.
+- Rundy korekt: 1 (K1: seed L7 4 → 7, żeby 8. próba dała oczekiwane 5 minut).
+- Czas do akceptacji: ~1 h 10 min od startu Q1 (Q1 13,6 min, RQ1 8,4 min, triaż, K1 4,2 min, publikacja i verify).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1×P1 potwierdzone (L7: 5. błąd daje 1 min, nie 5 min); 1×P2 odrzucone (L18 — cytowanego zdania nie ma w pliku); P3 informacyjne. Sekcje opisowe raportu RQ1 zawierały błędy faktów (konto, trasa, „reset o północy”) bez wpływu na znaleziska. Brief Q1 miał złą ścieżkę `StaffPinThrottlePolicy.cs` i niewykonalny wymóg unikalnych numerów (odstępstwo `501111111` dla L16, L17, L19, W7).
+- Defekty po odbiorze: brak — pełne `verify` 3 różnice wyłącznie `_` → `\_` (eksport serwera, znana fałszywa różnica), po normalizacji 0; seq 1987–2014.
+- Wymagane testy i dowody: `qas.py lint` 0/0, `qas.py verify` po publikacji.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
