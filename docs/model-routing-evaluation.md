@@ -8272,6 +8272,157 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: `qas.py lint` (0 błędów), porównanie bajtowe z kopią po K1, `folders` → `push --limit 1` → `verify --only G1` → `push` → `update` → `retire` (1208, 1253 po akceptacji właściciela) → pełne `verify`.
 - Uwagi: opublikowano 14 nowych (seq 2038–2051; 10 high, 4 medium), 4 aktualizacje (1186, 1210, 1255, 1256), 2 `[Removed]` (1208, 1253, zastępuje je 2042). Przypadki folderu 108 podają złe hasło demo — niezgodność sprzed zadania, poza zakresem.
 
+### 2849-T (B-T, B-T-K1, B-T-K2, B-T-K3, B-T-K4, B-T-K5, F-T, F-T-K1, F-T-K2, F-T-K3) (czerwone testy limitu wydawania tokenów odnawiających na konto: 429 z `Retry-After`, izolacja kont, wykrycie ponownego użycia i okno tolerancji przy pustej puli, jedno pobranie na żądanie, tempo uzupełniania; FE — sesja zostaje przy 429, jeden toast na wspólne odnowienie) — 2026-10-27
+- Archetyp: Testy — xunit API na SQL Server z nadpisaną konfiguracją hosta, testy jednostkowe handlera z atrapami i ogranicznika z zegarem rzeczywistym (BE); Vitest z prawdziwym łańcuchem interceptorów (FE); czerwony test Buga, także po znaleziskach recenzji i bramki.
+- Stawka: wysoka (wyrocznia łatki pliku niezmiennika sesji i limitu prób).
+- Niepewność: średnia (ogranicznik z `System.Threading.RateLimiting` i wspólny zegar — testy tempa zależne od czasu rzeczywistego).
+- Wykonawca (linia / model / native effort): Claude / `tester` Haiku 5.5 `xhigh` (B-T, B-T-K1, B-T-K2, F-T, F-T-K1, F-T-K2, F-T-K3); Muse / `muse-spark-1.3-contributor` `max`, `-Access write` (B-T-K3, B-T-K4, B-T-K5 — Claude CZERWONY, testy bez niezmiennika).
+- Recenzent (linia / model / native effort): Muse / `muse-spark-1.3-contributor` `max`, `-Access read` (R1-T-BE, R1-T-FE, R3-FE, R3-BE); Codex / `gpt-6.1-sol` `high`, `-Mode review` (R4-BE, R5-BE, R6-BE — delty B-T-K3…K5 napisane przez Muse); bramki Sol `max` (2849-G).
+- Dopuszczone alternatywy: `wykonawca` Sonnet 5.5 `high`; przy CZERWONYM Claude'a Gemini `-Access write` (testy bez niezmiennika).
+- Powód wyboru: linia testera, wzorce w repo (`RefreshSessionGraceApiTests`, `app-http-interceptors.spec.ts`), 2442-T przyjęte; po CZERWONYM Claude'a (okno 5 h 94 %) delty testu tempa do Sparka `max`.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany — hook 09:14Z okno 5 h 1 %, tydzień 51 %; ŻÓŁTY od ~09:27Z; CZERWONY od ~10:45Z (5 h 85–94 %); Muse nieznany, bez 429; Codex nieznany, bez komunikatu limitu.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia:
+
+  | Brief | Czas | Wynik |
+  | --- | --- | --- |
+  | B-T | 13,3 min | 9 testów, 4 czerwone na asercjach (RL1, RL2, RL4 — 200 zamiast 429; RL6 — brak klucza), 5 zielonych regresji |
+  | F-T | 6,9 min | F1, F2 czerwone na `isAuthenticated`, kontrole F1k, F2k zielone |
+  | F-T-K1 (decyzja architekta: jeden toast na instancję błędu) | 2,4 min | F3 — dwa żądania na jednym odnowieniu, jeden toast |
+  | B-T-K1 (po R1-T-BE i przesłance B-P) | 10,9 min | `UseSetting` → `ConfigureAppConfiguration` w 3 plikach (host generyczny: `UseSetting` przegrywa z `appsettings.json`); RL7–RL12; 16/16 |
+  | F-T-K2, F-T-K3 (po R1-T-FE, R2-FE) | 9,0 min (K3) | cisza toastów/nawigacji w F2, mieszane żądania `SKIP_ERROR_TOAST` + zwykłe, drugie odnowienie 429 |
+  | B-T-K2 (po R2-BE) | — | U1–U3 jednostkowo z kontrolą mutanta (`return` → `_ = acquired`), `Retry-After` w [3500, 3600], token wygasły przy pustej puli |
+  | B-T-K3 (po bramce BE, Spark) | 4,9 min | test jednostkowy ogranicznika + API ponownego odnowienia zamiast testu zależnego od szybkości SQL/HTTP; Spark sam uruchomił `dotnet` przez interop |
+  | B-T-K4, B-T-K5 (po R4-BE, R5-BE) | 5,8 + 5,1 min | próg tempa liczony względem zmierzonego czasu: `count ≤ floor(Elapsed s)` po opróżnieniu |
+
+- Rundy korekt: 5 w BE (K1 — przesłanka konfiguracji hosta i luki R1-T; K2 — luki R2-BE; K3–K5 — test tempa po bramce i dwóch recenzjach delty), 3 w FE (K1 — decyzja architekta, K2–K3 — recenzje).
+- Czas do akceptacji: fala czerwieni ~40 min (B-T 09:10Z → odbiór ~09:50Z); całość z testem tempa do R6-BE ~5 h (14:15Z), z przerwą na limit Claude'a.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1-T-BE (6,2 min) — przyjęte 3×P1 (izolacja per konto między sesjami, podwójne pobranie w oknie, martwe/nieznane tokeny przy pustej puli), 2×P2, 4×P3. R1-T-FE (6,9 min) — 1×P2, 2×P3 przyjęte. R3-FE (4,7 min) — poprawny 0,9; 1×P3 odrzucone (warunek przypięty w innym specu). R3-BE (8,3 min) — poprawny 0,88; 1×P2 + 2×P3 przyjęte. R4-BE (2,3 min) — 2×P2 przyjęte (okres od utworzenia partycji zależny od planisty; mutant `TokensPerPeriod = burst` przechodził). R5-BE (3,1 min) — 1×P2 przyjęte (stały próg obalał poprawny kod przy opóźnieniu ≥ 6 s). R6-BE (2,5 min) — zamknięte; 2 ograniczenia testu przyjęte do raportu bramy. Obiekcja Sparka do K5 („wczesne tyknięcie timera”) odrzucona przez architekta na źródłach dotnet/runtime v10.0.14 — R6-BE potwierdził. 0 fałszywych P0/P1.
+- Defekty po odbiorze: brak; niestabilny test sprzed zadania (`ShopServicePinLogApiTests`, losowy PIN a wspólny dziennik) → Bug #2855.
+- Wymagane testy i dowody: czerwień na asercjach sprawdzona `dotnet test --filter` z `ZEBRANI_TEST_SQLSERVER` i `ng test --include`; skróty SHA-256 (`be-wave1…3`, `fe-wave1…2`) niezmienione po łatkach; mutant U1/U2 czerwony; test tempa 3/3 ×3.
+- Uwagi: przy teście ogranicznika czasu rzeczywistego próg ustalaj względem zmierzonego `Elapsed`, nie stałego okna — dwie recenzje delty zamknęły to dopiero za trzecim podejściem.
+
+### 2849-D (D1, D1-K, dopiski architekta) (rewizja 2026-10-27 AT-UWIERZYTELNIANIE-I-SESJA: limit wydawania tokenów odnawiających na konto, 429 bez zmiany ciasteczka, styk z oknem tolerancji, FE przy 429; rewizja UI-PUBLICZNE-ODZYSKIWANIE-HASLA) — 2026-10-27
+- Archetyp: Dokumentacja produktowa — datowana rewizja dokumentu `zatwierdzony` z sekcją „Co przestało być prawdziwe”.
+- Stawka: średnia.
+- Niepewność: niska (decyzje właściciela przed planem).
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` `max`, `-Access write` (D1, D1-K); architekt — zdania z decyzji już podjętych (pkt 1 i 3 po R2-BE/F-P, AT l.520 i rewizja README po 4c, reguła 11).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (R1-D); Codex / `gpt-6.1-sol` `high`, `-Mode review` (4c i R-D2).
+- Dopuszczone alternatywy: `wykonawca` Sonnet 5.5 `high`; Codex Sol `medium`.
+- Powód wyboru: reguła 8 — rewizje dokumentacji na Sparku `max`; tempo tygodnia Claude'a wysokie (51 % przy starcie).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany, bez 429; Gemini nieznany, bez 503.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: D1 5,3 min — 1 plik, rewizja + korpus + adnotacja, 21 linkujących sprawdzonych.
+- Rundy korekt: 1 (D1-K 2,1 min — 11 poprawek po R1-D).
+- Czas do akceptacji: ~35 min (D1 09:09Z → D1-K ~09:35Z); dopiski architekta po recenzjach kodu.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1-D (7,7 min, „niepoprawny 1,0”) — P0 obniżone do P2 (sformułowanie o `Retry-After` w oknie; skutek w zatwierdzonym planie); przyjęte: token „nadal ważny” (nieprawda w oknie), luka deduplikacji toastów, 3 adnotacje starszych rewizji, zakres reguły ogólnej 429, gramatyka; odrzucone 1 (zdanie o sesji personelu). 1 pomyłka odczytu recenzenta (zdanie doprecyzowane). Fałszywe P0: 1.
+- Defekty po odbiorze: 4c — 2×P2 (AT l.520 bez warunków powrotu sesji, README odzyskiwania hasła bez wyjątku 429) → poprawki architekta, rewizja README zatwierdzona przez właściciela na bramie.
+- Wymagane testy i dowody: dziennik rozbieżności 4/4 zamknięty; Dokumentacja `ab1e6f58` (główna rewizja AT weszła w `1aad1097` innej sesji, bez numeru Buga).
+
+### 2849-P (B-P) (łatka BE: opcje 60/5, singleton `TokenBucketRefreshIssuanceLimiter` per konto, `RefreshRateLimitedException` 429, najwyżej jedno pobranie na żądanie przed blokadą) — 2026-10-27
+- Archetyp: Backend — plik niezmiennika high-stakes (sesja, limit prób, współbieżność rotacji).
+- Stawka: wysoka.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 `xhigh`.
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` `max`, `-Access read` (R2-BE); Muse Spark `max` (R3-BE — testy); bramka Codex / `gpt-6.1-sol` `max` (2849-G).
+- Dopuszczone alternatywy: brak (CZERWONY → Wonder Full `max` albo czekanie; nie wystąpił przy łatce).
+- Powód wyboru: plik niezmiennika sesji i limitu prób; recenzja fali na Wonder Full — reguła 8, dziś 2/2, tydzień 4/6.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ŻÓŁTY przy wysyłce (hook ~09:27Z okno 5 h 50 %, tydzień 59 %); Muse nieznany, Wonder dziś 2/2.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 17,8 min — łatka kompletna, build 0, format OK, skróty zamrożonych testów OK; ZATRZYMANY poprawnie na przesłance (`UseSetting` w testach B-T nie nadpisuje `appsettings.json` w hoście generycznym) zamiast dopasować kod do testu.
+- Rundy korekt: 0 w kodzie produkcyjnym (poprawka przesłanki trafiła do testów — 2849-T K1).
+- Czas do akceptacji: ~1 h 50 min (B-P 09:27Z → R2-BE z triażem ~11:20Z), dalej bramka.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R2-BE (8,4 min) — kod produkcyjny bez P0/P1; P1 brak testu jednego pobrania na ścieżkach wyścigu (zgłosił to też B-P) → U1–U3; 2×P2 + 2×P3 w testach przyjęte; P2 „zużycie za próbę” — kod bez zmian, zdanie w rewizji; odrzucone do raportu bramy: górna granica okresu, walidacja w konstruktorze, brak logu odmów.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: pełny `dotnet test` 9185/9186 (1 zastany `[Skip]`), build `--no-incremental -warnaserror` 0, `dotnet format` (ścieżki względne), prod 16/16 SHA; commit BE `4885c68`, PRE 1.16.6 — curl: 63 × 200, potem 429 `Retry-After: 5` bez `Set-Cookie`, ten sam token 200 po odczekaniu.
+- Uwagi: nazwa singletonu celowo poza wzorcem skanu `I{Nazwa}` + jawny `AddSingleton`; architekt dopisał ją do listy w `AGENTS.md` BE.
+
+### 2849-F (F-P) (łatka FE: `isRefreshRateLimited`, 429 odnowienia nie kończy sesji w `authInterceptor` i `PostResetSessionSync`, `httpErrorMessageKey` 429 → `ERRORS.HTTP.TOO_MANY_REQUESTS`, `NotifiedHttpErrors` — jeden toast na instancję błędu) — 2026-10-27
+- Archetyp: Frontend — przepływ sesji w `core/auth` (high-stakes).
+- Stawka: wysoka.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 `xhigh`.
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` `max`, `-Access read` (R2-FE); Muse Spark `max` (R3-FE — testy); bramka Codex / `gpt-6.1-sol` `max` (2849-G).
+- Dopuszczone alternatywy: brak (interceptor sesji).
+- Powód wyboru: przepływ sesji — plik niezmiennika; recenzja fali na Wonder Full — reguła 8, dziś 1/2.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ŻÓŁTY (hook ~09:25Z okno 5 h 44 %, tydzień 58 %); Muse nieznany.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 12,2 min — testy F1/F1k/F3/F2/F2k zielone, skróty bez zmian, eslint/prettier czyste; 3 asercje 429 → `ERRORS.UNEXPECTED` w istniejącym specu interceptora (skutek decyzji, poprawione przez testera); komentarze „okazany token zostaje ważny” nieścisłe w oknie tolerancji.
+- Rundy korekt: 0 w kodzie produkcyjnym poza komentarzami (dopisane przy korekcie).
+- Czas do akceptacji: ~1 h 20 min (F-P ~09:25Z → R3-FE ~10:20Z), bramka FE 10:21Z.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R2-FE (10,5 min) — brak P0/P1, poprawny 0,85; przyjęte P2 (mieszane żądania przy wspólnym 429, drugi incydent → 2 toasty) i P3 (spec `PostResetSessionSync`); odrzucone P3 deduplikacja dla każdego statusu, P3 `Retry-After` w odpytywaniu zakupu (poza decyzjami, do raportu bramy).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `npm run lint` 0, build OK, `npm test` 5790/5792 (2 czerwone wyłącznie w `qr-codes.spec.ts` innej sesji), format — 2 pliki innej sesji; diff bez `.scss`/`.html`; commit FE `7816588`, PRE 1.14.4.
+
+### 2849-G-FE, 2849-G-BE (bramki końcowe FE i BE) — 2026-10-27
+- Archetyp: Recenzja — bramka końcowa funkcji high-stakes (reguła 6), cały diff repozytorium w jednym przebiegu.
+- Stawka: wysoka.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` `max`, `-Mode review`.
+- Recenzent (linia / model / native effort): architekt Opus 5.5 `xhigh` — triaż w kodzie, `git status` przed = po.
+- Dopuszczone alternatywy: przy limicie Codexa `wykonawca-opus` tylko do odczytu (decyzja właściciela); niepotrzebne.
+- Powód wyboru: reguła 6; pliki niezmiennika pisała rodzina Claude. Kolejność zmieniona — FE gotowe pierwsze, bramki nadal sekwencyjnie.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, 8 przebiegów w tygodniu przed bramkami, bez komunikatu limitu.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: FE 4,7 min — poprawny, kontrakt z BE zgodny; BE 5,3 min — kod produkcyjny bez defektów, 1×P2 w teście.
+- Rundy korekt: FE 0; BE 3 (B-T-K3…K5 z recenzjami delty R4–R6 na Solu `high`, bez ponownej bramki — dowód: skróty prod 16/16, 3/3 ×3).
+- Czas do akceptacji: FE ~5 min; BE ~3 h 30 min (10:45Z → R6-BE 14:15Z) przez trzy podejścia do testu tempa.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): BE — 1×P2 potwierdzone: `Refresh_AfterReplenishmentPeriod_IssuesAgain` zależał od szybkości SQL/HTTP (odstęp > 1 s → 200 zamiast 429). FE — 0. Bramka nie znalazła nic w kodzie produkcyjnym ponad recenzje fal.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `git status` bez zmian po obu przebiegach.
+
+### 2849-4C (4c, R-D2) (przegląd zgodności dokumentacji z kodem) — 2026-10-27
+- Archetyp: Recenzja — zgodność dokumentacji `zatwierdzony` z kodem w obie strony.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review`.
+- Recenzent (linia / model / native effort): architekt Opus 5.5 `xhigh`.
+- Dopuszczone alternatywy: Gemini `high` `-Access read`.
+- Powód wyboru: autor dokumentacji z rodziny Muse — Muse nie recenzuje Muse; pula Codexa po bramkach bez limitu.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany, bez komunikatu limitu.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 0,8 min — STOP na pustym diffie względem `HEAD`: inna sesja zacommitowała rewizję w `1aad1097` (8636 plików); poprawne zatrzymanie na przesłance. Ponowienie z bazą `255b00a3` 7,3 min — kontrakt zgodny, 2×P2.
+- Rundy korekt: 1 (poprawki architekta, reguła 11; R-D2 2,6 min — zamknięte, linki 111/99 bez braków).
+- Czas do akceptacji: ~25 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2×P2 potwierdzone (AT l.520, README odzyskiwania hasła l.337), 0 odrzuconych.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: dziennik rozbieżności 4/4 zamknięty; `git status` bez zmian.
+
+### 2850-Q (Q, Q-K1, Q-K2, Q-K3, R-Q) (QA Sphere: hasło konta demo właściciela w 31 przypadkach folderu 108, podmiana bajt w bajt) — 2026-10-27
+- Archetyp: QA Sphere — mechaniczna aktualizacja istniejących przypadków (podmiana w surowym tekście pól).
+- Stawka: niska.
+- Niepewność: niska (licznik 59 wystąpień przed zapisem).
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` `max`, `-Access write` (Q, Q-K1, Q-K2); `high` (Q-K3 — korekta z gotową treścią).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (R-Q).
+- Dopuszczone alternatywy: Gemini `-Access write` (autor), Muse `-Access read` (recenzent).
+- Powód wyboru: archetyp QA Sphere reguły 8; recenzent z innej rodziny.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany, bez 429; Gemini nieznany, bez 503.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 5,1 min — 59 → 0 / 0 → 59, 31 `review` + 31 `updates`, 8 przypadków zmieniających hasło przywraca hasło z seeda; lint 31 × „pusty akapit” — zastane artefakty eksportu Markdown.
+- Rundy korekt: 3 (K1 5,0 min — 38 pustych akapitów przed listą/kodem; K2 2,2 min — 3 puste po zamykającym bloku kodu, łącznie 41; K3 1,5 min — powód z polskimi znakami).
+- Czas do akceptacji: ~35 min (Q 09:09Z → publikacja i domknięcie Buga ~09:44Z).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-Q (6,7 min, pewność 1,0) — 1×P2 potwierdzone (pole `reason` w 62 wpisach bez polskich znaków) → K3; treść przypadków bez uwag (59/59, 41/41, cele i przywracanie hasła). Uwaga recenzenta do briefu trafna: jawne hasło administratora stoi w komentarzu seeda przy koncie 4 — prawdopodobna przyczyna pierwotnej pomyłki; hasła właściciela seed nie zawiera (tylko skrót), więc „z seeda” w powodzie było nieścisłe. 0 fałszywych P0/P1.
+- Defekty po odbiorze: 0 — porównanie HTML 31 przypadków przed/po: różnica wyłącznie hasło; `context` po publikacji: hasło administratora 0, właściciela 59.
+- Wymagane testy i dowody: `qas.py lint` 0/0, `qas.py update` 31, porównanie HTML, ponowny `qas.py context`; logowanie hasłem właściciela na PRE 200.
+
+### 2849-Q (Q, RQ, K1, K2, K3) (QA Sphere: limit wydawania tokenów odnawiających — API przez `curl`, UI z toastem pl/en i F5 przy pustej puli; przegląd folderów sesji 121, 125, 129, 199) — 2026-10-27
+- Archetyp: QA Sphere w funkcji high-stakes — plik podglądu, recenzja krzyżowa, korekty `-K`.
+- Stawka: średnia (przypadki manualne; niezmiennik chronią testy API).
+- Niepewność: wysoka (czas rzeczywisty: pula 60 / 0,2 na s, okno tolerancji 30 s, wygaśnięcie tokenu dostępu 15 min + `ClockSkew`; trzymanie pustej puli przez `curl` w trakcie akcji w przeglądarce).
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` `max`, `-Access write` (Q, K1, K2); `high` (K3 — jedno zdanie z gotową treścią).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high`, `-Access read` (RQ); korekty — dowód architekta (porównanie z kopiami, lint, wyrywkowy odczyt `high`).
+- Dopuszczone alternatywy: Gemini pisze, Muse recenzuje.
+- Powód wyboru: reguła 8 (QA Sphere na Sparku `max` także w funkcji high-stakes); recenzent z innej rodziny.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany, bez 429 (od poniedziałku Spark `max` 46, Wonder 4/6); Gemini nieznany, bez 503.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: Q 18,2 min, lint 0/0 — 9 nowych (A1–A6 API, U1–U3 UI), przegląd 27 × `keep`. Wykonawca słusznie poprawił 4 przesłanki briefu: `Retry-After` 1–5 zamiast dokładnie 5, oczekiwanie ≥ 21 min (domyślny `ClockSkew` 5 min), pierwsze 429 dopiero przy wyłączności konta, F5 po odczekaniu ląduje na `/panel`.
+- Rundy korekt: 3 — K1 10,9 min (pętla trzymająca pulę w U1–U3: znacznik przy pierwszym 429, `sleep 0.1`, 90 s od znacznika; A6 ZATRZYMANY poprawnie — przesłanka architekta „po `sleep 6` odnawia się dokładnie jedno wydanie” błędna, wynik losowy ~50 %); K2 8,1 min (A6 deterministycznie: rotacja ponawiana co 0,1 s aż do 200 kotwiczy resztę kubełka przy ~0; atrapa z 3 resztami → 200/429/200); K3 2,2 min (zdanie awaryjne A6).
+- Czas do akceptacji: ~1 h 25 min (Q 17:25Z → pełne `verify` ~18:22Z, z recenzją 9,7 min).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): RQ (9,7 min) — 1×P1 potwierdzone (A6: opróżnianie puli po rotacji przekracza okno 30 s), ale proponowana poprawka („odczekaj 5 s po opróżnieniu”) też losowa. Raport z błędami: mapowanie przypadków A1–A6 niezgodne z plikiem, „jawne hasła w seedzie” (seed ma tylko skróty), tempo pętli liczone bez czasu odpowiedzi — przez to przeoczył P1 architekta: pętla trzymająca pulę w U1–U3 z `sleep 0.3` i „30 s od startu” trafiała na niepustą pulę (obieg ~0,6 s, wyczerpanie po ~40–45 s). Wspólna przyczyna obu P1: przesłanki czasowe w briefie architekta.
+- Defekty po odbiorze: 0 — porównanie z serwerem przez odczyt HTML (ciąg znaków bez białych znaków, pola strukturalne dokładnie) 9/9 zgodnych, kontrola dodatnia wykrywa zmianę jednego słowa; standardowe `verify` — 30 znanych fałszywych różnic eksportu Markdown (autolink, akapit za blokiem kodu).
+- Wymagane testy i dowody: `qas.py lint` 0/0 po każdej korekcie, porównania z kopiami `.bak`/`.bak2`/`.bak3` (zmienione tylko wskazane przypadki), logowanie drugiego konta na PRE 200, `folders` → `push --limit 1` → `verify --only A1` + odczyt HTML 2052 → `push` → pełne `verify`.
+- Uwagi: opublikowano 9 nowych (seq 2052–2060; 3 high, 3 medium, 3 low) w folderze 201; brak aktualizacji i `[Removed]`. Przy przypadkach zależnych od kubełka tokenów zakotwicz stan kubełka żądaniem ponawianym aż do sukcesu, a nie `sleep` — `Retry-After` liczy się w całych okresach i nie mówi nic o reszcie kubełka. W briefie podawaj czas obiegu pętli z pomiaru (RTT PRE ~0,3 s), nie samą przerwę.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
