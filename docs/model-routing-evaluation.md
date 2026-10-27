@@ -8423,6 +8423,41 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: `qas.py lint` 0/0 po każdej korekcie, porównania z kopiami `.bak`/`.bak2`/`.bak3` (zmienione tylko wskazane przypadki), logowanie drugiego konta na PRE 200, `folders` → `push --limit 1` → `verify --only A1` + odczyt HTML 2052 → `push` → pełne `verify`.
 - Uwagi: opublikowano 9 nowych (seq 2052–2060; 3 high, 3 medium, 3 low) w folderze 201; brak aktualizacji i `[Removed]`. Przy przypadkach zależnych od kubełka tokenów zakotwicz stan kubełka żądaniem ponawianym aż do sukcesu, a nie `sleep` — `Retry-After` liczy się w całych okresach i nie mówi nic o reszcie kubełka. W briefie podawaj czas obiegu pętli z pomiaru (RTT PRE ~0,3 s), nie samą przerwę.
 
+### 2855-T (T, T-K1, R1) (czerwony test strażnika dziennika PIN-u: liczba z szumu dziennika brana za wyciek; wyciągnięcie `ContainsPin` do klasy wsparcia bez zmiany zachowania) — 2026-10-27
+- Archetyp: Testy — czerwony test Buga, xunit jednostkowy bez SQL (wyrocznia skanu dziennika) plus wyciągnięcie metody pomocniczej bajt w bajt (BE).
+- Stawka: średnia (strażnik niezmiennika „PIN poza dziennikiem”; żaden plik niezmiennika się nie zmienia, bramka Sol `max` nie dotyczy).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `tester` Haiku 5.5 `xhigh` (T, T-K1).
+- Recenzent (linia / model / native effort): Muse / `muse-spark-1.3-contributor` `max`, `-Access read` (R1).
+- Dopuszczone alternatywy: Muse Spark `max` `-Access write`; `wykonawca` Sonnet 5.5 `high`; recenzent Codex Sol `high` albo Gemini `gemini-3.8-flash-high`.
+- Powód wyboru: linia czerwonego testu Buga; xunit BE przyjęte w 2715-T1a i 2705-BT-2 (1 runda); tani przy ŻÓŁTYM. Recenzja średniej stawki na Sparku `max` (reguła 8), inna rodzina; 2849 R1-T-BE trafne.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy — hook ~21:20Z ŻÓŁTY (okno 5 h 16 %, tydzień 71 %); Muse nieznany, bez 429.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: T ~8 min — 3 pliki; wzorzec, opcje i limit w klasie wsparcia identyczne z dawnymi; teoria A 6 czerwonych na asercjach (`Assert.False()`), 12 zielonych, 0 pominiętych; klasa integracyjna 3/3 z SQL.
+- Rundy korekt: 1 — T-K1 ~4 min (po R1: plik do `Support/`, wiersze szumu wytwarzanego faktycznie przez host, przypięta lewa granica, B 13 wierszy, D 2). Tester słusznie poprawił liczności w moim briefie (16 zielonych / 22 łącznie, nie 15 / 21).
+- Czas do akceptacji: ~30 min (T 21:25Z → odbiór T-K1 ~21:55Z), z R1 12,8 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1 (12,8 min) — przyjęte 1×P1 (wiersze szumu EF i Data Protection: host używa wyłącznie Dappera, taki szum w oknie nie powstaje — czerwień dowodziłaby mechanizmu, którego nie ma), 2×P2 + 2×P3 (m.in. nieprzypięta lewa granica wzorca, położenie pliku); 1×P3 odnotowane bez zmiany (`:line NNNN` w śladzie stosu). 0 fałszywych P0/P1.
+- Defekty po odbiorze: brak — ten sam plik (SHA-256 niezmieniony do commitu) zielony 22/22 po łatce.
+- Wymagane testy i dowody: `dotnet test --filter CapturedLogPinScanTests` — 6 czerwonych (teoria A) / 16 zielonych / 0 pominiętych; build 0/0; SHA-256 wyroczni zapisany przy odbiorze.
+
+### 2855-P (P, P-K1, P-K2, P-K2 ponowienie, R2, R2-K1, R2-K2) (łatka strażnika: okno dziennika per test z kontrolą pozytywną, stały PIN przez szew generatora w hoście pochodnym, skan pomijający wyłącznie rozpoznany szum) — 2026-10-27
+- Archetyp: Testy — łatka w projekcie testów BE (regex skanu, `WithWebHostBuilder` + `ConfigureTestServices`, przeciążenie fixture); bez kodu produkcyjnego.
+- Stawka: średnia (ryzyko cichego osłabienia strażnika niezmiennika PIN-u).
+- Niepewność: średnia (granice tokenu w regexie — dwie kolejne wersje obalone w recenzji).
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` `max`, `-Access write` (P, P-K1, P-K2 ×2).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review` (R2, R2-K1, R2-K2).
+- Dopuszczone alternatywy: `wykonawca` Sonnet 5.5 `high`; Codex Sol `high` jako wykonawca (SQL w piaskownicy niepotwierdzony — wtedy recenzja Muse albo Gemini); recenzent Gemini `gemini-3.8-flash-high` `-Access read`.
+- Powód wyboru: inna linia niż autor czerwieni; Spark sam uruchamia `dotnet build`/`dotnet test` z SQL przez interop (2849 B-T-K3…K5); ŻÓŁTY Claude → brief tekstowy do Muse. Recenzent z trzeciej rodziny; 2849 R4–R6-BE trafne.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany, bez 429 (Spark contributor); Codex nieznany, bez komunikatu limitu; Claude ostrzegawczy (ŻÓŁTY, tydzień 71–72 %).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: P 8,1 min — 3 pliki, wyrocznia 22/22, obie klasy 25/25, klasa integracyjna 20/20, format czysty; odchylenie uzasadnione: przeciążenie `CreateBearerClientFor(host, accountId)` jako `static` (CA1822 przy ostrzeżeniach jako błędach). Wzorzec P (wykluczenie łącznika i kropki wokół PIN-u) obalony w R2.
+- Rundy korekt: 2 (+1 ponowienie po błędzie briefu architekta) — P-K1 7,1 min (wycinanie rozpoznanego szumu, dawny wzorzec PIN-u); P-K2 4,4 min ZATRZYMANY poprawnie na CS0029 — moja przesłanka `[.. MatchCollection]` daje `object`; ponowienie 5,1 min z `IReadOnlyList<Match>` (dopasowanie w oryginalnym wpisie, trafienie pomijane tylko w całości wewnątrz tokenu szumu).
+- Czas do akceptacji: ~55 min (P 21:56Z → R2-K2 22:42Z → walidacja, pełny pakiet i mutacja → commit 22:51Z).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R2 (2,9 min) — 1×P2 potwierdzone: wykluczenie łącznika po PIN-ie osłabia strażnika (`PIN=5083->` niewykryty). R2-K1 (3,8 min) — P2 z R2 zamknięte; 1×P2 potwierdzone (szum zamieniany na spację tworzy nową granicę → fałszywy alarm na ogonie GUID-u), 1×P3 potwierdzone (kwadratowy regex czasu na długim ciągu cyfr → przekroczenie limitu 5 s). R2-K2 (3,3 min) — oba zamknięte (100 tys. cyfr: 0 ms); 2×P2 odrzucone jako zaakceptowane ograniczenia (nakładające się tokeny hex + GUID w jednym wpisie → fałszywy alarm; 32 000 tokenów szumu w jednym wpisie → 12,5 s): takich wejść host w oknie nie wytwarza, skutek głośny (czerwony test), wykrywanie nieosłabione. 0 P0/P1.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: SHA-256 wyroczni niezmieniony; build 0/0; obie klasy 25/25; klasa integracyjna 20/20; `dotnet format --verify-no-changes` 0; kontrprzykłady na DLL przez refleksję 10/10; pełny `dotnet test` z SQL 9207 / 0 niepowodzeń / 1 pominięty (zastany `[Skip]` z `d484b3e9`, poza zakresem); mutacja architekta (tymczasowy log w handlerze, przywrócony, skrót zgodny): nowy PIN → „Dziennik zawiera nowy PIN po zmianie.”, stary → „Dziennik zawiera stary PIN po zmianie.”; commit BE `bfc8854`, wersja bez zmian (1.16.6), bez wdrożenia.
+- Uwagi: w regexie strażnika nie zamieniaj szumu na separator (tworzy granice) — dopasowuj w oryginale i pomijaj trafienia wewnątrz tokenu; czas ASP.NET Core zaczynaj od początku ciągu cyfr (`(?<![0-9])`). Mutacja z nowym parametrem konstruktora wymaga parametru opcjonalnego — pierwszy przebieg padł na CS7036 w istniejących testach handlera i uruchomił stary DLL; skrypt mutacji pomija test po nieudanym buildzie.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
