@@ -8520,6 +8520,165 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wnioski do przeglądu (sekcja 5.3, przegląd doraźny): dla nowych enumów mapowanych z kolumn SQL typ bazowy musi zgadzać się z typem kolumny (wzorzec `ContactDeliveryStatus : short`); funkcje uwierzytelniania wymagają próby na prawdziwej bazie przed wdrożeniem. `GlobalExceptionHandler` loguje teraz wyjątek (możliwe dane osobowe w komunikatach wyjątków, np. wartości duplikatu klucza).
 - Konto administratora (`dymekk208j@gmail.com`) wstawione bezpośrednio do bazy PreProd; hasło tylko w hashu PBKDF2, długość 9 znaków łamie walidator BE (≥ 12) przy zmianie i resecie hasła, logowania nie dotyczy.
 
+### 2800-BE (BE-A1, BE-A2a, BE-A2b, BE-A3 + migracja DB: sprawdzenie i zapis pieczątki gościa, bramka prób po znaczniku urządzenia, dowód akceptacji Regulaminu, retencja dowodu) — 2026-10-28
+- Archetyp: Backend — pliki niezmiennika high-stakes (jednorazowe kody, limit prób, naliczanie pieczątek, migracja danych); osobne briefy na migrację, handlery, bramkę i kontroler.
+- Stawka: wysoka (twarda bramka, reguła 3).
+- Niepewność: średnia (atomowość zapisu, wyścigi dwóch zapisów, kolejność wejść bramki).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 `xhigh`.
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` `max`, `-Access read` (BE-A + DB razem, jeden przebieg); bramka końcowa — wpis 2800-G.
+- Dopuszczone alternatywy: brak (twarda bramka); przy CZERWONYM Muse Wonder Full `max`. Recenzja: Sol `high`.
+- Powód wyboru: pliki niezmiennika zawsze `wykonawca-opus`; recenzja Wonder Full `max` wg tabeli reguły 8 (niezmiennik, w limicie Wondera).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (hook ŻÓŁTY, tydzień ~86 %), 2026-10-28; Muse Wonder znany z licznika przebiegów (4 z 6 tygodnia przed recenzją, ~12:17Z).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zaakceptowano po walidacji fali (pełny `dotnet test` na SQLEXPRESS zielony poza znanymi czerwonymi testami retencji, które wchodziły do fali testów).
+- Rundy korekt: 2 (poprawka nagłówka `Retry-After` bramki po recenzji Wondera; K8 po bramce końcowej — wpis 2800-G).
+- Czas do akceptacji: nie mierzony per brief; przebieg recenzji Wondera 1135 s.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Wonder Full — 0 P0/P1, 3×P3; poprawiono `Retry-After` bramki gościa.
+- Defekty po odbiorze: brak wykryty do commitu `23415df9`; PRE niewdrożone, retest czeka.
+- Wymagane testy i dowody: diff wszystkich plików, `dotnet build` Release 0/0, pełny `dotnet test` (SQLEXPRESS) — patrz wpis 2800-T.
+
+### 2800-G (bramki końcowe FE i BE, K7, K8, K9, delta K8) — 2026-10-28
+- Archetyp: Bramka high-stakes (reguła 6) — cały diff funkcji, FE potem BE, jeden przebieg każde; korekty po bramce.
+- Stawka: wysoka.
+- Niepewność: niska (po recenzjach fal).
+- Wykonawca (linia / model / native effort): — (recenzja); korekty: K7 i K9 Muse / `muse-spark-1.3-contributor` `max` `-Access write` (autor kontenera strony), K8 Claude / `wykonawca-opus` Opus 5.5 `xhigh` (plik niezmiennika), poprawka pomocnika testowego — architekt (reguła 11).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `max` `-Mode review` (FE 858 s, BE 851 s); delta K8 — Codex / `gpt-6.1-sol` `high` `-Mode review` (115 s).
+- Dopuszczone alternatywy: brak (limit Codexa = czekam, bez słabszej bramki).
+- Powód wyboru: twarda bramka; Sol z rodziny Codex niezależny wobec autorów plików niezmiennika (Opus, Wonder Full) i wobec FE (Claude, Muse, Haiku).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex nieznany (wrapper bez odczytu zapasu), brak komunikatu limitu; raport tokenów po ostatnim przebiegu: okno 5 h 57 %, tydzień 13 %. Claude ostrzegawczy (ŻÓŁTY, tydzień ~86 %), 2026-10-28.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: wymagane korekty — FE bez P0/P1, 2×P2; BE bez P0/P1, 1×P2.
+- Rundy korekt: FE 2 (K7 po bramce; K9 po przeglądzie zgodności 4c), BE 2 (K8; poprawka pomocnika testowego po delcie).
+- Czas do akceptacji: bramki ~14 min każda; K7 596 s, K9 256 s, delta K8 115 s.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): FE — P2 brak blokady drugiego zapisu w kontenerze (drugi POST z pustym tokenem), P2 brak ogłoszenia „Zapisujemy pieczątkę…” w stałym regionie `aria-live` (potwierdzone, architekt dołożył czyszczenie regionu po błędzie). BE — P2 wybór paska serializacji bramki gościa po niekanonicznym znaczniku (kolacja `CI_AS` zlewa wielkość liter i końcowe spacje → warianty jednego znacznika w różnych paskach, wyścig przy 4 porażkach); K8 test-first (16 wariantów × 5 rund, czerwony przed poprawką) + minimalna kanonizacja paska. Delta Sol `high`: produkcja poprawna, 1×P2 w teście (pomocnik haszował znacznik bez kanonizacji, sporadyczna czerwień ok. 1/64 przebiegów) — poprawione. Odrzuconych: 0.
+- Defekty po odbiorze: brak wykryty do commitów; PRE niewdrożone.
+- Wymagane testy i dowody: dowód czerwonego imiennie dla K7/K8/K9; po K8 `dotnet test` 9579 zielonych / 0 czerwonych / 1 pominięty (znany, spoza PBI), Release build 0/0; FE po K9 `npm test` 6068/6070 (2 czerwone — cudzy Bug #2686), lint 0, build OK.
+- Uwagi: moje wcześniejsze założenie „scalanie wariantów znacznika jest bezpieczne” obejmowało licznik, nie serializację — bramkę wyłapał dopiero wyścig na paskach; zapis w dzienniku rozbieżności (wiersz 18).
+
+### 2800-FE-A/C/D (FE-C i18n, FE-A1 trasa/strażnik/serwis/helpery, FE-A2 kontener strony, FE-D numer wstępny w rejestracji) i korekty K1–K6 — 2026-10-28
+- Archetyp: Frontend logika strony publicznej i i18n (Signal Forms, Turnstile, odliczanie, fokus, SSR), bez niezmiennika (logika wywołań leży w BE).
+- Stawka: średnia (ekran publiczny w funkcji high-stakes, osobno od plików niezmiennika).
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` `max` `-Access write` (FE-C 270 s, FE-A1 618 s, FE-A2 676 s, FE-D 306 s, K1–K5 228 s, K6 363 s).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` `-Access read` (fala 1: 1276 s; fala 2: 875 s).
+- Dopuszczone alternatywy: `wykonawca` Sonnet 5.5 `high`; Sol `high` (pula Codexa oszczędzana na bramkę).
+- Powód wyboru: wzorzec Sparka `max` na briefach bez niezmiennika (0–1 rundy w dotychczasowych wynikach); recenzent z innej rodziny, preferencja niskiej stawki (Gemini `high` przed Muse).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse Spark nieznany (bez 429), Gemini znany; 2026-10-28.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: wymagane korekty — zielone testy własnych plików, ale recenzja i `browser-check` wykazały defekty (poniżej).
+- Rundy korekt: 2 (K1–K5 razem z usterkami z `browser-check`: odstęp stanu „Za wcześnie” i zapadnięte przyciski na mobile; K6 po drugiej recenzji).
+- Czas do akceptacji: ~2 h od startu fali 1 do zamknięcia K6 (z walidacją i recenzjami).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): fala 1 — P1 `resubmitAfterElapsed` nie wracał fokusem na nagłówek, P2 fokus po `PROTECTION_REJECTED`, 2×P3 (potwierdzone w kodzie). Fala 2 — P1 fokus po akcji osoby (→ K6: `focusHeading()` + 3 testy, potwierdzone w przeglądarce), P2 uwagi do testów (poprawione), P3 `max-lines` (odrzucone — poza regułami projektu).
+- Defekty po odbiorze: dwa dalsze P2 wyłapała dopiero bramka końcowa FE (blokada drugiego zapisu, ogłoszenie w `aria-live` — wpis 2800-G) oraz jedna rozbieżność z przeglądu zgodności 4c (ogłoszenie nagłówka stanu 1, K9): recenzje fal Gemini nie złapały żadnej z nich.
+- Wymagane testy i dowody: `eslint` / `prettier` na własnych plikach, specyfikacje, `browser-check` 44 zrzuty (A=B 44/44), pełny `lint` / `format:check` / `npm test` / `build` po fali.
+- Uwagi: brief mylnie prosił o angielskie nazwy testów (istniejące specyfikacje używają polskich) — Spark zgłosił, bez wpływu.
+
+### 2800-FE-B (FE-B1 formularz zapisu pieczątki, FE-B2 karty „Sprawdzamy kod”, „Zapisano”, wynik; ekrany z Figmy) — 2026-10-28
+- Archetyp: Frontend UI z Figmy — prezentacyjne podkomponenty, `.html` / `.scss` / `.ts`, Light i Dark, 360 i 1280.
+- Stawka: średnia (ekran bez niezmiennika).
+- Niepewność: niska–średnia.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high` (dwa briefy: FE-B1, FE-B2).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` `-Access read` (wraz z falą 1 — wpis 2800-FE-A/C/D) + `browser-check` (architekt).
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` po potwierdzeniu Figma MCP (nie użyty — pula na bramkę).
+- Powód wyboru: wykonawca ekranu z Figmy ma faktyczny Figma MCP; Muse i Gemini odpadają (twarda bramka).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (ŻÓŁTY), 2026-10-28.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zaakceptowano po walidacji fali; `browser-check` wykazał usterki F1 (odstęp stanu „Za wcześnie”) i F2 (zapadnięte przyciski na mobile), które poprawił Spark razem z K1–K5 (autorstwa plików rejestr nie rozstrzyga).
+- Rundy korekt: 0 u wykonawcy FE-B (usterki F1 / F2 poszły do K1–K5 u autora kontenera).
+- Czas do akceptacji: nie mierzony per brief.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): wspólne z wpisem 2800-FE-A/C/D; usterki F1 / F2 z `browser-check`, nie z recenzji modelu.
+- Defekty po odbiorze: brak wykryty do commitu.
+- Wymagane testy i dowody: `browser-check` matrix 44 zrzuty (Light / Dark × 360 / 1280), porównanie z Figmą, AXE w specyfikacjach.
+
+### 2800-T (testy: FE-E1/E2/E3 i BE-B T1, T2a, T2b, T3a, T3b, T3c-1…3; korekty po recenzji T4a-1/2, T4b-1/2/3; recenzja testów BE) — 2026-10-28
+- Archetyp: Testy — Vitest / AXE (FE) i xunit jednostkowe + integracyjne na SQLEXPRESS (BE), scenariusze podane w briefach.
+- Stawka: średnia (testy chronią funkcję high-stakes, ale nie niosą niezmiennika).
+- Niepewność: niska–średnia (testy współbieżności i migracji — wyższa).
+- Wykonawca (linia / model / native effort): Claude / `tester` Haiku 5.5 `xhigh`.
+- Recenzent (linia / model / native effort): część A (jednostkowe) Gemini / `gemini-3.8-flash-high` `-Access read`; część B (integracyjne) Muse / `muse-spark-1.3-contributor` `max` `-Access read`.
+- Dopuszczone alternatywy: Spark `max`; `wykonawca-opus` dla testów współbieżności.
+- Powód wyboru: linia `tester` po próbie z reguły 14; jeden wykonawca BE z `dotnet` naraz; recenzenci z innych rodzin niż Claude.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (ŻÓŁTY), Muse i Gemini nieznane (bez 429), 2026-10-28.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: FE-E1/E2/E3 (63 + 95 + 97 testów) zaakceptowane; BE-B T1…T3c zielone (123, 99, 64, 53, 21, 16, 14 testów w kolejnych briefach), pełny pakiet 9550 zielonych — po recenzji wymagane korekty.
+- Rundy korekt: 1 runda korekt po recenzji, rozbita na 5 wąskich briefów (T4b-3, T4b-1, T4b-2, T4a-1, T4a-2), bo pierwszy przebieg korekt T4b nie zapisał nic (kontekst wyczerpany na czytaniu); T3a po jednej korekcie (wielkie litery w identyfikatorze).
+- Czas do akceptacji: nie mierzony per brief.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Spark `max` — 0 P0/P1, 5×P2 + P3, wszystkie zasadne (m.in. kolejność wejść bramki, zgoda dla numeru z kontem, kod przed programem w writerze, zapis bez znacznika, idempotencja `Script000026`). Gemini `high` — 3×P1: 1 potwierdzone jako flaky (`RetryAfterSeconds`), 1 obalone (kontrakt 429 pokryty), 1 zasadne jako P3; P2 zasadne (spójny `nowUtc`, wielkie litery); pierwszy przebieg padł (exit 3, odmowa `run_command` zerowała turę) — ponowiony z zakazem powłoki w briefie.
+- Defekty po odbiorze: brak wykryty; produkcja w całej fali korekt nietknięta.
+- Wymagane testy i dowody: sam uruchamiałem filtry po każdym briefie; pełny pakiet BE po korektach 9578, po K8 9579 zielonych / 0 czerwonych / 1 pominięty (znany Skip spoza PBI); Release build 0/0.
+- Uwagi: tester kończył część briefów po progu kontekstu z przekazaniem (handoff) — koszt wliczony.
+
+### 2800-A (audyt SCSS 6 plików i refaktor W1/W2/W3/W5) — 2026-10-28
+- Archetyp: Audyt SCSS i mechaniczny refaktor z mierzalnym kryterium (kompilacja Sassa identyczna z bazą, piksele identyczne).
+- Stawka: niska–średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` `max` — audyt `-Access read` (411 s), refaktor `-Access write` (348 s).
+- Recenzent (linia / model / native effort): architekt — kompilacja Sassa 7/8 identycznych (8. różni się wyłącznie usuniętym blokiem W5), 48 zrzutów pikselowych identycznych, pomiar koloru linków w przeglądarce; bramka Sol `max` czyta cały diff FE.
+- Dopuszczone alternatywy: Gemini `high`; `wykonawca` Sonnet `high`.
+- Powód wyboru: archetyp audytu SCSS na Sparku wg reguły 8; refaktor z kryterium maszynowym.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse Spark nieznany (bez 429), 2026-10-28.
+- Pewność decyzji: średnia–wysoka.
+- Wynik pierwszego podejścia: zaakceptowano — audyt `PLIKI PRZEJRZANE: 6/6`, 0 naruszeń reguł projektu; refaktor zgodny z kryteriami.
+- Rundy korekt: 0.
+- Czas do akceptacji: nie mierzony zegarem ściennym; przebiegi 411 s + 348 s plus walidacja architekta.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 4 wnioski refaktoru przyjęte (W1, W2, W3, W5), 1 odrzucony (W4 — wymaga migracji obcego obszaru, poza zakresem).
+- Defekty po odbiorze: brak wykryty.
+- Wymagane testy i dowody: stylelint i prettier na 11 plikach, 26 plików specyfikacji / 424 testy zielone, piksele fala1 44/44 i zapisana 4/4.
+- Uwagi: pierwsza próba pomiaru koloru linków dała fałszywe „zgodne” (lista linków pusta w Light, emulacja motywu nie zadziałała w Dark) — poprawione i zmierzone ponownie; pomiar bez sprawdzenia, że lista nie jest pusta, jest niewiarygodny.
+
+### 2800-4c (przegląd zgodności dokumentacji z kodem: FE, BE ścieżka żądania, BE dane i retencja) — 2026-10-28
+- Archetyp: Audyt dokumentacja ↔ kod (macierz zgodności, tylko odczyt), trzy grupy w całości z kodem, który je realizuje.
+- Stawka: średnia.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): FE — Gemini / `gemini-3.8-flash-high` `-Access read` (805 s); BE B1 (466 s) i B2 (433 s) — Muse / `muse-spark-1.3-contributor` `max` `-Access read`.
+- Recenzent (linia / model / native effort): architekt (weryfikacja każdego „kod odbiega / dokument nieaktualny / brak”).
+- Dopuszczone alternatywy: Spark `max` read (FE), Gemini `high` read (BE).
+- Powód wyboru: inna rodzina niż autorzy FE (Claude, Muse) i BE (Claude); BE po bramce, żeby kod się już nie zmieniał.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini znany, Muse Spark nieznany, 2026-10-28.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowano — łącznie 367 pozycji zgodnych, 4 nowe rozbieżności (wiersze 20–23 dziennika): 1× kod odbiega (K9, naprawione), 3× luki dokumentu (rewizje).
+- Rundy korekt: 1 (K9 — wpis 2800-G).
+- Czas do akceptacji: nie mierzony per brief; przebiegi 805 s, 466 s i 433 s.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 4, odrzuconych 0; uwagi recenzentów do briefu (lista plików bez współdzielonych wyjątków i Turnstile) zasadne, bez wpływu.
+- Defekty po odbiorze: brak wykryty.
+- Wymagane testy i dowody: dziennik 23 wiersze, zero „otwarty / w toku”.
+
+### 2800-D (rewizje dokumentacji D1 UI, D2 DEC + PB + AT + ewidencja, D3 WP-USUWANIE + polityka prywatności) — 2026-10-28
+- Archetyp: Dokumentacja produktowa — rewizje dokumentów `zatwierdzony` w treści z tabeli raportu bramy (po zgodzie właściciela).
+- Stawka: średnia.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` `max` `-Access write` (3 briefy równolegle: 528 s, 665 s, 335 s).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` `-Access read` (1096 s) + przegląd diffu przez architekta.
+- Dopuszczone alternatywy: `wykonawca` Sonnet `high`; Codex `gpt-6.1-sol` (nie użyty).
+- Powód wyboru: rewizje dokumentacji na Sparku `max` wg reguły 8; recenzent z innej rodziny niż Muse.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse Spark nieznany (bez 429), 2026-10-28.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: zaakceptowano z poprawkami architekta — 8 plików, +110 / −20, front matter identyczny z HEAD.
+- Rundy korekt: 0 (poprawki architekta, reguła 11).
+- Czas do akceptacji: ~55 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Gemini — 0 defektów P0–P3, macierz kompletności 100 %. Wykonawcy zgłosili dwa zasadne STOP-y: (1) przesłanka D2-R4 fałszywa (odstęp między pieczątkami jest stały 30 s na wszystkich ścieżkach, nie „ustawiony w programie”) — pytanie 2 w moim raporcie bramy opierało się na błędnym odczycie zwiadu; (2) odsyłacz „stany 11 i 12” → „stan 12”. Poprawki architekta: zdanie „strona sama ponawia” błędne wobec kodu, spójność dowodu zgody bez wersji w AT-JQR i PB, neutralność API obejmuje najwyższy poziom.
+- Defekty po odbiorze: brak wykryty.
+- Wymagane testy i dowody: front matter, odnośniki, treść = tabela raportu bramy, dziennik 23 wiersze `zamknięty`.
+- Uwagi: raport bramy przekazał właścicielowi błędną przesłankę (pytanie o odstęp); wykonawca ją obalił — klauzula „jeśli przesłanka jest błędna, STOP” zadziałała.
+
+### 2800-Q (QA Sphere: przegląd 107 przypadków poddrzewa, 4 nowe przypadki G1–G4 i 15 aktualizacji) — 2026-10-28
+- Archetyp: QA Sphere — autor pliku podglądu (`qas.py`) po implementacji, przegląd istniejących przypadków wobec kodu (Krok 2b).
+- Stawka: średnia (funkcja high-stakes, bez kodu).
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` `max` `-Access write` (1095 s).
+- Recenzent (linia / model / native effort): Gemini / `gemini-3.8-flash-high` `-Access read` (878 s) + kontrola architekta (249 cytatów z `pl.json` / `en.json`).
+- Dopuszczone alternatywy: Gemini `high` write (autor), Spark `max` read (recenzent krzyżowy gdy autor Gemini).
+- Powód wyboru: QA Sphere na Sparku `max` także w funkcji high-stakes (reguła 8, od 2026-10-25); recenzent z innej rodziny.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse Spark nieznany (bez 429), Gemini znany, 2026-10-28.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: zaakceptowano — 92 `keep`, 15 `update`, 0 `retire`, 4 nowe; `qas.py lint` 0 błędów.
+- Rundy korekt: 0.
+- Czas do akceptacji: autor 1095 s + recenzja 878 s; wysyłka po akceptacji właściciela.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Gemini — werdykt „poprawny” 0,99; 0 P0/P1, 2×P3: P3-1 odrzucone (filtr programu chroni przed dopasowaniem zdarzeń innych programów), P3-2 nie jest defektem. Dowody Gemini częściowo nierzetelne (nieistniejące ścieżki, cytat spoza pliku) — werdykt sprawdzony niezależnie. Spark obalił przesłankę mojego briefu (pkt 9: „pusty identyfikator → 400” — kod daje 404 / `RECEIPT_CODE_UNKNOWN`; „400 bez kodu” w dokumentacji dotyczy przekroczenia długości).
+- Defekty po odbiorze: brak; pełne `qas.py verify` 19 sprawdzonych, 2 fałszywe różnice (`\_` w eksporcie Markdown) rozstrzygnięte odczytem HTML — 0 realnych.
+- Wymagane testy i dowody: `qas.py lint` 0/0, `verify` po `push` (4/4) i pełne, odczyt HTML przypadków 1865 i 1883.
+- Uwagi: przypadki 2061–2064 w folderze „Wejście gościa z kodu i zapis na numer telefonu (PBI 2800)”; przy wykonawcy-Gemini wymagane „nie wymyślaj ścieżek ani adresów” w briefie, bo raporty Gemini tego przypadku znów zawierały nieistniejące ścieżki.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
