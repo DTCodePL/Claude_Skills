@@ -8679,6 +8679,42 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: `qas.py lint` 0/0, `verify` po `push` (4/4) i pełne, odczyt HTML przypadków 1865 i 1883.
 - Uwagi: przypadki 2061–2064 w folderze „Wejście gościa z kodu i zapis na numer telefonu (PBI 2800)”; przy wykonawcy-Gemini wymagane „nie wymyślaj ścieżek ani adresów” w briefie, bo raporty Gemini tego przypadku znów zawierały nieistniejące ścieżki.
 
+### crm-FE-bramka (bramka końcowa FE mini-CRM, bez PBI) — 2026-10-28
+- Archetyp: recenzja całego diffu FE (lista, panel, dialogi, wspólne pola formularzy), tylko odczyt.
+- Stawka: średnia (wewnętrzny CRM, bez niezmiennika high-stakes); bramka Sol `max` z decyzji architekta, nie z reguły 6.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): autorzy kodu — Muse Spark 1.3 `max` (panel, lista) i Gemini `high` (dialogi).
+- Recenzent (linia / model / native effort): Codex `gpt-6.1-sol` `max` `-Mode review` — przebieg 1 przerwany limitem Plusa, przebieg 2 po resecie (bez dialogów); dialogi (autor Gemini) — zastępczo Spark 1.3 `max` read, decyzja właściciela „nie czekaj na limity”.
+- Dopuszczone alternatywy: Gemini `high` read dla kodu Sparka (konto Gemini wówczas z 429), Opus 4.6 przez `agy` — przerwany jako za wolny, właściciel wykluczył modele Claude z puli AI Pro.
+- Powód wyboru: niezależna rodzina wobec obu autorów, najwyższa zdolność na dostępnych pulach.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex zablokowany (komunikat limitu, ~20:10, reset 22:00) → znany po resecie; Gemini zablokowany (429 na starym koncie CLI) → znany po przelogowaniu CLI; Muse nieznany (bez 429).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: przebieg 1 — 11 znalezisk udowodnionych skryptami w logu (1×P1, 9×P2, 1×P3) mimo przerwania; przebieg 2 — 7×P2 + 1×P3; Spark (dialogi) — 1×P1, 1×P2, 5×P3, 1 obalone.
+- Rundy korekt: 2 fale poprawek (G-A…G-F, H-A…H-D).
+- Czas do akceptacji: ~4 h z oczekiwaniem na reset Codexa.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Sol — 19 potwierdzonych (1×P1, 16×P2, 2×P3), 0 obalonych; Spark — 7 potwierdzonych (P1 wyszukiwarka pomijała IT/B2B przez domyślny filtr BE), 1 obalone (IDN — runtime przyjmuje).
+- Defekty po odbiorze: brak wykryty do commita.
+- Wymagane testy i dowody: każde znalezisko odtworzone testem w TestBed przed poprawką.
+- Uwagi: logi przerwanej bramki Sol zawierały gotowe dowody — warto je zbierać zamiast powtarzać przebieg; login CLI `agy` jest niezależny od GUI Antigravity (`/login` w interaktywnym `agy`).
+
+### crm-FE-G/H (poprawki po bramce, 10 briefów) — 2026-10-28
+- Archetyp: poprawki FE warstwy komponentów — wyścigi odpowiedzi, cykl życia dialogów, a11y PrimeNG, obsługa błędów; red-green na każdą poprawkę.
+- Stawka: średnia.
+- Niepewność: średnia (wyścigi, wewnętrzne pola PrimeNG bez wejść ARIA).
+- Wykonawca (linia / model / native effort): Muse Spark 1.3 `max` `-Access write` (G-A, G-A2, G-B, G-C, G-D, G-E, G-F, H-A, H-B, H-C, H-C2, H-D — po 400–900 s).
+- Recenzent (linia / model / native effort): Gemini `gemini-3.8-flash-high` `-Access read` (G-E; H-A…G-F łącznie) + bramka Sol (przebieg 2) dla fali G.
+- Dopuszczone alternatywy: `wykonawca` Sonnet `high` (pula Claude'a tygodniowo 91 %, ŻÓŁTY — odrzucony z puli), Codex Sol `high` (zachowany dla bramki).
+- Powód wyboru: Spark `max` domyślny dla implementacji bez niezmiennika (reguła 8), tani w puli Muse; recenzja innej rodziny.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany (bez 429), Gemini znany (drugie konto 95–99 %), Claude ostrzegawczy (hook, tydzień 91 %).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 10/12 zaakceptowanych; 2 zasadne STOP-y (G-A: reguła WWW w `schemas/`, nie w komponencie; H-C: `DatePicker` nie ma wejścia `aria-describedby`) → G-A2, H-C2 zaakceptowane.
+- Rundy korekt: 1 (G-A2, H-C2) + 1 fala H-D po recenzji Gemini.
+- Czas do akceptacji: ~3 h dla obu fal.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Gemini (G-E) — 9 potwierdzonych (P2–P3). Gemini (H/G-F) — 13/13 poprawek potwierdzone; nowe: P2 drugi toast przy błędzie dodania firmy — potwierdzone (zawyżona część „zablokowany przycisk” obalona: `finalize`), P3 A→B→A — potwierdzone, P1 wyciek szkicu notatki — obalone (`rxResource` gubi wartość przy nowych parametrach), ocena „błędne odrzucenie `currentLang`” — wewnętrznie sprzeczna, obalona.
+- Defekty po odbiorze: brak wykryty do commita.
+- Wymagane testy i dowody: eslint/prettier czyste, `ng test` 1019/1020 (jedyny błąd — znany niestabilny AXE `home.spec`), build OK (budżet paczki 950 kB > 900 kB — przekroczony już przed CRM, 915 kB).
+- Uwagi: Spark trzy razy słusznie odrzucił przesłankę briefu (H-B: tabela mutuje wiersz przed emisją; G-F: `currentLang` jest sygnałem; H-D: szpieg `ErrorHandler` w TestBed nie łapie nieobsłużonego błędu RxJS — właściwy kanał to `config.onUnhandledError`).
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
