@@ -8733,6 +8733,24 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: eslint czyste, `ng test` 1136/1137 (jedyny błąd — znany niestabilny AXE `home.spec` pod obciążeniem), build OK; BE `dotnet test` zielone, migracja Script00006 na PreProd.
 - Uwagi: zielone testy jednostkowe K2 nie złapały regresji kliknięcia nagłówka (TestBed bez hydratacji) — odbiór w przeglądarce był jedynym dowodem.
 
+### trim-logowania + crm fala 3 (5 briefów) — 2026-10-29
+- Archetyp: BE uwierzytelnianie (przycinanie e-maila i hasła w walidatorach i handlerach logowania, rejestracji, resetu, zmiany, zapomnianego hasła) + FE formularz logowania + dwa drobne briefy widoku CRM (usunięcie zdublowanej sekcji, przycisk ikonowy) + korekta testów.
+- Stawka: wysoka (BE — pliki niezmiennika uwierzytelniania), niska (FE).
+- Niepewność: niska–średnia (API FluentValidation 12).
+- Wykonawca (linia / model / native effort): `wykonawca-opus` Opus `xhigh` (TRIM-BE); Muse Spark 1.3 `max` `-Access write` (TRIM-FE, SURVEY-DUP, OPEN-ICON, FE3-K, po 160–270 s).
+- Recenzent (linia / model / native effort): Codex `gpt-6.1-sol` `high` `-Mode review` (fala BE), Gemini `gemini-3.8-flash-high` `-Access read` (fala FE); bramka końcowa `gpt-6.1-sol` `max` osobno BE i FE.
+- Dopuszczone alternatywy: recenzja plików niezmiennika Wonder Full `max` — odrzucona (limit tygodniowy Wondera przekroczony: 7/6).
+- Powód wyboru: high-stakes → `wykonawca-opus` (reguła 2/6); reszta Spark `max` domyślnie (reguła 8).
+- Sygnał dostępności: Claude ostrzegawczy (hook, tydzień 93 %), Muse nieznany, Codex nieznany (bez komunikatu limitu), Gemini znany.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: TRIM-BE — zasadny STOP (w FV 12.1.1 nie ma `Transform`; wykonawca dodatkowo wykrył, że wiodąca spacja w e-mailu rejestracji omija sprawdzenie zajętości) → wariant `RuleFor((x ?? "").Trim()).OverridePropertyName` zaakceptowany w drugim przebiegu; FE 3/3 zaakceptowane.
+- Rundy korekt: 1 (TRIM-BE po STOP), 1 (FE3-K — higiena testów po recenzji).
+- Czas do akceptacji: ~1 h 15 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Gemini — P1 „błąd formatu e-maila na blur” obalony (`input type=email` sanityzuje brzegowe spacje w `.value`); 4 × P2/P3 testowe (fałszywa zieleń, surowy klucz w asercji, hasło przez model zamiast DOM, martwy klucz w makiecie) potwierdzone i poprawione. Sol `high` (BE) — brak. Bramka Sol `max` BE i FE — brak, werdykt poprawny.
+- Defekty po odbiorze: brak wykryty do commita.
+- Wymagane testy i dowody: BE `dotnet build` 0 ostrzeżeń, `dotnet test` 807/807 (z SQL), `dotnet format` czyste; FE lint/prettier czyste, `ng test` 1140/1141 (znany niestabilny AXE `home.spec`), build OK.
+- Uwagi: Opus słusznie zatrzymał się zamiast wymyślać mechanizm i dołożył realny defekt poza zakresem; czerwony test był możliwy tylko na granicach długości (FV `NotEmpty` traktuje same spacje jako puste, `EmailAddress` przepuszcza brzegowe spacje).
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
