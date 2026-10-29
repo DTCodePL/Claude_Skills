@@ -8787,6 +8787,24 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: lint czysty, prettier czysty, `ng test` 1129/1130 (znany niestabilny AXE `home.spec`), build OK; Playwright 1920×953: wiersz 45–47 px, 14 wierszy, klik w wiersz otwiera panel; 360 px: brak przewijania w poziomie, pole wyboru nie otwiera panelu, link strony 44 px.
 - Uwagi: `npm run format` architekta zmienił końcówki linii w plikach spoza zakresu (landing, `AGENTS.md`) — przywrócone przed commitem; przy wspólnym drzewie roboczym formatować tylko pliki fali. Własna ocena kontrastu tokenu bez sprawdzenia mapowania presetu była błędem — mapowanie `surface-*` → `slate-*` jest przesunięte o jeden stopień.
 
+### crm-perf-i-panel-c — wydajność listy (BE), ładowanie, przyciski i edycja pola w miejscu (6 briefów + 3 recenzje) — 2026-10-29
+- Archetyp: PERF-BE (SQL listy: stronicowanie identyfikatorów przed wzbogaceniem, `OPTION (RECOMPILE)`, test); LOAD-FE1 (szkielet listy, przeładowanie z przygaszeniem), LOAD-FE2 (szkielet liczników, blokada przewijania pod szufladą), PANEL-C2 (wspólne tokeny przycisków `[dt]`), PANEL-C1 (edycja jednego pola naraz, kontakty per karta — wariant C makiety wybrany przez właściciela), K1 (korekta po recenzji i przeglądarce).
+- Stawka: niska–średnia (C1 — ryzyko utraty danych przy zapisie pojedynczego pola, `rowVersion`).
+- Niepewność: średnia (C1), niska (pozostałe).
+- Wykonawca (linia / model / native effort): PERF-BE Codex `gpt-6.1-sol` `high` (469 s); FE Muse Spark 1.3 `max` `-Access write` (FE1 896 s, FE2 947 s, C2 562 s, C1 1504 s, K1 533 s).
+- Recenzent (linia / model / native effort): PERF-BE — Gemini `high` `-Access read` 2× nieudany (exit 3 bez wyjścia: odmowa `run_command`, potem odmowa MCP ADO) → Spark `max` `-Access read` (246 s); FE fali — Codex `gpt-6.1-sol` `high` `-Mode review` (416 s).
+- Dopuszczone alternatywy: Claude `wykonawca` — zablokowany (CZERWONY, tydzień 95 %); Sol `high` do FE — niewybrany (pula Codexa na recenzję).
+- Powód wyboru: Claude CZERWONY; BE SQL wydajność → Sol `high` (krótki brief, ≤ 5 plików); FE bez niezmiennika → Spark `max`; recenzja FE średniej stawki spoza rodziny Muse → Sol `high`.
+- Sygnał dostępności: Claude zablokowany (hook CZERWONY), Muse nieznany (bez 429), Codex nieznany, Gemini znany → 2 rzeczywiste niepowodzenia.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: PERF-BE zaakceptowany od razu (PreProd: wyniki identyczne, 300–560 ms → 35–110 ms); FE1/FE2/C2/C1 zielone w testach, w przeglądarce architekt znalazł Escape zamykający szufladę z edycji pola (P1 UX) i przewijanie tabeli w poziomie przy 1600 px (sprzed fali).
+- Rundy korekt: 1 (K1) + dopiska architekta (kolumna notatki elastyczna i od xxl — kryterium 1280 px nie było spełnione po K1).
+- Czas do akceptacji: ~1 h 50 min (od pierwszych briefów).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Spark BE — P2 niespójność przy współbieżnym zapisie (przyjęte ryzyko), 2 × P3 (przyjęte). Codex FE — P1 ponowny zapis kontaktu po 409 nadpisuje cudze pola (potwierdzony), P2 osierocony edytor kontaktu blokuje panel (potwierdzony), P2 Escape zamyka szufladę (potwierdzony, niezależnie od przeglądarki), P1 `settings.local.json` z hasłem w commicie — **odrzucony** (plik w globalnym ignore, nigdy w historii; piaskownica Codexa nie widzi globalnego excludes).
+- Defekty po odbiorze: brak wykryty do commita.
+- Wymagane testy i dowody: lint, prettier, stylelint, `ng test`, build; Playwright z atrapą (opóźnienie 1,5 s): szkielet, przygaszenie + pasek + `aria-busy`, blokada przewijania, Escape w polu i kontakcie zostawia panel, tabela bez przewijania X przy 1280/1366/1440/1600/1920, 360 px z emulacją dotyku — cele ≥ 44 px poza przyciskiem zamknięcia PrimeNG.
+- Uwagi: Gemini headless przerywa recenzję bez raportu przy pierwszej odmowie dowolnego narzędzia (powłoka, MCP) — dla recenzji BE z plikami poza `D:\projects\DTCode` albo z kuszącym `run_command` lepiej Spark `-Access read` lub Sol `-Mode review`. Sol `high` w recenzji FE dał 3 realne defekty na 4 zgłoszenia, 0 fałszywych w kodzie produktu.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
