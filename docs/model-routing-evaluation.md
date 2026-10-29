@@ -8769,6 +8769,24 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: lint czysty, `ng test` 1139/1140 (znany niestabilny AXE `home.spec`, osobno 7/7), build OK; Playwright 1920×953: wiersz 33 px (było 58), 20 pełnych wierszy (było 9); 360 px: zakładki 47 px, brak przewijania w poziomie.
 - Uwagi: zielone testy nie łapią wysokości wiersza — pomiar w przeglądarce był konieczny po każdej fali. Spark zgłosił zasadnie, że w repo brak globalnej klasy ukrycia wizualnego (komponenty mają lokalne `__sr-only`).
 
+### crm-wariant-c — lista firm w dwóch liniach, klikalny wiersz (4 briefy) — 2026-10-29
+- Archetyp: FE widok bez niezmiennika; wcześniej makieta HTML 4 wariantów (artefakt architekta), właściciel wybrał C; C-LIST (lista + nagłówek, usunięcie edycji w tabeli, klikalny wiersz), C-HEAD (lejek + zakładki — przerwany po zmianie decyzji właściciela, zmiany odrzucone), C-TABS (zakładki), C-K (poprawki po recenzji).
+- Stawka: niska.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Muse Spark 1.3 `max` `-Access write` (C-LIST 549 s, C-TABS 287 s, C-K 265 s).
+- Recenzent (linia / model / native effort): Gemini `gemini-3.8-flash-high` `-Access read`.
+- Dopuszczone alternatywy: Sol `high` — niewybrany (pula Codexa).
+- Powód wyboru: niska stawka, archetyp widoku → Spark `max`; recenzja niskiej stawki → Gemini `high`.
+- Sygnał dostępności: Claude ostrzegawczy (tydzień 94 %), Muse nieznany (bez 429), Gemini znany.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: C-LIST i C-TABS zaakceptowane w testach; w przeglądarce architekt poprawił sam drobiazgi (tekst notatki w karcie, kolor hover zakładki, martwa dyrektywa i klucz). Lejek przywrócony przez architekta ze stanu sprzed zagęszczenia (decyzja właściciela w trakcie fali).
+- Rundy korekt: 1 (C-K).
+- Czas do akceptacji: ~1 h 20 min (od wyboru wariantu).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Gemini 5 × P1 — potwierdzone 3 (pole wyboru karty otwiera panel przez `label` + fałszywa zieleń testu klikającego ukryty `input`; `--dt-color-text-muted` w jasnym motywie 3,1:1 — **obala moje odrzucenie z crm-dense**, naprawione tokenem na slate-500; link strony w karcie 16 px), odrzucony 1 (wyłączona reguła kontrastu AXE — ograniczenie jsdom), 1 P2 potwierdzony (aktywna karta), 1 P2 odrzucony (średnia grubość nazwy w karcie — decyzja z makiety), P3 literówka potwierdzona.
+- Defekty po odbiorze: brak wykryty do commita.
+- Wymagane testy i dowody: lint czysty, prettier czysty, `ng test` 1129/1130 (znany niestabilny AXE `home.spec`), build OK; Playwright 1920×953: wiersz 45–47 px, 14 wierszy, klik w wiersz otwiera panel; 360 px: brak przewijania w poziomie, pole wyboru nie otwiera panelu, link strony 44 px.
+- Uwagi: `npm run format` architekta zmienił końcówki linii w plikach spoza zakresu (landing, `AGENTS.md`) — przywrócone przed commitem; przy wspólnym drzewie roboczym formatować tylko pliki fali. Własna ocena kontrastu tokenu bez sprawdzenia mapowania presetu była błędem — mapowanie `surface-*` → `slate-*` jest przesunięte o jeden stopień.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
