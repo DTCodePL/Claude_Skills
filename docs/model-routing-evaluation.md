@@ -8751,6 +8751,24 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: BE `dotnet build` 0 ostrzeżeń, `dotnet test` 807/807 (z SQL), `dotnet format` czyste; FE lint/prettier czyste, `ng test` 1140/1141 (znany niestabilny AXE `home.spec`), build OK.
 - Uwagi: Opus słusznie zatrzymał się zamiast wymyślać mechanizm i dołożył realny defekt poza zakresem; czerwony test był możliwy tylko na granicach długości (FV `NotEmpty` traktuje same spacje jako puste, `EmailAddress` przepuszcza brzegowe spacje).
 
+### crm-dense — kompaktowa lista firm (4 briefy) — 2026-10-29
+- Archetyp: FE widok bez niezmiennika (gęstość tabeli PrimeNG tokenami `[dt]`, nagłówek/pasek/zakładki/lejek, cele dotyku mobile, tooltipy, kontrast) — DENSE-A (lista), DENSE-B (strona/filtry/zakładki/lejek), DENSE-K (korekta po pomiarze w przeglądarce), DENSE-K2 (korekta po recenzji).
+- Stawka: niska.
+- Niepewność: średnia (wysokość wiersza zależna od wewnętrznych wymiarów PrimeNG).
+- Wykonawca (linia / model / native effort): Muse Spark 1.3 `max` `-Access write` (wszystkie 4; K2 272 s).
+- Recenzent (linia / model / native effort): Gemini `gemini-3.8-flash-high` `-Access read` (łączny diff z równoległą zmianą etykiet etapów z innej sesji).
+- Dopuszczone alternatywy: recenzja Sol `high` — niewybrana (pula Codexa), Gemini kwalifikował się (inna rodzina niż Muse).
+- Powód wyboru: niska stawka, archetyp widoku → Spark `max` (reguła 8); recenzja niskiej stawki → Gemini `high` (reguła 13).
+- Sygnał dostępności: Claude ostrzegawczy (hook, tydzień 94 %), Muse nieznany (bez 429), Gemini znany.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: A/B zaakceptowane w testach, ale pomiar w przeglądarce dał wiersz 37 px (cel ≤ 34) i przesuniętą linię bazową nazwy → K; po K architekt sam poprawił 2 linie (`iconOnlyWidth` przycisku ikonowego 28 → 24 px, `min-height` segmentów lejka na mobile).
+- Rundy korekt: 2 (K po pomiarze, K2 po recenzji).
+- Czas do akceptacji: ~2 h.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Gemini 5 × P1 — potwierdzone 3 (zakładki < 44 px na mobile, tooltip bez czasu względnego, firma zamknięta z etykietą „Czekamy na…” — wprowadzona przez zmianę etykiet), częściowo potwierdzony 1 (kontrast: `--dt-color-warning` 3,6:1 zasadny i istniał już przed zmianą; `text-muted` ≈ 4,8:1 obalony), odrzucony 1 (tooltip bez tabindex — pełna treść jest w DOM, tab stop na wiersz tabeli odrzucony); P3 (tokeny znacznika w kartach) potwierdzony.
+- Defekty po odbiorze: brak wykryty do commita.
+- Wymagane testy i dowody: lint czysty, `ng test` 1139/1140 (znany niestabilny AXE `home.spec`, osobno 7/7), build OK; Playwright 1920×953: wiersz 33 px (było 58), 20 pełnych wierszy (było 9); 360 px: zakładki 47 px, brak przewijania w poziomie.
+- Uwagi: zielone testy nie łapią wysokości wiersza — pomiar w przeglądarce był konieczny po każdej fali. Spark zgłosił zasadnie, że w repo brak globalnej klasy ukrycia wizualnego (komponenty mają lokalne `__sr-only`).
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
