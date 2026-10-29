@@ -8715,6 +8715,24 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: eslint/prettier czyste, `ng test` 1019/1020 (jedyny błąd — znany niestabilny AXE `home.spec`), build OK (budżet paczki 950 kB > 900 kB — przekroczony już przed CRM, 915 kB).
 - Uwagi: Spark trzy razy słusznie odrzucił przesłankę briefu (H-B: tabela mutuje wiersz przed emisją; G-F: `currentLang` jest sygnałem; H-D: szpieg `ErrorHandler` w TestBed nie łapie nieobsłużonego błędu RxJS — właściwy kanał to `config.onUnhandledError`).
 
+### crm-U/S/K (usprawnienia UX i pomijanie etapów, 9 briefów) — 2026-10-28…29
+- Archetyp: FE warstwa widoku (gęstość tabeli, oś etapów, lejek, zwijane menu, przycisk „Otwórz”) + slice BE CRUD z migracją kolumny (`is_skipped`) i masową operacją SQL + slice FE pomijania etapów; korekty wizualne i błąd sortowania PrimeNG.
+- Stawka: średnia (BE: blokada wiersza `UPDLOCK`, przeliczenie etapu — bez niezmiennika high-stakes; CRM wewnętrzny).
+- Niepewność: średnia (wewnętrzne efekty `p-table`, hydratacja SSR).
+- Wykonawca (linia / model / native effort): Muse Spark 1.3 `max` `-Access write` — U1, U1b, U2, U3, U4, S-BE, S-FE, K1, K2 (po 500–1600 s).
+- Recenzent (linia / model / native effort): Codex `gpt-6.1-sol` `high` `-Mode review` (S-BE); Gemini `gemini-3.8-flash-high` `-Access read` (cała fala FE).
+- Dopuszczone alternatywy: `wykonawca` Sonnet `high` (pula Claude'a tygodniowo wysoko — odrzucony), Gemini write (słabsze lokalne wyniki przy PrimeNG).
+- Powód wyboru: Spark `max` domyślny dla implementacji bez niezmiennika (reguła 8); recenzja innej rodziny.
+- Sygnał dostępności: Muse nieznany (bez 429), Codex nieznany (bez komunikatu limitu), Gemini znany, Claude ostrzegawczy (hook).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 8/9 bez korekty kodu; U4 zastąpił klikalny wiersz po zmianie decyzji właściciela (nie defekt). K1 — korekty wizualne po odbiorze w przeglądarce (szerokość nazwy, notatki, panel na 360 px).
+- Rundy korekt: 1 (K1) + 1 (K2: sortowanie samo przełączało się na rosnące — błąd sprzed fali, ujawniony w przeglądarce).
+- Czas do akceptacji: ~4 h.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Sol (S-BE) — bez P0/P1. Gemini (fala FE) — P1 potwierdzone i poprawione; pozostałe P2–P3 częściowo obalone, reszta przyjęta jako znane ograniczenia (zaznaczenie przy operacji masowej, X drawera PrimeNG).
+- Defekty po odbiorze: K2 zepsuł klik nagłówka — `viewChild(Table)` po hydratacji wskazywał zniszczoną instancję; architekt naprawił jednolinijkowo (referencja z szablonu), sprawdzone w przeglądarce.
+- Wymagane testy i dowody: eslint czyste, `ng test` 1136/1137 (jedyny błąd — znany niestabilny AXE `home.spec` pod obciążeniem), build OK; BE `dotnet test` zielone, migracja Script00006 na PreProd.
+- Uwagi: zielone testy jednostkowe K2 nie złapały regresji kliknięcia nagłówka (TestBed bez hydratacji) — odbiór w przeglądarce był jedynym dowodem.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
