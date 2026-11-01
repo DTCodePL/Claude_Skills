@@ -1920,9 +1920,10 @@ def _retire_live_case(project, seq):
         raise QasError("seq %s: odczyt: %s %s."
                        % (seq, status, message[:200]), exit_code=1)
     live = structured
+    # get_test_case pomija klucz tags, gdy przypadek nie ma tagów (seq 1146, 2026-10-21).
     if (not isinstance(live, dict)
             or not _is_nonempty_str(live.get("title"))
-            or not isinstance(live.get("tags"), list)):
+            or not isinstance(live.get("tags", []), list)):
         raise QasError(
             "seq %s: odczyt niepełny (brak tytułu albo listy tagów) — "
             "nic nie zapisano." % seq, exit_code=1)
