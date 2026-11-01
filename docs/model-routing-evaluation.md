@@ -8823,6 +8823,93 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: BE `dotnet build -warnaserror`, `dotnet format --verify-no-changes`, pełne `dotnet test` z SQL Server (1149/1149); FE lint, format, `ng test`, build; wdrożenie PreProd i sprawdzenie w przeglądarce + test MCP z Claude Code.
 - Uwagi: limit Wondera (6/tydzień) przekroczony — 11 przebiegów w tygodniu (T4, T7, T7-K, GK-W i wcześniejsze), bo przy CZERWONYM Claude'zie każdy plik niezmiennika szedł do Wondera; decyzja świadoma (reguła właściciela „nie czekaj na limity”), kosztem puli Muse na resztę tygodnia. Sol `high` w recenzjach BE niezmiennika: wysokie trafienie, zero fałszywych P0/P1 w kodzie produktu. Recenzja Codexa nie widzi globalnego `excludes` gita (ostrzeżenie o uprawnieniach) — bez wpływu na wynik.
 
+### routing-2026-11-R (research R1–R4: pule, konta, co przenosić z Claude'a) — 2026-11-01
+- Archetyp: research (warunki i pule abonamentów, przenoszenie archetypów na tańsze linie).
+- Stawka: średnia (wnioski zasilają reguły routingu; błąd = zła decyzja o puli).
+- Niepewność: wysoka (świeże zmiany warunków dostawców, brak oficjalnych liczb pul).
+- Wykonawca (linia / model / native effort): R1 (konta i warunki Antigravity) Codex `gpt-6.1-sol` `high`; R2 (pule AI Pro, Gemini jako architekt) Gemini `gemini-3.8-flash-high`; R3 (Codex Plus i Muse) i R4 (co przenosić na tańsze modele) `wykonawca` (Sonnet 5.5 `high`).
+- Recenzent (linia / model / native effort): brak osobnej recenzji — architekt sprawdził twierdzenia kluczowe dla decyzji u źródła (adresy przy twierdzeniach wymagane briefem).
+- Dopuszczone alternatywy: Sol `medium`; Spark `max` — zablokowany (429 tygodnia Muse do 2026-11-02 00:00Z).
+- Powód wyboru: cztery rozłączne pytania równolegle w trzech pulach; Claude tylko dla dwóch briefów wymagających analizy lokalnych danych sesji i rejestru.
+- Sygnał dostępności: Muse zablokowany (429, reset poniedziałek 00:00Z); Codex nieznany (przed wdrożeniem `[pule]`); Gemini znany (przebieg OK); Claude znany (hook, 2026-11-01 ~12:00Z).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: R1 zaakceptowany (rzetelne adresy, rozróżnienie oficjalnych źródeł i forów); R2 przyjęty częściowo — gołe domeny zamiast adresów i liczby pul bez źródła, odrzucone w syntezie; R3/R4 zaakceptowane.
+- Rundy korekt: 0 (luki R2 domknięte w syntezie architekta, bez ponownego przebiegu).
+- Czas do akceptacji: ~15 min (12:02 → ~12:17Z).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy; odrzucone w syntezie: niepodparte liczby R2.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: adres źródła przy każdym twierdzeniu; synteza w raporcie „Workflow i routing czterech silników”.
+- Uwagi: Gemini Flash `high` w researchu znowu bez adresów (jak w próbie 2026-09-24) — sygnał jakości dla archetypu research; Sol `high` rzetelny.
+
+### routing-2026-11-A (wrapper: limit Wondera 10/3, `muse usage`, host natywny Muse) — 2026-11-01
+- Archetyp: Konfiguracja / narzędzia (PowerShell, wrapper workerów + testowalny moduł limitu).
+- Stawka: średnia (wrapper uruchamia każdy przebieg zewnętrzny; błąd limitu = przepalenie puli Muse albo blokada pracy).
+- Niepewność: średnia (natywny Muse na Windows nowy, łańcuch uruchomienia przez launcher).
+- Wykonawca (linia / model / native effort): `wykonawca` (Sonnet 5.5 `high`), zapis wprost w `~/.claude/bin` (kopie w `~/.claude/kopie/2026-11-01`).
+- Recenzent (linia / model / native effort): Gemini `gemini-3.8-flash-high` `-Access read` na kopiach w `_robocze`.
+- Dopuszczone alternatywy: Spark `max` (plan) — zablokowany 429 tygodnia i w WSL bez zapisu na C:; Codex Sol `high` — niewybrany (≤ 5 plików spełnione, ale pula Codexa zostawiona na bramki).
+- Powód wyboru: zmiana planu fali 1 — Muse zablokowany do 2026-11-02 00:00Z, a narzędzia leżą na C: poza repozytoriami; Sonnet z kontekstem sesji.
+- Sygnał dostępności: Muse zablokowany (429); Claude znany (hook); Gemini znany.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: wymagane korekty (2 P2 + 1 P3 z recenzji), testy modułu limitu 27/27 od początku.
+- Rundy korekt: 1.
+- Czas do akceptacji: ~1 h 10 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone — P2 zawieszenie `muse usage` w WSL (brak limitu czasu), P2 obejście limitu przez `-Passthru --model`, P3 brak `WaitForExit` po `Kill`; odrzucone — P0 `-DateKind` (środowisko pwsh 7.6.9, obniżone do P3: dopisany `#requires -Version 7.4`), P1 rozjazd okna dnia i tygodnia (zamierzone: dzień lokalny, tydzień UTC).
+- Defekty po odbiorze: brak do chwili wpisu; sonda natywnego hosta (G4) odłożona do resetu Muse.
+- Wymagane testy i dowody: `worker-wonder-cap.tests.ps1` 27/27 (9/10/11 w tygodniu, 2/3/4 w dniu, rekordy `failed`); `-DryRun` obu hostów; odmowa na rzeczywistym stanie rekordów.
+
+### routing-2026-11-B (`limity-pul.py` + hook: linia `[pule]` i tempo tygodnia) — 2026-11-01
+- Archetyp: Konfiguracja / narzędzia (Python + Node, hook UserPromptSubmit).
+- Stawka: średnia (hook działa przy każdym prompcie; błąd = opóźnienie promptu albo fałszywy sygnał puli).
+- Niepewność: średnia (`codex app-server` JSON-RPC, `muse usage --json`).
+- Wykonawca (linia / model / native effort): `wykonawca` (Sonnet 5.5 `high`).
+- Recenzent (linia / model / native effort): Gemini `gemini-3.8-flash-high` `-Access read`; pierwszy przebieg exit 3 (odmowa odczytu spoza katalogu, pusta odpowiedź), drugi z briefem ograniczonym do katalogu B — OK.
+- Dopuszczone alternatywy: jak w A (Spark zablokowany, Codex niewybrany).
+- Powód wyboru: jak w A.
+- Sygnał dostępności: jak w A.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: wymagane korekty.
+- Rundy korekt: 1 + jedna linia architekta (strażnik pętli odświeżania przy `resetsAt` w przeszłości, zgłoszony przez wykonawcę korekty).
+- Czas do akceptacji: ~1 h 15 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone — P1 kolejność `taskkill` (drzewo procesów Codexa zostawało), P2 `returncode != 0` Muse traktowany jako sukces; odrzucone — P1 WinError 193 (odczyt Codexa działa), P1 „0 %” obniżone do P3.
+- Defekty po odbiorze: brak do chwili wpisu.
+- Wymagane testy i dowody: ręczne uruchomienie `limity-pul.py` = liczby jak sonda `codex-limity.py`; linia `[pule]` i tempo widoczne w nowym prompcie; prompt bez opóźnienia (odczyt w tle).
+
+### routing-2026-11-E (dieta instrukcji: archiwum historii, nowa treść reguł, spis norm) — 2026-11-01
+- Archetyp: Rewizja dokumentacji normatywnej (reguły routingu, sekcja wspólna 18 repozytoriów, skille).
+- Stawka: wysoka (utrata normy = cichy spadek jakości wszystkich przyszłych briefów).
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): E1 archiwum (dosłowna kopia starego pliku jako część 1 `routing-historia.md`) i E2 nowa treść — architekt (Opus `xhigh`); E3 frontmattery agentów — architekt (jednolinijkowe); E4 spis norm — Gemini `gemini-3.8-flash-high` `-Access read` (dwa przebiegi: sekcja wspólna, plik globalny).
+- Recenzent (linia / model / native effort): Gemini `high` (spis i mapowanie stare → nowe, inna rodzina niż autor Claude) + wyrywkowa kontrola architekta 6/6.
+- Dopuszczone alternatywy: Spark `max` do E1/E4 (plan) — zablokowany 429; Sol `high` do E4 — niewybrany (pula Codexa).
+- Powód wyboru: archiwum jako dosłowna kopia = zero ryzyka przepisywania; normy pisze architekt; spis spoza rodziny Claude.
+- Sygnał dostępności: Muse zablokowany (429); Gemini znany; Claude znany (hook).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: spis wykazał 4 luki (wszystkie w akapicie strażnika kontekstu reguły 15) — przywrócone.
+- Rundy korekt: 1 (przywrócenie luk).
+- Czas do akceptacji: ~1 h 30 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 4 × P1 (normy strażnika kontekstu: progi, zachowanie przy progu miękkim i twardym, zakaz kompakcji jako przekazania); odrzucone 0. Po przywróceniu: sekcja wspólna 104 normy / 0 braków, plik globalny 221 / 0 braków.
+- Defekty po odbiorze: brak do chwili wpisu.
+- Wymagane testy i dowody: `sync-routing.py --check` — 18/18 zgodnych; `ZebraniFE/AGENTS.md` 63 036 B (≤ 64 000); podłoga świeżej sesji `claude -p` w ZebraniFE 123 997 → 106 381 tokenów (−14 %); plik globalny 67 188 → 44 417 B (cel 25–30 KB nieosiągnięty bez usuwania norm); sekcja wspólna −116 B (cel −3 KB nieosiągnięty: normy browser-check nie mają innego miejsca).
+- Uwagi: Gemini E4 (plik globalny) zakończył się exit 3 na limicie tokenów wyjścia, ale z kompletnym mapowaniem — przyjęty po sprawdzeniu kompletności.
+
+### routing-2026-11-G (Muse natywnie na Windows: konfiguracja MCP i skilli) — 2026-11-01
+- Archetyp: Konfiguracja / DevOps (host workera).
+- Stawka: średnia (zmiana hosta wszystkich przebiegów Muse).
+- Niepewność: średnia (stdin, powłoka, widoczność skilli projektu — do sondy).
+- Wykonawca (linia / model / native effort): architekt (skrypt konfiguracji bez wypisywania sekretów, instalacja skilli); kod hosta we wrapperze w briefie A.
+- Recenzent (linia / model / native effort): w ramach recenzji A (Gemini `high` `-Access read`).
+- Dopuszczone alternatywy: brak — konfiguracja z sekretami zostaje u architekta.
+- Powód wyboru: sekrety MCP nie mogą przejść przez brief workera.
+- Sygnał dostępności: Muse zablokowany (429) — sonda G4 po resecie 2026-11-02 00:00Z.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: konfiguracja gotowa; `--provider echo` potwierdził, że bez `--no-foreign-personal-context` natywny Muse czyta globalny `CLAUDE.md` i obce skille.
+- Rundy korekt: 0.
+- Czas do akceptacji: otwarty (domyślny host `wsl` do sondy G4).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): w ramach A.
+- Defekty po odbiorze: —
+- Wymagane testy i dowody: sonda G4 — Spark `low` `-Access read` (model, brak obcego kontekstu w `session.jsonl`) i `-Access write` (zapis na C: i D:, `npx --no-install eslint --version`, narzędzie MCP ADO); dopiero potem domyślne `windows`.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
