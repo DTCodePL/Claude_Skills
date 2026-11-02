@@ -39,7 +39,7 @@ sprawdzenie” łapie też ulotne toasty, które w A i C znikały przed kolejną
 | --- | --- | --- |
 | Muse (WSL, `-Access write`) | **tak** | `/mnt/d/projects/DTCode/Claude_Skills/browser-check/pwcli` |
 | Git Bash (ręczne odtworzenie przez architekta) | tak | `/d/projects/DTCode/Claude_Skills/browser-check/pwcli` |
-| Gemini (`agy`) | **nie → MCP** | `agy` po każdym `run_command` zabija drzewo procesów, także demona sesji CLI — kolejne wywołanie dostaje `Browser '<sesja>' is not open` (sonda 2026-10-12). Działa tylko łańcuch w jednym wywołaniu, a worker wchodzi właśnie po to, żeby oglądać wynik między krokami. |
+| Gemini (`agy`) | **nie → MCP** | `agy` po każdym `run_command` zabija drzewo procesów, także demona sesji CLI — kolejne wywołanie dostaje `Browser '<sesja>' is not open` (sonda 2026-10-12). Działa tylko łańcuch w jednym wywołaniu, a worker wchodzi właśnie po to, żeby oglądać wynik między krokami. Tylko konto A (`-GeminiHost windows`) — konto B w WSL nie ma MCP. |
 | Codex (`workspace-write`) | **nie → MCP** | piaskownica blokuje zapis do `%LOCALAPPDATA%\ms-playwright` (rejestr sesji `daemon\` i przeglądarek `b\`) — `EPERM` (sonda 2026-10-12). Serwer MCP działa poza piaskownicą. |
 
 - Sesja żyje między osobnymi wywołaniami powłoki w Muse i w Git Bash (demon w tle; sprawdzone

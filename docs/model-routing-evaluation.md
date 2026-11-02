@@ -8945,6 +8945,24 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: FE `npm run lint`, pełne `npm test` (1577 → 1602/1602, 157 plików), build (pakiet startowy 954,78 → 954,35 kB); kontrola w przeglądarce 5 stron × 7 widoków z atrapą API.
 - Uwagi: refaktor przez serwis z dosłownym przeniesieniem i niezmienionymi specami stron jako wyrocznią — strony −252 linie netto, zero regresji w testach. Klauzula STOP zadziałała po raz kolejny na błędzie typu w kontrakcie architekta.
 
+### routing-2026-11-gemini-b (drugie konto Gemini w WSL: wrapper `-GeminiHost`, reguły) — 2026-11-02
+- Archetyp: Konfiguracja / DevOps (host i konto workera) + wrapper PowerShell (2 pliki: `worker-run.ps1`, nowy `worker-run-gemini-host.tests.ps1`).
+- Stawka: średnia (izolacja poświadczeń dwóch kont i tryb tylko do odczytu konta B; błąd = zapis z konta B albo pomylenie kont).
+- Niepewność: średnia (`agy` w WSL: magazyn tokenu, tryb bez interfejsu z `/mnt/d` — rozstrzygnięte sondą przed briefem).
+- Wykonawca (linia / model / native effort): konfiguracja WSL (użytkownik `gemini2`, instalacja po lekturze instalatora, ustawienia tylko do odczytu, hook odmowy) — architekt (operacje systemowe; logowanie konta — właściciel); wrapper i testy — Muse `muse-spark-1.3-contributor` `max` (`-MuseHost windows`, `-Access write`); korekta — ta sama para.
+- Recenzent (linia / model / native effort): Gemini konto A `gemini-3.8-flash-high` `-Access read` (diff i pliki w `_robocze`); korekta — odbiór architekta na diffie i testach.
+- Dopuszczone alternatywy: `wykonawca` (Sonnet 5.5 `high`) — gdyby Muse został zablokowany dłużej; Codex `gpt-6.1-sol` jako wykonawca i recenzent — odrzucony (tydzień 90 %, zapas zostaje na bramkę).
+- Powód wyboru: brief bez Figmy i niezmiennika, 2 pliki → najpierw poza pulą Claude'a (reguła 3); recenzja średniej stawki spoza rodziny autora → Gemini `high` (reguła 13).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse zablokowany (429 z resetem tygodnia 2026-11-02 00:00Z, komunikat wrappera) → brief uruchomiony z opóźnionym startem 00:01Z, potem znany (`[pule]` 0 → 4 %); Codex znany (`[pule]`, tydzień 90 %); Gemini A nieznany (bez odczytu puli, bez niepowodzeń); Gemini B zablokowany (429 „Individual quota reached”, reset ~10 h — stan konta zastany przy podłączeniu).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: przyjęte z uwagami — 27/27 testów, `-DryRun` i prawdziwy przebieg przez `wsl.exe` (cwd `/mnt/d/projects/DTCode/ZebraniFE`, logowanie konta B, brief przez stdin, 429 zapisany jako `failed` z `geminiHost = wsl`). Uwagi wykonawcy do briefu trafne: wrapper nie parsuje tokenów (robi to `token-report.py`), przypadek testowy z `-MuseHost windows` zależy od natywnego muse, forma polecenia parsowania z briefu szumi błędem.
+- Rundy korekt: 1 (regex odmowy briefu ze ścieżką Windows omijany przez podwójne ukośniki + 3 luki testów; wykonawca potwierdził błąd czerwonym testem przed łatką).
+- Czas do akceptacji: ~25 min od startu briefu (+13 min oczekiwania na reset Muse).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P2 podwójne ukośniki omijają odmowę briefu (potwierdzony poleceniem, poprawiony); P2 test 1 ucinał listę argumentów (przyjęty); 2 × P3 testy (komunikat wariantu wielkich liter, granica segmentu `DTCode2`; kod był poprawny) — przyjęte; 0 P0/P1, 0 odrzuconych. Dwie uwagi recenzenta do briefu (zapis `X:`, pusta reszta ścieżki) bez wpływu — kod obsługuje oba przypadki.
+- Defekty po odbiorze: — (otwarte: sprawdzenie hooka `dtcode-guard-ro` na żywym `agy` po resecie puli konta B; hook sprawdzony ręcznie poza `agy`).
+- Wymagane testy i dowody: `worker-run-gemini-host.tests.ps1` 33/33, `worker-wonder-cap.tests.ps1` 27/27, parser 0 błędów; przebieg przez `wsl.exe` na koncie B; izolacja — domyślny użytkownik WSL dostaje „Permission denied” na katalogu `gemini2`; log logowania potwierdza konto różne od konta A.
+- Uwagi: pierwsze logowanie konta B trafiło na konto A (przeglądarka podsunęła zalogowane konto) — wykryte w logu `agy` przed jakimkolwiek przebiegiem, token usunięty, ponowne logowanie w oknie prywatnym. Na Windows `agy` trzyma token w Menedżerze poświadczeń (jeden na użytkownika), w WSL w pliku `600` — stąd osobny użytkownik Linuksa zamiast drugiego katalogu konfiguracji. Reguły: globalny `CLAUDE.md` (budżety, macierz, reguła 13), sekcja wspólna (`sync-routing.py`, 18 kopii; DTCodeBE/FE przez worktree na `main`), skill ADO v5.32, QA Sphere v1.13, `browser-check/CLI-WORKER.md`, `external-workers`. `ZebraniFE/AGENTS.md` ma 63 814 B — 186 B do limitu 64 000 B Sparka; następna zmiana sekcji wspólnej musi coś skrócić.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
