@@ -9210,6 +9210,198 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: `lint` 0 błędów; folder 202 (nowy) seq 2070–2079, folder 63 seq 2080–2083; update 0, `[Removed]` 0; pełne `verify` 14/14, 0 różnic.
 - Uwagi: recenzent Gemini B halucynował treść cytatu (P2) przy pewności 0,95 — weryfikacja cytatu względem pliku obowiązkowa.
 
+### 2406-T (T-BE, T-FE, T-OVL) (czerwone testy: wycofanie transakcji nie zasłania wyjątku, równoległe żądania kodu na ścieżce anonimowej; fokus i spóźnione odpowiedzi w zmianie numeru; zamknięcie dialogu i arkusza) — 2026-11-02
+- Archetyp: Testy — czerwony dowód Buga (xunit z SQL Server, Vitest jsdom), 3 briefy, 8 plików testów.
+- Stawka: średnia (testy bez niezmiennika; dwa Bugi w funkcji high-stakes).
+- Niepewność: średnia (deterministyczny wyścig w BE, maska PrimeNG w jsdom).
+- Wykonawca (linia / model / native effort): Claude / `tester` Haiku 5.5 `xhigh` (3 briefy).
+- Recenzent (linia / model / native effort): w recenzjach fal łatek (Muse Wonder Full `max` — fala 2; Gemini B `gemini-3.8-flash-high` — fale 3 i 4); bramki Sol `max`.
+- Dopuszczone alternatywy: Muse Spark 1.3 `max`.
+- Powód wyboru: macierz — czerwony test Buga; lokalny wynik 2827-T.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY, 5 h 4 %, tydzień 19 %, ok. 12:00Z).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: przyjęte — T-BE 5/5 czerwonych z asercji (czerwień #2415 powtórzona 3×, build 0 ostrzeżeń); T-FE 21 czerwonych + 1 zielona kontrola; T-OVL `bottom-sheet-destroy` 2 czerwone, `overlay-panel-dismiss` 5 czerwonych + 2 zielone. SHA-256 zapisane i niezmienione do końca zadania.
+- Rundy korekt: 0.
+- Czas do akceptacji: —
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 dotyczących testów czerwonych.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: czerwień z asercji (nie z kompilacji), SHA-256 w `2406-red.sha256`, zielone po łatkach w pełnych pakietach.
+
+### 2406-D (DOC, DOC-K1) (rewizje 2026-11-02: WP-NAKLADKI-MOBILE, UI-KONTO-USTAWIENIA, WP-NUMER-TELEFONU, AT-UWIERZYTELNIANIE-I-SESJA, UI-WLASCICIEL-ZESPOL) — 2026-11-02
+- Archetyp: Dokumentacja produktowa — datowane rewizje dokumentów `zatwierdzony` (5 plików).
+- Stawka: średnia.
+- Niepewność: niska (decyzje D1–D3 gotowe przed briefem).
+- Wykonawca (linia / model / native effort): Muse (Windows) / `muse-spark-1.3-contributor` `max` `-Access write`; DOC-K1 ta sama para.
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` `-Access read` (R-DOC); zgodność 4c — Gemini B `high`.
+- Dopuszczone alternatywy: `wykonawca` Sonnet 5.5 `high` (gdy Muse niedostępny).
+- Powód wyboru: reguła 8 — rewizje dokumentacji na Sparku `max`; recenzja najpierw na koncie B.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany przy planowaniu (brak odczytu `muse usage`), przebiegi udane; Gemini B znany (bez blokady 429).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 8 min, 4 dokumenty; brakowało wyjątku onboardingu i dróg zamknięcia na ekranie sprzedawców (UI-WLASCICIEL-ZESPOL) → DOC-K1 (3 min).
+- Rundy korekt: 1 (DOC-K1) + poprawki 2 × P1 po R-DOC.
+- Czas do akceptacji: ~30 min (16:51Z → R-DOC 17:17Z).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-DOC (13 min) — 2 × P1 potwierdzone i poprawione, 2 × P2 odrzucone z uzasadnieniem (dziennik 10–13). 4c (9 min) — 38 × zgodne, 2 × `brak w dokumencie` (WP-NUMER-TELEFONU) poprawione.
+- Defekty po odbiorze: rewizja UI-WLASCICIEL-ZESPOL nie była wymieniona w zgodzie D1 (konsekwencja reguły planu) — zgłoszona właścicielowi.
+- Wymagane testy i dowody: diff Dokumentacji (5 plików, tylko to zadanie), macierz 4c w dzienniku rozbieżności.
+
+### 2406-F (FIG) (makiety: krzyżyk w dialogu zmiany numeru na desktopie, stopka arkusza — akcja główna nad „Anuluj”) — 2026-11-02
+- Archetyp: Figma — poprawka 5 ramek istniejącego ekranu.
+- Stawka: niska.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high` (Figma MCP).
+- Recenzent (linia / model / native effort): planowany Gemini B `high` (zrzut + opis) — **nie uruchomiony**; odbiór architekta zrzutem `get_screenshot` 3941:146411 i 3941:146671 dopiero przy domknięciu (krok 20).
+- Dopuszczone alternatywy: brak (Muse/Gemini bez Figmy, Codex bez zapasu tygodnia).
+- Powód wyboru: wymaga Figma MCP; A/B linii Figmy zamknięte na `wykonawca`.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: przyjęte — „×” w dialogu na desktopie, arkusz: „Wyślij kod” na pełną szerokość nad „Anuluj”, uchwyt, przyciemnione tło.
+- Rundy korekt: 0.
+- Czas do akceptacji: —
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak recenzji innej rodziny.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: zrzuty dwóch ramek przy domknięciu (21:0xZ). **Uchybienie procesu:** odbiór na podstawie raportu, bez obejrzenia zrzutu i bez planowanej recenzji Gemini B — luka zamknięta zrzutem przed raportem końcowym; wynik zgodny z briefem.
+
+### 2406-P-BE-2415 (P-BE-2415, K-BE-2415, K-BE-G + kontynuacja) (ścieżki anonimowe zamawiania kodu pod blokadą numeru w transakcji, dobowy limit liczy kody wysłane i w trakcie, odmowa warstwy odporności zapisywana jako nieudana próba) — 2026-11-02
+- Archetyp: Backend — pliki niezmiennika high-stakes (jednorazowe kody, limity prób, współbieżność).
+- Stawka: wysoka.
+- Niepewność: średnia (współbieżność, semantyka liczenia limitu).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 `xhigh` — **próba C2, ramię Opus** (poprzednia funkcja 2827 → Sonnet); K-BE-2415 i K-BE-G ta sama para.
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` `max` `-Access read` (R-BE-W2, w limicie Wondera); ponowna recenzja poprawek po bramce Spark 1.3 `max`; bramka Codex / `gpt-6.1-sol` `max` (2406-G).
+- Dopuszczone alternatywy: wyjątek CZERWONEGO — Wonder Full `max` (niepotrzebny); recenzent Sol `high` tylko przy zapasie na obie bramki.
+- Powód wyboru: C2 — naprzemienność ramion; ta sama para recenzenta, bramka bez zmian.
+- Pliki niezmiennika / pliki briefu: dyspozytor weryfikacji numeru (`PhoneVerificationDispatcher`), zapytania SQL licznika i blokady, `DbDiagram.dbml` (notatka indeksu), `SmsPlanetGateway` (odmowa Polly) / brief bez plików spoza niezmiennika.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY); Wonder w limicie wrappera; Codex znany (`[pule]` tydzień 92 % przy planowaniu).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: przyjęte po walidacji — czerwone #2415 zielone, SHA zamrożonych bez zmian; R-BE-W2 (77 min): poprawny 0,85, 0 × P0–P2, 4 × P3 → K-BE-2415 („teraz” po ostatniej blokadzie, wynik od `issuedAtUtc`, test granicy limitu).
+- Rundy korekt: 2 — K-BE-2415 (po recenzji fali) i K-BE-G (po bramce; STOP pkt 2 słuszny → kontynuacja: jeden odczyt w 4 zapytaniach SQL, test strukturalny).
+- Czas do akceptacji: ≈ 3 h 15 min (start fali 2 ok. 16:50Z → delta bramki 20:00Z), w tym 77 min recenzji Wondera.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-BE-W2 — 4 × P3 potwierdzone; bramka BE — 1 × P1 (odmowa Polly omija zapis próby) i 1 × P2 (dwa odczyty w liczniku) potwierdzone; ponowna recenzja Spark — 1 × P2 (anulowanie vs otwarty bezpiecznik) → zachowanie zostaje, 2 komentarze poprawione.
+- Defekty po odbiorze: 1 × P1 + 1 × P2 wykryte dopiero w bramce (recenzja fali ich nie zgłosiła).
+- Wymagane testy i dowody: pełne BE 9603/9604 (0 niepowodzeń, 1 `Skip` istniejący), build 0 ostrzeżeń, mutacje M1–M5 czerwone, `Sms` 226/226, delta bramki Sol `max` — P1/P2 zamknięte.
+- Uwagi C2: koszt — raport tokenów per ADO (#2406); recenzja Wondera nie wychwyciła P1, który znalazł Sol `max`.
+
+### 2406-P-FE-2430-2448 (P-FE-2430-2448, P-FE-2430-K1, K-FE-2448) (fokus w trakcie żądania zmiany numeru, strażnik pokolenia sesji w zmianie numeru i zgodzie marketingowej, błąd ogólny nad polami) — 2026-11-02
+- Archetyp: Frontend — pliki niezmiennika high-stakes (sesja) połączone z fokusem w tych samych plikach.
+- Stawka: wysoka.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 `xhigh` — **próba C2, ramię Opus**; K-FE-2448 ta sama para; dodatkowy brief `resend-row` (wspólna kontrolka „Wyślij ponownie” — `aria-disabled`) — Muse Spark 1.3 `max`.
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` `max` `-Access read` (R-FE-W2); `resend-row` — Gemini B `high` (R-FE-W4, zbiór C); ponowna recenzja korekt Spark `max`; bramka Sol `max` (2406-G).
+- Dopuszczone alternatywy: jak 2406-P-BE-2415.
+- Powód wyboru: #2448 (sesja) i #2430 w tych samych plikach → jeden brief Opusa (reguła 3); `resend-row` bez niezmiennika → poza pulą Claude'a.
+- Pliki niezmiennika / pliki briefu: `phone-change` (komponent i kroki — strażnik pokolenia, synchronizacja oderwana), `marketing-consents` (strażnik w `onToggle`) / szablony i i18n w tym samym briefie (wspólne pliki, podział nieopłacalny).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY); Wonder w limicie wrappera.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: przyjęte po walidacji — czerwone #2430/#2448 zielone, SHA bez zmian; R-FE-W2 (61 min): poprawny 0,85, 0 × P0–P2, 3 × P3 + wpis dziennika 17 → K-FE-2448 (STOP pkt 2 przyjęty).
+- Rundy korekt: 1 (K-FE-2448) + dodatkowy brief `resend-row`.
+- Czas do akceptacji: ≈ 3 h 15 min (start fali 2 → delta bramki FE 20:05Z).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-FE-W2 — 3 × P3 potwierdzone; bramka FE — 0 w plikach tego briefu; ponowna recenzja korekt Spark `max` — poprawna 0,9.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `logged/settings` 2518/2518, pełne FE 6158/6160 (2 = `qr-codes` Bug #2686, czerwone przed zadaniem), lint 0, build OK, browser-check (Escape w trakcie, fokus).
+- Uwagi C2: koszt — raport tokenów per ADO (#2406).
+
+### 2406-P-BE-2412 (P-BE-2412, K-BE-2412) (wycofanie transakcji nie zasłania pierwotnego wyjątku, błąd wycofania w logu) — 2026-11-02
+- Archetyp: Backend — wspólna infrastruktura trwałości (szkielet transakcji, 64 wywołania), bez niezmiennika.
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Muse (Windows) / `muse-spark-1.3-contributor` `max` `-Access write`; K-BE-2412 ta sama para.
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` `-Access read` (R-BE-2412); bramka Sol `max`.
+- Dopuszczone alternatywy: `wykonawca` Sonnet 5.5 `high` (gdy Muse niedostępny).
+- Powód wyboru: reguła 3 — bez Figmy i niezmiennika → poza pulą Claude'a; jedyny wykonawca BE w fali (może `dotnet test --filter`).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany po odczycie `muse usage`; Gemini B znany.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 8 min — przyjęte, pełne BE 9588/9589, SHA czerwonych bez zmian.
+- Rundy korekt: 1 (K-BE-2412, 1 min: test 1205 + nieudane wycofanie).
+- Czas do akceptacji: ~30 min (17:39Z → 18:02Z).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-BE-2412 (8 min) — obalone 2 × P1 (Serilog bez `AuditTo` nie rzuca; jedyna implementacja `IDapperWrapper`) i 1 × P2 („LogError po 1205” — analiza Buga); potwierdzone 1 × P2 (brak testu 1205 + nieudane wycofanie) → K-BE-2412; 2 × P3 bez zmian. Bramka BE — 0 w tych plikach.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: filtr `DapperTransaction` 14/14, pełne BE, CRLF zgodne.
+
+### 2406-P-FE-2406 (P-FE-2406, K-FE-2406) (zamknięcie dialogu klikiem w tło tą samą bramką co „×” i Escape, zwrot fokusu, stopka arkusza w kolumnie) — 2026-11-02
+- Archetyp: Frontend — wspólny komponent nakładki (25 konsumentów) z makiety Figmy.
+- Stawka: średnia.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 `high` (Figma MCP); K-FE-2406 ta sama para.
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` (R-FE-W4, zbiór A); ponowna recenzja korekty Spark `max`; bramka Sol `max`.
+- Dopuszczone alternatywy: brak (Codex bez zapasu tygodnia; Muse/Gemini bez Figmy).
+- Powód wyboru: ekran z makiety → wymaga Figma MCP.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: przyjęte — SHA czerwonego testu bez zmian, diff zgodny z briefem.
+- Rundy korekt: 1 (K-FE-2406: `Renderer2.listen` w `effect` przy otwartym dialogu, cel fokusu zawsze; 4 nowe testy czerwone → 26/26) + poprawka architekta po bramce (`pdf-download-button.scss`, reguła 11).
+- Czas do akceptacji: —
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-FE-W4 — 2 × P2 potwierdzone (cel fokusu przy zmianie szerokości, nasłuchy `document`), 2 obalone; bramka FE — 1 × P2 (akcja PDF w arkuszu nie na pełną szerokość) potwierdzone, rozstrzygnięte wg DEC-BIBLIOTEKA-PRZED-DOKUMENTACJA (wyśrodkowanie, zdanie w WP-NAKLADKI-MOBILE).
+- Defekty po odbiorze: 1 × P2 w bramce.
+- Wymagane testy i dowody: pełne FE jak 2406-P-FE-2430-2448; browser-check `matrix` 4/4 i przejścia 6/6.
+
+### 2406-P-FE-2409 (P-FE-2409) (arkusz dolny nie emituje zamknięcia w trakcie niszczenia) — 2026-11-02
+- Archetyp: Frontend — wspólny komponent arkusza, kolejność cyklu życia.
+- Stawka: średnia.
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Muse (Windows) / `muse-spark-1.3-contributor` `max` `-Access write`.
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` (R-FE-W4, zbiór B); bramka Sol `max`.
+- Dopuszczone alternatywy: `wykonawca` Sonnet 5.5 `high` z powodem.
+- Powód wyboru: reguła 3 — bez Figmy i niezmiennika.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany; Gemini B znany.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 6 min — przyjęte (SHA bez zmian, destroy 3/3, konsumenci tylko komentarze).
+- Rundy korekt: 0.
+- Czas do akceptacji: ~20 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-FE-W4 zbiór B — 0; bramka — 0.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: browser-check F3 (wstecz z otwartym arkuszem, konsola bez NG0953).
+
+### 2406-A, 2406-BW (audyt SCSS; worker przeglądarki) — 2026-11-02
+- Archetyp: audyt SCSS (odczyt) + operacyjny worker przeglądarki (Playwright CLI).
+- Stawka: średnia / niska.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Muse (Windows) / `muse-spark-1.3-contributor` — audyt `max` `-Access read`; BW `high` `-Access write`.
+- Recenzent (linia / model / native effort): architekt (triaż audytu; asercje i zrzuty BW).
+- Dopuszczone alternatywy: audyt — Gemini B `high`; BW — Gemini A / Codex na MCP.
+- Powód wyboru: reguła 8 (audyt SCSS — Spark `max`; operacyjny — Spark `high`).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: audyt 6 min — 0 × P0/P1, hover `--blocked` i Tab arkusza → komentarze (dziennik 21–22), P3 odrzucone; BW 6 min — 6/6 PASS (maska + fokus, przeciągnięcie, Escape, stopka 310 px, wstecz bez NG0953).
+- Rundy korekt: 0.
+- Czas do akceptacji: ~10 min każdy.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): —
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `matrix` 4/4 (konsola 0, sieć 0), raport BW z bboxami i `document.activeElement`.
+
+### 2406-G (G-BE, G-FE, delty) (bramki końcowe BE i FE) — 2026-11-02
+- Archetyp: Recenzja — bramka końcowa funkcji high-stakes (reguła 6), cały diff repozytorium w jednym przebiegu, potem delta poprawek.
+- Stawka: wysoka.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` `max`, `-Mode review`.
+- Recenzent (linia / model / native effort): architekt Opus 5.5 `xhigh` — triaż.
+- Dopuszczone alternatywy: brak (limit → darmowy pełny reset Codexa wg D1; niepotrzebny).
+- Powód wyboru: reguła 6; pliki niezmiennika pisała rodzina Claude.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex znany (`[pule]`: tydzień 92 % przy planowaniu, 98 % po bramkach 21:00Z; 2 darmowe resety), bez komunikatu limitu.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: BE 11 min — „niepoprawny”: 1 × P1 + 1 × P2 (oba potwierdzone), 9 niezmienników trzyma; FE 9 min — „niepoprawny” wyłącznie przez 1 × P2 (PDF w arkuszu), 10 niezmienników trzyma.
+- Rundy korekt: po 1 delcie (BE 3 min, FE 3 min) — obie poprawne, 0 nowych znalezisk (FE 0,98).
+- Czas do akceptacji: BE ~60 min (19:11Z → 20:00Z), FE ~40 min (19:23Z → 20:05Z).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone P1 (BE), P2 (BE), P2 (FE); 0 obalonych.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: stan drzewa przed = po; SHA zamrożonych bez zmian; pełne pakiety po poprawkach.
+
+### 2406-Q (QAS, QAS-K1) (QA Sphere — przegląd 136 istniejących przypadków w 6 folderach i nowe przypadki retestu) — 2026-11-02
+- Archetyp: QA Sphere — przegląd (Krok 2b) + plik podglądu; publikacja `qas.py` przez architekta.
+- Stawka: średnia (Bugi z funkcji high-stakes; reguła 8 — QA Sphere na Sparku `max`).
+- Niepewność: średnia (wykonalność ręczna wyścigów i zmiany konta).
+- Wykonawca (linia / model / native effort): Muse (Windows) / `muse-spark-1.3-contributor` `max` `-Access write`; korekta QAS-K1 — Spark `high`.
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` `-Access read` (R-QAS).
+- Dopuszczone alternatywy: wyk. Gemini A write; rec. Sol `high` (odrzucony: tydzień Codexa 98 %).
+- Powód wyboru: skill `qasphere-test-generator` + reguła 8; recenzja innej rodziny, najpierw konto B.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`muse usage` 20:57Z: 5 h 0 %, tydzień 10 %); Gemini B znany.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: **przebieg 1 — błąd** po 3 min: API 400 „Recursive JSON schemas are not currently supported” po `tool_search` ładującym narzędzia MCP (rekurencyjny schemat ADO), bez ponowienia; ponowienie z zakazem MCP i `tool_search` — 17 min, lint 0, 22 nowe przypadki, aktualizacje 917 i 2074, przegląd 136.
+- Rundy korekt: 1 (QAS-K1 — przygaszenie przycisków w F1/F2, 2 pola). Strumień modelu Muse zrywał się co minutę (ponowienia 60 s, 3–4 próby na żądanie); po zapisie obu zmian architekt zatrzymał przebieg (rekord `killed`), bo `qas.py push` zapisuje `seq` do tego samego pliku. Diff do oryginału odtworzonego skryptem autora: dokładnie 2 pola.
+- Czas do akceptacji: ~55 min (20:13Z → pełne `verify` 21:07Z), w tym brama właściciela.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-QAS (18 min) — obalone 2 × P1 (hasło konta demo z ogólnego przykładu skilla; „15 min bezczynności niewykonalne” — odświeżanie tokenu tylko reaktywne na 401, token 15 min); potwierdzone 1 × P2 (brak asercji przygaszenia; przesłanka briefu architekta „nie są wyszarzone” była błędna, autor ją zgłosił i nie asertował wyglądu).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `qas.py lint` 0; foldery 203–207, seq 2084–2105, update 917 i 2074; pełne `verify` 24 — 2 fałszywe różnice (kolejność `requirements`; zbiory identyczne wg odczytu przypadków).
+- Uwaga: błąd 400 zapisany w pamięci (`muse-mcp-rekurencyjny-schemat-400`) — brief Muse bez potrzeby MCP zakazuje MCP i `tool_search`.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
