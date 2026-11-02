@@ -9122,6 +9122,94 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: wierne odtworzenie CI w Dockerze (`node:26.13.0`, 2 vCPU przez `--cpuset-cpus`, 8 GB, 1 worker): 536/536 plików, 6040 testów, 492 s (stary HEAD: OOM przy ~1950 MB); sonda sterty po GC: maks. ~640 MB, płasko do końca; lokalnie lint 0, `format:check` 0, `npm test`, przebieg z losową kolejnością plików (seed 4242), build; CI na GitHubie zielone dla `04c31de` (main i gałąź; testy 8 min, cały job 12 min 43 s przy limicie 20 min).
 - Uwagi: najkrótsza ścieżka retencji w zrzucie V8 prowadziła przez efemerony WeakMap (dane debug DI Angulara) i myliła — prawdziwego trzymającego pokazało dopiero pominięcie krawędzi „pair in WeakMap”; zrzuty > 512 MB wymagały własnego parsera strumieniowego. `isolate: true` odrzucone (4,2× wolniej — przekroczyłoby 20 min joba). `AGENTS.md` bez zmian (282 B zapasu do limitu 64 000 B Muse) — wiedza w komentarzach kodu i pamięci.
 
+### 2553-D (D-2541, D-2541-K1) (diagnoza w przeglądarce: maska dialogu po Escape, skrypt odtworzenia) — 2026-11-02
+- Archetyp: Diagnoza w przeglądarce — Playwright CLI (`pwcli`) + skrypt odtworzenia `.mjs` (artefakt sesji, nie test w repo).
+- Stawka: niska–średnia (wspólna nakładka ~14 dialogów; bez niezmiennika).
+- Niepewność: wysoka (Bug nieodtworzony w przebiegu 1, okno czasowe animacji).
+- Wykonawca (linia / model / native effort): Muse (Windows) / `muse-spark-1.3-contributor` `max` `-Access write` (archetyp przeglądarki `high` podniesiony z powodem w briefie: diagnoza wymaga rozumowania); K1 — kontynuacja tej samej pary po raporcie przekazania.
+- Recenzent (linia / model / native effort): brak (dowód; odbiór architekta na skrypcie i tabeli wariantów).
+- Dopuszczone alternatywy: Gemini A `gemini-3.8-flash-high` z Playwright MCP (`-GeminiPowod`).
+- Powód wyboru: Playwright CLI działa tylko w linii Muse; poprzednia diagnoza padła z sesją architekta, nie z winy linii.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]` tydzień ~1 %, ~11:00Z); Codex ostrzegawczy (tydzień 92 %); Gemini A/B znany.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: D-2541 bez rozstrzygnięcia w budżecie przebiegu → K1. K1: Bug nieodtworzony 0/76 wariantów (0–400 ms, mysz/klawiatura, `reducedMotion`); hipoteza architekta (maska `p-dialog` zostaje po Escape w trakcie animacji wejścia) obalona pomiarem; wskazany mechanizm — Escape przed pokazaniem odłożonego dialogu (Bug #2606) trafia w próżnię, dialog otwiera się sam po wczytaniu programów.
+- Rundy korekt: 1 (K1 — kontynuacja, nie poprawka).
+- Czas do akceptacji: ~25 min w dwóch przebiegach (8 + 15 min, rekordy wrappera `spark-20261102-120658`, `-121543`), decyzja właściciela po raporcie.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `repro-2541.mjs` (E0/E1/K0) exit 0 przed i po łatce (regresja); decyzja właściciela po raporcie: „Escape anuluje odłożone otwarcie” zamiast łatki zapobiegawczej z planu.
+- Uwagi: raport obalił przesłankę planu architekta — bez pomiaru łatka zapobiegawcza poszłaby w zły plik (`overlay-panel` zamiast `sellers.ts`).
+
+### 2553-T (T-2846, T-2541, R-2541, T-2568b) (czerwone dowody: arkusz z `interceptClose`, Escape przed odłożonym dialogiem — Vitest i skrypt przeglądarki, prefiks `0048` przy niepełnym numerze) — 2026-11-02
+- Archetyp: Testy — czerwony test Buga (Vitest) + skrypt odtworzenia w przeglądarce (artefakt sesji).
+- Stawka: niska–średnia.
+- Niepewność: niska (T-2846, T-2568b), średnia (T-2541/R-2541 — mechanizm z D).
+- Wykonawca (linia / model / native effort): T-2846, T-2541, R-2541 — Muse (Windows) / `muse-spark-1.3-contributor` `max` `-Access write`; T-2568b — Gemini konto A / `gemini-3.8-flash-medium` `-Access write` (łatkę #2568 pisał Muse, więc test z innej linii).
+- Recenzent (linia / model / native effort): w recenzji całości — Gemini B `gemini-3.8-flash-high` `-Access read` (R-FE, R2-2568); T-2568b (Gemini) czytał też Muse jako autor łatki — bez roli recenzenta.
+- Dopuszczone alternatywy: `tester` Haiku 5.5 `xhigh` (Vitest); Gemini A write.
+- Powód wyboru: brief bez Figmy i niezmiennika → najpierw poza pulą Claude'a (reguła 3); dwie ręce — dowód i łatka z różnych linii.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]` ~1–2 %); Gemini A znany (`[pule]` `A ok`, ~14:45Z).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: wszystkie przyjęte bez korekt. T-2846: 5 czerwonych `expected +0 to be 1` / 24 zielone na HEAD; T-2541: 3 czerwone `expected true to be false` / 7 zielonych; R-2541 (`repro-2541-odlozone.mjs`): `0/3 PASS`, exit 1 na HEAD; T-2568b: 1 czerwony z 10 (`0048 123 456 7`).
+- Rundy korekt: 0.
+- Czas do akceptacji: T-2846 ~6 min, T-2541 ~5 min, R-2541 ~7 min, T-2568b ~2 min (od startu do odbioru czerwieni w worktree ~10–20 min).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-FE — P3 brak testów brzegowych prefiksu (potwierdzone → T-2568b); P3 brak integracyjnego testu gestu w `overlay-panel` (obalone: pokrywa `bottom-sheet.spec` A3 i AFTER dotykowy).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: SHA-256 wszystkich speców i skryptów zapisane przed łatką i niezmienione po łatce; zielone po łatce na tych samych plikach (speci 61/61, `repro-2541-odlozone` 5/5 i 15/15).
+- Uwagi: dowody #2553/#2547/#2544 (T1) i ich łatka (P1) pochodzą z przebiegu 27.10 i są z tej samej linii (Muse — `tester` zablokowany CZERWONYM Claude'a) — odstępstwo od dwóch rąk, skompensowane recenzją Gemini B; czerwień T1 odebrana 2026-11-02 na rodzicu `04c31de` (5 czerwonych z powodu bugów).
+
+### 2553-P (P-nakładki, P-2541, P-2568b) (łatki: drogi zamknięcia arkusza przy `interceptClose`, Escape anuluje odłożone otwarcie, prefiks `0048` zawsze) — 2026-11-02
+- Archetyp: Frontend — logika współdzielonego komponentu nakładki (`bottom-sheet`, `overlay-panel`), strona listy (`sellers.ts`), funkcja pomocnicza (`shared/phone`). Pliki niezmiennika: brak.
+- Stawka: niska–średnia (wpływ przekrojowy na ~14 dialogów, w tym blokadę zamknięcia w trakcie opłaty — konsumenci z `interceptClose="saving()"` sprawdzeni przed briefem).
+- Niepewność: średnia (P-nakładki), niska (P-2541, P-2568b).
+- Wykonawca (linia / model / native effort): P-nakładki, P-2541 — Claude / `wykonawca` Sonnet 5.5 `high`; P-2568b — Muse (Windows) / `muse-spark-1.3-contributor` `max` `-Access write`.
+- Recenzent (linia / model / native effort): Gemini B `gemini-3.8-flash-high` `-Access read` (R-FE — całość; R2-2568 — P-2568b).
+- Dopuszczone alternatywy: P-nakładki/P-2541 — Gemini A `high` write; Codex odrzucony (tydzień 92 %). P-2568b — `wykonawca` (z powodem).
+- Powód wyboru: dwie ręce — dowody #2846 i #2541 pisał Muse, więc łatka z innej linii; wpływ przekrojowy przemawiał za Sonnetem przed Gemini (zapisany powód z reguły 3). P-2568b — jednolinijkowa łatka, test pisał Gemini.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY, 5 h ~20 %, tydzień 16–20 %); Muse znany (`[pule]` ~1–2 %).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: wszystkie przyjęte — speci i skrypty z SHA bez zmian zielone; P-nakładki zapisało SemVer 1.15.2. Dwie linie JSDoc po P-2568b nieaktualne wobec nowej reguły — poprawione przez architekta (reguła 11).
+- Rundy korekt: 0 (poprawka komentarza przez architekta, nie runda).
+- Czas do akceptacji: P-nakładki i P-2541 — nie zapisany (subagent Claude bez rekordu wrappera); P-2568b ~4 min przebiegu + odbiór (~15 min).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-FE — P2 `0048` + 7 cyfr dawał cicho zmieniony numer (potwierdzone; reguła z P1 przebiegu 27.10, nie z P-nakładki → decyzja właściciela, T-2568b + P-2568b); R2-2568 — łatka poprawna (0,98), P3 lista pól w rewizji dokumentu (poprawione).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: worktree walidacyjny (HEAD + pliki zadania): lint 0, `format:check`, `npm test` 6081 ✓ / 2 ✗ znane #2686 (to samo w CI `main` przed zadaniem), build 0; `browser-check` 7/7; AFTER dotykowy 7/7 ×3; CI dla `3fb2747` — 536/537 plików, czerwone tylko #2686; PRE 1.15.2.
+
+### 2553-R (R-FE, R-4c, R2-2568) (recenzja FE całego zadania, przegląd zgodności dokumentacji z recenzją rewizji, recenzja korekty prefiksu) — 2026-11-02
+- Archetyp: Recenzja kodu FE (P1, T1, T-2846, P-nakładki, P-2541) + audyt zgodności dokumentacji (4c) + recenzja rewizji R1/R2/R5/R6.
+- Stawka: niska–średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` `-Access read` (wszystkie trzy).
+- Recenzent (linia / model / native effort): nie dotyczy (to recenzje; znaleziska weryfikował architekt).
+- Dopuszczone alternatywy: Sol `high` (odrzucony — tydzień Codexa 92 %); Muse Spark `max` tylko dla plików Sonneta.
+- Powód wyboru: inna rodzina niż autorzy (Muse, Claude); odczyt najpierw na koncie B (decyzja 2026-11-02).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini B znany (`[pule]` `B ok`, ~14:15Z i ~14:55Z).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: R-FE ~14 min, R-4c ~11 min, R2-2568 ~8 min; wszystkie z raportem.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~15–20 min na recenzję z triażem.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-FE — P2 `0048` potwierdzone (cytowane numery linii speca błędne, znalezisko trafne), P3 testy brzegowe potwierdzone, P3 test integracyjny gestu obalone. R-4c — zgodna (0,95); P2 (#2541 w R1) obalone (INSTRUKCJA §14), P3 dziennik historyczny zostawiony; luka — blokada zamknięcia w trakcie zapisu nieopisana (zastana, do raportu). R2-2568 — poprawny (0,98), P3 lista pól poprawiona.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: każde znalezisko obalone lub potwierdzone poleceniem (grep kodu, czerwony test T-2568b).
+
+### 2553-Q (Q-2553, R-Q2553, Q-2553-K1, Q-2553-K2) (QA Sphere — przegląd 89 istniejących przypadków w 2 obszarach i nowe przypadki) — 2026-11-02
+- Archetyp: QA Sphere — przegląd 89 istniejących przypadków (foldery 65 z poddrzewem i 63, Krok 2b) + plik podglądu; publikacja `qas.py` przez architekta, bez podglądu u właściciela (decyzja 2026-11-02).
+- Stawka: niska–średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Muse (Windows) / `muse-spark-1.3-contributor` `max` `-Access write` (Q-2553); korekty K1, K2 — `muse-spark-1.3-contributor` `high` (korekta z gotową treścią, jeden plik).
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` `-Access read` (R-Q2553); K1/K2 bez ponownej recenzji — treść podał architekt, odbiór diffem JSON względem kopii i `lint`.
+- Dopuszczone alternatywy: wyk. Gemini A write; rec. Sol `high` (odrzucony — tydzień Codexa 92 %).
+- Powód wyboru: skill `qasphere-test-generator` + reguła 8; recenzja innej rodziny niż autor; odczyt najpierw na koncie B.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]` tydzień 2 %, ~16:00Z); Gemini B znany (`[pule]` `B ok`, ~16:15Z); Codex ostrzegawczy (92 %).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: Q-2553 ~12 min, lint 0, 89 keep / 0 update / 0 retire, 14 nowych. R-Q2553 ~12 min: „wymaga korekty” — 0 P0/P1, 1×P2, 2×P3.
+- Rundy korekt: 2 — K1 (A4 samowystarczalność, uwaga o Escape przy otwartym DevTools; Muse słusznie zatrzymał się na 3 z 7 przypadków, bo dosłowne `\n\n` po zwykłym akapicie łamie `qas.py lint` — błąd specyfikacji architekta), K2 (dopisek w tym samym akapicie).
+- Czas do akceptacji: ~45 min (16:04Z → `verify` ~16:39Z).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): obalone — P2 „błędne kolumny SQL w A4” (zacytowane zapytanie nie istnieje w pliku; kolumny zgodne z `Script000000 - initDb.sql`), P3 „brak partii QR w seedzie dla B3” (B3 używa innego konta i ma instrukcję wygenerowania partii); potwierdzone — P3 Escape w trybie urządzenia DevTools trafia do konsoli przy fokusie w DevTools. Luka znaleziona przez architekta, nie przez recenzenta: A4 bez instrukcji dodania sprzedawcy testowego (numer nie istnieje w seedach).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `lint` 0 błędów; folder 202 (nowy) seq 2070–2079, folder 63 seq 2080–2083; update 0, `[Removed]` 0; pełne `verify` 14/14, 0 różnic.
+- Uwagi: recenzent Gemini B halucynował treść cytatu (P2) przy pewności 0,95 — weryfikacja cytatu względem pliku obowiązkowa.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
