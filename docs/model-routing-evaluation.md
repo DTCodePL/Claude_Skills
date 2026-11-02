@@ -8963,6 +8963,129 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: `worker-run-gemini-host.tests.ps1` 33/33, `worker-wonder-cap.tests.ps1` 27/27, parser 0 błędów; przebieg przez `wsl.exe` na koncie B; izolacja — domyślny użytkownik WSL dostaje „Permission denied” na katalogu `gemini2`; log logowania potwierdza konto różne od konta A.
 - Uwagi: pierwsze logowanie konta B trafiło na konto A (przeglądarka podsunęła zalogowane konto) — wykryte w logu `agy` przed jakimkolwiek przebiegiem, token usunięty, ponowne logowanie w oknie prywatnym. Na Windows `agy` trzyma token w Menedżerze poświadczeń (jeden na użytkownika), w WSL w pliku `600` — stąd osobny użytkownik Linuksa zamiast drugiego katalogu konfiguracji. Reguły: globalny `CLAUDE.md` (budżety, macierz, reguła 13), sekcja wspólna (`sync-routing.py`, 18 kopii; DTCodeBE/FE przez worktree na `main`), skill ADO v5.32, QA Sphere v1.13, `browser-check/CLI-WORKER.md`, `external-workers`. `ZebraniFE/AGENTS.md` ma 63 814 B — 186 B do limitu 64 000 B Sparka; następna zmiana sekcji wspólnej musi coś skrócić.
 
+### 2827-T (T-BE, T-BE-K1, T-FE) (czerwone testy: anonimowe unieważnienie kodu samym numerem → 404 i żywy kod; lista anonimowych endpointów; regresja „nowe zamówienie unieważnia poprzedni kod” i izolacja ścieżki konta; FE — powrót do poprawienia numeru nie wysyła żądania) — 2026-11-01
+- Archetyp: Testy — czerwony test Buga (xunit na SQL Server, Vitest), BE + FE w osobnych briefach.
+- Stawka: wysoka (jednorazowe kody i limity prób).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `tester` Haiku 5.5 `xhigh` (T-BE, T-FE; T-BE-K1 przez SendMessage do tego samego agenta).
+- Recenzent (linia / model / native effort): Gemini konto A / `gemini-3.8-flash-high` `-Access read` (R1-T-BE, R1-T-FE).
+- Dopuszczone alternatywy: wykonawca — `wykonawca` Sonnet 5.5 `high`, Spark `max` write; recenzent — Spark `max` read (plan), Gemini `high` (FE).
+- Powód wyboru: linia czerwonego testu Buga (tester zamknięty 3:3); wzorce `PhoneChangePathIsolationApiTests` w repo. Recenzja R1-T-BE przeniesiona ze Sparka na Gemini — Muse 429 do resetu tygodnia.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY, 2026-11-01 ~22:55Z); Muse zablokowany (429 z resetem 2026-11-02 00:00Z, wrapper, ~23:01Z); Gemini A nieznany (bez odczytu puli).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: T-FE przyjęte (F1 czerwony na asercji, F2 zielony). T-BE: R1, R2, A1 czerwone na asercjach, G2 zielony; G1 oparty na błędnej przesłance briefu architekta (kod stały w testach — „stary kod odrzucony przy potwierdzeniu” nie do odróżnienia od nowego) → korekta na asercje na poziomie bazy (wariant a).
+- Rundy korekt: T-BE 1 (z winy specyfikacji), T-FE 0.
+- Czas do akceptacji: ~25 min (od wysyłki do zapisu SHA-256 wszystkich plików).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1-T-BE — 0. R1-T-FE — pierwszy przebieg pusty (próba polecenia powłoki → odmowa → pusta tura, exit 3), po zawężeniu briefu do samego odczytu: 1×P3 odrzucone (łatka nie dotyka modelu); uwaga o fokusie w `afterNextRender` przyjęta do briefu P-FE.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: SHA-256 4 plików testów i stan usuniętego folderu zapisane przed łatką i niezmienione po łatce oraz po recenzjach; BE 34 testy (31 zielonych, 3 czerwone na asercjach), FE 2 (1/1).
+- Uwagi: znane ograniczenie zapisane w komentarzu Buga — przy stałym kodzie w testach G1 dowodzi reguły na wierszach bazy, nie odrzucenia starego kodu przy potwierdzeniu.
+
+### 2827-D (D1, D1b, D1-K1) (rewizje 2026-11-01: powrót do poprawienia numeru nie unieważnia kodu — UI-PUBLICZNE-REJESTRACJA-KLIENTA i UI-PUBLICZNE-KUP) — 2026-11-02
+- Archetyp: Dokumentacja produktowa — datowane rewizje dokumentów `zatwierdzony` (2 pliki).
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` `max`, `-MuseHost windows`, `-Access write` (D1, D1b); `high` (D1-K1 — korekta z gotową treścią).
+- Recenzent (linia / model / native effort): Gemini konto A / `gemini-3.8-flash-high` `-Access read` (R1-D); 4c — Gemini konto A `high` (2827-4C).
+- Dopuszczone alternatywy: wykonawca — `wykonawca` Sonnet 5.5 `high`; recenzent — Sol `high` (odrzucony: tydzień Codexa 90 %, zapas na bramki).
+- Powód wyboru: reguła 8 — rewizje dokumentacji na Sparku `max`; recenzja spoza rodziny Muse.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse zablokowany do 2026-11-02 00:00Z (429, wrapper) → D1 uruchomiony 00:01Z, potem znany (`[pule]` 4 %); Gemini A nieznany.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: D1 i D1b przyjęte przez architekta (D1b — rozszerzenie zakresu w granicach decyzji: dokument zakupu opisywał unieważnianie, którego FE nigdy nie robił; architekt przeniósł sekcję rewizji do bloku starszych rewizji). Brief architekta narzucił wartość liczbową czasu ważności i wyliczenie „rejestracji, zakupu i weryfikacji numeru”.
+- Rundy korekt: 1 (D1-K1, z winy briefu).
+- Czas do akceptacji: ~25 min (00:01Z → 00:26Z).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1-D — 2×P2 potwierdzone (§6.3: wartość liczbowa w dokumencie ekranu; wyliczenie sugerujące trzeci rodzaj kodu — poprawka recenzenta niepełna, architekt rozszerzył o inne publiczne ekrany SMS) + P3 przyjęte (proces zakupu w ocenie wpływu); 0 odrzuconych.
+- Defekty po odbiorze: brak (4c: 0 rozbieżności).
+- Wymagane testy i dowody: `git diff` obu plików przeczytany; liczby wystąpień starych/nowych fraz 0/2/1/1; link do procesu zakupu rozwiązuje się.
+
+### 2827-P-BE (P-BE) (łatka BE: usunięcie anonimowego endpointu unieważnienia, komendy, walidatora i DTO; komentarze SQL i handlera potwierdzenia) — 2026-11-01
+- Archetyp: Backend — pliki niezmiennika high-stakes (jednorazowe kody); usunięcia.
+- Stawka: wysoka.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-sonnet-xhigh` Sonnet 5.5 `xhigh` — **próba C2, 1. brief ramienia Sonnet** (następna funkcja wysokiej stawki → `wykonawca-opus`).
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` `max`, `-Access read` (R2-BE, w limicie Wondera); bramka Codex / `gpt-6.1-sol` `max` (2827-G-BE).
+- Dopuszczone alternatywy: `wykonawca-opus` Opus 5.5 `xhigh`; recenzent Sol `high` tylko po limicie Wondera.
+- Powód wyboru: C2 — ta sama para recenzenta co Opus, bramka bez zmian. Złożoność niska (usunięcia + komentarze) — wynik słabo różnicuje ramiona.
+- Pliki niezmiennika / pliki briefu: `RegistrationController.cs` (usuwa anonimowe unieważnianie), `InvalidateRegistrationCode/{Command,CommandHandler,CommandValidator}.cs` (usuwana operacja), `InvalidateRegistrationCodeRequest.cs` (sprzężony z kontrolerem), `InvalidateActiveForPhoneAsync.sql` (komentarz; instrukcja bajt w bajt) / brief bez plików spoza niezmiennika (podział nieopłacalny).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY); Wonder w limicie wrappera (dzień 1/3).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: przyjęte — build `-warnaserror` 0, pełny pakiet 9579/9579 (+1 NotExecuted poza zakresem), grep symboli 0, SHA testów bez zmian. Komentarz w `ConfirmRegistrationCommandHandler.cs` l.192 poprawił architekt (reguła 11).
+- Rundy korekt: 0.
+- Czas do akceptacji: —
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R2-BE — poprawny 0,92, 1×P3 komentarz testu (`PhoneVerificationAccountSqlResourceTests.cs:134`) → architekt (reguła 11); 0 P0/P1. Bramka BE — 0.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: R1/R2/A1 zielone po łatce, G1/G2 zielone; `dotnet format` plików zadania 0 (ENDOFLINE w 4 nietkniętych plikach z `a2c0424` — poza zakresem).
+- Uwagi C2: koszt briefu — raport tokenów per ADO (#2827); do kryterium próby liczyć z zastrzeżeniem niskiej złożoności.
+
+### 2827-P-FE (P-FE, P-FE-K1) (łatka FE: powrót do poprawienia numeru bez żądania, usunięcie metody serwisu i DTO) — 2026-11-02
+- Archetyp: Frontend — przepływ formularza bez niezmiennika (4 pliki, 1 usunięty).
+- Stawka: średnia (ekran funkcji high-stakes bez pliku niezmiennika).
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` `max`, `-MuseHost windows`, `-Access write`; K1 `high`.
+- Recenzent (linia / model / native effort): Gemini konto A / `gemini-3.8-flash-high` `-Access read` (R2-FE); bramka `gpt-6.1-sol` `max` (2827-G-FE).
+- Dopuszczone alternatywy: `wykonawca` Sonnet 5.5 `high` (z powodem); Codex wykluczony (pula na bramkę).
+- Powód wyboru: reguła 3 — bez Figmy i niezmiennika → poza pulą Claude'a.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany po resecie (00:02Z); Gemini A nieznany.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: przyjęte — lint 0, build 0, `npm test` 6070/6072 (2 czerwone wyłącznie w cudzym `qr-codes.spec.ts`), F1 zielony, SHA specu bez zmian. Brief P-FE pominął zachowanie fokusu w `afterNextRender` — dopisane po uwadze R1-T-FE przed wysyłką.
+- Rundy korekt: 1 (K1 — komentarze).
+- Czas do akceptacji: ~12 min (00:02Z → K1 00:14Z).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R2-FE — poprawny warunkowo: P2 komentarz `phone-verification-step.html:130` (plik pominięty w liście briefu R2-FE) + P3 „cztery żądania” `registration.ts:84` — oba potwierdzone, K1; 0 odrzuconych. Bramka FE — 0.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: eslint/prettier plików zadania 0; grep `invalidateCode|invalidate-code|InvalidateCodeRequest` w `src` — tylko tytuł testu F1.
+
+### 2827-G-BE, 2827-G-FE (bramki końcowe BE i FE) — 2026-11-02
+- Archetyp: Recenzja — bramka końcowa funkcji high-stakes (reguła 6), cały diff repozytorium w jednym przebiegu.
+- Stawka: wysoka.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` `max`, `-Mode review`.
+- Recenzent (linia / model / native effort): architekt Opus 5.5 `xhigh` — triaż, md5 `git status`/`git diff` przed = po.
+- Dopuszczone alternatywy: brak (limit → darmowy pełny reset Codexa, decyzja właściciela; niepotrzebny).
+- Powód wyboru: reguła 6; pliki niezmiennika pisała rodzina Claude.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex znany (`[pule]` 00:19Z: tydzień 90 %, 5 h 0 %; po bramkach tydzień 92 %, 5 h 14 %), bez komunikatu limitu.
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: BE 2,7 min — 0 znalezisk (uwaga LF/CRLF w `.sql` = normalizacja `autocrlf`). FE 1,8 min — STOP na błędnej przesłance briefu architekta (fokus po powrocie: brief „pole numeru”, kod i dokument — nagłówek kroku 1); zatrzymanie poprawne.
+- Rundy korekt: FE 1 (poprawiony brief, przebieg 2 — 2,9 min, 0 defektów); BE 0.
+- Czas do akceptacji: BE ~3 min; FE ~8 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 w obu repozytoriach.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: md5 `git status`/`git diff` BE i FE przed = po; SHA zamrożonych testów bez zmian.
+
+### 2827-4C (4c) (przegląd zgodności dokumentacji z kodem) — 2026-11-02
+- Archetyp: Recenzja — zgodność dokumentacji `zatwierdzony` z kodem w obie strony (8 dokumentów mapy).
+- Stawka: średnia.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Gemini konto A / `gemini-3.8-flash-high` `-Access read` (po nieudanym starcie na koncie B).
+- Recenzent (linia / model / native effort): architekt Opus 5.5 `xhigh`.
+- Dopuszczone alternatywy: Sol `high` (odrzucony: tydzień Codexa 92 %).
+- Powód wyboru: autor dokumentacji z rodziny Muse; briefy tylko do odczytu najpierw na konto B.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini B zablokowany — 429 „Individual quota reached … Resets in 9h29m” (wrapper, 00:31Z); stan był znany z wpisu `routing-2026-11-gemini-b` (zablokowane przy podłączeniu) — błąd kwalifikacji architekta, koszt 10 s, 0 tokenów. Gemini A nieznany, przebieg udany.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: konto A 5,8 min — 28 `zgodne`, 0 rozbieżności; uwagi do briefu (opis ataku skrótowy, DEC pkt 4 zamiast 3, krok 1′ nieobecny w FE — zakres sprzed zadania) bez akcji.
+- Rundy korekt: 0.
+- Czas do akceptacji: ~7 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: dziennik rozbieżności bez `otwarty`/`w toku`; `git status` Dokumentacja — wyłącznie 2 pliki zadania; diffy dla konta bez gita w `_robocze\2827-4c`.
+
+### 2827-Q (QA Sphere — przegląd istniejących i nowe przypadki) — 2026-11-02
+- Archetyp: QA Sphere — przegląd 59 istniejących przypadków w 3 folderach (Krok 2b) + plik podglądu; publikacja `qas.py` przez architekta.
+- Stawka: średnia (przypadki do Buga z funkcji high-stakes; reguła 8 — QA Sphere także w funkcji high-stakes na Sparku `max`).
+- Niepewność: średnia.
+- Wykonawca (linia / model / native effort): Muse (Windows) / `muse-spark-1.3-contributor` `max` `-Access write`; korekta Q-K1 — ta sama para.
+- Recenzent (linia / model / native effort): Gemini konto A / `gemini-3.8-flash-high` `-Access read` (R-Q).
+- Dopuszczone alternatywy: wyk. Gemini A write; rec. Sol `high` (odrzucony: tydzień Codexa 92 %, pula na bramkę); konto B zablokowane.
+- Powód wyboru: skill `qasphere-test-generator` + reguła 8; recenzja innej rodziny niż autor.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]` 01:10Z: 4 % / 1 %); Gemini A nieznany, przebieg udany; Gemini B zablokowany (429 od 00:31Z).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: 11,3 min, lint 0; przegląd 56 keep / 0 update / 3 retire (35, 153, 1432 — wg briefu), 5 nowych. R-Q 8,1 min: „wymaga korekty” — 3×P1, 2×P2, 1×P3.
+- Rundy korekt: 1 (Q-K1, 6,6 min: 35 i 153 → `update`, E `Automated`, nowe F i G) + tag kategorii w aktualizacji 35 dopisany przez architekta.
+- Czas do akceptacji: ~35 min (00:47Z → `verify` 01:20Z).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone — P1-B jako luka P2 (brak zmiany numeru na inny → G), P1-E w części `automation`, P2 retire→update 35/153 (Krok 2b), P2 odstęp w kroku 1 po powrocie (→ F), P3 tytuł; obalone — P1-C (ponowne rozwiązanie Turnstile na `/kup`: PRE ma klucz testowy `1x…AA`; brak resetu tokenu w `onEditPhone` — uwaga do raportu, sprzed zadania), P1-E w części przeniesienia folderu (152 trzyma pokrycie 1431/1432 i 1435).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: lint 0; seq 2065–2069, update 35 i 153, `[Removed]` 1432; pełne `verify` — 7 fałszywych różnic (autolink; `~` → `\~` w eksporcie Markdown), po normalizacji i odczycie HTML 8/8.
+- Uwaga: brief architekta narzucił `retire` dla 35/153 jako „zgodę z góry” — zgoda właściciela dopuszczała `[Removed]`, ale Krok 2b wymaga `update` przy tym samym celu testu; wyłapał to recenzent innej rodziny.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
