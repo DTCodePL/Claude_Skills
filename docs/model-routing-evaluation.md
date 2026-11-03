@@ -9454,6 +9454,111 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak.
 - Wymagane testy i dowody: `qas.py lint` 0; nowe seq 2106 (A1), 2107 (B1); aktualizacje 533, 825, 838, 840, 841, 842, 2082, 2083; `[Removed]` 829, 837 (akceptacja właściciela 2026-11-03); pełne `verify` 12 — 5 różnic fałszywych (kolejność `requirements` ×4, autolink w 533), zbiory i tekst zgodne z odczytem.
 
+### 2686-T (T, T2, T3, T4) (testy dowodowe: fokus po kreatorze nowej partii, przewijanie paska filtrów statusu, lista po błędzie sieci; testy do znalezisk recenzji) — 2026-11-03
+- Archetyp: Testy jednostkowe FE (Vitest + jsdom) — czerwony test Buga i regresja; 5 nowych plików spec + 2 asercje w istniejącym.
+- Stawka: niska (UI bez niezmiennika; obszar jednorazowych kodów, ale bez logiki generowania i realizacji).
+- Niepewność: średnia (czas przywrócenia fokusu względem zamknięcia nakładki).
+- Wykonawca (linia / model / native effort): Muse (Windows) / `muse-spark-1.3-contributor` `max` `-Access write`.
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` `-Access read` (R, R2 — cały diff fali: testy i łatki).
+- Dopuszczone alternatywy: Codex Sol `high` (wtedy łatki do innej linii); `tester` Haiku 5.5 `xhigh` z powodem.
+- Powód wyboru: brief bez Figmy i niezmiennika → najpierw poza pulą Claude'a (reguła 3); autor testów inny niż autor łatek.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]` 2026-11-03 rano, tydzień 10 %); Gemini B znany (`gemini-konta.json`, ok).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: przyjęte z kontynuacją. T (11,7 min): A.1 czerwony z właściwej asercji, A.2 zielony. Autor zatrzymał się przed przekroczeniem `sonarjs/max-lines` w `qr-codes.spec.ts` (991/1000) — słusznie; testy B i C poszły do dwóch nowych plików (T2, 7,9 min).
+- Rundy korekt: 0 korekt własnych; 2 briefy dodatkowe po recenzji R: T3 (czerwony test zwężenia ekranu, 7,6 min) i T4 (testy do znalezisk F1/F2/F6/F7, 10,2 min). Oba czerwone z właściwej przyczyny przed łatką.
+- Czas do akceptacji: ≈ 1 h 20 min (start T → odbiór T4).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): w części testów R — potwierdzone 1 × P3 (F6: brak asercji klasy akcji sukcesu dla #2689 → T4), odrzucone 1 × P2 (F5: test zapasowego celu rzekomo maskuje drugi przebieg).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: skróty 8 plików testów bez zmian po łatkach; czerwień przed łatką — 2 × #2686 w `qr-codes.spec.ts` (sprzed zadania, `337893e`), 2 × zapasowy cel fokusu, A.1 (#2559), E.1/E.2, E.4, zwężenie ekranu; regresja #2550 (3 testy) zielona przed i po; `npm test` 549 plików / 6198 testów.
+
+### 2686-P (P1, P2 ×2, P3, P4) (łatki: fokus po kreatorze nowej partii, wysokość akcji sukcesu 48 px, przewijanie paska filtrów statusu) — 2026-11-03
+- Archetyp: Frontend — logika fokusu w komponencie strony, zmienna PrimeNG na własnej klasie i przewijanie paska; bez Figmy (wartość 48 px z planu).
+- Stawka: niska.
+- Niepewność: średnia (nakładki PrimeNG, zoneless, różne szerokości ekranu).
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` `high` `-Mode exec -Access write`.
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` `-Access read` (R, R2).
+- Dopuszczone alternatywy: `wykonawca` Sonnet 5.5 `high` z powodem; Spark wykluczony (autor testów tej fali).
+- Powód wyboru: krótkie briefy ≤ 5 plików bez niezmiennika (reguła 3); linia inna niż testy.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex znany (`[pule]` 2026-11-03 rano: 5 h 0 %, tydzień 1 %).
+- Pewność decyzji: niska (mało lokalnych łatek FE Codexa).
+- Wynik pierwszego podejścia: P1 (3 min) — testy #2686 zielone. P2 (1,8 min) — słuszny STOP na błędnej przesłance briefu o układzie stopki sukcesu; przebieg 2 (3 min) zielony.
+- Rundy korekt: 2. P3 (3,3 min) — zwężenie ekranu i „Wyczyść filtry” po F2. P4 (2,6 min) — ukryty wywołujący, zerowanie flagi przy zmianie konta i wywołujący brany ze strony dla Safari, po F1/F3a/F7. Rundy wynikały z luk specyfikacji architekta (zmiana szerokości i zewnętrzna zmiana filtra nieujęte w planie), nie z błędów wykonawcy.
+- Czas do akceptacji: ≈ 1 h (start P1 → odbiór R2).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet):
+  - R (13,6 min):
+    - potwierdzone: 1 × P1 (F1: zmiana szerokości przy otwartym kreatorze gubi fokus do `body`); 1 × P1 częściowo (F2: brak reakcji na zwężenie ekranu i „Wyczyść filtry”; część „przewija na desktopie” odrzucona); 1 × P2 (F3a: flaga przywracania nie zerowana przy zmianie konta); 1 × P3 (F7: wywołujący w Safari);
+    - odrzucone: F3b (P2), F4 (P2, synchroniczne `updateCanScrollRight`).
+  - R2 (10 min): F1, F2, F3a, F6 i F7 zamknięte. Odrzucone nowe 1 × P2 (E.1 modeluje stan po obrocie — szerokość czytana w chwili przywrócenia) i 1 × P3 (brak `checkVisibility` — browserslist Chrome 150+ / Firefox 153+ / Safari i iOS 26.5+, a fallback `getClientRects` zepsułby jsdom). Werdykt R2: poprawny, 0,95.
+- Defekty po odbiorze: brak (stan na 2026-11-03).
+- Wymagane testy i dowody:
+  - repo: lint 0; build OK (ostrzeżenie budżetu w pliku spoza diffu); format OK poza CRLF w pliku spoza diffu; `npm test` 549 / 6198;
+  - przeglądarka: AFTER M1 48,00 px 4/4, M2 PASS 4/4, M3 nadmiar 0; A2 M4 i M5 PASS; `browser-check matrix` 8/8, konsola 0, sieć 0;
+  - wdrożenie: CI 41609492041; deploy PRE 41610567350 (`9ef5432`, FE 1.15.5).
+
+### 2686-B (B, A, A2) (worker przeglądarki: wysokość akcji, fokus po pobraniu, pasek filtrów — BEFORE/AFTER) — 2026-11-03
+- Archetyp: worker przeglądarki `pwcli` z przechwyconymi odpowiedziami API, bez prawdziwego zapisu.
+- Stawka: niska.
+- Niepewność: średnia (jsdom nie liczy układu; mocki z DTO).
+- Wykonawca (linia / model / native effort): Muse (Windows) / `muse-spark-1.3-contributor` `max` — podniesiony z `high` z powodem zapisanym w planie (mocki z DTO i `run-code`).
+- Recenzent (linia / model / native effort): nie dotyczy — wartości, zrzuty i skróty scenariusza odebrał architekt.
+- Dopuszczone alternatywy: Gemini A `high` + Playwright MCP (z `-GeminiPowod`); Codex Sol `medium` + MCP.
+- Powód wyboru: Playwright CLI działa tylko w linii Muse; ta sama ręka BEFORE i AFTER, inna niż autor łatek.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]`, 2026-11-03).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia:
+  - B (19,6 min) przyjęty: M1 42 px FAIL 4/4; M3 nadmiar 20,3 px FAIL; M2 PASS 4/4 — zgłoszona ścieżka #2686 nie odtwarza się w Chromium na `1bb2e2f`, błąd dowodzą testy jednostkowe.
+  - A (9,2 min): PASS, skróty scenariusza zgodne z B.
+- Rundy korekt: 0. A2 (10,7 min, logowanie przez `state-load`, bez wpisywania hasła) to dodatkowy pomiar po P3/P4. Worker słusznie zgłosił FAIL M4 z mojego kryterium: 32 px zapasu przy ostatnim filtrze jest niemożliwe na końcu paska. Po korekcie kryterium — PASS.
+- Czas do akceptacji: —
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: skróty `procedure.md` i `bc-mocks.js` identyczne BEFORE/AFTER; zrzuty 2×2; plik stanu logowania usunięty po przebiegu. Zrzutów nie dołączono do ADO — z sesji nie ma kanału wysyłki załączników (`az` bez dostępu do organizacji, MCP przyjmuje tylko base64); komentarze Bugów podają wartości i skróty.
+
+### 2686-S (audyt SCSS dwóch plików) — 2026-11-03
+- Archetyp: audyt SCSS, 2 pliki, tylko odczyt.
+- Stawka: niska.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Muse (Windows) / `muse-spark-1.3-contributor` `max`.
+- Recenzent (linia / model / native effort): nie dotyczy (audyt; wynik odebrał architekt).
+- Dopuszczone alternatywy: Gemini B `high`.
+- Powód wyboru: reguła 8 — audyt SCSS → Spark `max`.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]`, 2026-11-03).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: przyjęty (1,8 min) — nic do zastąpienia ani wydzielenia, brak naruszeń.
+- Rundy korekt: 0.
+- Czas do akceptacji: ≈ 2 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: raport obu plików (`generate-batch-dialog.scss`, `batch-toolbar.scss`).
+
+### 2686-Q (Q, QR, QK) (QA Sphere — przegląd 35 istniejących przypadków w 3 folderach i nowe przypadki trzech Bugów) — 2026-11-03
+- Archetyp: QA Sphere — przegląd (Krok 2b) + plik podglądu; publikacja `qas.py` przez architekta.
+- Stawka: niska.
+- Niepewność: średnia (ręczny odczyt fokusu przez konsolę; jedno konto bez partii w seedach).
+- Wykonawca (linia / model / native effort): Muse (Windows) / `muse-spark-1.3-contributor` `max` `-Access write`; korekta QK ta sama para.
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` `-Access read` (QR).
+- Dopuszczone alternatywy: wyk. Gemini A write; rec. Codex Sol `high`.
+- Powód wyboru: skill `qasphere-test-generator` + reguła 8; recenzja innej rodziny, najpierw konto B.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]` 2026-11-03 przed południem: tydzień 11 %); Gemini B znany (`gemini-konta.json`, ok).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: przyjęte z korektą — Q 7,8 min, lint 0. Autor obalił 4 przesłanki briefu architekta, wszystkie przyjęte:
+  - „Archiwum” jest w pełni widoczne po przewinięciu paska do końca;
+  - sprawdzenie klawiszem Enter nie działa przy zadokowanym DevTools (DevTools odpięte);
+  - „Zakończone” bez wyników wymaga świeżego konta;
+  - numer wersji jest w pasku na dole panelu.
+- Rundy korekt: 1 (QK, 6,4 min — K1–K4 z triażu QR; diff = 5 zleconych pozycji, lint 0):
+  - 2550-A i ZEB497: najpierw Kody QR online;
+  - 2686-B rozbity na wariant 1280 i 360 px;
+  - 2559-A bez zużywania konta bez partii.
+- Czas do akceptacji: ≈ 1 h 45 min (start Q → pełne `verify`), łącznie z bramą właściciela.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): QR (11,4 min).
+  - Potwierdzone 1 × P1. 2550-A nawigował offline do leniwie ładowanej trasy bez wcześniejszego otwarcia, więc krok był niewykonalny. Przesłanka pochodziła z briefu architekta. Ten sam warunek miał ZEB497, więc werdykt `keep` → `update`.
+  - Przyjęte 1 × P2: 2686-B wymagał dwóch kont, bez danych drugiego.
+  - Przyjęte 1 × P3: 2559-A zużywał jedyne konto bez partii.
+  - Odrzucone: 0.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `qas.py lint` 0; folder 208; nowe seq 2108–2113; aktualizacje 497 i 540; `[Removed]` 0; pełne `verify` 8 — 1 różnica fałszywa (autolink w 497), treść zgodna po normalizacji.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
