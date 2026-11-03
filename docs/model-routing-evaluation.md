@@ -9880,6 +9880,41 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak
 - Wymagane testy i dowody: macierz w formacie skilla; liczby per sekcja
 
+### 1632-QAS + QAS-K (QA Sphere: plik podglądu 34 nowych przypadków Pulpitu i wejścia Klientów, przegląd 27 istniejących) — 2026-11-03
+- Archetyp: QA Sphere — autor pliku podglądu (bez high-stakes)
+- Stawka: średnia
+- Niepewność: średnia (8 sygnałów wymaga skryptów SQL na PRE z krokami sprzątania)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, `-MuseHost windows` (generator ok. 24 min; korekta K ok. 9 min)
+- Recenzent (linia / model / native effort): Gemini (konto B) / `gemini-3.8-flash-high` / tylko odczyt (wpis 1632-R-QAS) + skrypt architekta porównujący cytaty z `pl.json`
+- Dopuszczone alternatywy: Gemini A `high` `-Access write` (gdy Muse zajęty lub z limitem)
+- Powód wyboru: reguła 8 — QA Sphere = Spark `max`; recenzja innej rodziny
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — `[pule]` Muse tydzień 14 %, 2026-11-03 ok. 17:30
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: lint 0/0; 34 przypadki, 27 werdyktów `keep`. Wykonawca sam zgłosił w raporcie, że P25 opisuje jako poprawne zachowanie wadliwe (konto bez roli właściciela otwiera Pulpit) — architekt potwierdził brak strażnika roli w całej gałęzi `/panel/biznes/*` (defekt sprzed PBI) i założył Bug #2881
+- Rundy korekt: 1 (K: P25 przepisany na zachowanie z dokumentacji z odesłaniem do Buga #2881; P15 — P1 z recenzji; P5/P6/P12 — nazwa stanu „Generowanie kodów” ze skryptu cytatów)
+- Czas do akceptacji: ok. 1 h 10 min od startu generatora do pełnego `verify`
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): zob. 1632-R-QAS; skrypt cytatów: 1 P3 (34 unikalne cytaty, reszta zgodna). Uwagi wykonawcy do briefu K: 2 potwierdzone (dosłowne „dopisz akapit” łamie lint pustą linią; zły numer linii dokumentu przeniesiony z raportu recenzenta), 1 odrzucona (asercja „adres nie pozostaje” zgodna z kryterium Buga #2881)
+- Defekty po odbiorze: 0 — wysłane seq 2128–2161; pełne `verify` 5 różnic, wszystkie fałszywe (autolink i `\_` w P25, akapit po bloku kodu w P5/P6/P9/P12), rozstrzygnięte odczytem HTML (`verify_html.py`, 5/5 zgodne, kontrola dodatnia wykrywa zmianę)
+- Wymagane testy i dowody: `qas.py lint --context` 0/0, `table`, `push --limit 1` + `verify --only P1`, `push`, pełne `verify` + odczyt HTML
+- Uwagi: pierwszy przebieg skryptu cytatów dał fałszywe „0 niedopasowanych” — znaki `„”` w regexie zniekształcone przez powłokę, a wzorce z kluczy złożonych z samego parametru (`{{name}}` → `.+?`) pasują do wszystkiego; skrypt cytatów pisać z `„`/`”` i odrzucać wzorce bez stałego tekstu.
+
+### 1632-R-QAS (recenzja pliku podglądu QA Sphere) — 2026-11-03
+- Archetyp: Recenzja QA Sphere (średnia stawka)
+- Stawka: średnia
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): — (recenzja pliku Sparka)
+- Recenzent (linia / model / native effort): Gemini (konto B) / `gemini-3.8-flash-high` / tylko odczyt, ok. 15 min
+- Dopuszczone alternatywy: Codex Sol `high` `-Mode review`
+- Powód wyboru: inna rodzina niż autor (Muse); konto B najpierw; przy niskiej i średniej stawce preferencja Gemini/Sol przed Muse (reguła 13)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — `[pule]` Gemini B ok, 2026-11-03 ok. 17:57
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: „wymaga korekty” (pewność 0,99) — 1 znalezisko
+- Rundy korekt: 0 (recenzja)
+- Czas do akceptacji: ok. 15 min przebiegu
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P1 potwierdzone (P15: „wiersz `Pozostałe (1)` znika” — w kodzie zostaje z tą samą etykietą i `aria-expanded`), 0 odrzuconych; uwaga o zamkniętym programie na koncie demo zgodna z treścią P13 (nie defekt). Nie wychwyciła nazwy stanu „Generowanie” (skrypt cytatów). P25 wyłączony briefem jako znany (Bug #2881)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: cytat kodu i dokumentu przy P1; jeden z dwóch numerów linii dokumentu błędny (l.73 zamiast l.325/l.437)
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
