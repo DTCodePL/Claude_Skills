@@ -9601,6 +9601,79 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak.
 - Wymagane testy i dowody: `qas.py lint` 0; folder 153; nowe seq 2114–2121; aktualizacje 1439 i 1440; `[Removed]` 0; pełne `verify` 10/10 bez różnic po normalizacji artefaktów eksportu (autolink, kolejność `requirements`), kontrola dodatnia wykryta; filtr testów z aktualizacji 1439 sprawdzony (27/27).
 
+### 2331-T (T1, K1) (testy dowodowe Buga bez łatki: zamykanie okna edycji partii tłem, „×” i Escape na szerokim ekranie, zwrot fokusu) — 2026-11-03
+- Archetyp: Testy jednostkowe FE (Vitest + jsdom) — czerwony test Buga na historycznym commicie (worktree architekta), gałąź A bez łatki; 1 spec + klasa układu ekranu.
+- Stawka: niska (zamykanie nakładki i fokus, bez niezmiennika).
+- Niepewność: średnia (klik w maskę `p-dialog` w jsdom bez lokalnego wyniku; dowód wymaga czerwieni na kodzie sprzed poprawki innego Buga).
+- Wykonawca (linia / model / native effort): Muse (Windows) / `muse-spark-1.3-contributor` `max` `-Access write`; korekta K1 ta sama para.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high` `-Mode review` (R1).
+- Dopuszczone alternatywy: wyk. Codex Sol `high` (1–2 pliki); `tester` Haiku 5.5 `xhigh` z powodem; rec. Gemini B `high`.
+- Powód wyboru: brief bez Figmy i niezmiennika → najpierw poza pulą Claude'a (reguła 3); recenzja innej rodziny, niska stawka → Sol `high`.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]` 2026-11-03 ~11:04Z, tydzień 11 %); Codex znany (`[pule]`, 5 h 26 %, tydzień 5 %).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: przyjęte z korektą — T1 11,9 min, 4/4 zielone na HEAD. Architekt potwierdził w worktree `0b90081`: 2 testy czerwone z właściwej przyczyny (okno zostaje otwarte; brak pytania o odrzucenie zmian), „×” i Escape zielone (regresja). Autor sam zgłosił odejście od briefu: pomocnicze funkcje na poziomie modułu, bo callback `describe` przekraczał `sonarjs/max-lines-per-function`.
+- Rundy korekt: 1 (K1, 4,5 min — pomocnicze funkcje do klasy w `<feature>/testing/`, wzorzec istniejącego harnessu; czerwień i zieleń powtórzone przez architekta).
+- Czas do akceptacji: ≈ 25 min (start T1 → odbiór K1).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1 (2,1 min) — potwierdzone 1 × P2 (wiele deklaracji na poziomie modułu spec, łamie „jedna deklaracja na plik”); odrzuconych brak.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `0b90081` — `2 failed | 2 passed (4)`; HEAD 4/4; `npm run lint` 0; `npm test` 550 plików / 6202 testy; `npm run build` OK.
+
+### 2331-D1 (rewizja dokumentu widoku: drogi zamknięcia okna edycji partii i zwrot fokusu) — 2026-11-03
+- Archetyp: Rewizja dokumentacji produktowej (1 dokument `zatwierdzony`, rewizja zatwierdzona z góry przez właściciela).
+- Stawka: niska.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Muse (Windows) / `muse-spark-1.3-contributor` `max` `-Access write`, repo Dokumentacja.
+- Recenzent (linia / model / native effort): architekt (Opus `xhigh`, Faza 4c — macierz zgodności); inna rodzina niż autor.
+- Dopuszczone alternatywy: wyk. Codex Sol `medium`; rec. Gemini B `high`.
+- Powód wyboru: archetyp „rewizje dokumentacji” (reguła 8); 1 dokument → odbiór architekta zamiast osobnej recenzji (reguła 11).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]` 2026-11-03 ~11:04Z, tydzień 11 %).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: przyjęte z poprawką architekta — 1,7 min, +13/−1. Słowo „zakładka” zamiast „filtr statusu” (3 miejsca) architekt poprawił sam jako zmianę jednowyrazową.
+- Rundy korekt: 0 (poprawka słownictwa po stronie architekta).
+- Czas do akceptacji: ≈ 30 min (z macierzą zgodności 4c).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): architekt — 1 × P3 słownictwo (potwierdzone, poprawione).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: diff tylko pliku zadania; macierz zgodności 4c; dziennik rozbieżności zamknięty.
+
+### 2331-B1 (worker przeglądarki: tło, „×”, Escape i dotknięcie tła arkusza — `document.activeElement` po każdej drodze) — 2026-11-03
+- Archetyp: Worker przeglądarki (Playwright CLI, `pwcli`) — dowód zachowania, bez łatki.
+- Stawka: niska.
+- Niepewność: średnia (konto demo bez partii na PRE; przejście na lokalne FE z tym samym kodem aplikacji).
+- Wykonawca (linia / model / native effort): Muse (Windows) / `muse-spark-1.3-contributor` `high`, sesja przez `state-load` od architekta (bez hasła w briefie).
+- Recenzent (linia / model / native effort): brak — dowód; raport, odczyty `eval` i zrzuty odbiera architekt.
+- Dopuszczone alternatywy: Gemini konto A + Playwright MCP `--isolated`; Codex po potwierdzeniu Playwright MCP.
+- Powód wyboru: `browser-check` nie asertuje fokusu ani kliknięcia w samą maskę → worker od razu; archetyp operacyjny → Spark `high` (reguła 8).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]` 2026-11-03 ~11:04Z, tydzień 11 %).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: przyjęte — 5,2 min, 9/9 PASS. Desktop Light/Dark: tło bez zmian, tło po zmianie → pytanie → odrzucenie i powrót, „×”, Escape; telefon: dotknięcie tła. `location.href` sprawdzany przed zrzutami, zrzuty obejrzane.
+- Rundy korekt: 0.
+- Czas do akceptacji: ≈ 15 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: raport z `data-batch-id` aktywnego elementu po każdej drodze; zrzuty desktop Light/Dark i telefon.
+
+### 2331-Q (QAS, R-QAS, QAS-K1) (QA Sphere — przegląd 24 przypadków w 2 folderach + przypadek retestu Buga) — 2026-11-03
+- Archetyp: QA Sphere — przegląd (Krok 2b) + plik podglądu; publikacja `qas.py` przez architekta.
+- Stawka: niska.
+- Niepewność: średnia (nieaktualne hasło konta demo i brak partii na PRE — warunki wstępne do przepisania w całym obszarze).
+- Wykonawca (linia / model / native effort): Muse (Windows) / `muse-spark-1.3-contributor` `max` `-Access write`; korekta QAS-K1 ta sama para.
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` `-Access read` (R-QAS).
+- Dopuszczone alternatywy: wyk. Gemini A write; rec. Codex Sol `high`.
+- Powód wyboru: skill `qasphere-test-generator` + reguła 8; recenzja innej rodziny, najpierw konto B.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]` 2026-11-03 ~12:00Z, tydzień 11 %); Gemini B znany (`gemini-konta.json`, ok).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: przyjęte z korektą — QAS 14 min, lint 0. Werdyktów 25: 1 zostaje, 24 aktualizacja, 0 `[Removed]`. Do tego 1 nowy przypadek (fokus na „×” tuż po otwarciu), który architekt usunął w korekcie: dokument nie normuje fokusu przy otwarciu, a przesłankę wprowadził brief architekta.
+- Rundy korekt: 1 (QAS-K1, 5,9 min — 5 zleconych zmian; diff ograniczony do zleconych pól, lint 0). Autor słusznie wskazał w briefie błędny komunikat walidacji i to, że w jednym kroku potrzebna jest wstawka, nie dopisek.
+- Czas do akceptacji: ≈ 1 h (start QAS → pełne `verify`), łącznie z bramą właściciela.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-QAS (12 min) — potwierdzone:
+  - 1 × P1: `keep` dla przypadku, którego instrukcja utworzenia partii utyka na koncie wieloprogramowym;
+  - 2 × P2: przypadek arkusza na wąskim ekranie bez sprawdzenia fokusu (przesłanka briefu architekta „pokrywa zwrot fokusu” była błędna); stałe nazwy partii na wspólnym koncie;
+  - 1 × P3: brak sprawdzenia fokusu w kroku tła przy czystym formularzu.
+
+  Odrzucone 2 × P3: nazwa partii wynika z decyzji briefu; krok z endpointem PDF jest poza zakresem.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `qas.py lint` 0; aktualizacje 528, 530–546, 2080–2083, 2107, 1085; nowe 0; `[Removed]` 0; surowe `verify` 21 różnic — wszystkie fałszywe (autolink, kolejność `requirements`); `verify` z normalizacją 24/24 bez różnic.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
