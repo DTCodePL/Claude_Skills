@@ -9686,6 +9686,40 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
    - **Mała próbka nie uzasadnia rankingu:** jeśli dla danego archetypu liczba zrealizowanych briefów jest niewielka, nie wolno tworzyć definitywnych rankingów modeli ani automatycznych reguł sztywnego przypisania.
    - Wnioski z przeglądów stanowią wskazówkę operacyjną i podlegają walidacji przy zachowaniu twardych ograniczeń bezpieczeństwa, uprawnień i narzędzi.
 
+### 1981-F1 (Figma: stan nieudanego wylogowania w layoucie publicznym, 2 zestawy × 2 motywy) — 2026-11-03
+- Archetyp: Frontend UI / Figma (stan layoutu złożony z instancji layoutu i komponentu biblioteki)
+- Stawka: niska (makieta stanu, bez plików niezmiennika)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 / `high`
+- Recenzent (linia / model / native effort): architekt (Opus 5.5 `xhigh`) — odbiór zrzutem `get_screenshot`; żadna inna rodzina nie ma w sesji potwierdzonego Figma MCP
+- Dopuszczone alternatywy: brak (Muse i Gemini bez Figmy; Codex bez potwierdzonego Figma MCP w sesji)
+- Powód wyboru: twarda bramka Figma MCP; próba A/B linii Figmy zamknięta na `wykonawca`
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — hook `[limity Claude]` ZIELONY, 2026-11-03 ok. 14:05
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 5 min (przebieg 261 s + zrzut odbioru)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): odbiór bez uwag blokujących; wykonawca obalił przesłankę briefu (kolekcje PrimeNG `1572:1673` i `3732:46` to jedna kolekcja pod dwoma ID — potwierdzone, notatka pamięci poprawiona)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: zrzuty obu zestawów (Light/Dark, 1280/360); 2 wpisy `explicitVariableModes` na wariant
+
+### 1981-R1 (recenzja rewizji dwóch zatwierdzonych dokumentów: decyzja i interfejs layoutu) — 2026-11-03
+- Archetyp: Dokumentacja / recenzja rewizji normatywnej
+- Stawka: średnia (dokument normatywny o zakończeniu sesji, bez kodu)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): architekt — Claude / Opus 5.5 / `xhigh` (dokumentacja źródłowa, reguła 4)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read`
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` (odczyt), Muse Spark 1.3 `max` `-Access read`
+- Powód wyboru: odczyt dokumentów i kodu bez MCP; preferencja Sol `high` / Gemini `high` przy niższej stawce; konto B najpierw (decyzja 2026-11-02)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — `[pule]` „Gemini: B ok 13:34”, 2026-11-03 ok. 14:10
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty (u autora)
+- Rundy korekt: 1 (architekt, bez ponownej recenzji — poprawki wprost z sugestii recenzenta)
+- Czas do akceptacji: ok. 15 min (przebieg 740 s + triaż)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone P1 ×2 (opis wąskiego ekranu sprzeczny z dokumentem — awatar zamiast sekcji użytkownika; wyłączenie sesji sprzedawcy tylko w sekcji rewizji), przyjęte P2 ×2 (doprecyzowanie zakazu czyszczenia sesji bez zmiany adresu; blok konta szuflady w „Nawigacji”); odrzucone P3 ×1 (zakres `layout-aplikacji` zatwierdzony przez właściciela); trafna uwaga do briefu (trzeci konsument wylogowania — już opisany w dokumencie strony zakupu, dopisana wzmianka)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: linki względne sprawdzone (recenzent i architekt); commit w repo dokumentacji
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
