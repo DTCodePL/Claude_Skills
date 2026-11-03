@@ -9402,6 +9402,58 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: `qas.py lint` 0; foldery 203–207, seq 2084–2105, update 917 i 2074; pełne `verify` 24 — 2 fałszywe różnice (kolejność `requirements`; zbiory identyczne wg odczytu przypadków).
 - Uwaga: błąd 400 zapisany w pamięci (`muse-mcp-rekurencyjny-schemat-400`) — brief Muse bez potrzeby MCP zakazuje MCP i `tool_search`.
 
+### 2529-B1 (B1, B1b, B1c, B1d, B1d-K, B1e) (testy dowodowe trzech Bugów nakładek: Escape w oknie na szerokim ekranie, zamykanie arkusza dotykiem, potwierdzenie odrzucenia i zwrot fokusu) — 2026-11-02
+- Archetyp: Testy jednostkowe FE (Vitest + jsdom) — czerwony test Buga i regresja, 5 plików spec.
+- Stawka: niska–średnia (wspólne komponenty nakładki i fasada potwierdzeń, bez niezmiennika high-stakes).
+- Niepewność: wysoka (przyczyna #2529 i #2535 nieznana przed falą; jsdom nie odtwarza czasu animacji).
+- Wykonawca (linia / model / native effort): Claude / `tester` Haiku 5.5 `xhigh`.
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` `-Access read` (R1).
+- Dopuszczone alternatywy: Spark 1.3 `max` (wtedy łatka do innej linii); Luna `high` (pula Codexa wtedy niska).
+- Powód wyboru: test i łatka w dwóch liniach; łatka poza pulą Claude'a (Spark).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY, 2026-11-02 ~17:48); Gemini B znany.
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: wymagane korekty — T3 czerwony z właściwej asercji, reszta zielona; 1 błąd `max-lines` (`qr-codes.spec.ts` 1027 linii).
+- Rundy korekt: 5 (B1b/B1c — testy zwrotu fokusu w `Notification` i otwarcia panelu po pomiarze przyczyny w Chrome; B1d + B1d-K — poprawki po R1 i `max-lines` → 991; B1e — test na `Dialog.focus` po `onAfterEnter` po R2). Część rund wynikała z przyczyny ustalanej dopiero pomiarem w przeglądarce, nie z błędów testera.
+- Czas do akceptacji: —
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1 — potwierdzone 2 × P1 (fokus na odłączonym elemencie w jsdom = no-op; brak zwrotu fokusu w asercji), 4 × P2/P3 przyjęte; obalone 1 × P1 (T3 zielony z łatką) i 1 × P3.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: czerwień #2843 w worktree z `edit-batch-dialog.ts/.html` sprzed `337893e` (5 czerwonych z „confirm 0 times”); czerwień T3, O1 i `notification.spec.ts` przed łatką; po łatce zielone bez zmian; pełne `npm test` 6181/6183 (2 × Bug #2686 sprzed zadania).
+
+### 2529-B2 (B2, B2-K1, B2-K2, B2-K3) (fokus okna na szerokim ekranie zaraz po wpięciu przez bibliotekę, zwrot fokusu po potwierdzeniu) — 2026-11-02
+- Archetyp: Frontend — wspólny komponent nakładki i fasada potwierdzeń (wielu konsumentów), bez Figmy.
+- Stawka: średnia (przekrojowo: każde okno na szerokim ekranie i każde potwierdzenie).
+- Niepewność: wysoka (wyścig z animacją PrimeNG; przyczyna ustalona instrumentacją w Chrome).
+- Wykonawca (linia / model / native effort): Muse (Windows) / `muse-spark-1.3-contributor` `max` `-Access write`; korekty ta sama para.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high` `-Mode review` (R2).
+- Dopuszczone alternatywy: wyk. `wykonawca` Sonnet `high` (z powodem); Gemini A Flash `high`. Rec. Gemini B (w planie; po pełnym resecie Codexa, o którym poinformował właściciel, wybrany Sol `high`).
+- Powód wyboru: brief bez Figmy i niezmiennika → najpierw poza pulą Claude'a (reguła 3).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]` tydzień 2–10 %); Codex znany po darmowym pełnym resecie właściciela (`[pule]` 0 %/0 %).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: wymagane korekty — B2 i B2-K1 zielone w jsdom, ale w Chrome Escape 0 ms nadal połykany: `viewChild` krzyżyka projektowanego do `p-dialog` wskazywał odłączoną kopię (zmierzone `diag-2529h`), a efekt nie miał czego skupić.
+- Rundy korekt: 3 (K1 — brama na sygnale `Dialog.container()`; K2 — krzyżyk z kontenera biblioteki przez `querySelector`; K3 — `[focusOnShow]="false"` po R2). Specyfikacja K1 była błędna co do źródła referencji — przyczyna u architekta, nie u wykonawcy.
+- Czas do akceptacji: —
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R2 — potwierdzone 1 × P2 (PrimeNG po animacji bezwarunkowo skupia pierwszy element i odbiera fokus polu, do którego przeszedł użytkownik; zmierzone w Chrome `stolen:true` → po K3 `stolen:false`); odrzucone 0.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: lint 0, build 0, `npm test` 6181/6183 (2 × Bug #2686 sprzed zadania), format:check — 2 pliki sprzed zadania; `browser-check` AFTER 18/18 (scenariusz bez zmian, SHA-256 jak BEFORE); Chrome: Escape 0 ms zamyka, Tab w animacji nie jest cofany, akceptacja potwierdzenia → fokus na „⋮”; PRE 1.15.4 / `1bb2e2f`.
+- Uwaga: wniosek dla briefów nakładek PrimeNG — referencja `viewChild` do węzła projektowanego do `p-dialog` może wskazywać kopię spoza kontenera; brief każe brać element z `Dialog.container()`.
+
+### 2529-Q (QAS, R-QAS, QAS-K1) (QA Sphere — przegląd 45 istniejących przypadków w 3 folderach i nowe przypadki trzech Bugów) — 2026-11-03
+- Archetyp: QA Sphere — przegląd (Krok 2b) + plik podglądu; publikacja `qas.py` przez architekta.
+- Stawka: niska–średnia.
+- Niepewność: średnia (wyścigi ~0,3 s w krokach ręcznych; zakres unieważnień starszą decyzją).
+- Wykonawca (linia / model / native effort): Muse (Windows) / `muse-spark-1.3-contributor` `max` `-Access write`; korekta QAS-K1 ta sama para.
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` `-Access read` (R-QAS).
+- Dopuszczone alternatywy: wyk. Gemini A write; rec. Sol `high` (Codex po resecie z zapasem, ale preferencja konta B przy niskiej stawce).
+- Powód wyboru: skill `qasphere-test-generator` + reguła 8; recenzja innej rodziny, najpierw konto B.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`pule.json` 2026-11-02 ~23:00Z: 5 h 0 %, tydzień 10 %); Gemini B znany (`gemini-konta.json`, ok 22:20Z).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: przyjęte z korektą — 11,6 min, lint 0; autor obalił dwie przesłanki briefu architekta (tytuł okna „Pobrać niewykorzystane kody?”, zakres unieważnień przez DEC-POBIERANIE-PDF-POSTEP-W-TLE — TC 825/837/838/840), obie potwierdzone.
+- Rundy korekt: 1 (QAS-K1 — 7 punktów z triażu R-QAS i uwagi architekta o wykonalności kroków „w trakcie animacji”; diff = 7 zleconych zmian, lint 0).
+- Czas do akceptacji: ≈ 1 h (start generatora ~23:06Z 2026-11-02 → pełne `verify` ~00:05Z 2026-11-03), łącznie z akceptacją `[Removed]` przez właściciela.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-QAS (9,9 min) — potwierdzone 1 × P0 (TC 829 opisuje przyciski w wierszach Sukcesu, zastąpione checkboxami — `keep` błędny), 2 × P1 (B1: oczekiwany link „Zmień nazwę” przy nazwie ręcznej; TC 533: klik w pole nazwy, którego przy nazwie automatycznej nie ma), 2 × P2 i 1 × P3 przyjęte; odrzucona 1 uwaga (rozdzielczości istniejących przypadków).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `qas.py lint` 0; nowe seq 2106 (A1), 2107 (B1); aktualizacje 533, 825, 838, 840, 841, 842, 2082, 2083; `[Removed]` 829, 837 (akceptacja właściciela 2026-11-03); pełne `verify` 12 — 5 różnic fałszywych (kolejność `requirements` ×4, autolink w 533), zbiory i tekst zgodne z odczytem.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
