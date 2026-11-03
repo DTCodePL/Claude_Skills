@@ -10051,6 +10051,57 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak
 - Wymagane testy i dowody: macierz w formacie skilla; liczby per sekcja mapy
 
+### 1633-QAS + QAS-K (QA Sphere: przegląd 29 przypadków folderu Pulpitu + 32 nowe przypadki pasma „Jak idzie” z SQL danych na PRE) — 2026-11-03
+- Archetyp: QA Sphere
+- Stawka: średnia
+- Niepewność: średnia (dane deterministyczne na współdzielonym PRE, granice okien w czasie polskim)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max` (`-Access write`, host windows; QAS 31,6 min, QAS-K 7,6 min)
+- Recenzent (linia / model / native effort): Gemini (konto B) / `gemini-3.8-flash-high` / tylko odczyt (R-QAS) + architekt (cytaty z `pl.json`/`en.json` skryptem, nazwy tabel względem `DbDiagram.dbml`, triaż)
+- Dopuszczone alternatywy: Gemini A `high` write (autor); Codex Sol `high` (recenzja)
+- Powód wyboru: reguła 8 — QA Sphere na Sparku `max`; recenzja innej rodziny, konto B najpierw
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — `[pule]` Muse tydzień 14–15 %, 2026-11-03 ok. 20:45 i 21:30
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: lint 0/0; przegląd 28 zostaje / 1 aktualizacja (seq 2143) / 0 `[Removed]` przyjęty bez zmian. Korekta K1–K6:
+  - błędne hasło konta cudzego w J23 — przesłanka z briefu architekta („hasło wszystkich kont demo”), nie defekt autora;
+  - `fetch` z konsoli bez nagłówka `Authorization` w J22 i J23 — niewykonalne kroki, P1 znalezione przez architekta;
+  - godzina wykonania J10;
+  - pełne oczekiwanie kafli po angielsku w J31;
+  - etykieta `Level-ups` w J8;
+  - kreator onboardingu po F5 — we wszystkich 32 przypadkach.
+- Rundy korekt: 1 (QAS-K; jedno odchylenie autora wymuszone lintem — „`Bearer` i spacji” zamiast spacji w kodzie)
+- Czas do akceptacji: ok. 2 h (z recenzją i bramą właściciela)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): patrz 1633-R-QAS; architekt dodał 1 × P1 potwierdzone (`fetch` bez tokenu), którego recenzja nie wykryła
+- Defekty po odbiorze: brak (`qas.py verify` 33/33, 0 różnic)
+- Wymagane testy i dowody: `qas.py lint` 0/0; `table`; cytaty 67 (6 nazw własnych i etykiet DevTools); `verify` po wysyłce: nowe seq 2162–2193, zaktualizowane 2143
+
+### 1633-R-QAS (recenzja pliku przypadków QA Sphere pasma „Jak idzie”) — 2026-11-03
+- Archetyp: Recenzja QA Sphere
+- Stawka: średnia
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Gemini (konto B) / `gemini-3.8-flash-high` / tylko odczyt (8,3 min)
+- Recenzent (linia / model / native effort): architekt (obalenie lub potwierdzenie każdego P0/P1 na pliku i kodzie)
+- Dopuszczone alternatywy: Codex Sol `high`
+- Powód wyboru: autor z rodziny Muse; konto B najpierw (odczyt, bez MCP)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — `[pule]` Gemini B ok, 2026-11-03 ok. 21:20
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: 3 × P1, 2 × P2, 2 × P3; werdykt „wymaga poprawek”, pewność 0,95. Obalone (4):
+  - P1 J6 — formę dla 1 sprawdza J2;
+  - P1 J10 w części o czasie letnim — cytowane minuty 1350 nie istnieją w pliku, faktyczne 1260 działają w CET i CEST;
+  - P2 luka programu zamkniętego — pokrywa ją krok 3 J16;
+  - P3 J1 — cytowany `THROW` nie istnieje w J1.
+
+  Potwierdzone jako drobne (3):
+  - J10 — okno nocne z różną datą UTC i polską;
+  - J31 — niedookreślona linia zmiany kafla dominującego;
+  - etykieta `Level-ups` po angielsku.
+
+  P2 samonaprawy stanu odrzucone — komunikaty `THROW` już mówią, jak przywrócić stan.
+- Rundy korekt: —
+- Czas do akceptacji: ok. 20 min triażu
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 0 × P1 (2 jako P2/P3 po zawężeniu) + 1 × P3; odrzucone 2 × P1, 2 × P2, 1 × P3. Cytaty kodu w zgłoszeniach częściowo zmyślone (np. `buildActivityChange(data.returningCustomers, true)` — takiej sygnatury nie ma). Recenzja nie wykryła P1 `fetch` bez tokenu w J22 i J23.
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: każde P0/P1 sprawdzone na pliku i kodzie (`build-activity-change.ts`, `activity-band.html`, SQL J10, J2, J16)
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
