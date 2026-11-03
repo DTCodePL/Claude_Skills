@@ -9559,6 +9559,48 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak.
 - Wymagane testy i dowody: `qas.py lint` 0; folder 208; nowe seq 2108–2113; aktualizacje 497 i 540; `[Removed]` 0; pełne `verify` 8 — 1 różnica fałszywa (autolink w 497), treść zgodna po normalizacji.
 
+### 2668-R1 (recenzja wsteczna łatki BE z poprzedniego przebiegu: odmiana liczby w treści wiadomości, 3 pliki produkcyjne + 4 testowe) — 2026-11-03
+- Archetyp: Recenzja kodu BE (szablon wiadomości, formater, cykl wysyłki) — tylko odczyt, zakres = jeden commit.
+- Stawka: niska–średnia (treść e-maila, bez niezmiennika high-stakes; bramka Sol `max` nie dotyczy).
+- Niepewność: niska (reguła odmiany zamknięta w dokumencie; ryzyko przejściowe kolejki wskazane w briefie).
+- Wykonawca (linia / model / native effort): łatka i testy z przebiegu 2026-10-27 — Muse / `muse-spark-1.3-contributor` `max` (dwa briefy tej samej linii; odchylenie od procedury — test i łatka jednej rodziny, łatka bez walidacji i recenzji). Dowód czerwień → zieleń odtworzył architekt na zamrożonym pliku testu.
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` `high`, `-Mode review`.
+- Dopuszczone alternatywy: Gemini konto B `gemini-3.8-flash-high` `-Access read`.
+- Powód wyboru: autor Muse → inna rodzina; lokalnie Sol `high` z niskim odsetkiem odrzuconych znalezisk w recenzjach BE.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex znany (`[pule]` 2026-11-03 ok. 10:20: 5 h 22 %, tydzień 5 %).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: przyjęte — 2,1 min; 0 × P0/P1; specyfikacja bez zastrzeżeń recenzenta.
+- Rundy korekt: 0 (korekta K1 niepotrzebna).
+- Czas do akceptacji: ≈ 25 min (start R1 → obalenie znalezisk).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet):
+  - Odrzucone 1 × P2 (wiadomość zakolejkowana przed wdrożeniem bez nowego parametru trafia po ponowieniach do `DeadLetter`): mechanizm prawdziwy w kodzie, ale baza PRE ma 0 wiadomości tego typu (odczyt `sqlcmd`), produkcja nie istnieje — brak populacji w tym wydaniu.
+  - Odrzucone 1 × P3 (angielski podgląd deweloperski z polską próbką): wzorzec zastany — próbki szablonów nie znają języka w kilku innych szablonach; tylko narzędzie `[DevToolsOnly]`.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: czerwony na rodzicu łatki 4/7 (asercja wprowadzenia), zielony 7/7 na `main` z tym samym SHA-256 pliku testu; pełne `dotnet test` 9603 ✔ / 1 pominięty (zastany) / 0 ✘; build 0 ostrzeżeń; przegląd zgodności dokumentacji 0 rozbieżności.
+
+### 2668-Q (Q, R-Q, Q-K1) (QA Sphere — przegląd 13 istniejących przypadków w 1 folderze i nowe przypadki odmiany) — 2026-11-03
+- Archetyp: QA Sphere — przegląd (Krok 2b) + plik podglądu; publikacja `qas.py` przez architekta.
+- Stawka: niska.
+- Niepewność: niska (istniejący folder z wzorcem przygotowania stanu SQL-em).
+- Wykonawca (linia / model / native effort): Muse (Windows) / `muse-spark-1.3-contributor` `max` `-Access write`; korekta Q-K1 ta sama para.
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` `-Access read` (R-Q).
+- Dopuszczone alternatywy: wyk. Gemini A write; rec. Codex Sol `high`.
+- Powód wyboru: skill `qasphere-test-generator` + reguła 8; recenzja innej rodziny, najpierw konto B.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]` 2026-11-03 ok. 10:30: tydzień 11 %); Gemini B znany (`gemini-konta.json`, ok 10:37).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: przyjęte z korektą — Q 9,9 min, lint 0. Przegląd: 11 zostaje, 2 do aktualizacji, 0 `[Removed]`; 8 nowych. Autor obalił 4 przesłanki briefu architekta, wszystkie przyjęte:
+  - zakaz tagów był sprzeczny z `lint` (wymaga niepustych tagów);
+  - zakres liczby kodów partii jest w dokumencie UI, nie w regułach biznesowych;
+  - `context.json` nie zawiera kont;
+  - minimalna partia (1 kod) nie da ostrzeżenia progowego.
+- Rundy korekt: 1 (Q-K1, 3,3 min — tylko aktualizacja jednego przypadku; diff ograniczony do zleconego wpisu, lint 0).
+- Czas do akceptacji: ≈ 50 min (start Q → pełne `verify`), bez osobnej bramy podglądu (decyzja właściciela).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-Q (13,2 min).
+  - Potwierdzone częściowo 1 × P1 (+ powiązane P2): krok aktualizacji kazał testerowi samemu budować frazę, którą test sprawdza, a uwaga o preheaderze stała w wyniku oczekiwanym. Zamiast proponowanego `retire` — `update` wg wzorca sąsiedniego przypadku (uruchomienie prawdziwych testów na wdrożonym commicie), bo cel testu bez zmian, a tester powołuje się na ten przypadek.
+  - Odrzucone 1 × P2 (tagi nowych przypadków — wymaga ich `lint`) i 1 × P3 (pusta lista tagów w aktualizacji — `lint` jej nie przyjmie, pominięcie pola nic nie zmienia).
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `qas.py lint` 0; folder 153; nowe seq 2114–2121; aktualizacje 1439 i 1440; `[Removed]` 0; pełne `verify` 10/10 bez różnic po normalizacji artefaktów eksportu (autolink, kolejność `requirements`), kontrola dodatnia wykryta; filtr testów z aktualizacji 1439 sprawdzony (27/27).
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
