@@ -9674,6 +9674,59 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak.
 - Wymagane testy i dowody: `qas.py lint` 0; aktualizacje 528, 530–546, 2080–2083, 2107, 1085; nowe 0; `[Removed]` 0; surowe `verify` 21 różnic — wszystkie fałszywe (autolink, kolejność `requirements`); `verify` z normalizacją 24/24 bez różnic.
 
+### 2864-B1 (B1, K1, K2) (BE: wynik przerwania zlecenia dopłaty po powrocie ze strony płatności rozstrzyga chwila powrotu wobec `expires_at`; webhook i odczyt stanu nie przejmują wyniku sesji wygaszonej na żądanie) — 2026-11-03
+- Archetyp: Backend — pliki niezmiennika high-stakes (płatności Stripe: wynik przerwania, webhook `checkout.session.expired`, odczyt stanu zlecenia).
+- Stawka: wysoka.
+- Niepewność: średnia (wyścigi webhooka i odczytu stanu z ręcznym wygaszeniem; zachowanie `expires_at` po ręcznym wygaszeniu sprawdzone przez architekta w sandboksie przed planem).
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-sonnet-xhigh` Sonnet 5.5 `xhigh` — **próba C2, 2. brief ramienia Sonnet** (poprzednia funkcja wysokiej stawki #2406 → Opus; następna → `wykonawca-opus`); korekty K1, K2 ta sama linia, nowe przebiegi.
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` `max`, `-Access read` (R1, w limicie Wondera); bramka Codex / `gpt-6.1-sol` `max` (2864-G-BE).
+- Dopuszczone alternatywy: `wykonawca-opus` Opus 5.5 `xhigh`; przy CZERWONYM Muse Wonder Full `max` albo czekanie; recenzent Sol `high` tylko po limicie Wondera.
+- Powód wyboru: C2 — ta sama para recenzenta co ramię Opus, bramka bez zmian. Złożoność średnia (3 ścieżki zamykania zlecenia, reguła czasu z operatora).
+- Pliki niezmiennika / pliki briefu: `CancelChangeOrderCommandHandler.cs` (rozstrzygnięcie przerwania), `SeatIncreaseCheckoutEventProcessor.cs` (K1: webhook nie zamyka sesji wygaszonej na żądanie przed `expires_at`), `RefreshChangeOrderCommandHandler.cs` (K2: odczyt stanu — ta sama reguła), `SeatIncreaseCheckoutState.cs` i `StripeSeatIncreaseCheckoutCalls.cs` (stan sesji operatora, z którego wynika rozstrzygnięcie; filtr „godzina nieznana”) / testy xunit tych plików + harness, XML atrapy, komentarze interfejsu i SQL — w tym samym briefie (wspólny kontrakt, podział nieopłacalny).
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY, tydzień +2 pp); Wonder w limicie wrappera (tydzień 3/10, dzień 0/3 przed R1).
+- Pewność decyzji: średnia.
+- Wynik pierwszego podejścia: przyjęte — build 0 ostrzeżeń, pełny pakiet 9618/9619 (+1 pominięty poza zakresem). Wykonawca w sekcji „co błędne w specyfikacji” wykazał wyścig: nasze własne wygaszenie sesji wywołuje webhook `checkout.session.expired`, który mógł zamknąć zlecenie jako „czas minął” przed zapisem przerwania — luka planu architekta, przyjęta → K1.
+- Rundy korekt: 2 — K1 (luka planu wskazana przez wykonawcę; 9630/9631), K2 (znaleziska R1; 9645/9646).
+- Czas do akceptacji: ≈ 1 h 25 min (otwarcie 13:11Z → odbiór K2 i start bramki 14:37Z).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1 (14,3 min) — „niepoprawny” 0,80: 1 × P1 wyścig odczytu stanu zlecenia (scenariusz z jedną kartą obalony — FE przy przerwaniu nie odpytuje stanu; wyścig potwierdzony w węższym wariancie: druga karta / inne zapytanie) → K2; 2 × P3 (nieaktualny komentarz interfejsu procesora; filtr „godzina nieznana” pomijał `default(DateTime)`) → K2; 0 odrzuconych w całości. Bramka BE — 0.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: pełne `dotnet test` z `ZEBRANI_TEST_SQLSERVER` po każdej rundzie; build bez ostrzeżeń; przegląd zgodności 4c 9/9 (UI-KONTO 2026-11-02 pkt 1–6, INT 2026-11-03 pkt 1–3); PRE `api/version` = 1.17.3 / `e3762f8`.
+- Uwagi C2: luka wyścigu webhooka wynikała z planu architekta, nie z wykonania — wykonawca ją wykrył (plus dla ramienia). Koszt briefu — raport tokenów per ADO (#2864).
+
+### 2864-G-BE (bramka końcowa BE) — 2026-11-03
+- Archetyp: Recenzja — bramka końcowa funkcji high-stakes (reguła 6), cały diff repozytorium w jednym przebiegu.
+- Stawka: wysoka.
+- Niepewność: niska.
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` `max`, `-Mode review`.
+- Recenzent (linia / model / native effort): architekt Opus 5.5 `xhigh` — triaż.
+- Dopuszczone alternatywy: brak (limit → darmowy pełny reset Codexa, decyzja właściciela; niepotrzebny).
+- Powód wyboru: reguła 6; pliki niezmiennika pisała rodzina Claude.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex znany (`[pule]` 2026-11-03: 5 h 0 %, tydzień 6 %, 1 darmowy reset).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: 0 znalezisk (7,1 min, 19 plików BE: B1 + K1 + K2 + wersja).
+- Rundy korekt: 0.
+- Czas do akceptacji: 7,1 min.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: drzewo bez zmian po przebiegu (tylko odczyt).
+
+### 2864-Q (Q, R-Q, Q-K1, R-Q2) (QA Sphere — przegląd 2 folderów zmiany abonamentu i nowy folder upływu czasu na płatność) — 2026-11-03
+- Archetyp: QA Sphere — przegląd (Krok 2b) + plik podglądu; publikacja `qas.py` przez architekta, w funkcji high-stakes.
+- Stawka: średnia (przypadki manualne funkcji płatności; bez kodu).
+- Niepewność: średnia (scenariusz „po wygaśnięciu” wymaga 33 min na stronie operatora; wygląd wygasłej strony Stripe niepewny).
+- Wykonawca (linia / model / native effort): Muse (Windows) / `muse-spark-1.3-contributor` `max` `-Access write`; korekta Q-K1 ta sama para.
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` `-Access read` (R-Q, ponowna R-Q2 po korekcie).
+- Dopuszczone alternatywy: wyk. Gemini A write; rec. Codex Sol `high` (pula na bramkę — po bramce dostępny).
+- Powód wyboru: skill `qasphere-test-generator` + reguła 8 (Spark `max` także w funkcji high-stakes); recenzja innej rodziny, najpierw konto B.
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]`: tydzień 11–13 %); Gemini B znany (`gemini-konta.json`, ok).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: przyjęte z korektą — Q 8,0 min, lint 0. Przegląd: 35 zostaje, 1 do aktualizacji (ZEB-1576), 0 `[Removed]`; 6 nowych (E1–E6).
+- Rundy korekt: 1 (Q-K1, 5,7 min, lint 0; autor wskazał 2 napięcia wewnętrzne briefu korekty — rozstrzygnięte bez zmian).
+- Czas do akceptacji: ≈ 53 min (start Q 14:51Z → pełne erify 15:44Z), bez osobnej bramy podglądu (decyzja właściciela).
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-Q — „Wymaga poprawek”: potwierdzone 1 × P1 (krok powrotu po wygaśnięciu bez wariantu ekranu wygaśnięcia → oba warianty albo „zablokowany”), częściowo 1 × P1 (E6: tylko angielski komunikat przerwania; część o ryzyku sesji obalona), 2 × P2 (nazwy angielskie dosłownie z `en.json`, dokładne przyciski zamknięcia), 1 × P3 (E4 ta sama karta); odrzucone 1 × P1 (przypadek „po wygaśnięciu na zakładce Program” — rozstrzygnięcie nie zależy od zakładki, start z Programu pokrywa ZEB-1576). R-Q2 (11,6 min) — „Plik gotowy do zapisu”: decyzje 1–5 korekty wykonane, 0 P0/P1/P2; 1 × P3 (ogólne „Zamknij nakładkę.” w aktualizacji ZEB-1576) — bez zmian, dotychczasowe brzmienie istniejącego przypadku. Recenzent słusznie wskazał w briefie korekty: reguła „stan wyniku → »Zamknij«” nie obejmuje sukcesu („Później”), a uzasadnienie skrócenia E6 („napis bez zmian”) było słabe — faktycznym powodem jest koszt 33 min oczekiwania.
+- Defekty po odbiorze: brak.
+- Wymagane testy i dowody: `qas.py lint` 0; folder 209; nowe seq 2122–2127; aktualizacja 1576; `[Removed]` 0; `verify --only E1` 0 różnic, pełne `verify` 7/7 bez różnic.
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
