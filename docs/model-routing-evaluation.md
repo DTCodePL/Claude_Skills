@@ -10365,6 +10365,91 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak
 - Wymagane testy i dowody: dosłowne cytaty SQL z pliku przy P0/P1 (zgodne z plikiem); triaż jednym poleceniem na znalezisko
 
+### 2892-B1 (tokeny wykresów w presecie, aliasy, 5 par kontrastu, SemVer) — 2026-11-04
+- Archetyp: Refactoring / tokeny design systemu (FE, 7 plików + 3 pliki wersji)
+- Stawka: niska (bez niezmiennika, bez Figmy, bez zmiany wyglądu)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access write`
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` z `-BriefFile`
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` w dwóch porcjach ≤ 5 plików; `wykonawca` — brak powodu z reguły 3
+- Powód wyboru: brief bez Figmy i niezmiennika najpierw poza pulą Claude'a; 7 plików ponad porcję Codexa; archetyp „implementacja bez niezmiennika” (reguła 8)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — `[pule]` Muse, odczyt sprzed 17 min, 2026-11-04 ok. 10:45Z
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano (185 s); sprawdzenia własne zielone, 0 odchyleń; dwie trafne uwagi o specyfikacji (liczby z komentarza do potwierdzenia odczytem — potwierdzone; dryf dokumentu AT — już w planie)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 25 min z walidacją (generator lustra, pełne lint/test/build, zrzuty przed/po, odczyt `/design/kolory`)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak (Sol: `findings: []`, „patch is correct”, 0,96)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: `ng test` specu par 4/4; pełne `npm test` 598/6675; lint 0; build 0; `browser-check` 2×2: Pulpit różni się wyłącznie stopką wersji (diff pikseli), 5 par ≥ 3:1 w Light i Dark
+
+### 2892-R1 (recenzja B1 + audyt SCSS w jednym przebiegu) — 2026-11-04
+- Archetyp: Recenzja kodu FE niskiej stawki
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review`, `-BriefFile`
+- Recenzent (linia / model / native effort): — (recenzja)
+- Dopuszczone alternatywy: Gemini B `gemini-3.8-flash-high`
+- Powód wyboru: niska stawka → Sol `high` preferowany; inna rodzina niż autor (Muse)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — `[pule]` Codex 5 h 3 %, tydzień 20 %, 2026-11-04 ok. 10:57Z
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: recenzja oddana (217 s), audyt SCSS NIE — `-Mode review` narzuca schemat `review_output` (findings / overall_correctness), więc dodatkowe sekcje briefu (audyt, „co uważasz za błędne”) przepadają; wynik strukturalny jest tylko w rolloucie sesji Codexa (`ExitedReviewMode`)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 10 min z odczytem rolloutu
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0; jedna nieskonkretyzowana uwaga o komentarzu (P3, niewykonalna)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: `git status` bez zmian; lekcja: audytu SCSS ani innych sekcji spoza schematu nie łączyć z `-Mode review`
+
+### 2892-A1 + 2892-A2 (audyt SCSS 3 plików; wydzielenie mixinu resetu listy w 5 blokach) — 2026-11-04
+- Archetyp: Audyt SCSS (tylko odczyt) + Refactoring SCSS mechaniczny (6 plików)
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max` — A1 `-Access read`, A2 `-Access write`
+- Recenzent (linia / model / native effort): A2 — Gemini B / `gemini-3.8-flash-high` (w przebiegu 2892-R2)
+- Dopuszczone alternatywy: A1 — Gemini B `high`; A2 — `mechanik`
+- Powód wyboru: archetyp „audyt SCSS” z reguły 8 (lokalne wyniki na Sparku); ponowna kwalifikacja po 2892-R1; A2 bez Figmy i niezmiennika, 6 plików ponad porcję Codexa
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — `[pule]` Muse tydzień 16 %, 2026-11-04 ok. 11:02Z
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: A1 — wszystkie 3 pliki pokryte, 1 propozycja „wydzielić” z kompletną listą 6 miejsc (zgrepowana, trafna), poprawnie wyłączony siódmy przypadek z innym resetem; A2 — zaakceptowano (89 s), samodzielnie dostosowane do `at-rule-empty-line-before`
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 15 min łącznie
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): A2 — brak (R2)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: stylelint/prettier własne; zrzuty po A2 bajt w bajt równe zrzutom przed A2; pełne lint/test/build zielone
+
+### 2892-B2 + 2892-K1 (rewizje AT i UI Pulpitu, uzupełnienie dryfu warstwy extend, daty paczki) — 2026-11-04
+- Archetyp: Dokumentacja produktowa — rewizje dokumentów zatwierdzonych
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Repo Dokumentacja\Zebrani`, `-Access write`
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high`, `-Access read`
+- Dopuszczone alternatywy: Gemini A `gemini-3.8-flash-high` (`-Access write`)
+- Powód wyboru: archetyp „rewizje dokumentacji” (reguła 8)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — `[pule]` Muse, 2026-11-04 ok. 11:02Z
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano (212 s), 5 plików zgodnie z briefem; zgłosił 2 zastane odchylenia w readme paczki (trafne) i nieprecyzyjne zdanie briefu o datach pomiarów (trafne)
+- Rundy korekt: 1 (K1, 152 s — decyzje architekta po zgłoszeniach autora, nie błąd wykonania); K1 zgłosił pozorny konflikt liczb 102/104, rozstrzygnięty przez architekta jedną linią (104 = 102 Aury + 2 powierzchnie produktu)
+- Czas do akceptacji: ok. 30 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak (R2)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: diff wobec briefu; liczby wobec odczytu `/design/kolory`; synchronizacja kopii paczki, `ds:zip` 1 → 0, spec lustra zielony w `npm test`
+
+### 2892-R2 (recenzja dokumentacji + mixinu A2) — 2026-11-04
+- Archetyp: Recenzja dokumentacji i SCSS niskiej stawki
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Gemini B / `gemini-3.8-flash-high`, `-Access read` (bez powłoki, diffy w `_robocze`)
+- Recenzent (linia / model / native effort): — (recenzja)
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high`
+- Powód wyboru: inna rodzina niż autor (Muse); konto B najpierw; niska stawka → Gemini/Sol przed Muse
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — `[pule]` Gemini B ok, 2026-11-04 ok. 11:15Z
+- Pewność decyzji: średnio-niska (historia zmyśleń linii — każde znalezisko do zgrepowania)
+- Wynik pierwszego podejścia: brak znalezisk, „poprawny” 1,0 (586 s); sprawdzenia z odwołaniami do linii zgodne z plikami
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 12 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 / 0
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: odczyt plików; `git status` bez zmian w obu repo
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
