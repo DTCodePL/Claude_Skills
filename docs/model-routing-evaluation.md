@@ -10450,6 +10450,168 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak
 - Wymagane testy i dowody: odczyt plików; `git status` bez zmian w obu repo
 
+### karty-v2-A + A-K1 (Figma: zestaw kart pieczątkowych v2 z projektu HTML, 32 warianty Stan × Próg × Widok × Motyw; korekta właściciela: prezent 3D, separator nagłówka, symbol marki) — 2026-11-04
+- Archetyp: Figma (przeniesienie projektu HTML do komponentów z wariantami)
+- Stawka: niska (nowe komponenty obok starych, ekrany nietknięte)
+- Niepewność: średnia (stany Zakończony i Motyw=Ciemny wyprowadzane, nie ma ich w HTML)
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`); A-K1 świeży agent tej samej linii (autor przy ~273 tys. kontekstu)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high`, `-Access read`, eksporty PNG 1:1 w `_robocze` (jedna recenzja dla A i B) + odbiór architekta zrzutami
+- Dopuszczone alternatywy: brak dla wykonawcy (Muse i Gemini bez Figmy, Codex z Figmą niepotwierdzony w sesji); recenzja: Codex `gpt-6.1-sol` `high` na tych samych PNG
+- Powód wyboru: twarda bramka Figma MCP; zamknięta próba A/B linii Figmy → Sonnet `high`; równolegle z B na rozłącznych sekcjach strony
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — hook ZIELONY (okno 14 %, tydzień 54 %), 2026-11-04 ok. 10:45 lokalnie; Gemini B `ok 09:55` w `[pule]`
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano na zrzucie (wierne HTML; wykryty błąd „+6” w starym komponencie); właściciel zgłosił 3 poprawki wyglądu spoza HTML (prezent bez koła, separator, symbol Z w kwadracie)
+- Rundy korekt: 1 (A-K1, zaakceptowana)
+- Czas do akceptacji: A ok. 15 min, A-K1 ok. 7 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): część pieczątkowa — potwierdzone 1 × P2 (z P1: słaby kontrast pieczątek w Zakończony/Ciemny, informację niesie też tekst); nieaktualne po A-K1 1 × P1 + 1 × P2; odrzucone 1 × P2 (ucięty adres przy minimum 12 px), 1 × P2 (artefakt kadru eksportu), 1 × P2 (baner wstrzymania czytelny w powiększeniu)
+- Defekty po odbiorze: brak do tej pory
+- Wymagane testy i dowody: `get_screenshot` zestawu w 1:1, powiększenia znaku Z, baneru i pieczątek; kontrasty policzone skryptem przez wykonawcę. Gemini B czyta PNG — przydatne do recenzji Figmy bez MCP
+
+### karty-v2-B (Figma: zestaw kart poziomów v2 z projektu HTML, 40 wariantów Poziom × Stan × Widok, palety Rubin/Diament z reguły podmiany odcienia) — 2026-11-04
+- Archetyp: Figma (przeniesienie projektu HTML do komponentów z wariantami)
+- Stawka: niska
+- Niepewność: średnia (palety spoza HTML, kontrast tekstu na gradientach)
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high`, `-Access read`, eksporty PNG + odbiór architekta zrzutami
+- Dopuszczone alternatywy: jak karty-v2-A
+- Powód wyboru: jak karty-v2-A
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): jak karty-v2-A
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano na zrzucie; wykonawca sam przesunął przystanki gradientów (HTML dawał 2,2–4,4:1 tekstu na pigułce i przycisku)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 17 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): część poziomów — odrzucone 2 × P0 (Platyna i Szafir są w słowniku; własny układ drabiny dopuszczony), 3 × P1 (liczby „łącznie” to niezależne przykłady; tekst adresu i ucięcie — decyzja briefu zgodna ze starym komponentem), 1 × P2 („Najwyższy poziom osiągnięty” zgodne z UI-KLIENT-PROGRAMY); potwierdzone 0. Zastrzeżenie recenzenta do briefu słuszne: referencja złota pokazuje stan najwyższy
+- Defekty po odbiorze: brak do tej pory
+- Wymagane testy i dowody: `get_screenshot` zestawu w 1:1; kontrasty policzone modelem gradientów przez wykonawcę
+
+### karty-v2-K2 (Figma: separator przy logo w 40 kartach poziomów — prośba właściciela; odbarwione pieczątki w 4 wariantach Zakończony/Ciemny — potwierdzone P2 z recenzji) — 2026-11-04
+- Archetyp: Figma (korekta istniejących wariantów)
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`, świeży agent; 2 dosyłki tej samej sesji agenta)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high`, `-Access read`, 4 zrzuty po poprawce + odbiór architekta własnymi zrzutami (`4183:27160`, `4185:27511`)
+- Dopuszczone alternatywy: jak karty-v2-A
+- Powód wyboru: twarda bramka Figma MCP; jeden brief łączy dwa drobiazgi (reguła 5)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — hook ZIELONY (okno 30 %, tydzień 56 %), 2026-11-04 ok. 12:40; Gemini B `ok 12:33` w `[pule]`
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano zakres briefu (40/40 separatorów, wysokości bez zmian, kontrasty 4,49–8,15:1 przy progach 3 i 4,5); wykonawca w sekcji „Co uważasz za błędne” wskazał chip brakujących pieczątek pominięty w briefie i nieaktualne zdania notatki — luka specyfikacji architekta, nie błąd wykonania
+- Rundy korekt: 2 dosyłki (chip „+N” i notatka; jedno zdanie notatki), obie przyjęte; odchylenie wykonawcy słuszne (zdanie notatki zawężone do stanu Zakończony, bo zastąpienie całej frazy byłoby fałszywe dla pozostałych stanów)
+- Czas do akceptacji: ok. 3 min + 1 min + 1,5 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 0; odrzucone 1 × P0 („Zakończony wygląda na aktywny” — wobec Zwykly: nasycona limonka z poświatą → odbarwiona szałwia, brak przycisku, baner stanu, „Zebrano” zamiast „Jeszcze”; zostaje jako opcja dla właściciela: szarość zamiast szałwii), 2 × P1 (adres w Diament/Waski sięga prawej krawędzi treści — pusta przestrzeń to wiersz pigułki; separator w kartach pieczątkowych pochodzi z A-K1 na prośbę właściciela, plik „przed” sprzed A-K1, wielokropek zaprojektowany), 2 × P2 (wysokość separatora pieczątek 43 = awatar 51 − 8 wg `get_metadata`; adres Brąz kończy się przy kolumnie pigułki), 1 × P3 nieprzyjęte (słabszy obrys pustych — sprzeczne z progiem 3:1). Uwagi do briefu słuszne: nie podałem, że separator pieczątek jest z A-K1; „linia pod nagłówkiem” niejednoznaczna w Waski; chip „+7” nie ma ptaszka. Recenzent przypisał pewność 1,0 przy 5 odrzuconych z 5 P0–P2 — Gemini B oceniający zrzuty bez kontekstu rund ma tu niską wartość sygnału
+- Defekty po odbiorze: brak do tej pory
+- Wymagane testy i dowody: wysokości 40 wariantów przed/po skryptem (lista różnic pusta), kontrasty skryptem, zrzuty `4185:25365`, `4185:27511`, `4183:27109`, `4183:27160`
+
+### karty-v2-K3 (Figma: prezent „wsunięty” w kartę w 8 wariantach Nagroda — prośba właściciela z przybliżeniem makiety) — 2026-11-04
+- Archetyp: Figma (korekta kompozycji ilustracji wg makiety)
+- Stawka: niska
+- Niepewność: średnia (kompozycja warstw opisana słowami na podstawie małego wycinka makiety)
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`, ta sama sesja agenta co K2 — kontekst ~140–190 tys., poniżej progu strażnika)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high`, `-Access read`, 3 zrzuty po poprawce + makieta + odbiór architekta własnym zrzutem `4183:25884`
+- Dopuszczone alternatywy: jak karty-v2-A
+- Powód wyboru: twarda bramka Figma MCP; dosyłka do agenta z załadowaną sesją Figmy tańsza niż start świeżego (~58 tys. promptu)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — hook ZIELONY (okno 34–36 %, tydzień 56–57 %), 2026-11-04 ok. 12:55; Gemini B `ok 12:51`
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: odrzucone przez architekta na zrzucie — kadr i przednia fala zgodne z briefem, ale znak Z wypadł na pudełku (w Ciemnym jasny Z na kremowym pudełku prawie nieczytelny); przyczyna w briefie: nie przewidziałem kolizji z Z i nie opisałem pasa tła z makiety
+- Rundy korekt: 1 (K3b: nowy pas tła „Pas – przód” z twardym warunkiem geometrycznym Z ⊂ pas + 6 px, przesunięcie prezentu w lewo 16 / 10 px) — przyjęta przez architekta; wykonawca słusznie wskazał sprzeczność briefu (punkty krzywej vs. warunek twardy) i niejednoznaczny próg „65 % przedniej ściany”
+- Czas do akceptacji: K3 ok. 3,5 min, K3b ok. 2,5 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): recenzja zrzutów po K3b. Potwierdzone 1 × P1 (pas przykrywa za dużą część pudełka nad linią; na makiecie widać prawie całą bryłę — to samo zgłosił właściciel, adresowane w K3c), 1 × P2 (Waski: widać głównie kokardę), 1 × P1 obniżone do P3 i przyjęte („kieszeń”: pomiar pikseli makiety pokazał, że pod linią pudełko prześwituje przez jasną warstwę ok. 90 % — dodane do K3c). Odrzucone: 1 × P1 („prezent wystaje spod przycisku” — to jasna fala/pas, kadr przycina prezent na linii), 1 × P2 (Z „pod linią” na makiecie — środek Z ok. 4 px niżej niż oś, w granicy wierności). Uwaga do briefu słuszna: „pas tła przykrywa róg” opisywał makietę zbyt mocno
+- Defekty po odbiorze: brak do tej pory; po K3b właściciel wskazał wielkość i przechył prezentu (makieta: pudełko ok. 100 px, przechył ok. 10°) → K3c
+- Rundy K3c i K3d (2026-11-04):
+  - **K3c** (ta sama sesja agenta, kontekst do ~240 tys.): przechył −10°, kieszeń 90 %, linia skrócona, łuk pasa. Skala wyszła ×1,1 / ×0,95 zamiast ×1,4 / ×1,25 z briefu. Wykonawca słusznie wykazał, że ×1,4 liczyłem z widocznej, a nie pełnej szerokości pudełka, i że ×1,4 łamie odstęp 8 px od rzędu pieczątek. Po przeliczeniu szerokość pudełka ≈ makieta.
+  - **K3d** (świeży `wykonawca`, ~119 tys.): kolory pudełka zmierzone pikselami makiety (w Jasnym było za blade i zlewało się z kartą), iskry w Waski odsunięte na 9,2 px od tekstu.
+  - **Błędy briefu architekta:** nieaktualne id grup „Prezent” (zmieniły się przy przebudowie w K3c) i zły węzeł notatki. Wykonawca je wykrył i nie ruszył niczego poza zakresem.
+  - **Ponowna recenzja innej rodziny po K3c/K3d** nie była uruchamiana. Zmiany dotyczą wyłącznie wyglądu i idą na ocenę właściciela według jego makiety, a odbiór architekta oparto na 3 zrzutach.
+  - **Lekcja:** w briefach Figmy podawać skalę wobec pełnego obiektu i zawsze kazać szukać węzłów po nazwie, bo id po przebudowie się zmieniają.
+- Wymagane testy i dowody: wysokości 8 wariantów przed/po (lista różnic pusta), geometria Z wobec krzywej pasa (zapas 10 px Szeroki, 4,3 px Waski), zrzuty `4183:25884`, `4183:26220`, `4183:25967`
+
+### karty-v2-PRZ (Figma: koszty przejść między poziomami w kroku poziomów onboardingu) — 2026-11-04
+- Archetyp: Figma (przebudowa listy w istniejącym komponencie + nowy mały komponent, 4 ekrany)
+- Stawka: niska
+- Niepewność: średnia (komponent wiersza okazał się współdzielony z innym ekranem; zmiana musiała iść przez nadpisania instancji)
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`, świeży agent, 57 wywołań, ok. 213 tys. tokenów)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high`, `-Access read`, 10 zrzutów PNG + README; odbiór architekta: odczyt struktury 6 instancji i zrzuty powiększone
+- Dopuszczone alternatywy: brak — Figma MCP tylko w liniach Claude (Codex bez potwierdzonego dostępu w tej sesji; Muse/Gemini odpadają)
+- Powód wyboru: twarda bramka Figma MCP; zadanie zlecone wprost dla `wykonawca`; lokalny wynik linii Figmy (A/B 2026-10-12) za Sonnetem `high`
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `ostrzegawczy` — hook ŻÓŁTY (okno 38 %, tydzień 75 %, tempo +23 pp), 2026-11-04 ok. 19:02; Gemini B `ok 18:58`
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano — struktura 4 instancji zgodna (pierwszy „od 0 pieczątek”, 4 przejścia 15/30/40/50, szerokość mobile 296/328), zestaw współdzielony nietknięty; decyzja 8 (przewijanie desktopowego slotu) dosłana w trakcie i wykonana
+- Rundy korekt: 0 (dodatkowo architekt sam poprawił podtytuł programu w panelu bocznym na 6 ekranach — znalezisko spoza briefu, zgłoszone przez sesję nadrzędną i recenzenta)
+- Czas do akceptacji: wykonanie ok. 9 min, recenzja ok. 7 min, triaż ok. 5 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 1 × P1 (brak wskaźnika zwijania w nagłówku rozwiniętego panelu — wada sprzed zmiany, poza zakresem → propozycja korekty) i 1 × P2 (podtytuł programu w panelu bocznym — sprzed zmiany, poprawione). Odrzucone: 1 × P1 (wewnętrzne przewijanie listy na desktopie — zapisana decyzja, FE `max-height: min(22rem, 45vh)`), 4 × P2 (przerwany łącznik na mobile — powiększenie 3× pokazuje ciągłą linię; brak wpisywania w stepperze — współdzielony `NumStepper`, poza zakresem; „Gotowe 2 z 3” i znacznik — spójne; brak nazwy kategorii w stanie zwiniętym — README tego nie wymaga), 2 × P3 (artefakty pod strzałką — brak w powiększeniu; forma „do poziomu Odkrywca” — zgodna z kluczem i18n podglądu, poza zakresem). Wykonawca dodatkowo wykrył czarną strzałkę bez zmiennej w podsumowaniu zwiniętym (Dark) — potwierdzone, sprzed zmiany
+- Defekty po odbiorze: brak; odbiór właściciela 2026-11-04 bez uwag. Po recenzji, za zgodą właściciela, architekt sam poprawił dwie wady sprzed zmiany (wskaźnik zwijania w nagłówku rozwiniętego panelu, strzałki i chevron podsumowania związane ze zmiennymi motywu). Ekran ustawień zostaje bez zmian (decyzja właściciela). Później tego samego dnia właściciel zmienił wymaganie: koszt w wierszu poziomu (jak w ustawieniach i FE). Architekt sam cofnął przejścia (usunięty `LevelTransition`, wiersze 2–5 z kosztem 15/30/40/50, pierwszy „od 0 pieczątek”); poprawki niezależne zostały. Wniosek: przy rozbieżności README ↔ FE ↔ inny ekran pytać właściciela o kierunek przed briefem, a nie przyjmować README jako rozstrzygnięcia
+- Wymagane testy i dowody: odczyt sekwencji widocznych tekstów 6 instancji `LevelsPanel` (ID w notatce grupy), zestaw `LevelRow` bez zmian, `overflowDirection` 4 slotów, zrzuty w `_robocze/2026-11-04-poziomy-przejscia`
+- Lekcja: przed briefem Figmy sprawdzać `getInstancesAsync()` zestawów, które brief każe zmieniać — tu jeden był współdzielony z innym ekranem; recenzent zrzutów myli ograniczenia kadru (przycięte przewijanie) z wadami — brief recenzji ma podawać, co zrzut celowo ucina
+
+### karty-v2-INW/W1/W2/W2K/K6 (Figma: inwentaryzacja, właściwości v2, karty rozwinięte, kody pełnoekranowe, podgląd kreatora i korekty) — 2026-11-04
+- Archetyp: Figma (komponenty: zestawy wariantów i ich korekty)
+- Stawka: niska–średnia (wzór dla refaktoru FE PBI #2905; bez niezmiennika)
+- Niepewność: średnia (odwzorowanie v1 → v2, palety kotwiczone słownikiem)
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`, świeże agenty per brief; W2 i W2K przez `koordynator-fali`, pilotaż D)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high`, `-Access read`, zrzuty PNG w `_robocze`
+- Dopuszczone alternatywy: brak — Figma MCP tylko w liniach Claude
+- Powód wyboru: twarda bramka Figma MCP; wynik A/B linii Figmy (2026-10-12)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `ostrzegawczy` — hook ŻÓŁTY, tempo tygodnia +20…+24 pp, 2026-11-04
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: W2 wymagało rundy korekt W2K (K1–K6: teksty D1 w 40 wariantach, drabina RL, Waski KP/KL wg mobilnych ekranów kodu, podgląd kreatora jak karta klienta)
+- Rundy korekt: W2 → 1 (W2K), K6 → 0 po wykonaniu; liczby per brief INW/W1/W2 nie są odtworzone w tym wpisie (raporty koordynatora poza kontekstem po kompakcji)
+- Czas do akceptacji: 1 dzień roboczy dla całości komponentów
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): K6 — odrzucone 2 × P1 (kolor przycisku Bywalca — próbka pikseli #607136 oliwka; obrys przycisku desktop — zrzut pokazuje pełny przycisk), potwierdzone 2 × P2 (zawijanie nazw — przyjęte; podtytuł programu w panelu bocznym — poprawione w sesji PRZ), 1 × P3 wg decyzji
+- Defekty po odbiorze: w fali 3 wyszły 2 wady komponentów z tej fali — logo stopki KL ciemne na ciemnym tle (P1) i brak ukrytej warstwy ptaszka w pustych pozycjach `Pieczatki v2` (pośrednia przyczyna P0 w LP)
+- Wymagane testy i dowody: skrypty odczytu wariantów, kontrast ≥ 4,5:1 skryptem, zrzuty zestawów w `_robocze/2026-11-04-karty-v2-recenzja`
+
+### karty-v2-W3 + W3K (Figma: podmiana kart v1 → v2 na ekranach Programy, Skanowanie, Seller, Landing, mobilne kody; pakiet koordynatora) — 2026-11-04
+- Archetyp: Figma (podmiana instancji na ekranach, 5 briefów + 4 korekty)
+- Stawka: niska–średnia
+- Niepewność: średnia (mapowanie tekstów nadpisanych v1, liczniki vs rząd pieczątek)
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`, świeże agenty); koordynacja `koordynator-fali` (Sonnet 5.5 `high`, pilotaż D, 2 pakiety)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high`, `-Access read`
+- Dopuszczone alternatywy: wykonawca — brak (Figma MCP); recenzent — Codex `gpt-6.1-sol` `high` `-Mode review`
+- Powód wyboru: bramka Figma MCP; fala bez niezmiennika → pilotaż D
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `ostrzegawczy` — hook ŻÓŁTY, tempo +24…+26 pp, 2026-11-04 18:00–19:45; Gemini B `ok`
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: W3 — 5 briefów zgodnych z briefem (0 rund z wykonania, v1 na ekranach = 0); recenzja wykazała defekty → pakiet korekt W3K (4 briefy)
+- Rundy korekt: W3 PR1/PR2/SC/SE/LP → 0; W3K: KW1 0, KW2 1, KW3 1, KW4 1 — rundy KW2 (kropka logo) i KW4 (właściwość `Bez nadwyzki`) wynikły z błędów decyzji architekta (D3.9, D3.5 zbyt ogólne), nie wykonawców
+- Czas do akceptacji: W3 ok. 1 h 20 min, W3K ok. 30 min + korekty 5 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): W3 — potwierdzone 1 × P0 (LP: licznik 3/6/8 przy 7 pełnych pieczątkach), 3 × P1 (logo stopki KL; LP karty wystają 19 px; KL mobile pusta przestrzeń), odrzucone 1 × P1 (SC „pusta kieszeń”); W3K — potwierdzone 1 × P0 (Seller „wstrzymany”: licznik 10/10 przy 7 pełnych), pozostałe uwagi to opinie
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: skrypty (v1 = 0, mapa podmian, geometria, liczniki = pełne pozycje, kontrast logo 11,7/13,3:1, wyśrodkowanie ±0 px), zrzuty `_robocze/…/W3`, `W3K`; odbiór architekta: wyrywkowe zrzuty KW1, KW2, KW4
+- Lekcja: specyfikacja korekty nie może podawać treści stanu domenowego z pamięci — D3.9 („3 kolejne pieczątki”) przeczył regule nadwyżki zapisanej w UI-KLIENT-PROGRAMY-BENEFITOWE; przed decyzją o tekście stanu sprawdzić dokument interfejsu
+
+### karty-v2-W3-AR + PBI-ZR (Figma: archiwizacja v1; eksport zrzutów pełnych ekranów do PBI #2905) — 2026-11-04
+- Archetyp: Figma — operacyjne (przeniesienie zestawów, eksport PNG)
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`, 2 świeże agenty równolegle)
+- Recenzent (linia / model / native effort): brak — operacja mechaniczna; odbiór architekta zrzutem i raportem skryptów
+- Dopuszczone alternatywy: brak (Figma MCP)
+- Powód wyboru: bramka Figma MCP
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `ostrzegawczy` — hook ŻÓŁTY, tempo +26 pp, 2026-11-04 ok. 19:45
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: W3-AR — zatrzymany zgodnie z briefem (4 instancje v1 zagnieżdżone w zestawie v1); PBI-ZR — 13 z 16 plików, mobile w 1x (eksport 2x niezapisywalny z `use_figma`)
+- Rundy korekt: W3-AR 1 (decyzja architekta: instancje wewnątrz archiwizowanych zestawów nie blokują); PBI-ZR 0
+- Czas do akceptacji: ok. 10 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak recenzji
+- Defekty po odbiorze: niewyjaśniona różnica liczby instancji v2 między pomiarami (218/109 → 294/133) bez zmian tworzących instancje — prawdopodobnie niepełny pierwszy pomiar
+- Wymagane testy i dowody: skrypt instancji v1 poza archiwum = 0, zrzut sekcji archiwum, PNG w `_robocze/…/PBI`; PBI #2905 rev 2 — 22 obrazy w opisie (REST)
+
+### karty-v2-DOK + DOK-K1 (rewizja dokumentacji produktu pod karty v2: 9 plików + nowa decyzja) — 2026-11-04
+- Archetyp: rewizja dokumentacji
+- Stawka: średnia (zmiana reguły interfejsu „jeden rząd pieczątek”)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access write`
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high`, `-Access read` (recenzja + ponowna recenzja poprawek)
+- Dopuszczone alternatywy: wykonawca — Codex `gpt-6.1-sol` (brief > 5 plików, odrzucony); recenzent — Codex `gpt-6.1-sol` `high`
+- Powód wyboru: reguła 3 (brief bez Figmy → poza pulą Claude'a), archetyp rewizji dokumentacji → Spark `max` (reguła 8)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse `znany` — `[pule]` okno 6 %, tydzień 24 %, 2026-11-04 ok. 19:20; Gemini B `ok`
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: wymagane korekty (3 × P1 zgłoszone, 1 potwierdzone); pierwszy przebieg recenzenta bez wyniku — sięgał poza dozwolone ścieżki (`.git`, scratchpad na C:) i headless odrzucił odczyt
+- Rundy korekt: 1
+- Czas do akceptacji: ok. 1 h 15 min (wykonanie 14 min, korekta 13 min, recenzje 4 + 4 min)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 1 × P1 (fałszywe „sprzedawca niesie rząd zawsze” w modelu poziomów), 3 × P2 (wyjątek od zasady rodzica bez decyzji; „kolor obiektu, nie powierzchni” sprzeczne z v2; opis drabiny w karcie rozwiniętej), 2 × P3; odrzucone 2 × P1 (wiersz adresu i ostatniej wizyty — jest na komponencie; zawijanie 2×5 na wąskiej karcie — zrzut PBI 02). Ponowna recenzja: 8/8 wykonane, 0 nowych
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `git diff` plików z briefu (tylko dozwolone pliki), linki względne sprawdzone przez recenzenta
+- Lekcja: brief recenzenta Gemini B musi mieć twarde granice odczytu i zakaz chodzenia za odwołaniami do scratchpada; brief dokumentacji nie może nazywać zmiany „tylko wyglądem”, gdy zmienia regułę interfejsu
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
