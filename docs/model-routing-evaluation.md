@@ -10102,6 +10102,269 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak
 - Wymagane testy i dowody: każde P0/P1 sprawdzone na pliku i kodzie (`build-activity-change.ts`, `activity-band.html`, SQL J10, J2, J16)
 
+### 1634-I18N-1 + FE-0 (klucze i18n pl/en z gotową tabelą brzmień; typy, mapowanie i fabryki testowe pasma) — 2026-11-03
+- Archetyp: Frontend / i18n i warstwa typów
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `high` (`-Access write`, 3,8 min i 4,6 min)
+- Recenzent (linia / model / native effort): architekt (diff z tabelą brzmień, speci folderu) — treść podana w briefie; FE-0 dodatkowo w R-FE-1 (Codex Sol `high`)
+- Dopuszczone alternatywy: Codex Luna `medium`; `mechanik`
+- Powód wyboru: gotowa treść, ≤ 3 pliki na brief → Spark `high` (reguła 8); bez Figmy → poza pulą Claude'a
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — `[pule]` Muse tydzień 15 %, 2026-11-03 ok. 22:40
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano oba
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 15 min łącznie
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): —
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: klucze pl/en zgodne z tabelą (4c: 28 twierdzeń brzmień zgodnych); lint/prettier plików
+
+### 1634-BE-1 (BE: nowy odczyt analityczny pasma — rytm, ścieżki, personel z godzinami otwarcia, profil klientów; wartość słownika zaproszeń + skrypt; testy jednostkowe i SQL Server) — 2026-11-03
+- Archetyp: Backend API / odczyt analityczny
+- Stawka: średnia
+- Niepewność: średnia (godziny otwarcia przez północ, doba lokalu od 6:00, strefy)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max` (`-Access write`, 24 min)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (`-Mode review`, 1,8 min)
+- Dopuszczone alternatywy: wyk. `wykonawca`, Codex Sol `high` w porcjach ≤ 5; rec. Gemini B `high`
+- Powód wyboru: bez Figmy i bez niezmiennika → najpierw poza Claude'em; BE-1 #1633 przyjęty po 1 korekcie
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — `[pule]` Muse 2 % / 15 %, Codex 14 % / 14 %, 2026-11-03 ok. 23:05
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 45 min z walidacją i recenzją
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 (pokrycie plików w logu recenzji sprawdzone)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: `dotnet build` 0 ostrzeżeń, `dotnet test` 9876 ✓ / 1 pominięty; curl 5/5 zakresów = wyrocznia BE-S; 404 obcy program, 400 `programId=0`
+
+### 1634-BE-S (skrypt danych lokalnych z wyrocznią niezależną od implementacji + skrypt sprzątający) — 2026-11-03
+- Archetyp: Dane testowe / oracle
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max` (`-Access write`, 13,7 min)
+- Recenzent (linia / model / native effort): architekt (uruchomienie + curl = wyrocznia)
+- Dopuszczone alternatywy: Codex Sol `medium`
+- Powód wyboru: jak 1633-BE-S
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — jak 1634-BE-1
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano; literówka w wyroczni (suma klientów jednego zakresu o 1 za duża — szczegóły skryptu dawały poprawną liczbę), poprawiona przez architekta w opisie wyroczni
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 30 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): —
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: seed zastosowany lokalnie; wyrocznia użyta w falach 1 i 2 oraz po BE-2K
+
+### 1634-DOC-1 + DOC-1K (rewizja zatwierdzonego dokumentu Pulpitu: pasmo trzecie, sygnał 9, dwa wieki) — 2026-11-03
+- Archetyp: Dokumentacja produktowa
+- Stawka: średnia
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max` (`-Access write`, 6,5 min; DOC-1K 3,7 min)
+- Recenzent (linia / model / native effort): Gemini (konto B) / `gemini-3.8-flash-high` / tylko odczyt (9,4 min, przebieg urwany limitem wyjścia — `exit 3`, raport kompletny i użyty)
+- Dopuszczone alternatywy: wyk. Gemini A `high`; rec. Codex Sol `high`
+- Powód wyboru: archetyp „rewizje dokumentacji” → Spark `max`; recenzja innej rodziny, konto B najpierw
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — `[pule]` Gemini B ok, 2026-11-03 ok. 23:25
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty (DOC-1K)
+- Rundy korekt: 1
+- Czas do akceptacji: ok. 50 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone: 1× P1 (sprzeczność warunku kolumny „Poza godzinami” z sygnałem 9 w widoku zbiorczym → nowa decyzja architekta D9′), 3× P2 (przykład zdania rytmu, licznik stanów, brak zdania przy zerze klientów); odrzucone: 1× P1 (znikanie sygnału 9 po zawężeniu do programu młodego — decyzja właściciela O2, ponownie zgłoszone w 4c i podane właścicielowi na bramie jako informacja)
+- Defekty po odbiorze: brak (4c: 158 twierdzeń zgodnych)
+- Wymagane testy i dowody: diff dokumentu przeczytany przez architekta; 4c w formacie skilla
+
+### 1634-FE-A + FE-A2 + FE-A3 (FE fali 1: pasmo trzecie z blokami rytmu, ścieżek i profilu klientów; blok personelu tabela ↔ karty; uogólnienie zaproszenia do ustawień) — 2026-11-03
+- Archetyp: Frontend UI / Figma
+- Stawka: średnia
+- Niepewność: średnia (wykres słupkowy w CSS z ukrytą tabelą, ogłoszenia, fokus)
+- Wykonawca (linia / model / native effort): FE-A i FE-A2: Claude / `wykonawca` (Sonnet 5.5 `high`, Figma MCP); FE-A3: Muse / `muse-spark-1.3-contributor` / `max` (8,3 min — bez Figmy → poza pulą Claude'a)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (`-Mode review`, 4,3 min, cały diff FE fali, dwóch autorów)
+- Dopuszczone alternatywy: wyk. FE-A/FE-A2 brak (Figma wymaga MCP; Codex > 5 plików); FE-A3 `wykonawca`; rec. Gemini B `high`
+- Powód wyboru: ekrany z makiety → `wykonawca`; uogólnienie komponentu bez makiety → Spark
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — hook Claude ZIELONY, tempo +8 pp, 2026-11-03 ok. 23:05
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano z poprawkami przeniesionymi do FE-B (fala 2)
+- Rundy korekt: 1 (w FE-B)
+- Czas do akceptacji: do końca fali 2 (ok. 1,5 h)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone: 2× P2 (nazwa dostępna nadana hostowi tabeli zamiast natywnej tabeli; oczekujące ogłoszenie nieunieważnione po zwinięciu pasma), 1× P3 (stałe modułowe w pliku z funkcją — jedna deklaracja na plik); odrzucone: 0
+- Defekty po odbiorze: brak (R-FE-2 potwierdziła 3 poprawki)
+- Wymagane testy i dowody: lint 0, build ✓, `npm test` 6583 ✓ + 1 ✗ (lustro DS, zastane z innej sesji), AXE w specach bloków
+
+### 1634-FIG-1 + FIG-2 + FIG-3 (Figma: warianty pasma trzeciego, karta sygnału 9, Pulpit młody, wariant mieszany personelu, rampa rytmu ≥ 3:1 Light/Dark) — 2026-11-03…04
+- Archetyp: Figma / makiety
+- Stawka: niska
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` (Sonnet 5.5 `high`, Figma MCP); FIG-2 7,1 min
+- Recenzent (linia / model / native effort): architekt (zrzuty Light/Dark) — innej rodziny z MCP Figmy brak
+- Dopuszczone alternatywy: brak (tylko Claude ma potwierdzony MCP)
+- Powód wyboru: zapis w Figmie wymaga MCP
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — hook Claude ZIELONY, 2026-11-03…04
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: FIG-1 zaakceptowano z listą uzupełnień do FIG-2 (cudzysłów nazwy poziomu, rampa, wysokość kafli młodych); FIG-3 po audycie SCSS (nowa rampa)
+- Rundy korekt: 2 (FIG-2, FIG-3 — FIG-3 wynikał z decyzji po audycie, nie z błędu wykonawcy)
+- Czas do akceptacji: ten sam dzień
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): —; wykonawca słusznie obalił 3 przesłanki briefu FIG-2 (zdanie poziomów tylko w wariantach poziomów; prymitywy Jade o tych samych wartościach w obu trybach; węzeł ekranu to instancja — zmiana w komponentach Body)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: zrzuty węzłów Light/Dark; 64 wypełnienia rampy przepięte
+
+### 1634-BE-2 + BE-2K (BE fali 2: próg dojrzałości w podsumowaniu, sygnał 9 w planerze, reguła kolumny; korekta zbędnych odczytów) — 2026-11-03…04
+- Archetyp: Backend API / logika
+- Stawka: średnia
+- Niepewność: średnia (dni kalendarzowe w strefie, DST, reguła wpuszczająca sygnału)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max` (`-Access write`, 27,8 min; BE-2K 14,0 min)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (`-Mode review`, 2,9 min)
+- Dopuszczone alternatywy: wyk. `wykonawca`; rec. Gemini B `high`
+- Powód wyboru: jak 1634-BE-1
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — `[pule]` Muse, Codex, 2026-11-03 ok. 23:45
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano; po recenzji korekta wydajnościowa
+- Rundy korekt: 1 (BE-2K)
+- Czas do akceptacji: ok. 1,2 h
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone: 1× P2 (odczyty godzin i agregatów personelu dla całego konta także przy wybranym programie i bez programu mogącego dać sygnał — wynik poprawny, odczyty zbędne); odrzucone: 0; w BE-2K wykonawca słusznie obalił 2 przesłanki briefu (istniejący test przypinał odczyt całego konta; pole to zbiór, nie słownik)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: `dotnet build` 0 ostrzeżeń, `dotnet test` 9918 ✓ / 1 pominięty, 3 nowe testy Moq strict; curl 5/5 zakresów = wyrocznia po BE-2K
+
+### 1634-FE-B + FE-B2 (FE fali 2 bez Figmy: wpięcie bloku personelu, poprawki R-FE-1, strona — sygnał → zestawienie, miejsce pasma trzeciego, „Co dalej”) — 2026-11-03…04
+- Archetyp: Frontend / logika strony i zachowanie
+- Stawka: średnia
+- Niepewność: średnia (rozwinięcie → przewinięcie → fokus, zerowanie stanu przy zakresie młodym)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max` (`-Access write`, 15,0 min i 15,0 min)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (`-Mode review`, 3,3 min, łącznie z FE-C)
+- Dopuszczone alternatywy: wyk. `wykonawca`; rec. Gemini B `high`
+- Powód wyboru: brief bez Figmy i bez niezmiennika → najpierw poza pulą Claude'a (reguła 3)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — `[pule]` Muse, 2026-11-03 ok. 23:50
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano; konstrukcja prośby o zestawienie zmieniona w FE-B2 (licznik → flaga strony + potwierdzenie obsługi)
+- Rundy korekt: 0 (zmiana konstrukcji była częścią briefu FE-B2)
+- Czas do akceptacji: ok. 1 h
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: 46 speców / 440 testów folderu ✓; pełne lint/test/build fali; `browser-check` flows 4/4 PASS z akcjami (po poprawce scenariusza)
+
+### 1634-FE-C (FE fali 2 z makiety: sygnał 9 w paśmie uwagi, wariant młody pasma „Jak idzie”, karta „Co dalej”) — 2026-11-04
+- Archetyp: Frontend UI / Figma
+- Stawka: średnia
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` (Sonnet 5.5 `high`, Figma MCP)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (`-Mode review`, łącznie z FE-B/FE-B2)
+- Dopuszczone alternatywy: wyk. brak (Figma); rec. Gemini B `high`
+- Powód wyboru: ekran z makiety wymaga MCP Figmy
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — hook Claude ZIELONY, 2026-11-03 ok. 23:50
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: wymagana korekta — błąd briefu architekta (pominięte etykiety celów „Co dalej”)
+- Rundy korekt: 1
+- Czas do akceptacji: ok. 1 h
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: lint 0, build ✓, `npm test` 6674 ✓ + 1 ✗ (lustro DS, zastane); `browser-check` matrix 16/16, 0 błędów konsoli/sieci; flows 1/4 → defekt scenariusza (cel niejednoznaczny przy dwóch kartach sygnału, niska pewność kroku) → cele i `subgoals` doprecyzowane → 4/4 PASS z akcjami
+
+### 1634-AUD + SCSS-K (audyt SCSS 10 plików + korekty: rampa ≥ 3:1, fokus, wspólny partial z 6 mixinami) — 2026-11-04
+- Archetyp: Refactoring / style + WCAG
+- Stawka: średnia (kontrast 1.4.11)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): audyt: Muse / `muse-spark-1.3-contributor` / `max` (`-Access read`, 7,7 min; pierwszy start przerwany przez architekta po 30 s — brief bez kryteriów skilla, uzupełniony); SCSS-K: ten sam model `max` (`-Access write`, 5,3 min)
+- Recenzent (linia / model / native effort): SCSS-K: Codex / `gpt-6.1-sol` / `high` (`-Mode review`, 1,3 min, kompilacja sass)
+- Dopuszczone alternatywy: audyt Gemini B `high`, Sol `high`; SCSS-K `wykonawca`
+- Powód wyboru: preferencja z prób audytu SCSS; korekty bez Figmy → Spark
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — `[pule]` Muse 16 %, Codex 19 %, 2026-11-04 ok. 00:45
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: audyt kompletny (10/10 plików); przyjęte: 1× P1 (rampa rytmu < 3:1 wobec karty — 3 z 8 par, pomiar architekta potwierdził), 2× P3 fokus, duplikaty → partial; P2 (tokeny rampy w presecie) → pytanie do właściciela; odrzucone: P3 44 px (odnośnik śródliniowy, rozmiar presetu); SCSS-K zaakceptowany, wykonawca słusznie obalił 3 przesłanki (brakujący element w tabeli, przeniesienie `@media`, nazwa partiala bez podkreślnika)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 40 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-SCSS-K: 0
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: pełne lint 0, build ✓, `npm test` 6674 ✓ + 1 ✗ (lustro DS, zastane); matrix 16/16 po korekcie; kontrasty rampy z `palette.ts` (Light 5,75–16,58, Dark 4,11–11,02)
+
+### 1634-SEMVER (podbicie wersji FE i BE po podglądzie skryptu) — 2026-11-04
+- Archetyp: Konfiguracja / wersje
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `high` (40 s)
+- Recenzent (linia / model / native effort): architekt (pliki wersji)
+- Dopuszczone alternatywy: `mechanik`
+- Powód wyboru: operacyjny brief z gotową treścią (reguła 8)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — jak 1634-AUD
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano; wykonawca słusznie zgłosił niuans ścieżki pliku projektu BE
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 5 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): —
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: FE 1.17.0 → 1.18.0, BE 1.19.0 → 1.20.0 w plikach wersji
+
+### 1634-ZGD (przegląd zgodności dokumentacji z kodem, Faza 4c) — 2026-11-04
+- Archetyp: Audyt dokumentacji
+- Stawka: średnia
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Gemini (konto B) / `gemini-3.8-flash-high` / tylko odczyt (13,4 min)
+- Recenzent (linia / model / native effort): architekt (triaż)
+- Dopuszczone alternatywy: Codex Sol `high`
+- Powód wyboru: inna rodzina niż autorzy kodu (Spark, Sonnet) i dokumentacji (Spark); konto B najpierw
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — `gemini-konta.json` B bez blokady, 2026-11-04 01:09Z
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano: 158 zgodnych w 16 wierszach (wszystkie sekcje mapy), 1 × „kod odbiega” obalone (najmniejszy identyfikator programu ≡ najwcześniej utworzony: data utworzenia niezmienna, identyfikator rosnący, remis rozstrzyga identyfikator — ta sama konwencja co #1633), 0 × pozostałe werdykty; uwaga o skutku decyzji O2 → informacja na bramę
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 25 min z triażem
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): odrzucone: 1 (jw.)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: macierz w formacie skilla; liczby per sekcja mapy; tabela brzmień pl/en znak po znaku
+
+### 1634-QAS + QAS-K1 + QAS-K2 (QA Sphere: przegląd 61 przypadków folderów Pulpitu + 51 nowych dla pasma „Więcej o Twoich klientach” i dwóch wieków, z SQL danych na PRE) — 2026-11-04
+- Archetyp: QA Sphere (K2: korekta z gotową treścią)
+- Stawka: średnia
+- Niepewność: średnia. Wspólne konto PRE z programami demo, które zawsze wchodzą do zakresu „Wszystkie programy”; próg dojrzałości zmienia oczekiwania przypadków #1633.
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max` dla QAS (58,1 min) i K1 (19,6 min), `high` dla K2 (3,1 min); `-Access write`, host windows
+- Recenzent (linia / model / native effort): Gemini (konto B) / `gemini-3.8-flash-high` / tylko odczyt (R-QAS) + architekt (triaż, kontrola K1 i K2 skryptem na kopii pliku)
+- Dopuszczone alternatywy: Gemini A `high` write (autor); Codex Sol `high` (recenzja)
+- Powód wyboru: reguła 8 — QA Sphere na Sparku `max`, a korekta z gotową treścią na Sparku `high`; recenzja innej rodziny, konto B najpierw
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — `[pule]` Muse tydzień 16 %, 2026-11-04 ok. 07:35Z i 09:20Z
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: lint 0 błędów. Przegląd: 39 zostaje / 22 aktualizacje / 0 `[Removed]` — przyjęty bez zmian. 21 aktualizacji przywraca dojrzałość klientem-wypełniaczem albo programem kotwicą sprzed 400 dni.
+  - Autor słusznie obalił przesłankę briefu: reguła „przerwij, gdy konto ma inne programy” jest niewykonalna, bo programy demo istnieją na koncie zawsze.
+  - Autor błędnie uznał wariant młody w „Wszystkie programy” za niewykonalny. Da się go zrobić programem starszym niż programy demo — architekt dodał to w K1.
+
+  Korekty:
+  - **K1:**
+    - W26 i W28: kontrola `ObceKarty` bez okna czasowego zawsze przerywała test. Teraz przypadki sprawdzają metodą „odczyt bazowy z API + znany przyrost”; W28 połączony z W26.
+    - Rozbity numer sprzedawcy w sprzątaniu (`IN (N'+', N'4', …)`, 4 przypadki, plus 9 `DeviceMarker`).
+    - Nowy V12 (młody zakres „Wszystkie programy”).
+    - Przypadki „Kto obsługuje” i sygnału 9 w zakresie zbiorczym nie zakładają liczby wierszy ani kart demo.
+  - **K2:** w `requirements` 22 aktualizacji było pole `id`, skopiowane z istniejących przypadków. API je odrzuciło przy pierwszym `update`, lint go nie wychwycił. Poprawka w miejscu, bez przebudowy pliku, bo plik niósł już `seq` 51 wysłanych przypadków.
+- Rundy korekt: 2 (K1 po recenzji; K2 po odrzuceniu przez API — defekt autora i luka lintu `qas.py`)
+- Czas do akceptacji: ok. 2 h 10 min (z recenzją i bramą właściciela)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): patrz 1634-R-QAS; architekt dodał lukę pokrycia (wariant młody zbiorczy)
+- Defekty po odbiorze: brak (`qas.py verify` 73/73, 0 różnic)
+- Wymagane testy i dowody:
+  - `qas.py lint` 0 błędów;
+  - `table`;
+  - kontrola skryptem po K1 (0 rozbitych `IN`, 0 `ObceKarty`) i po K2 (0 pozycji z `id`, `seq` i `folderId` bez zmian, reszta identyczna z kopią);
+  - po wysyłce: foldery 214/215, nowe seq 2194–2244, zaktualizowane 2143, 2162–2193 (22).
+- Wniosek: `qas.py lint` powinien odrzucać klucze spoza `{text, url}` w `requirements`/`links`, a brief generatora — zakazywać kopiowania `id` z `existing[]`.
+
+### 1634-R-QAS (recenzja pliku przypadków QA Sphere pasma „Więcej o Twoich klientach” i dwóch wieków) — 2026-11-04
+- Archetyp: Recenzja QA Sphere
+- Stawka: średnia
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Gemini (konto B) / `gemini-3.8-flash-high` / tylko odczyt (19,7 min)
+- Recenzent (linia / model / native effort): architekt (obalenie lub potwierdzenie każdego P0/P1 na pliku i kodzie)
+- Dopuszczone alternatywy: Codex Sol `high`
+- Powód wyboru: autor z rodziny Muse; konto B najpierw (odczyt, bez MCP)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — `[pule]` Gemini B ok 02:23, 2026-11-04 ok. 08:35Z
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: 2 × P0, 3 × P1, 2 × P2, 1 × P3; werdykt „wymaga korekty”.
+  - Potwierdzone (3):
+    - P0 W26 i W28 — `ObceKarty` bez okna czasowego, programy demo z kartami;
+    - P1 — rozbity numer sprzedawcy w 4 przypadkach.
+  - Obalone (4):
+    - P1 2145 — krok 2 mówi o paśmie „Wymaga uwagi” i nadal jest prawdziwy;
+    - P1 2150 — dotyczy kart pasma „Wymaga uwagi”, motywy nowych pasm pokrywają nowe przypadki;
+    - P2 W13 — „po południu” zgodne z `pl.json:1111`;
+    - P3 tag dojrzałości — poza listą skilla.
+  - Wtórne (1): P2 luka W26, wynika z P0.
+  - Recenzent ocenił też odstępstwo autora: `ObceStarsze` poprawne, `ObceKarty` błędne.
+- Rundy korekt: 0 (recenzja)
+- Czas do akceptacji: ok. 30 min z triażem
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 2 × P0, 1 × P1; obalone 2 × P1, 1 × P2, 1 × P3. Recenzja nie wychwyciła pola `id` w `requirements` (K2) ani luki wariantu młodego zbiorczego.
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: dosłowne cytaty SQL z pliku przy P0/P1 (zgodne z plikiem); triaż jednym poleceniem na znalezisko
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
