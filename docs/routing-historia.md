@@ -873,3 +873,55 @@ potem commit i push w `Claude_Skills`. Loadery w repo projektu (wzorzec
 celowo neutralne silnikowo i przy zmianie routingu ich nie ruszam
 (od 2026-09-28 — wcześniejsze streszczenie w loaderze zostało w tyle o dwie
 wersje routingu).
+
+## Zmiana progu CZERWONEGO okna 5 h — 2026-11-04
+
+Decyzja właściciela (2026-11-04, Feature Zebrani #1690): próg blokady startu subagentów Claude'a w oknie 5 h podniesiony
+z 85 % do **95 %** (`DENY_H5` w `~/.claude/bin/limity-hook.mjs`; opisy agentów `wykonawca` i `wykonawca-opus`).
+Powód: 85 % zostawiało niewykorzystane ~15 pp okna, które i tak odnawia się co 5 h. Ostatnie ~5 pp to rezerwa sesji
+architekta na odbiór i przekazania. Kontekst pomiaru z tego dnia: okno wzrosło z 17 % do 68 % w ~2,5 h przy dwóch
+przebiegach `wykonawca-opus` (~320 tys. tokenów każdy), koordynatorze fali, jednym `wykonawca` i sesji architekta —
+jeden brief Opusa to na oko 10–15 pp okna (pewność niska, pomiar mieszany). Próg tygodnia (95 %), ŻÓŁTY (okno 50 %,
+tydzień 85 %, tempo +20 pp) i znacznik `[konieczny]` bez zmian.
+
+## Codex: GPT-6.1 Terra jako kandydat w miejsce Sola `high` — 2026-11-04
+
+Sonda przez wrapper (`-Model gpt-6.1-terra -Effort low -Access read`): exit 0 w 9 s, w logu `model: gpt-6.1-terra`.
+Katalog klienta `codex-cli 0.159.2` podaje efforty `low…ultra`. Oficjalny cennik Codexa (learn.chatgpt.com/docs/pricing):
+na Plusie GPT-6.1 Terra ma 35–285 wiadomości lokalnych na 5 h, GPT-6.1 Sol 15–160. Pro „from $100” ($100/$200/$500),
+bez okna 5 h. Plus i Pro mogą dokupić kredyty.
+
+Artificial Analysis (API i strony modeli, 2026-11-04):
+
+| Wariant | Indeks inteligencji | Koszt zadania indeksu | Tokeny wyjścia indeksu |
+| --- | --- | --- | --- |
+| Sol `max` | 54,6 | — | — |
+| Terra `max` | 51,3 | 0,96 $ | 99,4 mln |
+| Sol `high` | 50,3 | 0,59 $ | 24,7 mln |
+| Sol `medium` | 46,3 | 0,36 $ | 15,1 mln |
+| Terra `xhigh` | 45,3 | 0,40 $ | 34,7 mln |
+| Terra `high` | 42,4 | 0,26 $ | 20,6 mln |
+| Spark 1.3 `max` (Muse) | 36,6 | — | — |
+
+Ceny tokenów: Sol 2/10 $, Terra 1/5 $ za 1 mln (wejście/wyjście). Koszt indeksu AA jest zdominowany przez wyjście,
+a nasze przebiegi — przez wejście. Rollouty Codexa od 2026-10-26: Sol `high` (92 przebiegi) — 8,6 mln wejścia bez
+cache, 100 mln z cache, 0,63 mln wyjścia; przy cenniku Sola (cache 10 % ceny wejścia, założenie) koszt rozkłada się
+40 % wejście, 46 % cache, 15 % wyjście. Szacunek kosztu przebiegu wobec Sola `high` (= 1,0): Terra `max` ≈ 0,73,
+Terra `xhigh` ≈ 0,53, Terra `high` ≈ 0,49 (połowa ceny wejścia + wyjście skalowane gadatliwością z AA). Pewność niska:
+nie wiadomo, czy limit Plusa liczy dokładnie wg ceny API, a gadatliwość agenta nie musi skalować się jak w indeksie.
+Decyzja (reguła 7): Terra `max` — kandydat tam, gdzie Sol `high`/`medium`; nie bramka; recenzja plików niezmiennika
+dopiero po ≥ 5 zaakceptowanych briefach Terry nie gorszych niż Sol `high`.
+
+## Muse: kalibracja puli po zmianie planu — 2026-11-04
+
+Właściciel: plan Muse kosztuje ~100 $/mies. (`muse usage` nadal podaje tier „Power Usage”). Koszt przebiegów tygodnia
+od 2026-11-02 liczony z `payload.event.usage` zdarzeń `model_completed` w `session.jsonl` (konwencja: `input_tokens`
+zawiera `cache_read_tokens`), cennik Spark contributor 0,002/0,10/0,20 $, Wonder 0,20/4,00/20,00 $ za 1 mln
+(cache/wejście/wyjście):
+
+- Spark (148 przebiegów, głównie `max`): 6,62 $ — średnio 0,045 $.
+- Wonder Full `max` (8 przebiegów): 25,98 $ — średnio 3,25 $; 1 Wonder ≈ 73 Sparki; 80 % zużycia tygodnia.
+- Odczyty `museUsage` przed kolejnymi Wonderami (tydzień): 0, 2, 2, 11, 17, 22, 24, 28 %; między odczytami ≈ 0,8–1,3 $
+  na punkt procentowy → tydzień ≈ 100–115 $ po cenniku (wcześniej 40–46 $), Wonder ≈ 3,2 %, Spark `max` ≈ 0,045 %.
+- 28 % przy ~42 % upływu tygodnia — w tym tempie ~65 % na koniec tygodnia. Limit wrappera 10 Wonderów/tydzień
+  ≈ 32 % puli; 8 z 10 zużyte w środę. Limit bez zmian (decyzja właściciela).
