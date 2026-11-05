@@ -11275,6 +11275,329 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: `qas.py lint` 0 błędów ×3 po każdej zmianie; P0/P1 każdorazowo sprawdzone w kodzie przez architekta przed korektą; pełne `qas.py verify` 0 różnic
 - Lekcja: trzy równoległe briefy z jednej puli numerów syntetycznych dały kolizje — brief wspólny ma przydzielać rozłączne pasma per plik; `qas.py verify` nie normalizował autolinkowanych URL-i (poprawione w skrypcie); recenzja Gemini potrafi przy trafnych P1 zmyślić tabelę zgodności — każde twierdzenie weryfikować w repo
 
+### 1382-R1 (research kontraktów dostawców tożsamości) — 2026-11-05
+- Archetyp: Research techniczny (kontrakty zewnętrznych dostawców tożsamości, adres źródła przy każdym twierdzeniu)
+- Stawka: średnia — wejście dla kodu wysokiej stawki
+- Niepewność: wysoka — kontrakty zewnętrzne i warianty protokołu
+- Wykonawca (linia / model / native effort): Gemini B / `gemini-3.8-flash-high` / `high`, `-Access read`
+- Recenzent (linia / model / native effort): brak osobnego — ocena architekta (wyrywkowe sprawdzenie źródeł)
+- Dopuszczone alternatywy: Codex / `gpt-6.1-terra` / `max` (plan)
+- Powód wyboru: poza pulą Claude'a (plan); pewność niska (sygnał 2026-09-24 dla researchu tej linii)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `ostrzegawczy` — hook 09:06: Claude ŻÓŁTY (tydzień 92%, tempo +32 pp, reset 08.11); Codex 5 h 0% / tydzień 50% (rezerwa bramki); Muse `nieznany`; Gemini B `znany` ok (plan)
+- Pewność decyzji: niska (plan)
+- Wynik pierwszego podejścia: zaakceptowano; 1 twierdzenie obalone przy sprawdzaniu źródeł
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 13 min (08:22 → 08:35Z) + sprawdzenie źródeł przez architekta
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): kontrola architekta: 1 twierdzenie fałszywe (wariant protokołu u jednego z dostawców), obalone przed kodem; poprawek u autora brak
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: adres źródła przy każdym twierdzeniu; wyrywkowe sprawdzenie przez architekta
+
+### 1382-B3 (+B3-K1) (konfiguracja, DDL, seed, diagram, wdrożenie) — 2026-11-05
+- Archetyp: Backend / konfiguracja + DDL + seed + diagram + wdrożenie (bez niezmiennika)
+- Stawka: średnia — nowe tabele i seed; bez migracji danych
+- Niepewność: niska — treść z planu dosłownie
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write` (B3 i B3-K1)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high` / `high`, `-Access read`
+- Dopuszczone alternatywy: Gemini A `high` (plan)
+- Powód wyboru: bez niezmiennika, bez Figmy → poza Claude'em (plan)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `ostrzegawczy` — jak 1382-R1 (plan, hook 09:06)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty
+- Rundy korekt: 1 (B3-K1: testy migracji i wdrożenie)
+- Czas do akceptacji: ok. 45 min (08:22 → 09:07Z: wykonanie 11 min + recenzja 16 min + korekta 4 min) + walidacja architekta
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): liczby: brak danych; korekta objęła testy migracji i wdrożenie; P0/P1 rozstrzygnięte (kroki)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: odbiór skryptem fali per brief (walidacja fali 1)
+
+### 1382-F1 (+F1-K1) (ekran logowania z Figmy, współdzielone elementy, i18n) — 2026-11-05
+- Archetyp: Frontend UI / Figma (ekran logowania, współdzielone elementy, i18n)
+- Stawka: średnia — ekran funkcji wysokiej stawki bez niezmiennika
+- Niepewność: niska — makiety zadane
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`); korekta F1-K1: Muse / `muse-spark-1.3-contributor` / `max`
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high` / `high`, `-Access read` (recenzja + ponowna po korekcie)
+- Dopuszczone alternatywy: wykonawca — brak przy ŻÓŁTYM (plan); recenzent i korekta: brak danych
+- Powód wyboru: wymaga Figma MCP; powyżej 5 plików i funkcja high-stakes → nie Codex (plan); korekta Sparkiem: powód brak danych
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `ostrzegawczy` — jak 1382-R1 (plan, hook 09:06)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty
+- Rundy korekt: 1 (F1-K1)
+- Czas do akceptacji: brak danych (wykonanie bez rekordu); recenzja 12 min + korekta 12 min + ponowna recenzja 10 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): liczby: brak danych; korekta: 3 pozycje (brzmienie, rząd dostawców, fokus); po korekcie przyjęte
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: pełne FE w walidacji fali (lint, 7298 testów, build) + `browser-check` logowania 16/16, zrzuty obejrzane
+
+### 1382-D1a (+D-K1, D-K3…D-K5) (dokumentacja potwierdzenia adresu i rejestracji) — 2026-11-05
+- Archetyp: Dokumentacja produktowa / rewizje dokumentów zatwierdzonych + nowa decyzja
+- Stawka: średnia — źródło prawdy dla funkcji wysokiej stawki
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write` (D1a, D-K1, D-K3, D-K4, D-K5)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high` / `high`, `-Access read`
+- Dopuszczone alternatywy: Gemini A `high` (plan)
+- Powód wyboru: dokumentacja (plan)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `ostrzegawczy` — jak 1382-R1 (plan, hook 09:06); D-K3…D-K5 przy CZERWONYM/zablokowanym Claude'u, ta sama linia
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty
+- Rundy korekt: 4 (D-K1 po recenzji; D-K3…D-K5 aktualizacje po implementacji, nie błędy wykonania)
+- Czas do akceptacji: ok. 5 h (08:22 → 13:15Z: wykonanie 11 min + recenzja 15 min + K1 8 min + K3 4 min + K4 7 min + K5 8 min) + walidacje
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): liczby: brak danych; zmyślone cytaty w recenzji obalone (notatki); P0/P1 rozstrzygnięte (kroki); D-K4: brief nieprecyzyjny — wykonawca słusznie zachował wariant zgodny z kodem
+- Defekty po odbiorze: przegląd 4c (G2): brak wymagania o czyszczeniu adresu w dokumencie rejestracji — dopisane przez architekta (1 punkt rewizji)
+- Wymagane testy i dowody: diff przeczytany przez architekta; zgodność z implementacją potwierdzona przeglądem 4c (osobny wpis)
+
+### 1382-D1b (+D-K2) (dokumentacja logowania i integracji) — 2026-11-05
+- Archetyp: Dokumentacja produktowa / rewizje dokumentów zatwierdzonych
+- Stawka: średnia — źródło prawdy dla funkcji wysokiej stawki
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write` (D1b, D-K2)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high` / `high`, `-Access read` (recenzja łączna D1b+K1)
+- Dopuszczone alternatywy: Gemini A `high` (plan)
+- Powód wyboru: dokumentacja (plan)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `ostrzegawczy` — jak 1382-R1 (plan, hook 09:06)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty
+- Rundy korekt: 1 (D-K2: treść normatywna, wyniki)
+- Czas do akceptacji: ok. 52 min (08:38 → 09:30Z: wykonanie 9 min + recenzja 15 min + korekta 7 min) + walidacja
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): liczby: brak danych; zmyślone cytaty w recenzji łącznej obalone (notatki); P0/P1 rozstrzygnięte (kroki)
+- Defekty po odbiorze: brak znanych (4c-G1: wszystkie sekcje zgodne)
+- Wymagane testy i dowody: jak 1382-D1a
+
+### 1382-B1 (warstwa protokołu, pliki niezmiennika) — 2026-11-05
+- Archetyp: Backend / warstwa protokołu (pliki niezmiennika)
+- Stawka: wysoka — uwierzytelnianie i sesja (plan)
+- Niepewność: wysoka — nowy protokół, trzej dostawcy, warianty
+- Wykonawca (linia / model / native effort): Claude / Opus 5.5 / `xhigh` (`wykonawca-opus`)
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access read` + Codex / `gpt-6.1-sol` / `high` (recenzja łączna B1+B2a)
+- Dopuszczone alternatywy: przy CZERWONYM: Wonder Full `max` (recenzja wtedy Sol `high`) albo czekanie (plan)
+- Powód wyboru: plik niezmiennika (plan)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `ostrzegawczy` — jak 1382-R1 (plan, hook 09:06); recenzja łączna już przy CZERWONYM (ok. 10:50, tydzień 95%, notatki)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: wymagane korekty — próg strażnika kontekstu: testy wydzielone do B1-T; 7 poprawek z recenzji wcielone do B2a (nie do B1)
+- Rundy korekt: 0 (poprawki w briefie B2a, nie w B1)
+- Czas do akceptacji: brak danych (wykonanie bez rekordu); recenzja Wonder 30 min + łączna Sol 8 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): recenzja Wonder: 7 poprawek potwierdzonych (w tym P1 + P2 + 2×P3 z priorytetami), wszystkie wcielone do B2a; odrzucone: brak danych; recenzja łączna: 1×P2 potwierdzone (obszar B2a) → B2-K2
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: 170 testów warstwy protokołu zielonych (B1-T); recenzje dwóch rodzin
+
+### 1382-B1-T (+B1T-K1) (testy warstwy protokołu) — 2026-11-05
+- Archetyp: Testy / xunit warstwy protokołu (bez zmian produkcji)
+- Stawka: wysoka — testy przypinają niezmiennik
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write` (B1-T i B1T-K1)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high` / `high`, `-Access read`
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: testy ze specyfikacji po progu strażnika w B1; linia z osobnej puli (Claude ŻÓŁTY)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `ostrzegawczy` — jak 1382-R1 (plan, hook 09:06)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty
+- Rundy korekt: 1 (B1T-K1: 8/8 pozycji, +23 testy)
+- Czas do akceptacji: ok. 52 min (09:07 → 09:59Z: wykonanie 25 min + recenzja 13 min + korekta 6 min) + walidacja
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 3×P1 + 4×P2 + 2×P3, wszystkie P1 potwierdzone, bez zmyślonych cytatów; słuszna uwaga do briefu; ponownej recenzji brak w źródłach (odbiór architekta)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: 193/193, 0 pominiętych; build 0 ostrzeżeń; testy powtórzone, asercje wyrywkowo sprawdzone; kod produkcyjny nietknięty
+
+### 1382-B2a (+B2a-K, B2-K2…B2-K6) (rozstrzyganie i sesja, pliki niezmiennika) — 2026-11-05
+- Archetyp: Backend / rozstrzyganie po powrocie i sesja (pliki niezmiennika)
+- Stawka: wysoka — uwierzytelnianie i sesja (plan)
+- Niepewność: wysoka
+- Wykonawca (linia / model / native effort): Claude / Opus 5.5 / `xhigh` (`wykonawca-opus`; B2a-K, B2-K2 i B2-K3 ze znacznikiem [konieczny]) + Muse / `muse-wonder-full-1.0-contributor` / `max` (B2-K4…K6, `-WonderPowod`, przebiegi 11–13 tygodnia)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (łączna B1+B2a + recenzje K2…K5)
+- Dopuszczone alternatywy: przy CZERWONYM: Wonder Full `max` (recenzja wtedy Sol `high`) albo czekanie (plan — tak się stało dla K4…K6)
+- Powód wyboru: plik niezmiennika (plan); K4…K6: Claude zablokowany (98%, hook odrzuca [konieczny]) — wyjątek CZERWONEGO z `-WonderPowod`; K5 wraca do autora
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `zablokowany` — Claude CZERWONY: tydzień 95% (ok. 10:50, notatki) → 98% (13:07Z, `-WonderPowod`); właściciel „leć do 100%" (ok. 11:30) → [konieczny]; hook blokuje Opusa od 98%; Wonder 10/10 → 11–13; reset 08.11
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: przekazanie — strażnik kontekstu przed pierwszą linią kodu (samo rozpoznanie: 4 dokumenty + kod + wzorce); wniosek: brief z rozpoznaniem dzielić albo podawać wycinki dokumentacji; kontynuacja B2a-K (bez ponownego czytania dokumentacji) ukończona; odstępstwo: podział handlera na 3 klasy (reguły Sonar)
+- Rundy korekt: 5 (B2-K2-A po recenzji łącznej; B2-K3 po mapie blokad z K2; B2-K4 i B2-K6 po bramce BE; B2-K5 po recenzji K4) plus 1 kontynuacja (B2a-K po przekazaniu)
+- Czas do akceptacji: brak danych (wykonania Opusa bez rekordów); B2a-K 24 min (notatki); K4 16 min + K5 15 min + K6 25 min; recenzje Sol 8 + 2 + 2 + 3 + 4 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): łączna: 1×P2 potwierdzone (zakleszczenie) → K2-A; K2: 0 (poprawny 0,88); K3: 0 (poprawny 0,93); K4: 1×P1 potwierdzone (wyścig wydania sesji) → K5; K5: 0 (poprawny 0,89); bramka BE (osobny wpis): P1+P2 → K4, P1+3×P2 → K6
+- Defekty po odbiorze: bramka BE po akceptacji K3 (P1+P2, potem P1+3×P2) — naprawione w K4…K6 w tym wpisie; po delcie bramki brak znanych
+- Wymagane testy i dowody: B2a-K: 52 pliki, 427 testów zielonych; K2: 427/427 w filtrze, 5 cofnięć czerwonych; K3: 115/115; K4: 486/486, 5 cofnięć; K5: 439/439, przeplot deterministyczny; pełne BE po K6: build OK, 10697 OK, 0 niepowodzeń, 1 dawny Skip #1929
+
+### 1382-F2 (+F2-K1…F2-K5) (ekran rejestracji z Figmy, krok uzupełniający) — 2026-11-05
+- Archetyp: Frontend UI / Figma (ekran rejestracji, krok uzupełniający, i18n)
+- Stawka: średnia — ekran funkcji wysokiej stawki; niezmienniki po stronie BE
+- Niepewność: średnia — stany ekranu z Figmy
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`); korekty K1…K5: Muse / `muse-spark-1.3-contributor` / `max`
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high` / `high`, `-Access read` (recenzja + K2…K4 + K5)
+- Dopuszczone alternatywy: wykonawca — jak F1 (plan); K2: Codex Terra `max` ≤ 5 plików (kroki)
+- Powód wyboru: F2: wymaga Figma MCP; powyżej 5 plików i funkcja high-stakes → nie Codex (plan); K1: autor przy CZERWONYM — reszta puli Claude'a na pliki niezmiennika (notatki); K2: reguła 3 przy CZERWONYM (kroki)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `zablokowany` — Claude CZERWONY (tydzień 95% → 98%); korekty poza pulą Claude'a
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty; odchylenie: DTO poza wspólnym katalogiem (zakres plików w briefie) — przeniesione przez architekta; zastrzeżenie o wstępnym numerze obalone (dokument dopuszcza pusty numer po przeładowaniu)
+- Rundy korekt: 5 (K1 po recenzji; K2 po bramce FE; K3 limit linii; K4 jedna deklaracja na plik; K5 po recenzji K2)
+- Czas do akceptacji: brak danych (wykonanie bez rekordu); F2 24 min (notatki); recenzje 18 + 12 + 11 min; K1 6 min + K2 22 min + K3 10 min + K4 3 min + K5 20 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): recenzja: 0 P0/P1, 3×P2 + 2×P3 potwierdzone; K2…K4: 1×P1 potwierdzone (sprzeczność w briefie K2) + 2×P2 + P3; K5: 3×P2 obalone/pominięte (poprawny 0,95); K2: słuszny STOP (limit linii); K3: brief łamał „jedna deklaracja na plik" → K4
+- Defekty po odbiorze: bramka FE po akceptacji K1 (P1 + 2×P2) — naprawione w K2…K5 w tym wpisie; po recenzji K5 brak znanych
+- Wymagane testy i dowody: 51 nowych testów (4 AXE), 0 błędów lint; K1: 74/74; `browser-check` rejestracji 24/24, zrzuty obejrzane; K5: 132/132 w 6 specach, cofnięcia czerwone; pełne FE: 7413 testów, lint/format/build OK
+
+### 1382-B2b (+B2-K2-B) (rejestracja, pliki niezmiennika) — 2026-11-05
+- Archetyp: Backend / rejestracja (pliki niezmiennika)
+- Stawka: wysoka — zakładanie konta i sesja (plan)
+- Niepewność: wysoka — transakcja, jednorazowość, współbieżność
+- Wykonawca (linia / model / native effort): Claude / Opus 5.5 / `xhigh` (`wykonawca-opus` [konieczny]); B2-K2-B: ten sam wykonawca (wspólny przebieg z częścią A)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (recenzja B2b + recenzja B2-K2)
+- Dopuszczone alternatywy: jak 1382-B1 (plan)
+- Powód wyboru: plik niezmiennika (plan); cały plaster u Opusa (kontroler wspólny; notatki)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `zablokowany` — Claude CZERWONY (95% → 98%); „leć do 100%" → [konieczny]
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: wymagane korekty
+- Rundy korekt: 1 (B2-K2-B, wspólny przebieg z częścią A)
+- Czas do akceptacji: brak danych (wykonania bez rekordów); recenzja B2b 5 min + recenzja K2 2 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): recenzja B2b: 2×P2 potwierdzone (obszar rejestracji; 3 łącznie z recenzją B2a, z czego 1 w obszarze B2a) → K2-B; recenzja K2: 0 (poprawny 0,88)
+- Defekty po odbiorze: P2 z bramki BE (przebieg 1) w pliku B2b — naprawione w B2-K4 (wpis 1382-B2a); po delcie brak znanych
+- Wymagane testy i dowody: 485/485 w filtrze; odbiór skryptem fali per brief OK
+
+### 1382-B2a-T (+B2a-T-K1) (testy rozstrzygania) — 2026-11-05
+- Archetyp: Testy / xunit rozstrzygania (bez zmian produkcji)
+- Stawka: wysoka — testy przypinają niezmiennik
+- Niepewność: niska — scenariusze w briefie
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write` (B2a-T i B2a-T-K1)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high` / `high`, `-Access read`
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: testy do zrecenzowanego kodu; linia z osobnej puli (Claude CZERWONY)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `zablokowany` — Claude CZERWONY (95% → 98%)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty
+- Rundy korekt: 1 (B2a-T-K1)
+- Czas do akceptacji: ok. 43 min (11:48 → 12:31Z: wykonanie 26 min + recenzja 11 min + korekta 4 min) + walidacja
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2×P2 + 2×P3 potwierdzone (poprawny 0,95); ponownej recenzji brak w źródłach (odbiór architekta)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: +50 testów (251/251 w filtrze), cofnięcia czerwone, produkcja nietknięta; K1: 252/252, cofnięcie czerwone, sprawdzenie wyrywkowe
+
+### 1382-B2b-T (testy rejestracji) — 2026-11-05
+- Archetyp: Testy / xunit rejestracji (bez zmian produkcji)
+- Stawka: wysoka — testy przypinają niezmiennik
+- Niepewność: niska — scenariusze w briefie
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high` / `high`, `-Access read`
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: jak 1382-B2a-T
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `zablokowany` — Claude CZERWONY (95% → 98%)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty (P1-1 naprawione przez architekta, 1 linia we wspólnym pomocniku; reguła 11)
+- Rundy korekt: 0 (bez przebiegu korekty)
+- Czas do akceptacji: ok. 24 min (12:15 → 12:39Z: wykonanie 12 min + recenzja 11 min) + poprawka architekta
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): niepoprawny (0,98): P1-1 potwierdzone (naprawione przez architekta), P1-2 obalone (wskazane testy istnieją), P3 pominięte (poza kontraktem)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: +19 testów (134/134 w filtrze), cofnięcia czerwone, produkcja nietknięta; po poprawce 134/134
+
+### 1382-audyt-SCSS (2 pliki) — 2026-11-05
+- Archetyp: Audyt SCSS (tylko odczyt)
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access read`
+- Recenzent (linia / model / native effort): brak osobnego — odbiór architekta
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: archetyp audytu (plan: Spark `max` read)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `nieznany` — Muse nieznany (plan); Claude CZERWONY
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano (5 min); 2/2 pliki, 0 zmian w repo
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 5 min (11:05 → 11:10Z) + poprawki architekta
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1 plik bez uwag; 2 mapowania selektorów (architekt, CSS identyczny); propozycje nowych mixinów (poza zmienionymi plikami) → osobne PBI (refaktor)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: raport bez pominiętego pliku; stylelint/prettier OK po poprawkach; CSS identyczny
+
+### 1382-bramka-FE (cały diff FE, Sol max) — 2026-11-05
+- Archetyp: Recenzja / bramka końcowa FE (cały diff)
+- Stawka: krytyczna
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): nie dotyczy (recenzja)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max` (tylko odczyt)
+- Dopuszczone alternatywy: brak (twarda reguła bramki)
+- Powód wyboru: bramka końcowa funkcji wysokiej stawki (plan: FE, potem BE)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — Codex 5 h 0% / tydzień 50% + rezerwa bramki (plan, hook 09:06)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: „wymaga poprawek" — 1×P1 + 2×P2, wszystkie potwierdzone
+- Rundy korekt: nie dotyczy — poprawki w 1382-F2 (K2…K5)
+- Czas do akceptacji: ok. 12 min (11:26 → 11:38Z) + triaż
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P1 (zgody zmienione w trakcie wysyłki) + 2×P2 (podwójne potwierdzenie; odpowiedź po zniszczeniu) — potwierdzone; dotyczą też wzorca zastanego
+- Defekty po odbiorze: brak znanych (dymny test PRE OK)
+- Wymagane testy i dowody: każde znalezisko potwierdzone w kodzie przez architekta; poprawki + recenzje w 1382-F2
+
+### 1382-bramka-BE (cały diff BE, Sol max) — 2026-11-05
+- Archetyp: Recenzja / bramka końcowa BE (cały diff)
+- Stawka: krytyczna
+- Niepewność: wysoka
+- Wykonawca (linia / model / native effort): nie dotyczy (recenzja)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max` (tylko odczyt; 3 przebiegi: STOP + pełny + delta)
+- Dopuszczone alternatywy: brak (twarda reguła bramki)
+- Powód wyboru: bramka końcowa funkcji wysokiej stawki (plan: po FE)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — Codex jak 1382-bramka-FE; delta: 1. próba „model at capacity" → ponowienie tą samą parą
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: przebieg 1: STOP po P1 (przegląd niedokończony) → pełny od nowa; przebieg 2: „wymaga poprawek" (P1 + 3×P2); delta K6: poprawki potwierdzone + 1 nowe P2
+- Rundy korekt: nie dotyczy — poprawki w 1382-B2a (K4…K6)
+- Czas do akceptacji: przebieg 1: 12 min (12:51 → 13:03Z); przebieg 2: 24 min (13:49 → 14:13Z); delta: 16 min (14:43 → 14:59Z) po nieudanym podejściu (138 s, capacity)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): przebieg 1: P1 + P2 potwierdzone, przegląd niedokończony (brief bramki za szeroki w P2 — poprawione dla spójności); przebieg 2: P1 + 3×P2 potwierdzone; delta: P1/P2-1/P2-2 usunięte, nowe P2 potwierdzone (architekt, 1 linia), 1×P2 obalone
+- Defekty po odbiorze: brak znanych (dymny test PRE OK)
+- Wymagane testy i dowody: znaleziska potwierdzone w kodzie przez architekta; poprawki + recenzje w 1382-B2a; pełne BE po delcie: build OK, 10697 OK, 0 niepowodzeń
+
+### 1382-SemVer (zapis wersji FE/BE) — 2026-11-05
+- Archetyp: Wydanie / zapis wersji (mechaniczny)
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `low` (plan: `mechanik` Haiku 5.5 `low` — odstępstwo)
+- Recenzent (linia / model / native effort): brak — odbiór architekta (odczyt wersji)
+- Dopuszczone alternatywy: `mechanik` Haiku 5.5 `low` (plan)
+- Powód wyboru: odstępstwo od planu; powód zmiany linii: brak danych (Claude w tym oknie 98–100%)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `zablokowany` — Claude 98% (13:07Z) → 100% (16:45)
+- Pewność decyzji: niska (powód zmiany linii nieznany)
+- Wynik pierwszego podejścia: zaakceptowano (27 s)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 1 min (15:01:32 → 15:01:59Z)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: FE 1.20.0 i BE 1.22.0 (minor) sprawdzone odczytem; PRE potwierdza wersje
+
+### 1382-4c (przegląd zgodności G1+G2) — 2026-11-05
+- Archetyp: Przegląd zgodności dokumentacji z implementacją (2 grupy równolegle)
+- Stawka: średnia — rozjazd dokumentu z kodem
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Gemini B / `gemini-3.8-flash-high` / `high`, `-Access read` (G1: logowanie/protokół/W2; G2: rejestracja)
+- Recenzent (linia / model / native effort): — (przegląd)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: inna rodzina niż autor dokumentacji (Spark) — plan
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — Gemini B ok; Claude zablokowany
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: G1: wszystkie sekcje zgodne; G2: 2× „brak w dokumencie" (1 bez zmiany, 1 dopisane przez architekta)
+- Rundy korekt: 0 (1 punkt rewizji dopisał architekt)
+- Czas do akceptacji: ok. 15 min (oba 15:01 → 15:14Z, równolegle) + triaż
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): G1: 0 (uwaga do statusu pliku roboczego — poprawione w dzienniku); G2: (a) mechanizm odpornościowy — bez zmiany, (b) potwierdzone — architekt dopisał punkt rewizji
+- Defekty po odbiorze: autor QA Sphere wykrył później 1 rozbieżność dokumentu przeoczoną przez 4c (wpis 1382-QAS); poza tym brak znanych
+- Wymagane testy i dowody: macierz zgodności; dziennik bez wpisów otwartych
+
+### 1382-ADO-PBI (4 nowe PBI) — 2026-11-05
+- Archetyp: Pozycje ADO (4 nowe PBI: 3 luki + refaktor)
+- Stawka: niska — odwracalne, w trackerze
+- Niepewność: niska — treść z decyzji bramy
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `high`, `-Access write`, host Windows, `-Repo ZebraniFE` (failed) → Gemini A / `gemini-3.8-flash-high` / `high`, `-Access write`
+- Recenzent (linia / model / native effort): brak osobnego — odbiór architekta (sprostowanie w 1 PBI)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: odstępstwo: Spark na Windows w repo FE padł na rekurencyjnym schemacie MCP (400, rekurencyjny `$ref` w narzędziu zapisu) → Gemini A; sondy Sparka (WSL write, Windows read) OK
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `nieznany` — Muse nieznany, Gemini A bez odczytu (plan); Claude zablokowany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: pierwsze podejście `failed` po 30 s (schemat MCP); po kwalifikacji zaakceptowano w pierwszym przejściu (10 min)
+- Rundy korekt: 0 (1 ponowna kwalifikacja linii)
+- Czas do akceptacji: ok. 11 min (15:27 → 15:38Z: nieudane 30 s + sondy + wykonanie 10 min)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy (odbiór architekta: sprostowanie w 1 PBI); 2 trafne uwagi „co błędne" autora
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: PBI #2912–#2915 założone; komentarz w #2915
+
+### 1382-QAS (autor + recenzja + K1 + K2) — 2026-11-05
+- Archetyp: Testy manualne / QA Sphere (przegląd istniejących + nowe przypadki)
+- Stawka: średnia — przypadki prowadzą testera
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows, `-Repo _robocze/1382-qasphere` (autor, K1, K2; obejście schematu MCP)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high` / `high`, `-Access read`
+- Dopuszczone alternatywy: brak danych (skill: autor Spark, recenzja Gemini)
+- Powód wyboru: procedura pomocniczego skilla (autor Spark, recenzja Gemini); `-Repo` w `_robocze` — obejście schematu MCP po ADO-PBI
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `zablokowany` — Claude 100%; Muse nieznany; Gemini B ok
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: wymagane korekty (autor: 150 keep / 1 retire / 53 nowe, lint 0/0)
+- Rundy korekt: 2 (K1: znaleziska recenzji; K2: uwaga autora z K1 — kroki odczytujące stan z zaślepki panelu administracji zastąpione odczytem w ustawieniach konta i w bazie PRE); brama właściciela bez poprawek
+- Czas do akceptacji: ok. 60 min (15:31Z start autora → ok. 16:31Z pełne `verify`; z bramą właściciela)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2×P1 potwierdzone (przypadki zza zaślepki; brak wariantów zwężonego ekranu i ciemnego motywu) + P2 (potwierdzone i do sprawdzenia) → K1; autor: 4 trafne uwagi + rozbieżność dokumentu przeoczona przez 4c
+- Defekty po odbiorze: brak znanych; rozbieżność dokumentu wykryta przez autora rozstrzygnięta przez właściciela rewizją dokumentu
+- Wymagane testy i dowody: lint 0 błędów po każdej zmianie; publikacja: 59 nowych (2 foldery), 2 aktualizacje, 1 `[Removed]`; pełne `verify` 62 sprawdzone, 1 różnica zapisu (ucieczka podkreślenia w Markdown po stronie serwera, treść równoważna)
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
