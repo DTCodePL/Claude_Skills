@@ -106,6 +106,7 @@ RETIRE_FIELDS = {"seq", "title", "reason", "replacedBy", "done"}
 LIST_ITEM_RE = re.compile(r"^\s*(\d+\.|[-*])\s")
 PLACEHOLDER_RE = re.compile(r"\b(todo|tbd|xxx|lorem)\b", re.IGNORECASE)
 FENCE_LANG_RE = re.compile(r"```[A-Za-z0-9_+#-]+")
+AUTOLINK_RE = re.compile(r"\[(https?://[^\]\s]+)\]\(\1\)")
 INLINE_CODE_RE = re.compile(r"(?<!`)`([^`\n]+?)`(?!`)")
 
 
@@ -301,11 +302,13 @@ def norm_text(text):
     (```` ```sql ```` -> ```` ``` ````) i odczyt wstawia pustą linię
     bezpośrednio przed pozycją listy albo otwarciem bloku ```` ``` ````.
     Serie pustych linii zwijamy do jednej, taką wstawioną linię usuwamy;
-    pozostałe puste linie są znaczące.
+    pozostałe puste linie są znaczące. Goły URL zapisany przez MCP serwer
+    autolinkuje, a odczyt zwraca go jako `[URL](URL)` — zwijamy z powrotem.
     """
     if not isinstance(text, str):
         return ""
     text = html.unescape(text)
+    text = AUTOLINK_RE.sub(r"\1", text)
     text = FENCE_LANG_RE.sub("```", text)
     lines = [line.rstrip() for line in text.split("\n")]
     collapsed = []
