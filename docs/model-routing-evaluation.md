@@ -11239,6 +11239,42 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wymagane testy i dowody: filtr 1821 → 1824; czerwień każdego testu na osobnej mutacji (sprawdzenie kanału po przeniesieniu → 200; wybór kopii tylko po identyfikatorze → zła kopia; osłona 31 w szczegółach i osobno na liście → brak źródła/grupy); pliki produkcyjne przywrócone z kopii i sprawdzone wyszukiwaniem sygnatur (architekt: osłony, porządek i kolejność sprawdzeń na miejscu); końce linii per plik zachowane; walidacja architekta: build od zera 0/0, filtr zielony
 - Lekcja: przywracanie mutacji kopią pliku zachowuje czas modyfikacji — dowodem przywrócenia jest treść (wyszukiwanie sygnatur), nie data pliku. Wstawianie do pliku CRLF własnym skryptem dało podwójnie zakodowane polskie znaki w komentarzu — brief workera na plik CRLF powinien kazać sprawdzić polskie znaki po zapisie
 
+### 1690-B-CI i B-CI2 (zakleszczenie limitu próśb i przyjęcia zgłoszeń po czerwonym CI) — 2026-11-05
+- Archetyp: Backend / współbieżność w plikach niezmiennika (limit prób, dopasowanie zgłoszeń) — poprawka po czerwonym CI z dowodem przyczyny
+- Stawka: wysoka — limit prób i „jedna grupa na wartość” pod współbieżnością
+- Niepewność: średnia — awaria tylko w CI (lokalnie 6/6 zielone), przyczyna jako hipoteza architekta
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 / `xhigh` — B-CI, potem świeży agent tej samej linii na B-CI2 (kontekst pierwszego ~250 tys.)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (0 zmian w repo)
+- Dopuszczone alternatywy: wykonawca — brak poza CZERWONYM (Wonder Full `max`); recenzent — Wonder Full `max` (limit tygodnia 9/10, slot zostawiony)
+- Powód wyboru: pliki niezmiennika wysokiej stawki → `wykonawca-opus`; recenzent innej rodziny, Sol `high` jako dopuszczona alternatywa Wondera przy ostatnim slocie tygodnia
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `ostrzegawczy` — hook ŻÓŁTY, tydzień 89–91 %, tempo +32 pp (2026-11-05 04:30–06:40); Codex `znany` `[pule]` 5 h 22 %, tydzień 49 %
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: B-CI zaakceptowany; wykonawca sam wskazał drugi cykl (przyjęcie) — B-CI2 jako osobny brief, zaakceptowany
+- Rundy korekt: 0 (dwa briefy, bez poprawek)
+- Czas do akceptacji: B-CI ~32 min, B-CI2 ~42 min + walidacja architekta + recenzja
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 P0–P3 poza świadomie zostawionymi ryzykami (cykl przyjęcie ↔ polecenie administratora na tej samej nowej wartości; sąsiednie wartości w jednej luce indeksu; brak testu blokady zakresu)
+- Defekty po odbiorze: do potwierdzenia zielonym CI
+- Wymagane testy i dowody: raporty `xml_deadlock_report` z `system_health` przed/po (limit: 11 → 0 w 60 przebiegach; przyjęcie: 8 → 0 w 240); odtworzenie czerwieni z CI lokalnie pod obciążeniem; testy serializacji przez `sys.dm_tran_locks` z mutacjami (bez blokady, blokada po odczycie, odwrotna kolejność, `Shared`) czerwonymi; walidacja architekta: build 0/0, filtr 1834/1834
+- Lekcja: test współbieżny zielony lokalnie w izolacji nie dowodzi braku zakleszczeń — pomiar `system_health` pod równoległym obciążeniem (kilka procesów `dotnet test`) odtworzył awarię z CI; brief z „najpierw dowód, potem poprawka” i klauzulą STOP dał wykonawcy podstawę do wskazania drugiego cyklu zamiast dopasowania do hipotezy
+
+### 1690-QAS (QA Sphere: 3 pliki przypadków, recenzje i korekty) — 2026-11-05
+- Archetyp: QA Sphere — przypadki manualne (100 nowych, przegląd 14 istniejących) dla funkcji wysokiej stawki
+- Stawka: średnia (przypadki testowe; brak zapisu do kodu)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows — 3 briefy równolegle (A1, A2, B) + korekty K1 dla A2 i B
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high` / `high`, `-Access read` — 3 recenzje równolegle
+- Dopuszczone alternatywy: wykonawca — Gemini A (gdy Muse zajęty); recenzent — Codex Sol `high`
+- Powód wyboru: archetyp QA Sphere (reguła 8, skill `qasphere-test-generator`): plik Muse recenzuje Gemini
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): `znany` — `[pule]` Muse 8 % / 33 %, Gemini B ok (2026-11-05 ~04:05)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: 3/3 pliki z lint 0 błędów; 2 pliki wymagały korekty po recenzji
+- Rundy korekt: 1 (A2, B); A1 — poprawka jednego tekstu przez architekta
+- Czas do akceptacji: ~65 min od startu do pełnego `verify` (0 różnic, 101 przypadków)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone — 3×P1 (rejestracja wymagająca prawdziwego SMS na pre-prod, gdzie działa stały kod; komunikat walidacji z innego stanu; brak kliknięcia zapisu), 6×P2 (surowy znacznik tłumaczenia, przełączniki opisane jako listy, brak otwarcia adresu po usunięciu, modalna szuflada pomijana w 14 przypadkach, wielkość litery w nazwie dostępnej), 1×P3; odrzucone — tabela „dosłownych” komunikatów w jednym raporcie recenzji była zmyślona (teksty niezgodne z `pl.json`, błędne ścieżki plików)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `qas.py lint` 0 błędów ×3 po każdej zmianie; P0/P1 każdorazowo sprawdzone w kodzie przez architekta przed korektą; pełne `qas.py verify` 0 różnic
+- Lekcja: trzy równoległe briefy z jednej puli numerów syntetycznych dały kolizje — brief wspólny ma przydzielać rozłączne pasma per plik; `qas.py verify` nie normalizował autolinkowanych URL-i (poprawione w skrypcie); recenzja Gemini potrafi przy trafnych P1 zmyślić tabelę zgodności — każde twierdzenie weryfikować w repo
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
