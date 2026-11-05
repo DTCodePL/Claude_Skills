@@ -10658,6 +10658,108 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: brak znanych
 - Wymagane testy i dowody: linki względne sprawdzone (recenzent i architekt); commit w repo dokumentacji
 
+### architekt-B3 + B3-K1 (`ado-wi.py`: zwięzły odczyt elementów ADO przez REST) — 2026-11-05
+- Archetyp: Implementacja narzędzia (Python, bez niezmiennika produktu; PAT tylko w nagłówku żądania)
+- Stawka: średnia (wyciek PAT byłby incydentem bezpieczeństwa)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read`
+- Dopuszczone alternatywy: wykonawca Codex `gpt-6.1-terra` `max` (o ile piaskownica pozwoli czytać konfigurację); recenzent Codex `gpt-6.1-sol` `high` (odczyt)
+- Powód wyboru: brief bez Figmy i bez niezmiennika najpierw poza pulą Claude'a (reguła 3); sieć i PAT z `~/.claude.json` wymagają hosta Windows; odczyt najpierw na koncie B
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — `[pule]` Muse tydzień 30 %, Gemini A ok, B ok; 2026-11-05 ok. 00:15
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty (u autora)
+- Rundy korekt: 1 (B3-K1, Spark `max`, 4,8 min) oraz poprawka architekta w teście z briefu (pojedyncza porcja z 404 — błąd specyfikacji, nie autora)
+- Czas do akceptacji: ok. 45 min (przebieg 8,6 min, recenzja 6,1 min, korekta 4,8 min, walidacja i odczyt na żywo)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone P0 ×1 (nagłówek `Authorization` przechodzi przy przekierowaniu 3xx na inny host; poprawka: `add_unredirected_header`), P1 ×3 (treść `<script>`/`<style>` w wyniku, utracony `alt` obrazka, zagnieżdżone linki), P2 ×1 (powtórne zapytanie przy 404 porcji jednoelementowej); odrzucone ×2 (rozbijanie 404 przy pierwszym zapytaniu zbiorczym — sprawdzone na żywym ADO; ścieżka konfiguracji — skrypt działa tylko na Windows)
+- Defekty po odbiorze: brak znanych; kosmetyka sklejania tekstu sąsiednich elementów HTML odnotowana, bez wpływu na odczyt
+- Wymagane testy i dowody: `test_ado_wi.py` 41/41; odczyt na żywo PBI #1634 z dziećmi (kod 0); PAT nieobecny w wyjściu i logu
+
+### architekt-B4 + R-B4 (`.claude/CLAUDE.md` architekta w ZebraniFE/BE, `sync-routing.py`, krok CI) — 2026-11-05
+- Archetyp: Dokumentacja / instrukcje repozytorium
+- Stawka: średnia (instrukcje każdej sesji Zebrani)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): architekt — Claude / Opus 5.5 / `xhigh` (treść reguł i decyzja D1 — reguła 4; zmiana skryptu — reguła 11)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` — nieudany (kod 3, 4,8 min); po ponownej kwalifikacji Muse / `muse-spark-1.3-contributor` / `max` / `-Access read` (6,1 min)
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` (odczyt)
+- Powód wyboru: odczyt najpierw na koncie B; po niepowodzeniu Gemini inna rodzina niż autor (Claude) z zapasem puli — Spark
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — `[pule]` Gemini B ok, Muse tydzień 30 %; 2026-11-05 ok. 00:25
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty (architekt)
+- Rundy korekt: 1 (architekt)
+- Czas do akceptacji: ok. 35 min (z nieudanym przebiegiem Gemini)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone P1 ×1 (krok CI porównywał bloki tylko w jednym kierunku — dopisek wyłącznie w `AGENTS.md` przechodził; CI sprawdza teraz oba kierunki); odrzucone P2 ×1 (triaż jest w globalnych regułach 4 i 11); P3 ×3 bez wpływu na odbiór
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: skrypt pokrycia — 0 usuniętych akapitów brakujących w `AGENTS.md`, nowe tylko 7 linii nagłówka; sprawdzenie bloków CI czyste w FE i BE; `AGENTS.md` FE 63 905 B (limit 64 000); commity 7b5c65c1 (FE) i f9d6f9c (BE)
+
+### architekt-B5 + R-B5 (druga dieta globalnego `CLAUDE.md`: spis zdań normatywnych i kontrola pokrycia) — 2026-11-05
+- Archetyp: Audyt dokumentów (spis normatywny „stare → nowe miejsce” i kontrola pokrycia)
+- Stawka: średnia (polityka nadrzędna routingu wszystkich projektów)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): nowy plik — architekt, Claude / Opus 5.5 / `xhigh`; spis — Muse / `muse-spark-1.3-contributor` / `max` (8,2 min)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (7,7 min)
+- Dopuszczone alternatywy: Codex `gpt-6.1-sol` `high` (odczyt)
+- Powód wyboru: spis to odczyt dokumentów, poza pulą Claude'a; kontrola pokrycia z rodziny innej niż autor spisu (Muse) i autor pliku (Claude)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — `[pule]` Muse tydzień 31 %, Gemini B ok; 2026-11-05 ok. 00:35
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty (architekt) — spis wykazał 24 zdania bez nowego miejsca
+- Rundy korekt: 1 (architekt; 24 luki uzupełnione skryptem dokładnych zamian, jedna dodatkowa po R-B5)
+- Czas do akceptacji: ok. 50 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone luki ×25 (24 ze spisu, 1 z kontroli pokrycia — „worker przeglądarkowy tylko, gdy raport nie rozstrzyga”); odrzucone: brak. Wrapper zwrócił kod 3 (ponowienie po limicie tokenów wyjścia), ale raport w `result.response` był kompletny — przyjęty bez ponownego przebiegu
+- Defekty po odbiorze: brak znanych; odchylenie: plik ma 33,5 KB wobec celu ≤ 30 KB
+- Wymagane testy i dowody: pokrycie 100 % wg kontroli; kopia poprzedniej wersji w `~/.claude/kopie/2026-11-05`
+
+### architekt-B6 + R-B6 (skill kanoniczny Zebrani i `external-workers`: odbiór fali skryptem, recenzja od razu, odczyty) — 2026-11-05
+- Archetyp: Dokumentacja procesu (skille)
+- Stawka: średnia (procedura każdego PBI Zebrani)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): architekt — Claude / Opus 5.5 / `xhigh` (treść reguł procesu, reguła 4)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-terra` / `max` / `-Access read` (8,8 min)
+- Dopuszczone alternatywy: Gemini konto B `gemini-3.8-flash-high` (odczyt), Codex `gpt-6.1-sol` `high`
+- Powód wyboru: Terra `max` jako kandydat w miejsce Sola `high` przy średniej stawce (reguła 7), zbiera lokalne wyniki; tydzień Codexa z zapasem na bramkę
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — `[pule]` Codex tydzień ok. 45 %; 2026-11-05 ok. 00:45
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty (architekt)
+- Rundy korekt: 1 (architekt, jednym skryptem dokładnych zamian)
+- Czas do akceptacji: ok. 40 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone P1 ×5 (`lint:fix`/`format` w walidacji; baza fali nie chroniła plików zmienionych przed falą; zakres `--uncommitted` recenzji przy cudzej pracy w drzewie; pominięcie Fazy 4b przy diffie mechanicznym wbrew regule 13; „decyzje z góry” mylone z bramą potwierdzenia), P2 ×14 przyjęte; odrzucone ×2 (brak obowiązkowej drugiej recenzji po korekcie — reguła 13 mówi o recenzjach potrzebnych; Git Workflow jest nadal w `CLAUDE.md`). Recenzent nie miał w zakresie `ado-wi.py` — opcje i kody wyjścia sprawdził architekt
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: kopie skilli sprzed korekt w `~/.claude/kopie/2026-11-05`; opcje `ado-wi.py` w obu skillach zgodne ze skryptem
+
+### architekt-B2 + B2-K1 + B2-K2 (`worker-run.ps1`: tryb `-Console summary|full`, koniec odpytywania workerów) — 2026-11-05
+- Archetyp: Implementacja narzędzia (PowerShell, wrapper workerów; bez niezmiennika produktu)
+- Stawka: średnia (każdy przebieg workera; błąd mógłby ukryć raport albo zmienić status lub kod wyjścia)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows (kopia w `_robocze`, instaluje architekt)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (6,9 min)
+- Dopuszczone alternatywy: wykonawca Codex `gpt-6.1-terra` `max`, `wykonawca` (tylko gdy Muse niedostępny); recenzent Codex `gpt-6.1-sol` `high` (odczyt)
+- Powód wyboru: brief bez Figmy i bez niezmiennika najpierw poza pulą Claude'a (reguła 3); implementacja bez niezmiennika → Spark `max` (reguła 8); odczyt najpierw na koncie B
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — `[pule]` Muse tydzień 30 %, Gemini B ok; 2026-11-05 ok. 00:15
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty (u autora)
+- Rundy korekt: 2 (B2-K1 po walidacji architekta, 5,1 min; B2-K2 po recenzji, 7,2 min)
+- Czas do akceptacji: ok. 60 min (przebieg 15,9 min, korekty 12,3 min, recenzja 6,9 min, walidacja i instalacja)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): walidacja architekta — 2 defekty (m.in. ucięcie początku raportu Muse przy limicie ostatnich 80 linii strumienia); recenzja — potwierdzone P1 ×2 (brak `try/catch` wokół podsumowania: wyjątek pomijał linię końcową; przebieg nieudany z raportem Codexa/Gemini bez ogona strumienia), przyjęte P2 ×1 (etykieta `nowy` dla R/C) i P3 (testy); odrzucone P2 ×2 (koszt haszowania nieśledzonych — ignorowane są wyłączone, flaga potrzebna do nowych katalogów; dodatki `-Console full` są addytywne). Autor B2-K2 trafnie obalił przesłankę briefu: dosłowne „R/C → `nowy`” oznaczyłoby starą ścieżkę zmiany nazwy, co przeczyło wymaganemu testowi
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: Pester 128/128, 27/27, 105/105 w kopii i po instalacji w `~/.claude/bin`; sonda Spark `low` `-Access read` w trybie `summary` — plik konsoli 7 linii; kopie poprzednich wersji w `~/.claude/kopie/2026-11-05`
+
+### architekt-B1 (`fala-odbior.py`: odbiór fali jednym poleceniem) — 2026-11-05
+- Archetyp: Implementacja narzędzia (Python, zakres fali i sprawdzenia FE/BE; bez niezmiennika produktu)
+- Stawka: średnia (błąd zakresu ukryłby zmiany fali przed odbiorem)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): v1, v2 — Codex / `gpt-6.1-terra` / `max`, `-Access write`; v3 — Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read`
+- Dopuszczone alternatywy: wykonawca Codex `gpt-6.1-sol` `high`, Spark 1.3 `max`; recenzent Codex `gpt-6.1-sol` `high` (odczyt)
+- Powód wyboru: Terra `max` jako kandydat w miejsce Sola `high` (reguła 7), zbiera lokalne wyniki; po dwóch STOP-ach bez kodu ponowna kwalifikacja (reguła 2) na Spark `max`; recenzja z rodziny innej niż Muse, odczyt najpierw na koncie B
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — `[pule]` Codex 5 h 47 %, tydzień 40 %; Muse tydzień 30 %; 2026-11-05 00:15–00:30; recenzja: Gemini B ok, 01:01
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: STOP ×2 u Terry (2,2 i 2,8 min) — trafne obalenia przesłanek: v1 sześć poprawek briefu, v2 `git diff --name-only` bez `--no-renames` gubi starą ścieżkę zatwierdzonej zmiany nazwy; v3 Spark gotowe z 5 odchyleniami, w tym trafnym obaleniem statystyki liczonej względem `HEAD` zamiast `head_bazy`
+- Rundy korekt: 1 (architekt, reguła 11: kodowanie stdout — na Windows z przekierowanym wyjściem cp1250 skrypt padał na `→`/`−`) + B1-K1 u autora (Spark `max`, 7,3 min; 5 poprawek, 7 testów) + architekt: limit 30 s na drugie `communicate()` po zabiciu drzewa
+- Czas do akceptacji: ok. 1 h 45 min (00:18 → ok. 02:00, z dwoma STOP-ami Terry) (v3: przebieg 71 min — `-TimeoutMinutes` steruje tylko Gemini)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): recenzja Gemini B (6,0 min) — potwierdzone P0 ×1 (przy kodzie ≠ 0 limit 10 pozycji werdyktu mógł zawierać same ostrzeżenia, a błąd budowania przechodził jako OSTRZEŻENIA z kodem 0), P1 ×1 (statystyka `git diff --numstat` bez porcjowania — limit długości polecenia Windows); przyjęte jako utwardzenie P1 ×1 (brak limitu czasu i odziedziczony stdin procesów potomnych; zabijanie całego drzewa) i P1→P2 ×1 (nieudane testy przy kodzie 0); odrzucone P2 ×1 (usunięta ścieżka przeniesienia spoza globów to celowy BŁĄD — pakiet podaje obie ścieżki) i uwagi do specyfikacji ×2 (wyjścia budowania `bin/obj/dist` są ignorowane; parser `dotnet test` jest pozycyjny, kodowanie nie szkodzi); uwaga trafna: `--pelny` na drzewie z cudzą pracą może dać błąd niezwiązany z falą (README)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `unittest` 54/54 (z testem kodowania cp1250); przebieg na prawdziwym ZebraniFE — 405 cudzych plików poza falą; celowy błąd eslint → werdykt 5 linii, kod 1, logi z regułami `no-var`, `no-unused-vars`, `no-explicit-any`
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12

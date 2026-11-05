@@ -3,7 +3,7 @@ name: implement-ado-feature-zebrani
 description: >
   Planowanie i pełna implementacja feature'a / PBI / taska Zebrani.pl na
   podstawie linku lub numeru Azure DevOps — od Plan Mode z makietami Figmy,
-  przez rozłączne fale wykonania, audyt i niezależną recenzję po każdej fali,
+  przez rozłączne fale wykonania, audyt i niezależną recenzję każdego briefu,
   aż po bramę potwierdzenia i domknięcie w ADO. Claude Opus xhigh pozostaje
   architektem, dyspozytorem i walidatorem w pilotażu; sesja główna nie pisze
   kodu ani testów. Dla każdego briefu najpierw kwalifikuje pary model–native
@@ -48,10 +48,11 @@ streszczenie routingu rozjeżdżało się z tym plikiem przy każdej zmianie
 (2026-09-28: loader w ZebraniFE wciąż mówił „Opus `max`”, „Gemini do
 researchu”, „Codex recenzuje Sparka” i nie znał `wykonawca-opus`). Zmiana
 routingu = ten plik + globalny `~/.claude/CLAUDE.md`; loadera nie ruszasz.
-Skill zakłada, że w repo projektu obowiązuje `.claude/CLAUDE.md` (w ZebraniBE
-kopia jako `AGENTS.md`) — nie duplikuj jego zasad w brifach dla subagentów,
-tylko cytuj/linkuj właściwą sekcję ("a subagent does not inherit project
-rules by osmosis").
+Skill zakłada, że w repo projektu obowiązuje `AGENTS.md` (pełne reguły repo
+i standard stosu; czytają go wszyscy wykonawcy), a `.claude/CLAUDE.md` jest od
+2026-11-05 odchudzonym plikiem architekta. Nie duplikuj zasad w brifach dla
+subagentów, tylko cytuj/linkuj właściwą sekcję `AGENTS.md` ("a subagent does
+not inherit project rules by osmosis").
 
 ## Rola sesji głównej — mózg operacji
 
@@ -201,7 +202,9 @@ wszystkich kroków, a każda wiadomość mówi, na którym z nich jesteś.
    - dla każdej fali trzy kroki: **wykonanie** (briefy fali z liniami oraz
      tory poboczne — dokumentacja, Figma — wypisane w tym kroku),
      **walidacja** (diff, lint, testy, build, `browser-check`) i **recenzja
-     niezależna z poprawkami**;
+     niezależna z poprawkami**; kroki się nakładają — recenzja briefu rusza
+     zaraz po jego odbiorze, a krok recenzji zamyka komplet recenzji
+     i pełna walidacja fali;
    - dla Buga zamiast pierwszej fali: czerwony test → odbiór czerwieni →
      łatka → ten sam test zielony i cały pakiet;
    - audyt SCSS (gdy diff zmienia SCSS);
@@ -251,6 +254,16 @@ wszystkich kroków, a każda wiadomość mówi, na którym z nich jesteś.
 
 Zanim zlecisz jakikolwiek kod, wejdź w Plan Mode i ustal:
 
+- **Odczyt z ADO** (od 2026-11-05) — work item, rodzica i dzieci czytasz
+  zwięźle: `python ~/.claude/bin/ado-wi.py <id> --dzieci` (opcje
+  `--pola P1,P2`, `--komentarze N`, `--limit-znakow N`). MCP `wit_work_item` zostaje do
+  zapisu i do pól, których skrypt nie zwraca — pełny JSON z MCP zajmował
+  ~15 % objętości kontekstu architekta.
+- **Decyzje właściciela z góry** — rozstrzygnięcia, od których zależy
+  przebieg (zakres, push, deploy PRE, które dokumenty `zatwierdzony`
+  dostaną rewizję), zbierasz w planie przed `ExitPlanMode`; w trakcie
+  wykonania pytasz tylko o rzeczy nowe. Plan nie zatwierdza wyniku: brama
+  potwierdzenia (Faza 5) i akceptacja treści rewizji zostają na miejscu.
 - **Dokumentacja (źródło prawdy)** — punkt obowiązkowy planu: mapa
   dokumentacji (dokument, sekcja, id, `status`) i planowane zmiany albo „bez
   zmian” z uzasadnieniem; patrz sekcja „Dokumentacja produktowa — źródło
@@ -399,13 +412,14 @@ Główny wątek nigdy nie jest wykonawcą tego, co da się zlecić:
 
 1. **Projektujesz** — podejmujesz z góry każdą decyzję (nazwy, pliki, tokeny,
    kształt API, przypadki brzegowe), żeby wykonawca nie musiał zgadywać.
-   Fakty z repo, których potrzebujesz do decyzji, zbiera `zwiadowca` — nie
-   czytasz dwudziestu plików w sesji architekta.
+   Fakty z repo z więcej niż ~3 plików zbiera `zwiadowca` (Haiku — odczyt
+   kontekstu ~20× tańszy niż w sesji architekta); sam czytasz tylko diff
+   i pliki potrzebne do decyzji.
 2. **Dzielisz na fale i dysponujesz** — briefy fali o rozłącznych zbiorach
    plików wysyłasz naraz w jednej wiadomości, każde na linię zakwalifikowaną
    i wybraną dla briefu; fala zależna od plików poprzedniej startuje dopiero
    po jej walidacji i niezależnej recenzji. Każdy brief dostaje pełną
-   specyfikację plus właściwe sekcje CLAUDE.md, klauzulę "jeśli premisa w tej
+   specyfikację plus właściwe sekcje `AGENTS.md`, klauzulę "jeśli premisa w tej
    specyfikacji jest błędna, ZATRZYMAJ SIĘ i zgłoś zamiast wykonywać
    dosłownie" oraz wymaganą sekcję raportu "Co uważasz za błędne w tej
    specyfikacji?". Brief implementacji i brief korekty podaje też ścieżki
@@ -415,12 +429,36 @@ Główny wątek nigdy nie jest wykonawcą tego, co da się zlecić:
    żaden dokument nie opisuje, z `plik:linia` — albo jawnie „brak”.
 3. **Walidujesz raz na falę** — nigdy na słowo wykonawcy. Dowodem zamykającym
    zadanie jest diff, lint, testy, build, zrzut ekranu — nie deklaracja
-   sukcesu. Przy walidacji fali przenosisz do dziennika rozbieżności każdą
+   sukcesu. Odbiór robi jedno polecenie (od 2026-11-05):
+   `python D:\projects\DTCode\Claude_Skills\narzedzia\fala-odbior\fala-odbior.py`.
+   Przed falą piszesz pakiet (`_robocze\<numer>-odbior\pakiet.json`: `stos`
+   i `briefy` z `id`, `autor` oraz globami `pliki`) i zapisujesz bazę:
+   `--repo <repo> --zapisz-baze <baza.json>`. Po briefie: `--repo <repo>
+   --baza <baza.json> --pakiet <pakiet.json> --brief <id>` — tylko pliki
+   tego briefu (FE: eslint, stylelint, prettier i zgodność kluczy i18n;
+   BE: zakres i statystyka). Błąd i18n w briefie, który nie dotyka
+   tłumaczeń, rozstrzygasz po zakończeniu briefów i18n. Po **każdej** fali
+   i przed bramą: to samo bez `--brief`, z `--pelny` i `--katalog-logow
+   <_robocze\<numer>-odbior>` — zakres całej fali (pliki bez właściciela,
+   nakładki), a do tego FE: pełne lint, format, testy, build; BE: build
+   i testy. Zależna fala czeka dodatkowo na komplet recenzji. Baza odcina
+   cudze pliki, nie cudze zmiany: plik zmieniony już przed falą i ruszony
+   w fali niesie obie — wymieniasz go w raporcie bramy, a do commita
+   bierzesz tylko fragmenty briefu (łatka zawężona do nich, `git apply
+   --cached`). Werdykt ma ≤ 40 linii; pełne logi (`00-werdykt-pelny.log`
+   i logi poleceń) czytasz przy błędzie albo werdykcie niejasnym lub uciętym. Przy walidacji fali przenosisz do dziennika rozbieżności każdą
    przyjętą pozycję z obu sekcji raportu i każdą decyzję podjętą po planie,
    a briefy dokumentacji dla nowych wpisów wysyłasz z kolejną porcją pracy.
-4. **Zlecasz recenzję po każdej fali** niezależnemu recenzentowi (Faza 4b)
-   z innej rodziny niż autor; architekt odbiera dowody tej fali przed
-   rozpoczęciem zależnej. Nie zastępujesz jej okresową oceną routingu.
+4. **Zlecasz recenzję każdego briefu od razu po jego odbiorze** (od
+   2026-11-05; Faza 4b) niezależnemu recenzentowi z innej rodziny niż
+   autor, bez czekania na resztę fali; dowody i recenzje całej fali
+   odbierasz przed rozpoczęciem zależnej. Nie zastępujesz jej okresową
+   oceną routingu.
+5. **Nie odpytujesz workerów** (od 2026-11-05). Wrapper uruchamiasz w tle
+   (domyślnie `-Console summary`: linia startu, raport końcowy, zmiany
+   w repo i ścieżka logu) i czekasz na powiadomienie. Logu ani
+   `worker-status` nie czytasz w trakcie przebiegu; po nim — tylko przy
+   błędzie i tylko potrzebny fragment.
 
 **Tory poboczne równolegle** (decyzja użytkownika 2026-09-25, reguła 14
 globalnego `CLAUDE.md`). Gdy decyzja jest ustalona — w kodzie albo w planie —
@@ -567,7 +605,7 @@ raport wykonawcy nie zastępuje dowodów.
 **Dane zewnętrzne tylko pomocniczo.** Jeśli potrzebne, liczby indeksów
 i ceny odczytujesz z API Artificial Analysis:
 `GET https://artificialanalysis.ai/api/v2/data/llms/models`, nagłówek
-`x-api-key: aa_BfuEueOGzcOvOENaiuiavHwaGvVNhrYK`. Potwierdź, jaki model i native
+`x-api-key: <klucz z ~/.claude/CLAUDE.md>`. Potwierdź, jaki model i native
 effort opisuje rekord — brak przyrostka nie dowodzi równoważności effortów.
 Koszt zadania indeksu jest na stronie modelu
 (`artificialanalysis.ai/models/<slug>`), nie jest kosztem lokalnego briefu.
@@ -673,15 +711,17 @@ Pułapki, które w tym skillu kosztowały najwięcej:
   nie recenzuje wcale (rodzina Sonneta i Opusa). Nie dublujesz recenzentów
   równolegle. Wybór recenzenta per brief
   zawsze przechodzi kwalifikację. Brief wymaga sprawdzenia scenariusza
-  P0/P1 przed zgłoszeniem, a Ty obalasz każde P0/P1 jednym poleceniem
-  przed poprawką.
+  P0/P1 przed zgłoszeniem, a Ty każde P0/P1 potwierdzasz albo obalasz
+  jednym poleceniem przed poprawką.
 
 ## Faza 3 — Implementacja etapu (linie wykonują, sesja główna waliduje)
 
 Implementację wykonują linie z Fazy 2 wg briefów — **sesja główna nie pisze
 kodu**. Jej robota w tej fazie to walidacja dowodów raz na falę: diff,
-`npm run lint` / `npm test` / `npm run build` (FE) albo `dotnet build` /
-`dotnet test` (BE), zrzuty 2×2 (360×530 i 1280×720, Light i Dark). Dowód
+`fala-odbior.py` (Faza 2, krok 3 — `npm run lint` / `npm test` /
+`npm run build` albo `dotnet build` / `dotnet test` w jednym poleceniu),
+zrzuty 2×2 (360×530 i 1280×720, Light i Dark). Playwright MCP w sesji
+architekta nie używasz (od 2026-11-05). Dowód
 w przeglądarce dajesz sam narzędziem **`browser-check`**
 (`D:\projects\DTCode\Claude_Skills\browser-check`, `README.md` i `FLOWS.md`):
 FE (`npx ng serve --port 4300`) i BE (`dotnet run --launch-profile http`
@@ -741,7 +781,7 @@ i dopiero potem brief korekty
 z konkretną metodą.
 
 Weryfikacja wizualna zawsze w prawdziwej przeglądarce (dev server), zgodnie
-z CLAUDE.md · FE · Finishing Every Implementation — jsdom/AXE nie dowodzi
+z `AGENTS.md` · FE · Finishing Every Implementation — jsdom/AXE nie dowodzi
 kontrastu ani interakcji nakładek.
 
 ### Bug: test first — czerwony test przed łatką, ten sam test zielony po niej
@@ -855,8 +895,8 @@ raportu — nie czytasz sam każdego SCSS. Kryteria:
 
 ## Faza 4b — Recenzja niezależna (przed bramą)
 
-Autor nie recenzuje sam siebie: **po każdej fali**, przed rozpoczęciem
-zależnej i przed bramą potwierdzenia, zlecasz przegląd niescommitowanego
+Autor nie recenzuje sam siebie: **każdy brief od razu po jego odbiorze**
+(od 2026-11-05; wcześniej po całej fali), przed rozpoczęciem zależnej i przed bramą potwierdzenia, zlecasz przegląd niescommitowanego
 diffu recenzentowi **z innej rodziny modeli niż autor diffu** (reguła 13
 globalnego `CLAUDE.md`). Po audycie SCSS zachowujesz kontrolę kompletności
 recenzji przed bramą. Okresowa ocena routingu nie zastępuje recenzji fali.
@@ -869,7 +909,8 @@ uzasadnienie, pewność, alternatywy i status dostępności zapisujesz
 w briefie recenzenckim. Sol jest kandydatem bez czekania na limit, ale
 nie recenzuje kodu rodziny Codexa; Muse nie recenzuje Muse, Gemini
 Gemini (konta A i B to jedna rodzina). Fable nie recenzuje (ta sama rodzina co Sonnet i Opus).
-Przy niskiej stawce preferujesz Sola `high` albo Gemini `high` przed
+Przy niskiej stawce preferujesz Sola `high` albo Terrę `max` (oba tylko,
+gdy `[pule]` pokazuje zapas tygodnia Codexa na bramkę) albo Gemini `high` przed
 Muse (mniej zawyżonych P0/P1 do obalenia — zmierzone na Sparku 1.3,
 decyzja właściciela 2026-10-12 — oraz tygodniowa pula Muse); przy wyższej
 stawce Muse jest kandydatem z parą z tabeli reguły 8: Wonder Full `max`
@@ -878,8 +919,9 @@ stawki (od 2026-10-25; wcześniej Wonder `max`).
 
 Fala mieszana → recenzje po zbiorach plików per autor, każda przez inną
 rodzinę niż ten autor. Liczby recenzji nie limitujesz. Brief recenzenta
-wymaga sprawdzenia scenariusza każdego P0/P1 przed zgłoszeniem, a Ty
-obalasz każde P0/P1 jednym poleceniem przed poprawką. Architekt odbiera
+wymaga sprawdzenia scenariusza każdego P0/P1 przed zgłoszeniem i dosłownego
+cytatu linii, a Ty każde P0/P1 potwierdzasz albo obalasz jednym poleceniem
+przed poprawką. Architekt odbiera
 rzeczywisty diff, lint, format, testy, build i wymagane dowody po każdej fali;
 raport wykonawcy ani recenzenta nie jest sam w sobie dowodem.
 
@@ -896,8 +938,11 @@ $env:USERPROFILE\.claude\bin\worker-run.ps1 `
 (bez `-BriefFile` wrapper sam dokleja `--uncommitted`; dla ZebraniBE `-Repo`
 wskazuje na to repo). To przykład wywołania Sola `high`, nie automatyczny
 przydział; `-Model` i `-Effort` mają odpowiadać parze wybranej w briefie.
-Przy mieszanej fali Sol dostaje `-BriefFile` z listą plików danego autora
-jako instrukcją przeglądu (wtedy wrapper nie dokleja `--uncommitted`).
+`--uncommitted` obejmuje całe drzewo, więc używasz go tylko wtedy, gdy
+w drzewie jest wyłącznie recenzowana praca. Przy recenzji briefu w trakcie
+fali, przy mieszanej fali i przy cudzej pracy w drzewie Sol dostaje
+`-BriefFile` z listą plików briefu albo autora jako instrukcją przeglądu
+(wtedy wrapper nie dokleja `--uncommitted`).
 Nie wolno objąć recenzją kodu własnej rodziny.
 
 **Muse:** wrapper nie ma dla niego trybu `review`, a Muse nie uruchamia
@@ -991,8 +1036,9 @@ Co robisz z wynikiem — **triaż, nie posłuszeństwo** (skill
 4. Do raportu przed bramą dołączasz: liczbę znalezisk w każdej klasie
    i listę spornych z Twoim rozstrzygnięciem.
 
-Pomijasz tę fazę wyłącznie, gdy diff jest czysto mechaniczny (i18n, rename,
-przeniesienie pliku) — wtedy piszesz to wprost w raporcie.
+Diff czysto mechaniczny (i18n, rename, przeniesienie pliku) nie pomija tej
+fazy — reguła 13 nie ma wyjątku; kwalifikujesz go jako niską stawkę
+i piszesz to wprost w raporcie.
 
 ### Rejestr istotnych briefów i okresowa ocena routingu
 
@@ -1016,8 +1062,9 @@ Pierwszy przegląd po **10–15 istotnych briefach**, kolejne po kolejnych
 **10–15** albo istotnej zmianie modeli/pomiaru limitów. Istotny błąd lub
 kilka kosztownych poprawek uruchamia dodatkowy przegląd. Wyniki oceniasz
 per archetyp; mała próbka nie uzasadnia rankingu. To rytm operacyjny,
-nie próg statystycznej wystarczalności ani scoring. Recenzja kodu oraz
-odbiór dowodów przez architekta nadal odbywają się **po każdej fali**.
+nie próg statystycznej wystarczalności ani scoring. Recenzja kodu (każdy
+brief od razu po odbiorze) i odbiór dowodów przez architekta (po każdej
+fali) obowiązują bez zmian.
 
 ## Faza 4c — Przegląd zgodności dokumentacji z implementacją (przed bramą)
 

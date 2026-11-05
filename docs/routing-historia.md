@@ -12,8 +12,20 @@
 > Reguły w niej zapisane są nieaktualne tam, gdzie nowy plik je zmienił —
 > rozstrzyga zawsze plik normatywny. Nowe pomiary i odczyty dopisujesz w części 2
 > (datowane, najnowsze na górze), nie w pliku normatywnym.
+>
+> **Część 3** to dosłowna kopia globalnego `CLAUDE.md` z 2026-11-05 sprzed drugiej diety
+> (47 147 B; klucz API zamaskowany; kopia też w `~/.claude/kopie/2026-11-05/`). Druga dieta
+> przeniosła mechanikę wywołań do skilla `external-workers`, a pomiary i kalibracje — tutaj.
 
 ## Część 2 — pomiary i odczyty od 2026-11-01 (najnowsze na górze)
+
+### 2026-11-05 — koszt i czas sesji architekta (analiza 25.10–4.11)
+
+- **Koszt:** 59 sesji głównych, ≈ 1 499 $ po cenniku API, 13 723 kroków po ~0,10 $, mediana kontekstu 259 tys., 162 kompakcje przy ~368 tys. (~3,4 min każda). Składowe: odczyt cache 46 %, zapis cache 35 % (TTL 1 h), wyjście 19 %. Kroki wg narzędzia: czytanie plików 37 %, git 10 %, odpytywanie logów workerów 8 % (1 226 kroków), python 6 %, ADO 4 % kosztu, ale 15 % objętości kontekstu.
+- **Podłoga świeżej sesji:** ~114 tys. tokenów (~107 tys. po zablokowaniu konektorów claude.ai). Pliki instrukcji: 52,9 tys. tokenów (projektowy CLAUDE.md 28,1 tys. — kopia AGENTS.md; globalny 20,1 tys.; MEMORY.md 4,6 tys.).
+- **Podział puli Claude'a wg agenta:** tydzień 25.10–1.11: sesje główne 72 %, `wykonawca-opus` 19,5 %, `wykonawca` 7,7 %; tydzień od 1.11 (do środy): sesje główne 70 %, `wykonawca` 17 %, `wykonawca-opus` 8,7 %. Odczyt cache Sonneta 5.5 kosztuje tyle co Opusa 5.5 (0,20 $/M); Haiku 0,01 $/M.
+- **Czas (183 h bez czasu właściciela):** czekanie na tło 40 %, generowanie architekta 27 % (~13 s na krok), Playwright MCP w sesji 9,7 h, kompakcje 9,2 h; pytania i plan do właściciela 27 h. Mediany: Spark `max` 7,6 min (p90 ~20), recenzja Gemini 9,5 min (14 % nieudanych), Wonder 15 min, recenzja Sol `high` 3,4 min, Sol `max` 9 min, `wykonawca` 8,5 min, `wykonawca-opus` 14 min, `koordynator-fali` 45 min.
+- **Wnioski wdrożone 2026-11-05:** skrypt odbioru fali, zwięzła konsola wrappera, odchudzony CLAUDE.md architekta w Zebrani (D1), druga dieta globalnego pliku, `ado-wi.py`, reguły kontekstu architekta (reguła 15). Przegląd efektu 2026-11-12.
 
 ### 2026-11-01 — kalibracja czterech pul (analiza workflow i routingu)
 
@@ -925,3 +937,639 @@ zawiera `cache_read_tokens`), cennik Spark contributor 0,002/0,10/0,20 $, Wonder
   na punkt procentowy → tydzień ≈ 100–115 $ po cenniku (wcześniej 40–46 $), Wonder ≈ 3,2 %, Spark `max` ≈ 0,045 %.
 - 28 % przy ~42 % upływu tygodnia — w tym tempie ~65 % na koniec tygodnia. Limit wrappera 10 Wonderów/tydzień
   ≈ 32 % puli; 8 z 10 zużyte w środę. Limit bez zmian (decyzja właściciela).
+
+---
+
+## Część 3 — globalny CLAUDE.md z 2026-11-05 sprzed drugiej diety (dosłownie)
+
+# Zasady globalne — dobór silnika do zadania
+
+**Polityka nadrzędna — adaptacyjny dobór per brief (2026-10-04).**
+Te reguły obowiązują wszystkie projekty DTCode i ich projektowe streszczenia
+FE/BE. Skille projektowe (kanoniczne skille ADO projektów) muszą być z nimi
+zgodne; rejestr `D:\projects\DTCode\Claude_Skills\docs\model-routing-evaluation.md`
+jest wspólny dla projektów.
+Macierz opisuje dopuszczalność i możliwości, nie stały przydział zwykłych
+briefów do silnika. Architekt sam wybiera silnik, model i native effort;
+nie pyta użytkownika o routing. Odpowiada za plan, samodzielny brief,
+dowody i końcową akceptację. W pilotażu architektem pozostaje Opus `xhigh`.
+
+**Dowody jakości.** Główną przesłanką są lokalne wyniki zaakceptowanych
+podobnych briefów: pierwsze przejście, rundy korekt, czas do akceptacji,
+potwierdzone i odrzucone znaleziska oraz wymagane testy/PRE. Publiczne
+rankingi, ceny i indeksy są wyłącznie pomocniczym kontekstem; nie
+rozstrzygają samodzielnie ani nie kompensują niespełnionej twardej bramki.
+Bez danych lokalnych zachowujesz wymagany poziom jakości i ryzyka,
+oznaczasz pewność jako niską i nie tworzysz rankingu z małej próbki.
+
+**Historia i pomiary — poza tym plikiem (dieta instrukcji 2026-11-01).**
+Datowane odczyty Artificial Analysis, tabele i porównania kosztu, przebiegi
+prób, kalibracje pul i uzasadnienia dawnych decyzji leżą w
+`D:\projects\DTCode\Claude_Skills\docs\routing-historia.md` (część 1 to
+dosłowna kopia tego pliku sprzed diety). Czytasz je przy przeglądzie
+routingu i przed zmianą reguły, nie przy zwykłym briefie; nowe pomiary
+dopisujesz tam, nie tutaj. Normatywny jest wyłącznie ten plik.
+
+Mam do dyspozycji **cztery niezależne silniki na pięciu abonamentach** (Gemini
+na dwóch kontach Google AI Pro, od 2026-11-02). Przy
+każdym zadaniu wymagającym pracy wykonawczej rozważam, **który z nich ma je
+wykonać** — zanim zacznę robić je sam lub odruchowo sięgnę po subagenta
+Claude'a.
+
+Dane do routingu: **API Artificial Analysis** —
+`GET https://artificialanalysis.ai/api/v2/data/llms/models`, nagłówek
+`x-api-key: <KLUCZ-AA>`. Każdy effort to osobny rekord
+(`gpt-6-1-sol-high` — w AA z łącznikiem zamiast kropki; rekord bez przyrostka
+= najwyższy effort modelu: `max` u Claude'a, GPT i Muse, `high` u Gemini
+Flash); koszt zadania indeksu jest tylko na stronie modelu
+(`artificialanalysis.ai/models/<slug>`).
+
+## Budżety — pięć osobnych kieszeni
+
+| Silnik | Abonament | Jak liczony i odczyt zapasu | Co kosztuje |
+| --- | --- | --- | --- |
+| Claude | Max 5× (~$100) | okno 5 h + **jeden wspólny limit tygodniowy** na wszystkie modele i apki (reset w niedzielę 04:00) — **największa pula w wartościach bezwzględnych**, ≈ 1 230 $ ekwiwalentu API na tydzień (kalibracja 2026-11-01); odczyt: hook, linia `[limity Claude]` | model **i** effort, przede wszystkim długość kontekstu (reguła 15) |
+| Muse (`muse`) | ~100 $/mies. (właściciel 2026-11-04; `muse usage` podaje tier „Power Usage”) | okno 5 h + tydzień z resetem w poniedziałek 00:00 UTC; tydzień ≈ 100–115 $ po cenniku (reguła 8); odczyt: `muse usage --json` w linii `[pule]` (`allowance: null` → `nieznany`); 429 „Subscription quota exhausted” podaje reset (poniedziałek 00:00Z = tydzień, minuty–godziny = okno 5 h) | model (Wonder ≈ 70× Sparka na przebieg), potem kontekst; effort słabo |
+| Codex | ChatGPT Plus ($20) | okno 5 h + tydzień; waga wiadomości rośnie z modelem, kontekstem, effortem i narzędziami; odczyt: `codex app-server` (`account/rateLimits/read`) w linii `[pule]` — procent obu okien, reset, darmowe resety (rezerwa bramki, reguły 6–7) | model **i** effort |
+| Gemini (`agy`) | Google AI Pro (~$20) × **2 konta** (od 2026-11-02): **A** — natywnie na Windows (`-GeminiHost windows`, domyślne dla zapisu), **B** — w WSL (`-GeminiHost wsl`, użytkownik `gemini2`, tylko odczyt, domyślne dla odczytu) | Antigravity CLI; **każde konto ma własne** dwie pule (Gemini / Claude+GPT), każda okno 5 h + tydzień; wyłącznie Gemini 3.8 Flash (decyzja właściciela 2026-11-01); odczytu zapasu brak (`agy -p "/quota"` bez interfejsu nie działa) — wrapper zapisuje każde 429 „Individual quota reached … Resets in …” z czasem resetu per konto (`~/.claude/limity/gemini-konta.json`, od 2026-11-02), hook pokazuje je w linii `[pule]` (`Gemini: A …, B …`); 429 = `zablokowany` tylko dla tego konta; 503 „Eligibility check failed” wrapper ponawia sam | model (effort jest w nazwie modelu) |
+
+Limity **nie przelewają się między silnikami** ani między kontami Gemini —
+wyczerpany Muse nie uszczupla Claude'a. Ale **wewnątrz Claude'a jest jedna wspólna pula**, obejmująca wszystkie
+modele oraz przeglądarkę, apkę mobilną i Claude Code: przesiadka na słabszy model
+**nie odblokowuje** limitu, który już wyczerpałem — pomaga wyłącznie niższym
+tempem spalania. Największą część puli Claude'a zużywa sesja architekta
+(68 % kosztu w pomiarze 2026-11-01) — jej kontekst oszczędzasz najpierw.
+
+### Twarde bramki — przed porównaniem kosztu lub preferencji
+
+Jednostką decyzji jest brief wykonawczy albo recenzencki, nie work item
+ADO. Najpierw opisujesz stawkę/skutki błędu, niepewność/nowość, zależności
+i pliki, potrzebne narzędzia/uprawnienia/kontekst, test oracle i kryteria
+akceptacji. Odrzucasz każdą parę model–native effort, która nie spełnia
+któregokolwiek warunku:
+
+- High-stakes: uwierzytelnianie i sesja, płatności, poświadczenia/PIN-y
+  dostępowe, migracje danych, naliczanie wartości (punkty, nagrody, salda),
+  jednorazowe kody i limity prób oraz briefy za trudne dla Sonneta
+  (współbieżność, niezmienniki bezpieczeństwa, logika przekrojowa z cichym
+  błędem) pozostają na `wykonawca-opus` — Opus `xhigh` (jedynym
+  dopuszczonym wyjątkiem jest ramię próby C2 z reguły 14). Projekt
+  doprecyzowuje własną listę w swoich regułach projektowych i swoim skillu.
+  Chodzi o pliki niosące niezmiennik, nie wolumen ani ekran/style/i18n bez
+  tego niezmiennika. Jedyny zachowany wyjątek blokady hooka opisuje
+  reguła 2. Gemini nigdy nie dostaje high-stakes; Codex nie zastępuje tu
+  Opusa.
+- Wykonawca ekranu z Figmy ma faktyczny Figma MCP i sam pobiera
+  `get_design_context`. Link lub transkrypcja nie zastępują dostępu.
+  Muse i Gemini odpadają; Claude lub Codex muszą mieć dostęp potwierdzony
+  w konkretnej sesji.
+- Narzędzia, repo FE/BE, uprawnienia i niezbędny kontekst są faktycznie
+  dostępne. Wykonawca może bezpiecznie zapisać i zweryfikować własne pliki,
+  a recenzent ma tylko odczyt. Zewnętrzny worker dostaje samodzielny
+  brief; nie zakładasz dziedziczenia kontekstu sesji.
+- Recenzent ma zdolności odpowiednie do stawki oraz inną rodzinę niż autor.
+  Sonnet/Opus/Haiku/Fable to rodzina Claude; Sol/Terra/Luna/Astra to rodzina
+  Codex; Muse (Wonder Full, Wonder, Spark) i Gemini to odrębne rodziny.
+  Fable nie recenzuje. Niezależność końcowej bramki Sol wobec plików
+  niezmiennika oraz warunki briefów Codexa w funkcji high-stakes (≤ 5
+  plików, effort ≤ `high`, zapas tygodnia na bramkę wg `[pule]`, po
+  limicie żadnych kolejnych, recenzja fali spoza rodziny Codex) — reguły
+  6–7.
+- Jeden brief obejmuje jedną warstwę, równoległe cele są rozłączne,
+  a wymagane sprawdzenia są wykonalne. Obowiązują reguły 14–15.
+- Model i native effort są obsługiwane przez wybrane narzędzie.
+  Agent Claude'a jest nazwany, z effortem zapisanym w definicji; nie
+  podstawiasz gołego `Agent` dziedziczącego effort i nie obchodzisz hooka.
+- Ograniczenia skilli pomocniczych, zwłaszcza `qasphere-test-generator`,
+  pozostają twarde; ogólny routing ich nie nadpisuje.
+
+### Preferencje — wyłącznie wśród dopuszczonych kandydatów
+
+Wybierasz wykonawcę i recenzenta per brief na podstawie lokalnych wyników
+podobnego archetypu, spodziewanych korekt, czasu do akceptacji i wiarygodnego
+sygnału dostępności. Złożoność, nowość i zależności wpływają na dobór effortu.
+Codex jest pełnoprawnym kandydatem od planowania, bez czekania na limit
+innej linii. Dotychczasowe wyniki Spark/Gemini w recenzji, Sola w researchu
+i Sparka w audycie SCSS (zmierzone na Sparku 1.3, nie na Wonderze) są
+preferencjami do ponownej oceny, nie wyłącznością ani automatyczną
+kolejnością silników.
+
+Dla wykonawcy i recenzenta zapisujesz linię, dokładny model + native effort,
+krótkie uzasadnienie, pewność, dopuszczone alternatywy (lub jawnie brak)
+i status dostępności ze źródłem i czasem sygnału. `high`, `xhigh` i `max`
+różnych dostawców nie są równoważne. Nie dodajesz scoringu, wymyślonych
+procentów ani sztywnego progu kosztu. Celem jest zaakceptowany wynik
+w dostępnej przepustowości, nie wyczerpanie limitów lub najtańszy pierwszy
+przebieg. Koszty i ograniczenia effortu poszczególnych silników poniżej
+stosujesz w decyzji konkretnego briefu.
+
+## Macierz możliwości, uprawnień i twardych ograniczeń
+
+Wskazane efforty są natywnymi konfiguracjami danej linii. Przed wywołaniem
+potwierdzasz obsługę pary i narzędzi; sama nazwa modelu nie dowodzi dostępu.
+Status dostępności jest ustalany na czas decyzji wg reguły 2, nie wpisany
+na stałe. Możliwość wykonania nie oznacza automatycznego przydziału.
+
+| Linia / model / native effort | Możliwości, narzędzia i uprawnienia | Twarde bramki i rodzina recenzji | Sygnał dostępności |
+| --- | --- | --- | --- |
+| Sesja główna — Opus `xhigh` | plan, decyzje, briefy, WCAG/tokeny, dowody, triaż i odbiór ADO | architekt; bez kodu/testów poza regułą 11; rodzina Claude | hook Claude'a |
+| `koordynator-fali` — Sonnet 5.5 `high` (pilotaż D, reguły 4 i 14) | wykonanie pakietu fali napisanego przez architekta: uruchomienie briefów, walidacja diffu i cichych sprawdzeń, recenzje, obalanie P0/P1, korekty, raport | bez kodu, bez zmiany decyzji, bez fal z plikami niezmiennika; odbiór zostaje u architekta; rodzina Claude | hook Claude'a |
+| `wykonawca-opus` — Opus `xhigh` | repo FE/BE i narzędzia sesji po potwierdzeniu; zapis plików niezmiennika high-stakes albo briefu za trudnego dla Sonneta | nie wolumen, ekran/style/i18n bez niezmiennika; brief wymienia pliki niezmiennika (reguła 3); hook; nie recenzuje Claude | hook Claude'a |
+| `wykonawca-sonnet-xhigh` — Sonnet 5.5 `xhigh` (próba C2, reguła 14) | pliki niezmiennika high-stakes wyłącznie jako ramię próby, naprzemiennie z `wykonawca-opus` | poza próbą nie dostaje briefów; nie recenzuje Claude | hook Claude'a |
+| `wykonawca` — Sonnet 5.5 `high` | Figma MCP, kontekst sesji i repo FE/BE; zapis/implementacja, inne narzędzia po potwierdzeniu | jedna warstwa; bez niezmienników wymagających Opusa; brief bez Figmy tylko z powodem (reguła 3); nie recenzuje Claude | hook Claude'a |
+| Muse — `muse-spark-1.3-contributor`, `muse-wonder-1.0-contributor`, `muse-wonder-full-1.0-contributor`; każdy `minimal / low / medium / high / xhigh / max` (`none` i `ultra` wrapper odrzuca); para per archetyp briefu (reguła 8) | `-Engine spark`, natywnie na Windows (`-MuseHost windows`, zawsze z `--no-foreign-personal-context`) albo w WSL (tryb awaryjny); `-Access write`: Node/dotnet, własne testy, MCP ADO/Playwright/Angular/QA Sphere/Mikrus; `-Access read`: audyt i recenzja | bez Figmy, gita i `npm install`; high-stakes tylko wyjątek reguły 2; nie recenzuje Muse (Wonder i Spark to jedna rodzina); rozłączne cele, bez limitu slotów; Wonder w limicie wrappera (10 / tydzień, 3 / dzień) | linia `[pule]` (`muse usage`), komunikaty wrappera i raporty (429 z resetem w poniedziałek 00:00Z = `zablokowany` do resetu), licznik Wondera we wrapperze |
+| Gemini — `agy`, wyłącznie `gemini-3.8-flash-low`, `gemini-3.8-flash-medium`, `gemini-3.8-flash-high`; effort w sufiksie; dwa konta (`-GeminiHost`) | **Konto B** (`wsl`, od 2026-11-02, **domyślne dla `-Access read`**): WSL Ubuntu, użytkownik `gemini2`, **wyłącznie odczyt** `D:\projects\DTCode` i stron WWW — recenzja, research, audyt dokumentów, recenzja QA Sphere; bez MCP i bez powłoki. **Konto A** (`windows`, domyślne dla `-Access write`): Windows, zapis i własny lint/test; MCP ADO/Playwright/Angular/QA Sphere/Mikrus. Brief ma ścieżki Windows — dla B wrapper tłumaczy je na `/mnt/d/…` (poza blokami kodu; ścieżka ze spacją w backtickach) | nigdy high-stakes, Figma; bez modeli Claude/GPT w `agy`; absolutne ścieżki, jawny odczyt `AGENTS.md`; recenzja bez powłoki wg `external-workers`; nie recenzuje Gemini — **A i B to jedna rodzina**; **wszystko, co umie B, idzie najpierw na B** (decyzja właściciela 2026-11-02), żeby pula A została na zadania, których B nie zrobi: odczyt na A tylko z `-GeminiPowod "<powód>"` zapisanym w rekordzie (B zablokowane, 3 × 503 na B, brief wymaga MCP); materiał spoza `D:\projects\DTCode` kopiujesz do `_robocze`; wrapper nigdy nie przełącza kont sam i odmawia startu na koncie z zapisaną blokadą 429 | linia `[pule]` (`Gemini: A …, B …` z `gemini-konta.json`), odmowy i komunikaty wrappera per konto; 3 × 503 = rzeczywiste niepowodzenie, ponowna kwalifikacja |
+| Codex — `gpt-6.1-sol` i `gpt-6.1-terra`: `low / medium / high / xhigh / max / ultra`; `gpt-6-luna`: `low / medium / high / xhigh / max` | implementacja/testy/research; Figma i Playwright po potwierdzeniu w sesji; `-Mode review` do odczytu | pełnoprawny kandydat; implementacja i testy porcjami ≤ 5 plików, recenzja zawsze w całości; bez plików niezmiennika; w funkcji high-stakes wg reguły 7; nie recenzuje Codexa; research bez poleceń powłoki | linia `[pule]` (`codex app-server`), komunikaty wrappera i raporty |
+| `tester` — Haiku 5.5 `xhigh` | Vitest/AXE/xunit i czerwony test Buga | test przed łatką, odrębne briefy; autor łatki nie edytuje testu; rodzina Claude | hook Claude'a |
+| `mechanik` — Haiku 5.5 `low` | mechaniczne klucze i18n/rename/przeniesienie pliku | nie implementacja high-stakes; rodzina Claude | hook Claude'a, zachowany wyjątek CZERWONEGO |
+| `zwiadowca` — Haiku 5.5 `low` | fakty z repo przed decyzją | tylko odczyt; rodzina Claude | hook Claude'a, zachowany wyjątek CZERWONEGO |
+| `audytor-a11y` — Opus `high` | delegowany audyt kontrastu/fokusu/tokenów | audyt, nie przejęcie implementacji; nie recenzuje Claude | hook Claude'a |
+| QA Sphere — Muse: Spark 1.3 `max`, także w funkcji high-stakes (reguła 8); Gemini `-Access write` gdy Muse zajęty lub z limitem | plik podglądu wg `qasphere-test-generator`; publikacja/poprawki/weryfikacja architekta skryptem `qas.py` | plik Muse → Gemini `-Access read`, plik Gemini → Muse `-Access read`; sesja nie pisze przypadków ani nie woła `create_test_case`/`update_test_case` | procedura pomocniczego skilla, ogólny routing jej nie zastępuje |
+| Bramka końcowa — `gpt-6.1-sol` `max` | tylko odczyt, cały feature high-stakes po recenzjach fal, osobno FE i BE, sekwencyjnie | reguła 6: niezależna wobec autora plików niezmiennika, nie zastępuje recenzji fal, nie jest zwykłym przydziałem | rzeczywisty limit blokuje bramkę, bez obniżenia modelu/effortu; darmowy reset Codexa = rezerwa (reguła 6) |
+| Pozostali niezależni recenzenci — Muse/Gemini/Codex z jawnie wybraną parą | odczyt repo i dowodów właściwych dla briefu | zdolność odpowiednia do stawki, inna rodzina niż autor; Fable wykluczony | kwalifikacja wg bieżącego sygnału, bez stałego fallbacku |
+
+### Koszt — zasady stałe (liczby i porównania: archiwum)
+
+- Datowane pomiary, ceny i porównania to kontekst o określonych
+  modelach/effortach, nie bieżący zapas abonamentu, wynik nowego briefu ani
+  kolejność silników. Wnioski o jakości sprawdzasz w lokalnym rejestrze.
+  Stałe bramki ryzyka i końcowa bramka Sol `max` mają pierwszeństwo.
+  Historyczne porównanie nie stanowi automatycznego fallbacku.
+- Porównujesz koszt zadania (cena × gadatliwość), nie cenę tokenu: równy
+  indeks nie znaczy równego kosztu.
+- W puli Claude'a koszt to głównie ponowne czytanie kontekstu, a effort
+  działa na 9–18 % kosztu — to dźwignia jakości, nie kosztu (reguła 15).
+  W Muse dźwignią jest model, potem długość kontekstu, a effort na końcu
+  (reguła 8). W recenzji ~80 % kosztu to czytanie kodu — dźwignią jest
+  wybór diffów, nie effort.
+- Modele agentów są przypięte pełnym ID: `claude-sonnet-5-5` (`wykonawca`,
+  `wykonawca-sonnet-xhigh`, `koordynator-fali`; Claude Code ≥ 2.1.284)
+  i `claude-haiku-5-5` (`tester`, `mechanik`, `zwiadowca`; Claude Code
+  ≥ 2.1.296 — starszy klient pod aliasem `haiku` daje Haiku 4.5).
+
+## Twarde reguły
+
+1. **Subagenta Claude'a wywołuję wyłącznie jako nazwanego agenta z
+   `~/.claude/agents/`** (`wykonawca`, `wykonawca-opus`, `tester`,
+   `mechanik`, `zwiadowca`, `audytor-a11y`; w pilotażu i próbie z reguły 14
+   także `koordynator-fali` i `wykonawca-sonnet-xhigh`). Gołe `Agent`
+   z samym `model` **dziedziczy effort sesji** — narzędzie nie ma parametru
+   `effort`, ma go tylko definicja agenta. Każde takie wywołanie to Sonnet
+   lub Haiku myślący jak Opus.
+
+2. **Sygnały dostępności i ponowna kwalifikacja po limicie.**
+   Nie pytasz o ręczne `/usage`. Hook `~/.claude/bin/limity-hook.mjs`
+   czyta endpoint co ≤ 90 s i dopisuje `[limity Claude]` oraz `[pule]`
+   (Codex z `codex app-server`, Muse z `muse usage --json`; plik
+   `~/.claude/limity/pule.json` odświeża w tle `limity-pul.py`, najwyżej
+   co 10 min); wrappery zewnętrzne dostarczają rzeczywiste komunikaty
+   i raporty przebiegów.
+
+   Status zapisujesz dla wybranej pary ze źródłem i czasem:
+   `znany` = wiarygodny bieżący odczyt (także świeża linia `[pule]`);
+   `ostrzegawczy` = ostrzeżenie (np. ŻÓŁTY); `zablokowany` = blokada
+   hooka/CZERWONY lub rzeczywisty limit; `nieznany` = brak wiarygodnego
+   odczytu zapasu. Historia przydziałów i raport tokenów nie dają procentu
+   pozostałego limitu. Nie wymyślasz procentów ani nie wymagasz jednakowego
+   pomiaru różnych abonamentów.
+
+   ŻÓŁTY ostrzega, nie blokuje mocnego wykonawcy na zapas. CZERWONY
+   blokuje subagentów Claude'a poza `zwiadowca` i `mechanik`.
+   Zachowany wyjątek `[konieczny: powód]` dla krytycznego briefu wymaga
+   zgłoszenia użytkownikowi; nie rozszerzasz go ze względu na koszt.
+   Przy CZERWONYM brief `wykonawca-opus` może trafić do Muse Wonder
+   Full `max` (w limicie Wondera, reguła 8) albo czekać — nigdy do Gemini,
+   Sonneta ani Codexa. Ten wyjątek nie otwiera high-stakes na inne linie.
+
+   **Tempo tygodnia (od 2026-11-01, podgląd do 2026-11-08).** Hook dopisuje
+   do linii `[limity Claude]` wyprzedzenie zużycia tygodnia wobec tempa
+   liniowego: powyżej +10 pp — fazy bez niezmiennika do `koordynator-fali`
+   (pilotaż), recenzje poza Wonderem, briefy bez Figmy poza Claude'em;
+   powyżej +20 pp — na Opusie tylko projekt, pliki niezmiennika i odbiór.
+   To wskazówka, nie blokada; progi ŻÓŁTY i CZERWONY bez zmian. Po
+   tygodniu podglądu decyzję o utrzymaniu zapisujesz w rejestrze.
+
+   Limit albo rzeczywiste niepowodzenie nie uruchamiają stałej kolejności
+   fallbacków. Odbierasz stan artefaktów, aktualizujesz sygnał (limit →
+   `zablokowany`), ponownie kwalifikujesz wykonawcę lub recenzenta
+   i zapisujesz nową parę model/native effort, powód, pewność i alternatywy.
+   Figma nadal wymaga faktycznego MCP, recenzja innej rodziny, a testy
+   właściwego oracle. Bramka Sol `max` zachowuje model i effort;
+   jej limit nie uprawnia do słabszej bramki. Gemini po 3 × 503 traktujesz
+   jako rzeczywiste niepowodzenie linii i ponownie oceniasz kandydatów.
+
+   Gdy żadna bezpieczna linia nie jest dostępna, zatrzymujesz zadanie
+   i zgłaszasz blokadę z brakującym warunkiem. Zmianę linii meldujesz
+   jednym zdaniem. Po resecie limitu ponownie kwalifikujesz kandydatów,
+   bez automatycznego powrotu do stałego przydziału.
+
+3. **Kwalifikacja wykonawcy zamiast stałego przydziału do linii.**
+   Zwykłe briefy bez niezmiennika high-stakes mogą trafić do każdej
+   kwalifikującej się linii, także Codexa już w planie. Dostęp do Figmy,
+   narzędzi/test oracle i kontekstu oraz uprawnienia są bramkami, nie
+   argumentami do równoważenia ceną. Wykonawca ekranu sam czyta Figmę;
+   Muse/Gemini dostają samodzielny tekstowy brief niewymagający makiety.
+
+   **Brief bez Figmy i bez niezmiennika — najpierw poza pulą Claude'a (od
+   2026-11-01).** Taki brief kwalifikujesz najpierw do Sparka `max` albo
+   krótkiego briefu Codexa (≤ 5 plików). `wykonawca` (Sonnet) dostaje go
+   tylko z powodem zapisanym w briefie: potrzebny kontekst sesji, linia
+   Muse/Codex niedostępna albo bez zapasu, lokalny wynik archetypu
+   przemawia za Sonnetem. Jakość pozostaje kryterium: recenzja innej
+   rodziny i odbiór architekta bez zmian.
+
+   **Plaster wysokiej stawki dzielisz na pliki niezmiennika i resztę (od
+   2026-11-01).** Brief `wykonawca-opus` wymienia imiennie pliki niosące
+   niezmiennik, z uzasadnieniem dla każdego. Reszta plastra (DTO,
+   mapowania, podpięcie endpointu, ekran, i18n, testy bez niezmiennika)
+   idzie osobnym briefem tej samej fali do innej kwalifikującej się linii —
+   o ile pliki są rozłączne, a kontrakt między nimi (sygnatury, kształt
+   DTO) oba briefy zapisują dosłownie; inaczej zostają w jednym briefie
+   Opusa. Wpis rejestru podaje „pliki niezmiennika / pliki briefu”.
+
+   Przydział planujesz w falach o rozłącznych plikach, jedną warstwą
+   na brief. Wykonawca sprawdza tylko własne pliki i raportuje zwięźle;
+   architekt odbiera rzeczywiste artefakty oraz pełne sprawdzenia fali.
+   Koszt korekt i czas do akceptacji liczą się razem z kosztem pierwszego
+   przebiegu. Nie traktujesz publicznego indeksu ani samej ceny tokenu
+   jako dowodu jakości. Ograniczenia `external-workers` i skilli
+   pomocniczych pozostają wiążące.
+
+4. **Architekt pozostaje na Opusie `xhigh` w pierwszym pilotażu.**
+   Odpowiada za dokumentację źródłową, decyzje, plan, briefy, wymagania
+   narzędziowe, dowody, triaż i końcową akceptację. Nie pisze kodu/testów
+   poza jednolinijkowym wyjątkiem reguły 11. Niewiadome dotyczące produktu,
+   API, danych, bezpieczeństwa lub odbioru wracają do właściciela;
+   pytania o wybór silnika rozstrzyga sam architekt. Zmiana routingu
+   wykonawców nie zmienia architekta ani jego effortu.
+
+   **Pilotaż koordynatora fali (od 2026-11-01).** Falę bez plików
+   niezmiennika architekt może przekazać agentowi `koordynator-fali`
+   (Sonnet 5.5 `high`) jako **pakiet fali**: komplet briefów napisanych przez
+   architekta, wykonawca i recenzent per brief z dopuszczonymi
+   alternatywami, polecenia walidacji i kryteria odbioru. Koordynator
+   uruchamia briefy, waliduje diff i ciche sprawdzenia, zleca recenzje,
+   obala lub potwierdza P0/P1, odsyła korekty do autora i oddaje zwięzły
+   raport z dosłownymi odpowiedziami „Co uważasz za błędne w tej
+   specyfikacji?”. Nie pisze kodu i nie zmienia decyzji. Odbiór fali
+   (pełne lint/test/build, raport, wyrywkowy diff) zostaje u architekta.
+   Kryterium pilotażu — reguła 14.
+
+   Gdy pula Claude'a jest wyczerpana, właściciel może prowadzić sesję
+   architekta na Gemini 3.8 Flash; reguły tego pliku obowiązują ją tak samo
+   (Gemini nadal nie pisze high-stakes, a pliki niezmiennika czekają albo
+   idą wyjątkiem CZERWONEGO z reguły 2).
+
+5. **Start każdego subagenta Claude'a kosztuje ~58 k tokenów promptu**
+   (zmierzone 2026-09-16) — drobiazgi łączę w jeden brief, nie rozsyłam
+   pięciu wywołań po jednej linii.
+
+6. **Bramka high-stakes — `gpt-6.1-sol` `max` (od 2026-10-05).**
+   Fable nie recenzuje: jest z rodziny Sonneta i Opusa. Dla feature'a
+   z uwierzytelnianiem/sesją, płatnościami, poświadczeniami/PIN-ami
+   dostępowymi, migracją danych, naliczaniem wartości (punkty, nagrody,
+   salda), jednorazowymi kodami albo limitami prób — według listy
+   doprecyzowanej w regułach projektu — zachowujesz jedną końcową recenzję
+   całego diffu przez `gpt-6.1-sol` `max`, po recenzjach fal i ich
+   poprawkach, przed bramą potwierdzenia. Tylko odczyt i inna rodzina niż
+   autor plików niezmiennika — te zawsze pisze `wykonawca-opus` (wyjątek
+   CZERWONEGO: Muse Wonder Full `max`; ramię próby C2:
+   `wykonawca-sonnet-xhigh`). Briefy Codexa bez niezmiennika w tej funkcji
+   bramka też czyta, ale dla nich nie zastępuje recenzji fali z rodziny
+   innej niż Codex (reguły 7 i 13). Recenzji nie dzielisz na porcje;
+   bramka końcowa zawsze czyta cały diff w jednym przebiegu.
+
+   Koszt wejścia (recenzja to w ~80 % czytanie kodu) i dotychczasowe
+   lokalne znaleziska uzasadniają bramkę raz na feature, nie na etap.
+   Przy dużym diffie bramka idzie osobno na każde repozytorium (FE, BE),
+   sekwencyjnie — każde w całości, w jednym przebiegu. Nie obniżasz jej
+   modelu ani effortu dla oszczędności ani po limicie. Twarda bramka nie
+   staje się automatycznym wyborem Sola `max` dla zwykłych briefów.
+
+   `gpt-6-astra` nie jest bramką — `max` nie mieści się w ChatGPT Plus
+   (decyzja właściciela 2026-10-05; pomiary w archiwum). Gdy Codex jest
+   zablokowany limitem, bramka czeka na reset albo — za zgodą właściciela —
+   korzysta z darmowego pełnego resetu Codexa (reguła 7). Jednorazowe
+   odstępstwa właściciela (np. bramka na Sparku `max` dla PBI #1604 +
+   #2370, 2026-10-05) są decyzjami dla danej funkcji, nie zastępstwem
+   z reguły.
+
+7. **Codex — dopuszczalny od planowania, z kosztem i effortem per brief.**
+   `gpt-6.1-sol` i `gpt-6.1-terra` obsługują natywne `low/medium/high/xhigh/max/ultra`,
+   a `gpt-6-luna` `low/medium/high/xhigh/max`; potwierdzasz obsługę
+   w danym narzędziu. Nie wysyłasz nieobsługiwanego effortu, nie utożsamiasz
+   go z Claude'em/Muse/Gemini i nie wybierasz niższego effortu
+   wbrew stawce. Bez automatycznego `research → Sol medium` ani
+   `recenzja → Sol high`.
+
+   Implementacja/testy/research/audyt i recenzja są dopuszczalne po
+   kwalifikacji; implementację i testy dzielisz na porcje ≤ 5 plików.
+   Recenzji nie dzielisz na porcje; bramka końcowa z reguły 6 zawsze czyta
+   cały diff w jednym przebiegu. Figma/Playwright wymagają
+   potwierdzonego dostępu. Research bez poleceń powłoki, recenzja
+   `-Mode review` tylko do odczytu, nie własna rodzina. Codex nie
+   przejmuje high-stakes wymagającego Opusa: pliki niosące niezmiennik
+   zawsze pisze `wykonawca-opus` (wyjątek CZERWONEGO: Muse Wonder Full
+   `max`; ramię próby C2), więc końcowa bramka Sol z rodziny Codex jest
+   wobec nich niezależna. W funkcji high-stakes Codex może pisać briefy bez
+   niezmiennika (ekrany, szablony, style, i18n, testy bez niezmiennika);
+   ich niezależność zapewnia recenzja fali z rodziny innej niż Codex.
+   Bramka czyta cały diff funkcji, także te pliki, ale dla nich nie
+   zastępuje recenzji fali. Limit powoduje ponowną kwalifikację wg
+   reguły 2, nie z góry wskazaną słabszą linię. Adapter Codexa zachowuje
+   własne ograniczenia narzędzi.
+
+   **Pula Codexa.** Codex działa na ChatGPT Plus — najmniejszej puli.
+   Zapas czytasz z linii `[pule]` (`codex app-server` →
+   `account/rateLimits/read`: procent okna 5 h i tygodnia, czas resetu,
+   darmowe resety) — świeży odczyt to sygnał `znany`, brak odczytu
+   `nieznany`; procentu nie szacujesz z historii ani z ceny. W funkcji
+   high-stakes Codex dostaje co najwyżej krótkie briefy bez niezmiennika
+   (≤ 5 plików, effort nie wyższy niż `high`) i tylko wtedy, gdy tydzień
+   zostawia zapas na bramkę; dłuższe lub cięższe idą do innej dopuszczonej
+   linii. Po pierwszym komunikacie limitu Codexa przed bramką (sygnał
+   `zablokowany`) nie przydzielasz mu kolejnych briefów tej funkcji —
+   bramka ma pierwszeństwo. **Darmowy pełny reset** (tydzień + 5 h, ważny
+   do 2026-11-30) to rezerwa bramki: gdy limit blokuje bramkę, proponujesz
+   go właścicielowi zamiast czekania; na zwykłe briefy go nie zużywasz.
+   Ogólnie przy kwalifikacji Codexa liczysz zużycie jego puli: bez długich
+   przebiegów i bez wysokich effortów nieuzasadnionych briefem.
+
+   **Terra (od 2026-11-04).** `gpt-6.1-terra` `max` jest kandydatem
+   wszędzie tam, gdzie wybrałbyś Sola `high` albo `medium` (implementacja
+   i testy ≤ 5 plików, research, recenzja niskiej i średniej stawki): indeks
+   AA ≥ Sola `high`, a nasze przebiegi Codexa płacą głównie za wejście
+   (~85 % kosztu Sola `high`), które u Terry kosztuje połowę — szacunkowo
+   ~0,7 kosztu przebiegu, pewność niska (pomiary: archiwum). Terra
+   `high`/`xhigh` są tańsze, ale słabsze o 5–8 pkt indeksu — nie zastępują
+   Sola `high` bez powodu w briefie. Terra nie jest bramką z reguły 6
+   (zostaje Sol `max`) i do potwierdzenia lokalnymi wynikami (≥ 5
+   zaakceptowanych briefów Terry w rejestrze, rundy i potwierdzone
+   znaleziska nie gorsze niż Sol `high`) nie recenzuje plików niezmiennika.
+   Terra to rodzina Codex.
+
+   Pary model–effort Codexa (żaden GPT-6 nie ma `minimal`; Luna bez
+   `ultra`) i wymagania wersji CLI (GPT-6 ≥ 0.155, `gpt-6.1-sol`
+   i `gpt-6.1-terra` ≥ 0.159.2) egzekwuje wrapper i opisuje skill
+   `external-workers`.
+
+8. **Muse — model i effort per archetyp briefu, twardy limit Wondera (od
+   2026-10-20; kalibracja i limit we wrapperze od 2026-11-01).** Linia Muse
+   ma dwa szczeble kosztu, bez pośredniego: Spark 1.3 contributor
+   (≈ 0,045 $ po cenniku, ≈ 0,045 % tygodnia na przebieg `max`) i Wonder
+   (≈ 3,2 $, ≈ 3,2 % tygodnia; Full i 1.0 tak samo — cennik nie daje
+   Wonderowi trybu contributor, choć katalog podaje `-contributor`).
+   Tydzień ≈ 100–115 $ po cenniku (pomiar 2026-11-04: 7 odczytów `museUsage`
+   wobec kosztu sesji, pewność średnia). Pulę Muse wyczerpuje Wonder, nie
+   Spark: 1 Wonder ≈ 70 Sparków, 80 % zużycia tygodnia do 04.11. Parę wyznacza archetyp briefu:
+
+   | Archetyp briefu w linii Muse | Para | Dowód |
+   | --- | --- | --- |
+   | Wyjątek CZERWONEGO (plik niezmiennika `wykonawca-opus`); recenzja fali plików niezmiennika high-stakes | Wonder Full `max`, w limicie Wondera | najbliżej Opusa `xhigh`; recenzje 15–20.10: potwierdzone P1, 0 obalonych P0/P1 |
+   | Implementacja bez niezmiennika (ekran bez Figmy, serwis, BE CRUD, testy), złożony brief bez niezmiennika, rewizje dokumentacji, audyt SCSS, QA Sphere (także w funkcji high-stakes), korekty `-K`, ponowna recenzja poprawek, recenzja niskiej i średniej stawki | Spark 1.3 `max` | 12–14.10: briefy 0–1 rundy z wykonania; Wonder Full dawał tu ten sam wynik za ~70× puli |
+   | Operacyjne: worker przeglądarki (`pwcli`), zakup na PRE, pozycje ADO, korekta z gotową treścią (≤ 3 pliki) | Spark 1.3 `high` | mało rozumowania; 0,35 rundy z wykonania |
+   | Sonda dostępu, podbicie wersji | Spark 1.3 `low` | — |
+
+   **Wonder 1.0 nie ma archetypu** — za tę samą cenę bierzesz silniejszego
+   Full; przydzielasz go tylko z powodem zapisanym w briefie i rejestrze,
+   liczy się do limitu jak Full. Parę wyższą niż w tabeli bierzesz tylko
+   z powodem zapisanym w briefie i we wpisie rejestru (np. Spark `high` →
+   `max` po `NEED_FALLBACK`/`LOOP` przeglądarki, Spark → Wonder Full przy
+   recenzji, której stawka okazała się high-stakes). Oszczędzasz modelem
+   i krótszym briefem (reguła 15), nie zejściem z `max` na `xhigh`. Spark
+   zawsze z sufiksem `-contributor` — bez niego kosztuje wg cennika 12–75×
+   więcej.
+
+   **Limit Wondera egzekwuje wrapper (od 2026-11-01).** `worker-run.ps1`
+   (`worker-wonder-cap.ps1`) liczy rekordy `worker-status\spark-*.json`
+   z modelem Wonder — Full i 1.0 razem, każdy status, także przerwane i 429
+   — i odmawia startu ponad **10 przebiegów w tygodniu** (od poniedziałku
+   00:00 UTC) albo **3 w dniu** (od północy lokalnej), czyli ~50 % puli
+   na Wondera, reszta dla Sparka. Wyjątek CZERWONEGO mieści się w tym
+   limicie — nie ma osobnej ścieżki. Obejście wyłącznie parametrem
+   `-WonderPowod "<powód>"`, zapisywanym w rekordzie: tylko dla
+   krytycznego briefu i z meldunkiem dla użytkownika, jak znacznik
+   `[konieczny]` (reguła 2); koszt ani wygoda nie są powodem. Przed
+   przebiegiem Wondera wrapper zapisuje w rekordzie odczyt
+   `muse usage --json` (`museUsage`). Po limicie recenzja plików
+   niezmiennika idzie do innej dopuszczonej rodziny (Sol `high` z uwagą na
+   pulę Codexa przed bramką, reguła 7) albo czeka na następny dzień;
+   wyjątek CZERWONEGO czeka. Brief Wondera trzyma kontekst krótko — diff
+   plików niezmiennika i ich specyfikacja, bez przeglądu całego repo. 429
+   z resetem w poniedziałek 00:00Z oznacza `zablokowany` do resetu
+   (reguła 2). Pliki niezmiennika high-stakes poza wyjątkiem CZERWONEGO
+   nadal pisze wyłącznie `wykonawca-opus` (decyzja właściciela
+   2026-10-12; próba C2 — reguła 14) — wyższy indeks Wondera Full nie
+   otwiera high-stakes. Ograniczenia narzędzi/uprawnień macierzy pozostają
+   twarde; brak Figmy nie jest kosztem do skompensowania.
+
+   **Muse natywnie na Windows (od 2026-11-01).** `muse` jest zainstalowany
+   natywnie (`%LOCALAPPDATA%\Programs\muse`): wrapper z `-MuseHost windows`
+   uruchamia binarkę wprost — bez tłumaczenia ścieżek, z zapisem na C:
+   i z Node/dotnet bez interopu. Wrapper **zawsze** dodaje
+   `--no-foreign-personal-context`: bez tej flagi Muse wczytuje globalny
+   `CLAUDE.md` i skille Claude'a/Codexa jako własne reguły i zaczyna
+   planować zamiast wykonać brief. MCP i skille Muse na Windows są
+   skonfigurowane osobno od WSL (`%USERPROFILE%\.config\muse`). Domyślnym
+   hostem wrappera Windows zostaje po sondzie na prawdziwym przebiegu;
+   WSL (`-MuseHost wsl`) zostaje trybem awaryjnym. Mechanika: skill
+   `external-workers`.
+
+   Ocena po 10–15 istotnych briefach Muse w tym podziale: czy tydzień
+   dociąga do niedzieli, ile przebiegów Wondera wobec limitu, rundy
+   z wykonania per para, potwierdzone i obalone P0/P1 Sparka `max`
+   w recenzjach średniej stawki i w QA Sphere funkcji high-stakes.
+   Historia linii Muse i kalibracje — archiwum.
+
+9. **Wynik obcego silnika zawsze waliduję** — czytam diff, uruchamiam `lint`,
+   testy i build. Raport workera **nie jest dowodem** (zasada „evidence closes
+   a task" obowiązuje tu podwójnie).
+10. **Brief dla workera musi być samowystarczalny.** Muse i Codex startują bez
+    kontekstu rozmowy. Braku kontekstu nie nadrobią domysłem — zrobią coś innego.
+11. Jeśli zadanie jest **pytaniem, jednolinijkową zmianą albo czymś, gdzie
+    napisanie briefu kosztuje więcej niż wykonanie** — robię je sam. Routing nie
+    jest obowiązkiem delegowania.
+12. **Zmiana pary po limicie lub niedostępności.** Architekt sam ponownie
+    kwalifikuje brief i wybiera dopuszczoną parę model–effort, uwzględniając
+    złożoność, niepewność, ryzyko, aktualną dostępność, faktyczne narzędzia
+    i lokalne wyniki zaakceptowanych briefów oraz wszystkie twarde bramki.
+    Melduje zmianę jednym zdaniem i nie pyta użytkownika o routing.
+    Brak dopuszczonej pary oznacza blokadę briefu, nie obejście ograniczeń.
+
+13. **Niezależna recenzja po każdej fali, adaptacyjny wybór recenzenta.**
+    Przed rozpoczęciem zależnej fali kwalifikujesz i wybierasz recenzenta
+    per brief: tylko odczyt, właściwy kontekst/narzędzia, zdolność odpowiednia
+    do stawki oraz inna rodzina niż autor. Wyższa stawka wymaga wyższej
+    klasy recenzji. Przy niskiej stawce preferujesz Sola `high` (albo
+    Terrę `max`, reguła 7) albo Gemini `high` przed Muse (decyzja właściciela 2026-10-12: Spark
+    zgłaszał najwięcej P0/P1 do obalenia; preferencja zostaje też ze
+    względu na tygodniową pulę Muse); przy wyższej stawce Muse jest
+    kandydatem z parą z tabeli reguły 8 — Wonder Full `max` dla plików
+    niezmiennika (w limicie Wondera), Spark `max` dla średniej stawki —
+    preferencja wśród dopuszczonych, nie stała kolejność. Sol jest
+    kandydatem bez oczekiwania na limit, ale nie recenzuje Codexa; Muse nie
+    recenzuje Muse (Wonder i Spark to jedna rodzina), Gemini nie recenzuje
+    Gemini (konta A i B to jedna rodzina), a Fable nie recenzuje wcale. W mieszanej fali dzielisz zbiory
+    zmian per autor i dla każdego zapewniasz inną rodzinę. Nie ograniczasz
+    liczby potrzebnych recenzji; nie dublujesz ich równolegle.
+
+    Model/native effort, uzasadnienie, pewność, dopuszczone alternatywy
+    i status dostępności zapisujesz również dla recenzenta. Limit recenzenta
+    prowadzi do ponownej kwalifikacji wg reguły 2; brak niezależnej
+    bezpiecznej linii jest blokadą. Publiczny ranking ani historyczna
+    przewaga Spark/Gemini nie tworzą wyłączności lub stałego fallbacku.
+
+    Brief recenzenta wymaga sprawdzenia scenariusza P0/P1 przed zgłoszeniem
+    i dosłownego cytatu linii, której znalezisko dotyczy. Architekt
+    weryfikuje znaleziska względem repo i wymagań — każde P0/P1 obala albo
+    potwierdza jednym poleceniem przed poprawką — sprawdza rzeczywisty diff,
+    testy, format, build oraz wymagane dowody po fali (w pilotażu D obalanie
+    i korekty prowadzi `koordynator-fali`, odbiór zostaje u architekta).
+    Raport wykonawcy/recenzenta sam nie dowodzi ukończenia. Poprawki wracają
+    do autora, o ile nadal się kwalifikuje; w przeciwnym razie oceniasz
+    kandydatów ponownie. Odbiór poprawki pozostaje odpowiedzialnością
+    architekta. Okresowa ocena routingu nie zastępuje recenzji kodu.
+    Brief researchu żąda adresu źródła przy każdym twierdzeniu.
+
+    Istotne briefy zapisujesz w `docs/model-routing-evaluation.md`
+    w repo `Claude_Skills`; pola i szablon wpisu wg sekcji 3–4
+    `docs/model-routing-evaluation.md`. Bez promptów, diffów, danych
+    osobowych, poświadczeń i surowych tokenów.
+    Tokeny pozostają w raporcie per ADO. Mechaniczne drobiazgi nie
+    wymagają wpisu. Pierwszy przegląd po 10–15 istotnych briefach,
+    kolejne po 10–15 lub istotnej zmianie modeli/pomiaru limitów;
+    dodatkowy po istotnym błędzie lub kilku kosztownych poprawkach.
+    Oceniasz per archetyp; mała próbka nie ustanawia rankingu.
+    Datowane wyniki dawnych prób recenzji i researchu — archiwum; to
+    materiał do oceny lokalnej, nie przypisanie recenzenta.
+
+14. **Fale o rozłącznych celach i zachowane limity równoległości.**
+    Architekt dzieli plan na `etap → fala → brief → linia`, dopisując
+    model/native effort, powód, pewność, alternatywy i dostępność wykonawcy
+    oraz recenzenta. Liczba briefów per linia opisuje obciążenie, nie
+    poprawność planu. Nie rozdzielasz mechanicznie „FE do Sonneta,
+    BE do Muse, i18n do Gemini”; kandydatów wybierasz wg bramek
+    i dowodów danego briefu. Ekran high-stakes bez niezmiennika jest
+    osobnym briefem od pliku niezmiennika wymagającego Opusa.
+
+    Briefy jednej fali wysyłasz naraz, subagentów i wrappery w tle,
+    każde osobnym wywołaniem wrappera, bez `Start-Job`. Cele/pliki
+    nie mogą się nakładać. Zachowujesz najwyżej ~4 briefy z pętlą
+    testów jednocześnie, do ~10 briefów na falę i rezerwę na 2–3 korekty.
+    Muse bez limitu slotów nie omija rozłączności ani limitu pętli testów.
+
+    Wykonawcy sprawdzają własne pliki, z cichym wyjściem i zwięzłym
+    raportem: `npx --no-install eslint <pliki>`,
+    `npx --no-install prettier --check <pliki>`,
+    `ng test --include <spec>`. Zakaz gita zmieniającego stan,
+    `npm install`, `npm run lint:fix`, `npm run format` i
+    `npm run build`; przy > 1 wykonawcy BE także zakaz
+    `dotnet build`/`dotnet test`. Brief każdej linii mówi to wprost,
+    również nadpisując „Finishing Every Implementation” dla Claude'a.
+    Architekt wykonuje pełną walidację po fali i odbiera niezależną
+    recenzję przed zależną falą.
+
+    Tory poboczne (Figma, dokumentacja, ADO) ruszają, gdy gotowa jest
+    decyzja, od której zależą, i ich cele są rozłączne. Aktualizacja
+    dokumentacji przy zmianie zachowania/API jest obowiązkowa.
+    Wykonawcę dobierasz do briefu; Figma wymaga właściwego MCP,
+    QA Sphere osobnej procedury. Samodzielne briefy nie polegają na
+    kontekście głównej sesji. Równoległe operacje na jednej stronie
+    przeglądarki/sekcji Figmy nie są rozłączne; weryfikujesz
+    `location.href` przed każdym zrzutem.
+
+    **Próby ograniczone.** Datowane warunki, modele/efforty i porównania
+    kosztu prób dotyczą tylko opisanych prób, nie wszystkich briefów danej
+    linii. Nie rozszerzają dostępu MCP, nie zmieniają architekta pilotażu
+    i nie zastępują odbioru artefaktów. Kryterium ustalasz z właścicielem
+    przed próbą; zmiana staje się domyślna dopiero po jego spełnieniu.
+
+    - **Zamknięte** (dane: rejestr i archiwum): A/B linii Figmy
+      (2026-10-12) — zostaje `wykonawca` Sonnet `high`; tester
+      (2026-10-13) — `tester` na Haiku 5.5 `xhigh`. Przy testerze
+      obserwujesz dalej: brief Buga (warunek „fałszywy czerwony”
+      niesprawdzony), fałszywą zieleń i przebiegi > 300 tys. kontekstu.
+    - **C2 — Sonnet `xhigh` na plikach niezmiennika (od 2026-11-01).**
+      `wykonawca-sonnet-xhigh` wobec `wykonawca-opus`, po 3 briefy
+      naprzemiennie w kolejnych funkcjach wysokiej stawki; ta sama para
+      recenzenta (Wonder Full `max` w limicie albo Sol `high`), bramka Sol
+      `max` bez zmian. Kryterium (właściciel, 2026-11-01): Sonnet przejmuje
+      linię, jeśli potwierdzone P0/P1 (recenzja fali i bramka) ≤ wynik
+      Opusa **i** rundy korekt ≤ wynik Opusa **i** koszt na brief ≤ 0,75×
+      Opusa; inaczej zostaje Opus. Do rozstrzygnięcia pliki niezmiennika
+      poza ramieniem próby pisze `wykonawca-opus`.
+    - **D — koordynator fali (od 2026-11-01).** `koordynator-fali`
+      wykonuje pakiety fal bez plików niezmiennika (reguła 4), 3 fale
+      w kolejnych PBI. Kryterium (właściciel, 2026-11-01): rundy korekt
+      i potwierdzone defekty nie wyższe niż linia bazowa fal tego
+      archetypu z rejestru **i** koszt Claude'a na falę niższy o ≥ 30 %;
+      inaczej pilotaż zamknięty, agent do `~/.claude/agents-archiwum/`.
+    - **E3 — agenci bez globalnego `CLAUDE.md` (od 2026-11-01).**
+      Definicje agentów poza `koordynator-fali` (pilotaż D, potrzebuje
+      reguł routingu) mają `omitClaudeMd: true`; agenci piszący lub
+      audytujący kod czytają jako pierwszy krok `AGENTS.md` repozytorium.
+      A/B na 3–4 briefach: rundy i defekty nie gorsze niż linia bazowa —
+      inaczej wycofanie.
+
+15. **Długość kontekstu to główny koszt w puli Claude'a**: 54–81 % kosztu
+    każdej linii to ponowne czytanie kontekstu przy każdym wywołaniu
+    narzędzia, a wyjście, na które działa effort, to tylko 9–18 % (pomiar
+    2026-09-28; liczby w archiwum). Stąd:
+    - jeden brief = jedna warstwa (slice BE albo ekran FE albo testy), cel
+      ≤ ~150 wywołań i ≤ ~300 tys. kontekstu; większą pracę dzielę na
+      briefy w fali — koszt rośnie mniej więcej z kwadratem długości
+      przebiegu, więc dwa krótsze kosztują razem mniej niż jeden długi;
+    - brief każe uruchamiać sprawdzenia z cichym wyjściem (same błędy), bez
+      zrzucania całych plików i pełnych logów do kontekstu;
+    - **Weryfikacja w przeglądarce — najpierw `browser-check`** (od
+      2026-10-04, decyzja użytkownika; projekty z UI webowym): scenariusz
+      sesji uruchamia architekt (`D:\projects\DTCode\Claude_Skills\browser-check`),
+      worker przeglądarkowy wchodzi tylko, gdy raport nie rozstrzyga, albo
+      dla interakcji spoza scenariusza. Wiążące zasady (scenariusz nie jest
+      testem E2E w repo, `testData` tylko syntetyczne, werdykt,
+      `passedWithoutActions`, Playwright CLI w linii Muse i MCP
+      `--isolated` w Gemini/Codex, brak zrzutów u subagentów Claude'a,
+      osobne sesje, `location.href` przed zrzutem) są w sekcji wspólnej
+      projektu („Browser checks”) i w `browser-check/CLI-WORKER.md`.
+    - **strażnik kontekstu subagentów** (hook PostToolUse
+      `~/.claude/bin/kontekst-hook.mjs`, dziennik
+      `~/.claude/limity/kontekst.jsonl`; progi min(300 tys., 60 % okna)
+      i min(450 tys., 80 % okna)): przy progu miękkim (raz) subagent
+      kończy normalnie, jeśli zostało ~20 wywołań, inaczej domyka bieżącą
+      jednostkę pracy i oddaje raport przekazania; przy twardym
+      (powtarzanym co +50 tys.) nie zaczyna nowej jednostki. Nikogo nie
+      przerywa w pół kroku (decyzja użytkownika: „bez utraty jakości”).
+      Subagentów pilnuje strażnik, nie kompakcja — domyślna kompakcja
+      subagenta jest stratnym streszczeniem, nie przekazaniem. Raport przekazania
+      waliduję jak każdy wynik (diff zrobionego), a resztę zlecam
+      **świeżemu agentowi tej samej linii**: pierwotny brief + raport
+      przekazania (decyzje i pułapki dosłownie) + „nie powtarzaj
+      zrobionego, zacznij od sprawdzenia stanu poleceniem X”. Gdy
+      kontynuacje wymagają więcej poprawek niż briefy bez nich, podnoszę
+      progi. Workerów zewnętrznych strażnik nie widzi — pilnuje ich podział
+      briefu z pierwszego punktu (pomiar: `python
+      ~/.claude/bin/kontekst-workerow.py` przy ocenie etapów);
+    - raport wykonawcy jest zwięzły (co zmienione, dowody, odchylenia), bez
+      wklejonego diffu — diff czytam sam, celowo i tylko potrzebne pliki.
+
+Mechanika wywołań — komendy, host Muse, szablon briefu, pułapki:
+skill **`external-workers`**.
+
+**Wspólna sekcja w projektach (od 2026-09-28, decyzja użytkownika: wszystkie
+projekty DTCode mają ten sam routing i zasady).** Każdy projekt ma w plikach
+reguł identyczną sekcję „## Working Mode — Orchestrator + Subagents (both
+stacks)” — angielskie streszczenie tego pliku. Źródło:
+`D:\projects\DTCode\ZebraniFE\AGENTS.md` (od 2026-11-05; `.claude/CLAUDE.md`
+w Zebrani to odchudzony plik architekta bez tej sekcji); po każdej zmianie routingu
+tutaj poprawiam ją tam i uruchamiam `python ~/.claude/bin/sync-routing.py`
+(`--check` tylko sprawdza), potem commit i push we wszystkich repo. Progów
+hooka sekcja nie powtarza — odsyła do reguły 2. Skrypt ostrzega, gdy
+`AGENTS.md` przekroczy 64 000 B (limit `muse`; ZebraniFE jest najbliżej).
+**Skrypt nie obejmuje skilla `implement-ado-feature-zebrani`** — jego
+źródło (`D:\projects\DTCode\Claude_Skills\Implement ADO Feature – Zebrani\SKILL.md`,
+Fazy 1, 2 i 4b) niesie routing i po każdej zmianie tutaj poprawiam je ręcznie,
+potem commit i push w `Claude_Skills`. Loadery w repo projektu (wzorzec
+`implement-ado-feature-loader Zebrani.md`, kopie w ZebraniFE i ZebraniBE) są
+celowo neutralne silnikowo i przy zmianie routingu ich nie ruszam
+(od 2026-09-28 — wcześniejsze streszczenie w loaderze zostało w tyle o dwie
+wersje routingu).
