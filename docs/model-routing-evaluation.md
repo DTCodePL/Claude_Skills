@@ -11598,6 +11598,57 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak znanych; rozbieżność dokumentu wykryta przez autora rozstrzygnięta przez właściciela rewizją dokumentu
 - Wymagane testy i dowody: lint 0 błędów po każdej zmianie; publikacja: 59 nowych (2 foldery), 2 aktualizacje, 1 `[Removed]`; pełne `verify` 62 sprawdzone, 1 różnica zapisu (ucieczka podkreślenia w Markdown po stronie serwera, treść równoważna)
 
+### 2873-FIG-1 (+FIG-1-K1) (Figma: zmiana nazwy grupy i pozycji nawigacji w zestawach layoutu i na ekranach) — 2026-11-09
+- Archetyp: Frontend UI / Figma (masowa zmiana tekstów i nazw warstw w komponentach, wariantach i nadpisaniach instancji)
+- Stawka: niska (same napisy, bez niezmiennika)
+- Niepewność: średnia (zasięg nadpisań w instancjach na 15 stronach)
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 / `high` (FIG-1 i świeży agent tej samej linii dla K1)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (na inwentarzu przed/po zapisanym skryptem odczytu) + odbiór architekta `get_screenshot` 4 węzłów
+- Dopuszczone alternatywy: wykonawca — brak dostępnej (twarda bramka Figma MCP: Muse i Gemini odpadają, Codex zablokowany limitem tygodnia); recenzent — Terra `max` z Figma MCP po resecie Codexa
+- Powód wyboru: bramka Figma MCP; linia Figmy zamknięta na Sonnecie (próba A/B); recenzja na artefakcie odczytu, bo recenzent spoza rodziny nie ma Figma MCP
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — hook ZIELONY, tydzień 3–4 %; Codex zablokowany (tydzień 99 %, reset 09.11 23:45); Gemini B ok; 2026-11-09
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty — 651 węzłów TEXT i 36 nazw warstw zmienione poprawnie, zero „Moje programy”; ale 42 tytuły headera na stronach spoza obszaru klienta (nakładka zmiany abonamentu ×36, ramka stanu po zalogowaniu ×6), które dziedziczyły domyślny tekst komponentu, wykonawca przypiął z powrotem do „Programy” — napisu, którego żadna podstrona aplikacji już nie ma
+- Rundy korekt: 1 (K1: 36 → „Ustawienia”, 6 → „Karty”; 13 wywołań, 1,7 min)
+- Czas do akceptacji: przebieg FIG-1 ok. 19 min (60 wywołań) + K1 2 min + recenzja 5,6 min; z odbiorem architekta ok. 1,5 h (szacunek)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 znalezisk; trafne obalenie przesłanki briefu recenzji (grupa właściciela nie ma pozycji „Programy”) bez wpływu na wynik
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: inwentarz przed/po (753 węzły przed; bilans 651 + 60 pozostawionych + 42 K1), zrzuty `683:65`, `541:225`, `2630:1153`, `3532:363`; nauka: brief Figmy przy zmianie domyślnego tekstu komponentu musi rozstrzygać instancje dziedziczące ten tekst poza obszarem zmiany
+
+### 2873-R-FE1 (recenzja zmiany wartości i18n i komentarzy, autor architekt) — 2026-11-09
+- Archetyp: Recenzja / Frontend i18n
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): architekt Opus `xhigh` (reguła 11; zmiana tańsza od briefu — bez osobnego wpisu)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read`
+- Dopuszczone alternatywy: Spark 1.3 contributor `max` read (Muse `nieznany`), Terra `max` `-Mode review` po resecie Codexa
+- Powód wyboru: niska stawka, inna rodzina niż Claude, preferencja z reguły 13 przy zablokowanym Codexie
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — `[pule]` Gemini B ok, 2026-11-09 13:13
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano (3,7 min)
+- Rundy korekt: 0
+- Czas do akceptacji: 3,7 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 znalezisk; uwaga do briefu „w railu nie ma nagłówków grup” trafna jako opis kodu, nie rozbieżność (rewizja dokumentu mówi o podpowiedzi pozycji w railu)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `fala-odbior --pelny` (lint, format, 7413 testów, build, i18n), `browser-check` 24/24 obejrzane
+
+### 2873-QAS (autor + recenzja; przegląd 174 istniejących i nowe przypadki zmiany nazwy) — 2026-11-09
+- Archetyp: QA Sphere (Krok 2b na 4 poddrzewach + nowe przypadki luk)
+- Stawka: niska
+- Niepewność: niska (zmiana dwóch napisów; ryzyko w odróżnieniu „Programy” klienta od „Programy” jako domeny/filtrów właściciela)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read`
+- Dopuszczone alternatywy: autor Gemini A `high` write; recenzent Spark `max` read (dla pliku Gemini)
+- Powód wyboru: para z tabeli skilla QA Sphere i reguły 8; recenzja innej rodziny, odczyt najpierw na koncie B
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): autor — nieznany (`[pule]` Muse `server_sent_no_usage`, 13:43), po przebiegu `usedPercent=0`; recenzent — znany (Gemini B ok, 13:55)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano — lint 0/0; 152 keep, 22 update, 0 `[Removed]`, 8 nowych (5 high, 3 medium); trafne uwagi do briefu (zmiana już scommitowana, komentarze i wersja w commicie, `[Removed]` w `retiredInScope`); autor sam rozstrzygnął w kodzie, że „podstrona Programy” w przypadkach właściciela to `/panel/programy`
+- Rundy korekt: 0 (recenzja dwa razy odrzucona przez wrapper przed startem: ścieżki ze spacją i tekst w nawiasie za ścieżką poza backtickami — błąd briefu architekta, nie przebiegu)
+- Czas do akceptacji: autor 10,8 min + recenzja 11,8 min; od startu autora do pełnego `verify` ok. 25 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 znalezisk; uwaga do briefu (zdanie o „Programy” właściciela mogło sugerować pozycję menu) trafna, bez wpływu
+- Defekty po odbiorze: brak znanych; autor zgłosił niepoprawność sprzed PBI w przypadku 608 (etykieta akcji kreatora) do osobnego zgłoszenia
+- Wymagane testy i dowody: `qas.py` folders (folder 226) → push 8 (seq 2404–2411) → update 22 → pełne `verify` 30 sprawdzonych, 0 różnic
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
