@@ -11646,8 +11646,8 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Rundy korekt: 0 (recenzja dwa razy odrzucona przez wrapper przed startem: ścieżki ze spacją i tekst w nawiasie za ścieżką poza backtickami — błąd briefu architekta, nie przebiegu)
 - Czas do akceptacji: autor 10,8 min + recenzja 11,8 min; od startu autora do pełnego `verify` ok. 25 min
 - Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 znalezisk; uwaga do briefu (zdanie o „Programy” właściciela mogło sugerować pozycję menu) trafna, bez wpływu
-- Defekty po odbiorze: brak znanych; autor zgłosił niepoprawność sprzed PBI w przypadku 608 (etykieta akcji kreatora) do osobnego zgłoszenia
-- Wymagane testy i dowody: `qas.py` folders (folder 226) → push 8 (seq 2404–2411) → update 22 → pełne `verify` 30 sprawdzonych, 0 różnic
+- Defekty po odbiorze: autor zgłosił niepoprawność sprzed PBI w przypadku 608 (krok 3 podawał nieistniejącą akcję „Przejdz do panelu / Programy”); właściciel kazał naprawić w ramach zadania → K1: Spark 1.3 `high` (korekta z gotową treścią, reguła 8; 1,7 min, 0 rund) + recenzja Gemini B `high` (5,3 min; 0 × P0–P2, 1 × P3 w uzasadnieniu `review[]` — pole niewysyłane, przyjęte bez korekty)
+- Wymagane testy i dowody: `qas.py` folders (folder 226) → push 8 (seq 2404–2411) → update 22 → pełne `verify` 30 sprawdzonych, 0 różnic; K1: lint 0/0, update 608, `verify` 1/0
 
 ## 5. Rytm przeglądów i ewaluacji
 
