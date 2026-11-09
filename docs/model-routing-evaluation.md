@@ -11649,6 +11649,125 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: autor zgłosił niepoprawność sprzed PBI w przypadku 608 (krok 3 podawał nieistniejącą akcję „Przejdz do panelu / Programy”); właściciel kazał naprawić w ramach zadania → K1: Spark 1.3 `high` (korekta z gotową treścią, reguła 8; 1,7 min, 0 rund) + recenzja Gemini B `high` (5,3 min; 0 × P0–P2, 1 × P3 w uzasadnieniu `review[]` — pole niewysyłane, przyjęte bez korekty)
 - Wymagane testy i dowody: `qas.py` folders (folder 226) → push 8 (seq 2404–2411) → update 22 → pełne `verify` 30 sprawdzonych, 0 różnic; K1: lint 0/0, update 608, `verify` 1/0
 
+### 2905-F1 (fala 1 FE: B1 paleta metaliczna + B1-K + B1-K2, B2 prymitywy rzędu i toru + B2-K) — 2026-11-09
+- Archetyp: Frontend — czysta logika TS ze specem jako wyrocznią (B1) / komponenty UI z Figmy (B2)
+- Stawka: średnia (szeroko widoczny wygląd kart, kontrast 4,5:1; bez niezmiennika)
+- Niepewność: średnia (reguła kotwiczenia palety w OKLCH nowa; przystanki pięciu palet tylko w Figmie)
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 / `high` (B1, B2); korekty B1-K, B1-K2, B2-K — Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read`
+- Dopuszczone alternatywy: wykonawca — Codex Terra `max` po resecie (zablokowany); recenzent — Codex Terra `max`, Muse Spark `max`
+- Powód wyboru: przystanki palet i wygląd pieczątki wymagały Figma MCP (Muse i Gemini odpadają); korekty bez Figmy przeszły poza pulę Claude'a (reguła 3)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (ZIELONY, hook, 14:15); Codex zablokowany (tydzień 100 %, reset 09.11 23:45); Muse nieznany (`server_sent_no_usage`); Gemini B znany (ok)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty
+- Rundy korekt: B1 — 2 (K: reguła kotwiczenia; K2: kontrakt null, stały tor, nazwa pliku), B2 — 1
+- Czas do akceptacji: ok. 3 h (14:30–17:25), w tym decyzja właściciela o kontraście końców gradientu
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-B1 — potwierdzone P1→P2 (null), 3×P2 (baseKind, nazwa pliku, stały tor); obalone P1 (NaN — atan2); P1 kontrast końca gradientu → decyzja właściciela „jak w Figmie” z udokumentowanym wyjątkiem; odrzucone P2 (hoist luminancji). R-B2-K — 1×P3. R-B1-K2 — 0
+- Defekty po odbiorze: brak w fali; regres semantyki AXE (`<header>` bez `<article>`) wykryty w walidacji fali 2 pochodził z B3-K
+- Wymagane testy i dowody: `fala-odbior --pelny` OK (32 pliki, lint/format/testy/build); spec palety 250/250 na 35 pozycjach słownika; po K2 311/311 + 15/15
+
+### 2905-D1 (rewizje dokumentacji decyzji właściciela: D1 + K + K2 + K3, K4 przez architekta) — 2026-11-09
+- Archetyp: Dokumentacja produktu (datowane rewizje dokumentów `zatwierdzony`)
+- Stawka: średnia (źródło prawdy dla kodu i QA)
+- Niepewność: średnia (rewizja reguły rzędu pieczątek przez wiele dokumentów)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read`
+- Dopuszczone alternatywy: wykonawca — Gemini A `high` write, `wykonawca` z powodem; recenzent — Codex Terra `max` (zablokowany)
+- Powód wyboru: brief bez Figmy i bez niezmiennika — najpierw poza pulą Claude'a (reguła 3); archetyp dokumentacji = Spark `max` (reguła 8)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany (`[pule]`, 14:30); Gemini B znany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty
+- Rundy korekt: 3 (Spark) + 1 przez architekta (4 zdania i notka, reguła 11)
+- Czas do akceptacji: ok. 2 h 50 min (14:35–17:25); kontrola ponowna w przeglądzie zgodności Z1
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-D1-K — 3×P1, 3×P2, 1×P3 potwierdzone; R-D1-K2 — 2×P1 potwierdzone (reguła rzędu v1, „rząd zawsze”); R-D1-K3 — 1×P1 (wina briefu), 1×P2, 2×P3 potwierdzone; D1-K2 słusznie obalił przesłankę briefu
+- Defekty po odbiorze: Z1 (krok 13) znalazł dalsze rozbieżności → D2 (osobny wpis)
+- Wymagane testy i dowody: ręczny odbiór diffów delta przez architekta; status front matter bez zmian
+
+### 2905-F2 (fala 2 FE: B3 powłoka + karta pieczątkowa, B4 karta poziomów, B5 ekran kodu + B5-cd, B6 karta rozwinięta, I2 scalenie i18n) — 2026-11-09
+- Archetyp: Frontend UI z Figmy (komponent współdzielony + trzy widoki)
+- Stawka: średnia
+- Niepewność: średnia–wysoka (container query, metal niezależny od motywu, budżet stylów komponentu 8 kB)
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 / `high` (B3, B4, B5, B5-cd, B6 i korekty B3-K, B4-K); I2 — architekt (reguła 11, skrypt)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read`
+- Dopuszczone alternatywy: wykonawca — Codex Terra `max` ≤ 5 plików po resecie (zablokowany); recenzent — Muse Spark `max`
+- Powód wyboru: każdy brief z własnymi węzłami Figmy (Figma MCP twardą bramką); cztery briefy z pętlą testów naraz (limit ≤ 4)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (ZIELONY); Codex zablokowany; Gemini B znany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: B3, B4 — wymagane korekty (K); B5 — zatrzymany strażnikiem kontekstu (305 tys.) z raportem przekazania, dokończony przez świeżego wykonawcę (B5-cd); B6 — zaakceptowano
+- Rundy korekt: B3 — 1, B4 — 1, B5 — przekazanie + 0, B6 — 0; poprawki z recenzji robił architekt (reguła 11) albo trafiły do I3
+- Czas do akceptacji: ok. 2 h 30 min (16:00–18:30), łącznie z drugim przebiegiem walidacji
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-B3 — 4×P3 potwierdzone; R-B4 — P1 (regex rgba) OBALONE (recenzent czytał numery linii z diffu), P2 potwierdzone, P3 → I2; R-B5 — 3×P2 potwierdzone (2 poprawione przez architekta, 1 → I3), 3×P3 → I3; R-B6 — 0 (1,0)
+- Defekty po odbiorze: regres AXE `landmark-banner-is-top-level` z B3-K (4 testy w 2 plikach) — poprawka architekta; budżet `level-card-preview.scss` 7,85/8 kB przeniesiony do I3
+- Wymagane testy i dowody: `fala-odbior --pelny` (2. przebieg) OK — 78 plików, 671/671 plików testów, 7998 testów, build OK, i18n zgodne
+
+### 2905-F3 (fala 3 FE: B7a skanowanie i sprzedawca, B7b kreator i lista, B8 galeria, B9 miniatura compact, I3 sprzątanie v1 i budżet) — 2026-11-09
+- Archetyp: Frontend UI z Figmy (konsumenci karty) + galeria systemu projektowego + sprzątanie martwego kodu
+- Stawka: średnia
+- Niepewność: średnia (ocena „brak konsumenta” przy usuwaniu v1; budżet stylów)
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 / `high` (B7a, B7b, B9); Muse / `muse-spark-1.3-contributor` / `max` (B8, I3)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read`
+- Dopuszczone alternatywy: B8/I3 — Codex Terra `max` (zablokowany), `wykonawca` z powodem; recenzent — Muse Spark `max` (dla briefów Claude'a)
+- Powód wyboru: B7a/B7b/B9 z Figmą; B8 i I3 bez Figmy i niezmiennika — poza pulą Claude'a (reguła 3), osąd przy usuwaniu → `max`
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (ZIELONY); Muse nieznany; Codex zablokowany; Gemini B znany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: B7a, B7b, B8 — zaakceptowano z poprawkami architekta po recenzji; B9 (nowy brief po odbiorze B7b) — budżet niespełniony → I3; I3 — zaakceptowano (budżet 7,82 kB)
+- Rundy korekt: 0 u autorów; poprawki P2/P3 z recenzji przez architekta albo w I3 (10 zadań)
+- Czas do akceptacji: ok. 2 h (18:12–20:19, z walidacją po K1, K2, A2, V1)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-B7a — P2 + P3 potwierdzone, P3 odrzucone; R-B8 — 3×P3 potwierdzone; R-B7b — P1 (zapas na cień zasłania kropki) OBALONE, P2 + P3 potwierdzone, 2×P3 odrzucone; R-B9 — P2 + 2×P3 potwierdzone → I3; R-I3 — 1×P3 (0,99)
+- Defekty po odbiorze: przegląd zgodności Z1 → K1 (fale z Figmy na ekranie kodu), K2 (adres i title); na bramie właściciel zmienił wyrównanie listy (decyzja, nie defekt)
+- Wymagane testy i dowody: `fala-odbior --pelny` OK — 673/673 plików testów, build OK, budżet 7,89 kB; browser-check bramy (zrzuty listy); deploy PRE 1.21.0
+
+### 2905-A (audyt SCSS: A1 odczyt + A2 wykonanie; V1 wersja) — 2026-11-09
+- Archetyp: Audyt SCSS + refaktor stylów (A2); podbicie wersji (V1)
+- Stawka: niska–średnia
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max` (A1, A2); `low` (V1)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R-A2); V1 — diff 3 plików sprawdził architekt
+- Dopuszczone alternatywy: A1 — Gemini B `high`; V1 — `mechanik` Haiku 5.5 `low`
+- Powód wyboru: archetyp audytu SCSS i podbicia wersji z reguły 8
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany; Gemini B znany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano (A1 25/25 plików, A2 Z1–Z16 i W1–W8, Z17 słusznie pominięte; V1 1.20.1→1.21.0)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 50 min (A1 18:37 → R-A2 POPRAWNY)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-A2 — 0×P0–P2, 1×P3 (dwa pliki `_level-identity.scss`) → zmiana nazwy przez architekta po bramie
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: `fala-odbior --pelny` OK; budżet `level-card-preview` 7,89 kB w buildzie
+
+### 2905-Z (przegląd zgodności dokumentacji Z1a/Z1b → D2 + D2-K; po bramie D3 + D3-K) — 2026-11-09
+- Archetyp: Przegląd zgodności dokumentacji z kodem (odczyt) + rewizje dokumentacji
+- Stawka: średnia
+- Niepewność: średnia (niezmiennik danych słownika wobec wyglądu interfejsu)
+- Wykonawca (linia / model / native effort): przegląd — Gemini konto B / `gemini-3.8-flash-high` / `-Access read`; rewizje — Muse / `muse-spark-1.3-contributor` / `max`
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (dla rewizji Muse)
+- Dopuszczone alternatywy: przegląd — Codex Terra `max` (zablokowany); rewizje — Gemini A `high` write
+- Powód wyboru: przegląd innej rodziny niż autor kodu i dokumentów; rewizje bez Figmy → Spark `max`
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini B znany; Muse nieznany → `usedPercent=1` (`[pule]`, 21:16)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: D2 — wymagane korekty; D3 — wymagane korekty
+- Rundy korekt: D2 — 1 (+3 zastrzeżenia architekta); D3 — 1 (+2×P3 poprawione przez architekta)
+- Czas do akceptacji: D2 ok. 50 min (18:32–19:25); D3 ok. 45 min (19:56–20:40)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-D2 — 2×P1, 2×P2 potwierdzone; R-D2-K — 0 (1,0); R-D3 — 1×P1 (niezmiennik mieszał dane słownika z wyglądem), 2×P2, 1×P3 potwierdzone; R-D3-K — 2×P3 potwierdzone (strumień przerwany po kompletnym raporcie, kod 3)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: diffy delta przez tymczasowy indeks gita; kotwice i `grep` odsyłaczy; commit Dokumentacji tylko z plikami #2905
+
+### 2905-QAS (Q1 autor + R-Q1 + Q1-K + R-Q1-K; przegląd 197 istniejących i nowe przypadki kart v2) — 2026-11-09
+- Archetyp: QA Sphere (Krok 2b na 9 poddrzewach + nowe przypadki w 7 podfolderach)
+- Stawka: średnia (wygląd widoczny dla testera we wszystkich widokach kart)
+- Niepewność: średnia (stany danych demo potwierdzane w seedach; brief architekta miał błędne przesłanki o danych)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows (Q1, Q1-K); aktualizacja seq 308 — architekt po decyzji właściciela
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read`
+- Dopuszczone alternatywy: autor — Gemini A `high` write; recenzent — Muse nie (ta sama rodzina co autor), Codex Terra `max` (zablokowany)
+- Powód wyboru: para z tabeli skilla QA Sphere i reguły 8; recenzja innej rodziny, odczyt najpierw na koncie B
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): autor — znany (`[pule]` Muse `usedPercent=1`, 21:16); recenzent — znany (Gemini B ok, 21:16); Codex zablokowany (tydzień 100 %)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty — lint 0/0; 178 keep, 18 update, 1 `[Removed]`, 19 nowych (12 high, 7 medium); autor trafnie obalił 5 przesłanek briefu o danych demo (poziom i adres Złotego Widelca, stan Kawiarni, brak adresu w seedach, plakietki „+N” przy progu 10, liczniki w tabeli właściciela); jedno obalenie błędne (brak przełącznika motywu u sprzedawcy)
+- Rundy korekt: 1 (Q1-K) + edycja seq 308 przez architekta
+- Czas do akceptacji: Q1 33 min + R-Q1 11 min + Q1-K 7,5 min + R-Q1-K 8,6 min; od startu autora do pełnego `verify` ok. 1 h 10 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-Q1 — potwierdzone 3×P2 (motyw ciemny u sprzedawcy, tekst nagrody klienta, podpis pod przyciskiem sprzedawcy), 1×P3 (kropka), P1 sesje → potwierdzone jako P2; P1 seq 308 (update zmienia cel) → nie wada pliku, tylko defekt aplikacji sprzed PBI: decyzja właściciela → Bug #2940, 308 opisuje zachowanie poprawne; R-Q1-K — 0 znalezisk (1,0)
+- Defekty po odbiorze: brak w pliku; wykryty defekt aplikacji sprzed zadania → Bug #2940
+- Wymagane testy i dowody: `qas.py` folders (227–234) → push 19 (seq 2412–2430) → update 18 → retire 1139 → pełne `verify` 38 sprawdzonych, 0 różnic
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
