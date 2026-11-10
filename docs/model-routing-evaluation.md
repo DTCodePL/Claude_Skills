@@ -11870,6 +11870,57 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak (`verify` 16, 2 fałszywe różnice — wcięty akapit w punkcie listy, potwierdzone `get_test_case`)
 - Wymagane testy i dowody: `qas.py lint` 0 błędów; `folders` → `push --limit 1` → `verify --only K2` → `push` (seq 2433–2435) → `update` 13 → pełne `verify` 16 sprawdzonych
 
+### 2943-P + K1 + K2 (prezent karty pieczątkowej w stanie nagrody: kotwica do kreski, SVG bez pasa, karta przy ladzie) — 2026-11-10
+- Archetyp: Implementacja FE bez Figmy i bez niezmiennika — SCSS, 2 nowe SVG, 1 wiązanie hosta w `.ts` (6 plików); K1 — komentarze po recenzji; K2 — refaktor po audycie SCSS (2 pliki)
+- Stawka: niska
+- Niepewność: średnia (geometria pseudoelementów: blok zawierający, kontekst nakładania, `cqi` kontenera; karta przy ladzie bez kreski — decyzja właściciela w trakcie)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max` (P), `high` (K1, K2 — korekty z gotową treścią), `-MuseHost windows`, `-Access write`
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R1); audyt SCSS Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (A1)
+- Dopuszczone alternatywy: wykonawca — Codex `gpt-6.1-terra` `max` (plan; odpadł po decyzji o ladzie: 6 plików > 5), Codex Sol `high`; recenzent — Codex Terra `max`; audyt — Muse Spark `max` (plan; autor z rodziny Muse → Gemini)
+- Powód wyboru: brief bez Figmy i niezmiennika najpierw poza pulą Claude'a (reguła 3); Codex ≤ 5 plików; recenzja i audyt innej rodziny niż autor
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, 14:41, tydzień 19 %); Muse znany (`usedPercent=1`); Codex znany (0 %); Gemini B znany (ok 14:40)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowany bez zmian wartości CSS — P (900 s): prezent na `footer::after`, przy ladzie na `header::after`, `fala-odbior --pelny` OK (+307 −70, 296 s); odstępstwa wykonawcy przyjęte (funkcja pomocnicza SCSS przez konflikt Prettier ↔ `scss/operator-no-newline-after`)
+- Rundy korekt: 2 (K1 ok. 120 s: 4 komentarze, 1 P3 recenzji; K2 255 s: funkcja → prywatne `$-gift-*` — `$_` odrzuca wzorzec kebab `stylelint-config-standard-scss`; ekran kodu czyta wymiary fali z partiala); architekt zawinął 2 komentarze > 100 kolumn — błąd własnej specyfikacji K2, wskazany przez wykonawcę
+- Czas do akceptacji: ok. 1 h 10 min (start P 14:24 → brama 15:35)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1 — poprawny 1,0, 0 P0/P1, 1 P3 (nagłówek jako nośnik prezentu bez ostrzeżenia) potwierdzone → K1. A1 (382 s) — przyjęte 2 (funkcja pomocnicza, zdublowane wymiary fali w ekranie kodu); odrzucone 2 (klasy licznika z szablonu do SCSS: kod sprzed zadania, AGENTS.md dopuszcza narzędzia flex gridu; wspólny mixin bazowy w jednym partialu: kryterium dotyczy powtórzeń między komponentami)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: `npm test` 673/8042, lint, format, build; `browser-check` 4/4; po K2 `dist` bajt w bajt identyczny ze stanem sprzed K2 (wyrocznia czystego refaktoru SCSS: skróty plików builda)
+
+### 2943-D1 + D2 (dowód BEFORE/AFTER w przeglądarce: asercje położenia prezentu i zasłony w SVG) — 2026-11-10
+- Archetyp: Worker przeglądarki (Playwright CLI) — ten sam scenariusz i skrypt `run-code` przed łatką i po niej, wyjątek przeglądarkowy dla błędu czysto wizualnego
+- Stawka: niska
+- Niepewność: średnia (motyw jest preferencją konta, nie `localStorage`; sesja przez plik stanu bez hasła w briefie)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `high`, `-MuseHost windows`, `-Access write` (D1, D2)
+- Recenzent (linia / model / native effort): architekt (odbiór wartości z surowego JSON-u i zrzutów)
+- Dopuszczone alternatywy: Gemini A `gemini-3.8-flash-high` (Playwright MCP, `-GeminiPowod`)
+- Powód wyboru: archetyp operacyjny Sparka `high` (reguła 8); Gemini nie utrzymuje sesji Playwright CLI
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`usedPercent=1`, [pule] 14:00 i 14:55)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: D1 #1 odrzucony — kombinacje „jasne” zostały ciemne, bo scenariusz ustawiał `localStorage`, a motyw przychodzi z konta (worker zgłosił to w „co błędne”; błąd scenariusza architekta); D1 #2 zaakceptowany (A=false: 38,83 / 42,83 px pod kreską; B=false: pas i kieszeń); D2 (128 s) zaakceptowany (20/20 prezentów, |delta| ≤ 0,02 px, B 0 naruszeń, skrót skryptu bez zmian)
+- Rundy korekt: 1 (D1 #2 po przepisaniu scenariusza na przycisk „Przełącz motyw” z oczekiwaniem na zapis)
+- Czas do akceptacji: ok. 25 min (D1 14:02 → odbiór BEFORE 14:25); D2 2 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy (dowód); zarzut workera wobec scenariusza (motyw z konta) słuszny
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: SHA-256 skryptu i scenariusza w pliku kroków i w komentarzu Buga; 8 zrzutów jako załączniki ADO (REST)
+
+### 2943-QAS (Q1 + R-Q1 + K-Q1 + K-Q2; foldery 228/230/231/232, seq 2436–2440, aktualizacja 2418) — 2026-11-10
+- Archetyp: QA Sphere — plik podglądu z przeglądem istniejących (Krok 2b, 47 przypadków), zmiana czysto wizualna
+- Stawka: niska–średnia
+- Niepewność: średnia (warunek wstępny stanu nagrody w wyniku skanowania)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max` (Q1, K-Q1), `high` (K-Q2 — korekta z gotową treścią), `-MuseHost windows`, `-Access write`
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R-Q1)
+- Dopuszczone alternatywy: wykonawca — Gemini A `high`; recenzent — Codex Terra `max`
+- Powód wyboru: archetyp QA Sphere (reguła 8, skill QAS); plik Muse recenzuje Gemini
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`usedPercent=1`); Gemini B znany (ok 16:04)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty — Q1 (846 s): 5 nowych, 47 `keep`, lint 0; przypadek wyniku skanowania zakładał 4. skan w programie bez nadwyżki (BE odrzuca go przy pełnej karcie); brief architekta wskazał seq 2423 jako źródło mechanizmu bez sprawdzenia nadwyżki programu
+- Rundy korekt: 2 (K-Q1 316 s: wynik skanowania na Myjni Błysk z nadwyżką, karta rozwinięta pieczątkowa wewnątrz obrysu; K-Q2 329 s: seq 2418 `keep` → `update` — sprzeczny z kodem od #2905, zgłoszony przez autora w K-Q1; liczniki bez konkretnych wartości)
+- Czas do akceptacji: ok. 40 min (Q1 15:41 → brama QA 16:21)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-Q1 (738 s, wymaga korekty 0,98) — P1 niewykonalny 4. skan potwierdzone (seed: nadwyżka wyłączona; `StampAccrualService` rzuca `RewardPendingException`); P2 rozwinięcie karty pieczątkowej w panelu pod kartą potwierdzone; werdykty `keep` 47/47 uznane za poprawne — autor sam znalazł potem sprzeczność 2418 (przeoczona przez recenzję)
+- Defekty po odbiorze: brak (`verify` 6, 1 fałszywa różnica — kolejność `requirements` w 2418, potwierdzona `get_test_case`)
+- Wymagane testy i dowody: `qas.py lint` 0; `folders` → `push --limit 1` → `verify --only` → `push` (2436–2440) → `update` 2418 → pełne `verify`
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
