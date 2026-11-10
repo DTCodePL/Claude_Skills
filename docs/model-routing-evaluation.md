@@ -11768,6 +11768,74 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak w pliku; wykryty defekt aplikacji sprzed zadania → Bug #2940
 - Wymagane testy i dowody: `qas.py` folders (227–234) → push 19 (seq 2412–2430) → update 18 → retire 1139 → pełne `verify` 38 sprawdzonych, 0 różnic
 
+### 2940-T1 + T1-K (czerwony test Buga, podgląd karty w kreatorze) — 2026-11-09
+- Archetyp: Czerwony test Buga (Vitest + AXE, wzorzec w tym samym pliku)
+- Stawka: niska (podgląd w UI, bez naliczania)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): `tester` / Haiku 5.5 / `xhigh` (T1-K: wznowiony przez SendMessage)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R1 razem z łatką)
+- Dopuszczone alternatywy: Muse Spark 1.3 `max`
+- Powód wyboru: archetyp „czerwony test Buga” po zamkniętej próbie testera; dwie ręce (łatka u innej linii)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ZIELONY (hook, ok. 21:30)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowany. 11 testów, oba testy dowodzące czerwone z powodu Buga (`expected false to be true` na klasie stanu nagrody), strażnicy zieloni
+- Rundy korekt: 1 (T1-K po R1: przypadki −1 i 0,9 plus asercja modelu; 0,9 czerwony `expected '/0.9' to be '/0'`)
+- Czas do akceptacji: T1 ok. 15 min; T1-K kilka minut
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1 — P2 (brak przypadków −1 i 0,9) i P3 (asercja modelu) potwierdzone
+- Defekty po odbiorze: brak; plik testu zablokowany SHA-256, diff po łatce pusty
+- Wymagane testy i dowody: własne uruchomienie czerwieni przez architekta; skrót pliku przed i po łatce
+
+### 2940-P1 + P1-K (łatka podglądu: stan nagrody, nadwyżka, ścięcie progu) — 2026-11-09
+- Archetyp: Implementacja FE bez niezmiennika i bez Figmy (2 pliki, test zablokowany)
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R1, R1-K)
+- Dopuszczone alternatywy: Gemini A `high` write; `wykonawca` z powodem; Codex (zablokowany, tydzień 100 %)
+- Powód wyboru: reguła 3 (brief bez Figmy i niezmiennika najpierw poza pulą Claude'a); inna linia niż autor testu
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]` `usedPercent=1`, 21:30); Codex zablokowany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty (154 s; spec zielony 11/11, ale `Math.max(próg, 0)` przepuszczało próg 0,9 jako pełną kartę)
+- Rundy korekt: 1 (P1-K: `Number.isInteger(value) && value > 0 ? value : 0`, komentarze)
+- Czas do akceptacji: ok. 35 min od startu P1 do R1-K
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1 (niepoprawny) — P1 potwierdzone (próg 0,9 → fałszywy stan nagrody; `input type=number step=1` przepuszcza 0,9 do modelu), P2 komentarze potwierdzone; R1-K — 0 znalezisk (1,0)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: spec 13/13 z niezmienionym plikiem testu; lint, format, `npm test` 673/8029, build
+
+### 2940-P2 + P2-K (skala prezentu karty wąskiej poniżej 20,5 rem, zakres z bramy) — 2026-11-09
+- Archetyp: SCSS współdzielonego komponentu z pomiarem w przeglądarce (1 plik)
+- Stawka: niska (wygląd)
+- Niepewność: średnia (geometria `cqi` bez makiety dla szerokości < 328 px)
+- Wykonawca (linia / model / native effort): P2 — Muse / `muse-spark-1.3-contributor` / `max`, host WSL + `pwcli`; P2-K — ta sama linia, `high` (korekta z gotową treścią)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R2, R2-K)
+- Dopuszczone alternatywy: `wykonawca` (Sonnet `high`) z powodem; Gemini A `high` write
+- Powód wyboru: bez Figmy i niezmiennika → Spark; WSL dla Playwright CLI (pomiar `::after`)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`usedPercent=1`, 22:15); Gemini B znany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty — `min(9rem, calc(72cqi - 92.16px))`, czyli wyraz wolny w px przy granicy w rem
+- Rundy korekt: 1 (P2-K, 702 s) + jednolinijkowa poprawka komentarza przez architekta (reguła 11)
+- Czas do akceptacji: ok. 1 h 20 min (22:17–23:40), z powtórną walidacją i potwierdzeniem właściciela
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R2 (niepoprawny 0,95) — P2 rem/px potwierdzone; P3 brak dolnej granicy < 128 px przyjęte bez poprawki (poniżej wspieranego minimum); P3 komentarz „16 px” potwierdzone; R2-K — 0 znalezisk (1,0)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: pomiary 16 px (258, 328) i 20 px (410, 380); `browser-check` BEFORE/AFTER kreatora 360 px (scenariusz bez zmian, SHA); powtórka AFTER-K niemożliwa (logowanie: zła wartość z transkryptu, potem Turnstile po nieudanej próbie — nie ponawiano ze względu na limit prób), AFTER z P2 ważny, bo CSS identyczny przy 16 px. Pełne testy: niestabilne pod obciążeniem `register-version-endpoint.spec.ts` (po P2) i AXE `qr-codes.spec.ts` (4984 ms przy limicie 5 s, po P2-K); osobno zielone, niezwiązane
+
+### 2940-QAS (Q1 + R-Q1 + Q1-K; folder 52 kreatora, seq 308) — 2026-11-09…10
+- Archetyp: QA Sphere (Krok 2b na 1 folderze, 26 przypadków + nowe)
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows (Q1, Q1-K)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read`
+- Dopuszczone alternatywy: autor — Gemini A `high` write; recenzent — Codex Terra `max`
+- Powód wyboru: para z tabeli skilla QA Sphere i reguły 8; recenzja innej rodziny
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany 09.11 23:00, nieznany 10.11 (`server_sent_no_usage`); Gemini B znany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty — lint 0/0; keep 24, update 2 (308, 319), retire 0, nowe 2 (high); autor sam sprawdził w kodzie wykonalność przejścia do kroku „Ostatnie ustawienia”
+- Rundy korekt: 1 (Q1-K: hasło i adres logowania z seq 296, `requirements` Bug #2940 w 4 przypadkach)
+- Czas do akceptacji: Q1 4,8 min; R-Q1 #1 przerwany (kod 4, uśpienie systemu w trakcie, bez raportu); R-Q1 #2 11,3 min; Q1-K 2,8 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-Q1 (poprawny 0,95) — P2 brak hasła w nowych przypadkach potwierdzone; P3 brak `requirements` potwierdzone (błąd briefu architekta: „jak w folderze” wbrew Krokowi 4c); recenzent opisał regułę SCSS niezgodnie z kodem, ale bez wpływu na plik
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: `qas.py` folders → push 2 (seq 2431, 2432) → update 308, 319 → pełne `verify` 4 sprawdzone, 0 różnic
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
