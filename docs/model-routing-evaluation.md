@@ -11836,6 +11836,40 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak
 - Wymagane testy i dowody: `qas.py` folders → push 2 (seq 2431, 2432) → update 308, 319 → pełne `verify` 4 sprawdzone, 0 różnic
 
+### 2933-B1 + B1-K + B1-K2 (okno „Skanuj kod” na komputerze: obramowana karta we wszystkich stanach, wg Figmy) — 2026-11-10
+- Archetyp: Ekran FE z Figmy — szablon, SCSS i spec, bez niezmiennika (funkcja naliczania; pliki `.ts` zakazane), 4 pliki
+- Stawka: niska–średnia
+- Niepewność: średnia (geometria karty i kamery w oknie `p-dialog`, dziedziczenie własności custom między komponentami)
+- Wykonawca (linia / model / native effort): `wykonawca` / Sonnet 5.5 / `high` (B1); B1-K świeży agent tej samej linii (kontekst B1 ~250 tys.); B1-K2 wznowienie autora B1-K (SendMessage)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R1, R1-K); audyt SCSS Muse / `muse-spark-1.3-contributor` / `max` / `-Access read` (A1)
+- Dopuszczone alternatywy: wykonawca — Codex `gpt-6.1-sol` `high` po potwierdzeniu Figma MCP; recenzent — Codex Terra `max` / Sol `high`; audyt — Gemini B `high`
+- Powód wyboru: ekran z Figmy wymaga Figma MCP (Muse i Gemini odpadają), próba Figmy zamknięta → `wykonawca`; recenzja innej rodziny; audyt SCSS — preferencja archetypu
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, 14:00, tydzień 17 %); Gemini B znany; Muse znany (`usedPercent=1`); Codex znany (0 %)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty — B1 (716 s, 89 wywołań, ~250 tys.) wykonał decyzje briefu, ale dopełnił padding okna do 24 px makiety (zgodnie z pkt 5 briefu), co odsunęło kartę od nagłówka i związało komponent z `--p-overlay-modal-padding`; zrzuty 360 „light” były w motywie ciemnym
+- Rundy korekt: 2 (B1-K 230 s: usunięcie dopełnienia wg DEC-BIBLIOTEKA-PRZED-DOKUMENTACJA, komentarze z A1 i R1, `it.each` 7 wyników, zrzuty; B1-K2 100 s: `text-align: start` karty v2 — defekt sprzed PBI znaleziony przez architekta na zrzutach)
+- Czas do akceptacji: ok. 1 h 50 min (start B1 ~14:10 → R1-K 15:55), w tym R1 #1 nieudany
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1 #1 (gemini-20261110-132057-10612) — pusty raport, exit 3: obrazy podane globem `*.png`, zgadywanie nazw, odczyt `/home/gemini2/.bash_history` poza uprawnieniem (błąd briefu architekta); R1 #3 (poprawny 0,95) — P2 nagłówek vs karta + kruche powiązanie potwierdzone (rozwiązane inaczej niż proponował: usunięcie reguły wg DEC zamiast fallbacku), P2 testy potwierdzone częściowo (test CSS var w jsdom odrzucony), P3 komentarze potwierdzone, P3 motyw zrzutów potwierdzony; R1-K — 0 znalezisk (1,0). A1 (633 s) — 4 komentarze niezgodne z kodem przyjęte; 2 zamiany odrzucone (kod sprzed zmiany); 2 propozycje wydzielenia mixinów odłożone jako dług; zarzut wobec briefu (partiale #2905 nie mają zestawu ScanCard) słuszny
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: spec 60/60 (+ stamped 71 łącznie); pełne `npm test` 673/8042, lint, format, build (scan-code-panel bez ostrzeżenia budżetu); pomiary `getBoundingClientRect` (okno 384, karta 346, tytuł/X w linii z kartą 0 px, v2 338 z wcięciem 4, aparat 344²); zrzuty wykonawcy z przechwyceniem POST (0 żądań do BE); `browser-check` 12/12 (360/1280 × L/D: start, wpisywanie, Escape)
+
+### 2933-Q1 + Q1-K + Q1-K2 + Q1-K3 (QA Sphere: karta skanowania na komputerze, przegląd 35 przypadków) — 2026-11-10
+- Archetyp: QA Sphere — plik podglądu z przeglądem istniejących (Krok 2b), zmiana czysto wizualna
+- Stawka: niska–średnia
+- Niepewność: średnia (podział pokrycia: aktualizacje istniejących wobec nowych przypadków)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max` (Q1, Q1-K), `high` (Q1-K2, Q1-K3 — korekty z gotową treścią), `-MuseHost windows`, `-Access write`
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R-Q1, R-Q1-K)
+- Dopuszczone alternatywy: wykonawca — Gemini A `high` (zapis); recenzent — Codex Terra `max`
+- Powód wyboru: archetyp QA Sphere (reguła 8, skill QAS); plik Muse recenzuje Gemini
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`usedPercent=1`, [pule] 15:10); Gemini B znany (ok 14:55)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty — Q1 (499 s): 9 nowych, 35 `keep`, lint 0; nowe przypadki dublowały istniejące (K9↔722, K2↔692, K1↔685, K3–K5/K8 wobec 697–706/721) i 6 z 9 nie otwierało nakładki
+- Rundy korekt: 3 (Q1-K 285 s: przebudowa na 12 aktualizacji + 3 nowe; Q1-K2 67 s: powody `keep` wskazujące usunięty K3 — zgłosił sam autor; Q1-K3 141 s: nazwa ekranu „Programy” → „Karty”, 727 `keep` → `update` — znalezisko architekta przy wyrywkowym czytaniu, przeoczone przez obie recenzje)
+- Czas do akceptacji: ok. 1 h (start Q1 14:12 → brama QA ~15:00)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-Q1 (531 s, niepoprawny 0,95) — P1 brak otwarcia nakładki potwierdzone; P1 duplikaty wobec Kroku 2b potwierdzone (2 znaleziska); P2 telefon bez karty na aparacie, P2 ciemny motyw tylko w sukcesie — przyjęte; P3 K5 dwa programy — przyjęte; 0 obalonych. R-Q1-K (459 s) — poprawny 1,0, 0 znalezisk. Zarzuty wobec briefu słuszne: aparat niedostępny tylko przy kamerze obecnej i zablokowanej (Q1), klucze `LOGGED.SCAN.*` zamiast `SCAN_CODE` (R-Q1)
+- Defekty po odbiorze: brak (`verify` 16, 2 fałszywe różnice — wcięty akapit w punkcie listy, potwierdzone `get_test_case`)
+- Wymagane testy i dowody: `qas.py lint` 0 błędów; `folders` → `push --limit 1` → `verify --only K2` → `push` (seq 2433–2435) → `update` 13 → pełne `verify` 16 sprawdzonych
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
