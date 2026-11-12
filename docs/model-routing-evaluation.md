@@ -12817,6 +12817,23 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: brak znanych
 - Wymagane testy i dowody: `qas.py` folders → push 1 (seq 2441) → verify 0 różnic → push 35 (do seq 2476) → update 4 → retire 1 → pełne verify 41: 10 różnic, wszystkie artefakty odczytu (`\[TEST ONLY]` ×7, kolejność `requirements` ×3), potwierdzone skryptem z `norm_text` i porównaniem zbiorów
 
+### 1548-QAS2 (Q2 + R-Q2 + Q2-K1; korekta właściciela a odświeżenie portfeli; folder 237, seq 2477–2479, aktualizacja 2466) — 2026-11-12
+- Archetyp: QA Sphere (dopisanie brakującego pokrycia + Krok 2b na 7 przypadkach folderu)
+- Stawka: średnia (synchronizacja przepustek po korekcie właściciela; bez publikacji poza QA Sphere)
+- Niepewność: niska (mechanizm znacznika w handlerze korekty sprawdzony przez architekta przed briefem)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows (Q2 325 s, Q2-K1 434 s)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (732 s)
+- Dopuszczone alternatywy: autor — Gemini A `high` write; recenzent — Codex Terra `max`
+- Powód wyboru: para z tabeli skilla QA Sphere i reguły 8; recenzja innej rodziny
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany przy starcie (`server_sent_no_usage`), potem znany (`[pule]` ~08:50, tydzień 18 %); Gemini B znany (`[pule]`, ok)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty — lint 0 błędów; 2 nowe (K1 `high` pieczątki, K2 `medium` poziomy, każdy na oba portfele jak 2466), 7 keep; `get_test_case` przez most Muse oddał same streszczenia, kroki korekty autor odtworzył z `pl.json` i dokumentu
+- Rundy korekt: 1 (Q2-K1: ostatnia wizyta bez zmian po korekcie; nawigacja przez filtr programu; „Stan po korekcie” zgodny z kodem; nowy K3 `low` — korekta ujemna obniża poziom; 2466 `update` samej nawigacji; poprawione odwołanie w uzasadnieniu 2463)
+- Czas do akceptacji: ok. 50 min (Q2 start 08:13 → verify ~09:05 czasu lokalnego)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone — P1 K1 oczekuje „świeżej ostatniej wizyty”, a korekta nie zmienia `LastStampAt`; P1 „⋮ → Koryguj pieczątki” niewykonalne w widoku wszystkich programów (menu tylko w rozwiniętym wierszu; ta sama wada w istniejącym 2466); P2 format „Stan po korekcie” dla pieczątek; P2 luka — korekta obniżająca poziom; P3 odwołanie do złego dokumentu w uzasadnieniu 2463; częściowo odrzucone przez autora — teza P2, że dla poziomów wiersz pokazuje tekst „bieżący → wynik” (pokazuje odznaki, tekst tylko w `aria-label`)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `qas.py` lint 0 → folders → push 1 (seq 2477) → verify 0 różnic → push 2 (2478, 2479) → update 2466 → pełne verify 4: 0 różnic
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
