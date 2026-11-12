@@ -12953,6 +12953,23 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: —
 - Wymagane testy i dowody: statycznie; kontrola wdrożeniowa sekretu i reguły Cloudflare po deployu właściciela
 
+### 2951-QAS (Q1 + R-Q1 + Q1-K1 + K2 + K3; adres klienta i limity po IP; folder 239, seq 2480–2486) — 2026-11-12
+- Archetyp: QA Sphere (nowy zestaw API curl + Krok 2b na 45 przypadkach folderów 148, 48, 144)
+- Stawka: średnia (przypadki do ręcznego retestu poprawki bezpieczeństwa; bez publikacji poza QA Sphere)
+- Niepewność: średnia (zachowanie za Cloudflare na PRE niewdrożone w chwili pisania; limity tylko w kodzie, nie w dokumentacji)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows (Q1 595 s, K1 421 s); K2 i K3 `high` (278 s, 210 s; korekty z gotową treścią)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (567 s)
+- Dopuszczone alternatywy: autor — Gemini A `high` write; recenzent — Codex Terra `max`
+- Powód wyboru: para z tabeli skilla QA Sphere i reguły 8; recenzja innej rodziny
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany przy starcie (`server_sent_no_usage`), potem znany (`[pule]` ~15:00, tydzień 19 %); Gemini B znany (`[pule]`, ok)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty — lint 0 błędów; 7 nowych (5 `high`, 2 `medium`; A7 dodany ponad listę briefu jako happy path), 45 keep; autor sam wykrył 503 dziennika PassKit przy wyłączonym Apple Wallet i CGNAT w przypadku dwóch sieci
+- Rundy korekt: 3 (K1: wysyłka równoległa A5, przeredagowanie A6, warianty PowerShell, odwołanie do kroku; K2: backtick `` `n `` w kodzie wierszowym rozbijał Markdown — wykryte przez `verify` po push 1, aktualizacja 2480; K3: brak pustej linii po zamykającym ``` dawał 9 różnic `verify`, treść w QA Sphere poprawna)
+- Czas do akceptacji: ok. 80 min (Q1 start 13:45Z → pełne verify 0 różnic ~15:06Z)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone — P1 A5: 601 kolejnych curl nie mieści się w oknie 60 s (pomiar architekta 166 ms/żądanie ≈ 100 s); P2 brak wariantów PowerShell; P3 odwołanie do kroku; odrzucone — P1 A6 „nie dowodzi wspólnej puli FE” (proxy FE bez `xfwd` przekazywało XFF, więc przypadek wykazuje błąd; obniżone do P2 — przeredagowanie oczekiwanego wyniku)
+- Defekty po odbiorze: brak znanych; dwie usterki formatu (K2, K3) wykryte dopiero przez `verify` — lint ich nie łapie
+- Wymagane testy i dowody: `qas.py` lint 0 → folders (239) → push 1 (2480) → verify różnica → K2 → update 2480 → push 6 (2481–2486) → verify 9 różnic (układ) → K3 → pełne verify 8: 0 różnic
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
