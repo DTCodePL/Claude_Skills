@@ -11921,6 +11921,23 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak (`verify` 6, 1 fałszywa różnica — kolejność `requirements` w 2418, potwierdzona `get_test_case`)
 - Wymagane testy i dowody: `qas.py lint` 0; `folders` → `push --limit 1` → `verify --only` → `push` (2436–2440) → `update` 2418 → pełne `verify`
 
+### prywatny-research-druk3d-R1..R3 (ocena profilu slicera, 3 równoległe tematy) — 2026-11-12
+- Archetyp: research w sieci (ustawienia slicera/druku 3D) z oceną gotowej konfiguracji; poza projektami DTCode
+- Stawka: niska–średnia (profil prywatny; błąd = nieudany wielogodzinny wydruk)
+- Niepewność: średnia (mało źródeł producenta, dużo forów)
+- Wykonawca (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read`, 3 briefy równolegle
+- Recenzent (linia / model / native effort): brak osobnego; architekt (Opus) zweryfikował każde twierdzenie zmieniające konfigurację u źródła (WebFetch) i pomiarem (cięcie CLI + analiza G-code)
+- Dopuszczone alternatywy: Codex Terra `max` (research), Spark `max`
+- Powód wyboru: research tylko z odczytem i siecią → najpierw Gemini B (reguła właściciela 2026-11-02)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini B znany (`[pule]`, ok 12:35)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano z obaleniami — 390–464 s na brief; ~8 rekomendacji zmian: 2 przyjęte po weryfikacji (temperatura, wysokość warstwy — liczby CNC Kitchen potwierdzone na stronie źródła), 6 odrzuconych (2 sprzeczne z pomiarem G-code, reszta bez źródła albo już spełnione)
+- Rundy korekt: 0 (bez ponownego briefu)
+- Czas do akceptacji: ok. 25 min od powrotu raportów
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): słabość jakości — wiele adresów to strony główne serwisów (creality.com, reddit.com/r/…, sunlu.com), „cytat” Prusa KB i numer issue niezweryfikowane; wniosek sprzeczny z liczbami, które sam przytoczył (publikacja niezweryfikowana): „drastyczny spadek” przy 30,4 → 29,5 MPa; twarde tony („błąd krytyczny”, pewność „wysoka”) bez pomiaru
+- Defekty po odbiorze: brak (do potwierdzenia wydrukiem)
+- Wymagane testy i dowody: każde twierdzenie zmieniające konfigurację sprawdzone u źródła albo pomiarem; wniosek: research Gemini B nadaje się do zebrania hipotez, nie do decyzji bez weryfikacji
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
@@ -12833,6 +12850,108 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone — P1 K1 oczekuje „świeżej ostatniej wizyty”, a korekta nie zmienia `LastStampAt`; P1 „⋮ → Koryguj pieczątki” niewykonalne w widoku wszystkich programów (menu tylko w rozwiniętym wierszu; ta sama wada w istniejącym 2466); P2 format „Stan po korekcie” dla pieczątek; P2 luka — korekta obniżająca poziom; P3 odwołanie do złego dokumentu w uzasadnieniu 2463; częściowo odrzucone przez autora — teza P2, że dla poziomów wiersz pokazuje tekst „bieżący → wynik” (pokazuje odznaki, tekst tylko w `aria-label`)
 - Defekty po odbiorze: brak znanych
 - Wymagane testy i dowody: `qas.py` lint 0 → folders → push 1 (seq 2477) → verify 0 różnic → push 2 (2478, 2479) → update 2466 → pełne verify 4: 0 różnic
+
+### 2951-D1 (nowy dokument architektury + nowa kategoria wdrożeniowa z krokami ręcznymi; dokumentacja) — 2026-11-12
+- Archetyp: Dokumentacja (nowy dokument architektury, nowa kategoria, indeksy)
+- Stawka: średnia (dokument opisuje niezmiennik wysokiej stawki, sam nie jest kodem)
+- Niepewność: średnia (nowa kategoria dokumentacji, kroki konsoli zewnętrznej z oficjalnej dokumentacji dostawcy)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (w Fazie 4c, cały zakres dokumentacji)
+- Dopuszczone alternatywy: autor — Gemini A `high`, Codex Terra `max`; recenzent — Codex Sol `high`
+- Powód wyboru: archetyp dokumentacji wg reguły 8; brief bez Figmy i niezmiennika najpierw poza pulą Claude’a (reguła 3)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany (`server_sent_no_usage`, `[pule]` ~08:54); Gemini B znany (`[pule]`, ok)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano z poprawkami architekta: CRLF w nowych plikach repo z `eol=lf` i rozbity separator tabeli w indeksie (reguła 11)
+- Rundy korekt: 0 rund workera; 3 późniejsze doprecyzowania architekta (niezmienniki 3, 5, 6) po raportach i recenzji łatki
+- Czas do akceptacji: ok. 40 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 4c: 16 sekcji mapy `zgodne`, 0 rozbieżności; 2 uwagi do briefu recenzji (pominięte pliki w opisie zakresu) — słuszne, bez wpływu na wynik
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: odczyt diffu przez architekta; macierz zgodności 4c
+
+### 2954-F2 + K1 + K2 (utwardzenie testów czasowych, kolekcja szeregowa, minimum puli wątków) — 2026-11-12
+- Archetyp: Testy (xUnit, testy zależne od czasu i współbieżności)
+- Stawka: niska (tylko projekt testów; produkcja bez zmian)
+- Niepewność: wysoka (przyczyna losowa; zakres szerszy niż lista z Buga: 8 → 11 klas + głodzenie puli wątków)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows (F2, K1 1140 s, K2 543 s)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R-F2, R-K1 472 s)
+- Dopuszczone alternatywy: autor — `tester` Haiku 5.5 `xhigh`, Codex Terra `max` w porcjach ≤ 5; recenzent — Codex Terra `max`
+- Powód wyboru: testy bez niezmiennika, > 5 plików (poza krótkim briefem Codexa); jeden wykonawca BE na falę dla `dotnet test`
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany → znany (`[pule]`, tydzień 18 %); Gemini B znany
+- Pewność decyzji: niska (brak lokalnych wyników archetypu)
+- Wynik pierwszego podejścia: wymagane korekty — po F2 pełny przebieg nadal 3 porażki w klasach spoza listy, a sprzątanie certyfikatów 1/10 pod obciążeniem
+- Rundy korekt: 2 (K1: 2 znaleziska recenzji + 3 nowe klasy + `[ModuleInitializer]` z minimum puli + ponowienia sprzątania; K2: `finally` w 2 testach bramki)
+- Czas do akceptacji: ok. 3,5 h (z przebiegami uprzęży ~35 min każdy)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-F2: potwierdzone P2 (asercja przepuszczała mutanta 2 pozwoleń na okres), P3 (`finally` bez oczekiwania na posiadacza); R-K1: potwierdzone jako P2 (zgłoszone P1) brak `finally` w 2 testach — ścieżka porażki; odrzucona sugestia zmiany okien w klasie z bezpiecznikami 30 s
+- Defekty po odbiorze: brak znanych (zastany: test Billing bez strażnika bazy — poza zakresem)
+- Wymagane testy i dowody: uprząż: BEFORE 2 pełne (2 i 4 porażki) + stres 1/10; AFTER-K1 2 pełne 0/12881 + stres 0/206 ×10; 5 kolejnych pełnych przebiegów: 5 × 0 porażek (każdy 12 936 testów: 12 933 zaliczone, 3 pominięte; 621–690 s)
+
+### 2951-T1 (czerwony test dowodowy Buga: sonda adresu i limit PassKit) — 2026-11-12
+- Archetyp: Testy (czerwony test Buga, test API na hoście testowym)
+- Stawka: średnia (dowód dla poprawki wysokiej stawki)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows (679 s)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (360 s)
+- Dopuszczone alternatywy: autor — Codex Terra `max`, `tester` Haiku 5.5 `xhigh`; recenzent — Codex Terra `max`
+- Powód wyboru: 1 plik testu bez niezmiennika; autor łatki nie edytuje testu
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]`), Gemini B znany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: czerwień z powodu buga potwierdzona przez architekta; defekt: podwójne kodowanie UTF-8→cp1250→UTF-8 w 12 liniach komentarzy (przy usuwaniu BOM)
+- Rundy korekt: 0 rund workera; naprawa kodowania przez architekta (mechaniczna, reguła 11)
+- Czas do akceptacji: ok. 30 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 znalezisk (poprawny 0,98); uwaga o braku pokrycia `CF-Connecting-IP` od niezaufanego nadawcy → dopisana do scenariuszy P1
+- Defekty po odbiorze: brak; po P1 zielony bez zmiany pliku (SHA-256 identyczny)
+- Wymagane testy i dowody: przebieg na kodzie bez łatki: oba czerwone z przyczyną buga; po łatce oba zielone
+
+### 2951-P1 + K1 (middleware adresu klienta z sekretem krawędzi; próba C2, ramię Opus) — 2026-11-12
+- Archetyp: Backend — niezmiennik bezpieczeństwa (adres klienta dla limitów prób i Turnstile), potok HTTP
+- Stawka: wysoka / high-stakes
+- Niepewność: średnia (łańcuch proxy PRE, semantyka nagłówków, kolejność potoku względem Sentry)
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 / `xhigh` (P1 ~37 min, 98 wywołań, ~243 tys.; K1 ~13 min, 56 wywołań, ~158 tys.)
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access read` (897 s; Wonder 6/10 w tygodniu)
+- Dopuszczone alternatywy: wykonawca — brak (wyjątek CZERWONEGO: Wonder Full `max`); recenzent — Codex Sol `high` z uwagą na pulę przed bramką
+- Powód wyboru: pliki niezmiennika high-stakes (reguły 3, 6, 8); C2: poprzednia funkcja ramię Sonnet, teraz Opus
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook, ZIELONY, tydzień 69 %); Muse znany (`[pule]`)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano po walidacji (pełny przebieg 12919 zielonych, mutacje niezmienników czerwienią testy, skrót testu dowodowego bez zmian)
+- Rundy korekt: 1 (K1: 3 znaleziska recenzji)
+- Czas do akceptacji: ok. 1 h 40 min (P1 → odbiór K1)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone — P2 sekret z białymi znakami na brzegach wyłącza zaufanie bez ostrzeżenia (zgłosił też sam wykonawca); P3 IPv4 z wiodącym zerem czytane ósemkowo; P3 nagłówek sekretu nieczyszczony w scrubberze Sentry; odrzucone — brak
+- Defekty po odbiorze: brak znanych; bramka Sol `max` bez znalezisk
+- Wymagane testy i dowody: testy jednostkowe middleware, test potoku ścieżki zaufanej, testy scrubbera; przefiltrowane 472/472 po K1; pełna walidacja fali OK
+
+### 2951-B2 (komentarze odbiorców adresu + sekret w workflow deployu) — 2026-11-12
+- Archetyp: Konfiguracja / DevOps + komentarze w kodzie
+- Stawka: niska (brak kodu wykonywalnego poza jedną linią `-e` workflow)
+- Niepewność: niska (treść dosłownie w briefie)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows (273 s)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (462 s)
+- Dopuszczone alternatywy: autor — Codex Terra `max` w porcjach, `mechanik`; recenzent — Codex Terra `max`
+- Powód wyboru: treść dosłowna, bez `dotnet` — tor równoległy do fal z buildem
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany, Gemini B znany (`[pule]`)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano (13 plików, tylko linie komentarzy + linia `-e`); 2 słuszne uwagi do briefu (przekroczenie 120 znaków w podanym tekście, niespójny odsyłacz)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 15 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 znalezisk (poprawny 1,0); recenzent bez narzędzia wyszukiwania — pozostałości potwierdził grep autora i architekta
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `git diff --check`, grep pozostałości, pełna walidacja fali 3
+
+### 2951/2954-BRAMKA (końcowa bramka high-stakes BE, cały diff) — 2026-11-12
+- Archetyp: Recenzja końcowa high-stakes
+- Stawka: wysoka / high-stakes
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): — (bramka tylko do odczytu)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review` (291 s; log potwierdza `git diff` wszystkich obszarów i śledzenie `Request.Scheme`/HSTS)
+- Dopuszczone alternatywy: brak (para bramki stała, reguła 6)
+- Powód wyboru: reguła 6; inna rodzina niż autorzy (Claude, Muse)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex znany (`[pule]`: 5 h 3 %, tydzień 54 %, 1 darmowy reset)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: #2951 poprawny 0,94; #2954 poprawny 0,93; 0 znalezisk
+- Rundy korekt: 0
+- Czas do akceptacji: 5 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak
+- Defekty po odbiorze: —
+- Wymagane testy i dowody: statycznie; kontrola wdrożeniowa sekretu i reguły Cloudflare po deployu właściciela
 
 ### Zapisy przeglądów
 
