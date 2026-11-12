@@ -12069,6 +12069,754 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: brak znanych
 - Wymagane testy i dowody: `unittest` 54/54 (z testem kodowania cp1250); przebieg na prawdziwym ZebraniFE — 405 cudzych plików poza falą; celowy błąd eslint → werdykt 5 linii, kod 1, logi z regułami `no-var`, `no-unused-vars`, `no-explicit-any`
 
+### 1548-R1 (research kontraktów Apple PassKit i Google Wallet) — 2026-11-10
+- Archetyp: Research kontraktów zewnętrznych (bez powłoki)
+- Stawka: średnia (błędny kontrakt = zła architektura; weryfikowany u źródła)
+- Niepewność: wysoka (nowe API dostawców: APNs certyfikat czy klucz, callbacki Google)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Access write` (1200 s)
+- Recenzent (linia / model / native effort): architekt (wyrywkowe sprawdzenie źródeł; callbacki Google potwierdzone u źródła)
+- Dopuszczone alternatywy: Gemini B `high`
+- Powód wyboru: research bez powłoki; Sol w researchu kontraktów zewnętrznych
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — Claude ZIELONY (hook, tydzień 21 % przy 37 % upływu); Codex 5 h 0 %, tydzień 0 %, 1 darmowy reset (`[pule]`); Muse nieznany (`server_sent_no_usage`); Gemini A/B ok (plan 2026-11-10 ~18:25)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano (`fakty.md`, 243 linie)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 20 min (przebieg 1200 s + weryfikacja architekta bez czasu)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy (research; źródła potwierdzone wyrywkowo przez architekta)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `fakty.md` z adresami źródeł (243 linie)
+
+### 1548-B1 + B1c + B1t (schemat portfela, trwałość, znacznik zmian, semantyka „dodana”) — 2026-11-10
+- Archetyp: Backend API / trwałość (migracja, repozytorium, znacznik transakcyjny)
+- Stawka: wysoka (plik niezmiennika: migracja danych i znacznik)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / Opus 5.5 / `xhigh` (`wykonawca-opus`) (B1, B1c, B1t — dziennik nie rozwija skrótów)
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-MuseHost windows`, `-Access read` (R-B1, 1265 s)
+- Dopuszczone alternatywy: Sol `high`
+- Powód wyboru: migracja danych i znacznik w plikach niezmiennika
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — jak R1 (plan 2026-11-10 ~18:25)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: brak danych (R-B1 zamknięta, P0/P1 rozstrzygnięte; treść niepodana)
+- Rundy korekt: brak danych (B1c/B1t bez opisu — kontynuacje albo korekty)
+- Czas do akceptacji: brak danych
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak danych (R-B1 zamknięta; P0/P1 rozstrzygnięte bez treści)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `fala-odbior` fali 1 zielony (BE 11067/11067 + 1 pominięty; FE 8059/8059; lint/format/build zielone)
+
+### 1548-B2 + B2-K (model treści przepustki, teksty PL/EN, `pass.json`, renderer obrazów) — 2026-11-10
+- Archetyp: Backend / treść i obrazy (Figma jako wzór treści)
+- Stawka: średnia (treść i obrazy; bez poświadczeń)
+- Niepewność: średnia (układ wg Figmy w limitach formatu dostawcy)
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`) (B2, B2-K)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Access read` (R-B2, 288 s)
+- Dopuszczone alternatywy: Gemini B `high`
+- Powód wyboru: bramka Figmy (odczyt makiety przez wykonawcę)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — jak R1 (plan 2026-11-10 ~18:25)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty (B2-K)
+- Rundy korekt: 1 (B2-K, bez opisu w dzienniku)
+- Czas do akceptacji: brak danych
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak danych (R-B2 zamknięta; treść niepodana)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `fala-odbior` fali 1 zielony (BE 11067/11067)
+
+### 1548-B3 + B3c-1 + B3c-2 + B3-K + B3-K2 (poświadczenia: token HMAC, podpis CMS, `.pkpass`, JWT, OAuth, APNs) — 2026-11-10
+- Archetyp: Backend / poświadczenia i kryptografia (CMS, HMAC, JWT RS256, mTLS)
+- Stawka: wysoka (plik niezmiennika: poświadczenia)
+- Niepewność: wysoka (podpis przepustki, kotwica WWDR, APNs mTLS)
+- Wykonawca (linia / model / native effort): Claude / Opus 5.5 / `xhigh` (`wykonawca-opus`) (B3, kontynuacje B3c-1/B3c-2, B3-K, B3-K2)
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-MuseHost windows`, `-Access read` (R-B3, 686 s); Codex / `gpt-6.1-sol` / `high`, `-Access read` (R-B3K 293 s, R-B3K2 358 s)
+- Dopuszczone alternatywy: Sol `high`
+- Powód wyboru: poświadczenia (token, certyfikat, podpisy, weryfikacja)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — jak R1 (plan 2026-11-10 ~18:25)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: wymagane korekty (B3-K po R-B3)
+- Rundy korekt: 2 (B3-K: 484/484 z SQL; B3-K2 scalony ~21:55) + kontynuacje B3c-1/B3c-2 w trakcie wykonania
+- Czas do akceptacji: brak danych (B3-K odebrany 2026-11-10; B3-K2 scalony ~21:55)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-B3/R-B3K: brak danych (treść niepodana); R-B3K2: P3 (wersja DER) odroczone do korekty po bramie
+- Defekty po odbiorze: brak znanych (los odroczonego P3 z wersją DER nieustalony w dzienniku)
+- Wymagane testy i dowody: B3-K 484/484 z SQL; `fala-odbior` fali 1 zielony
+
+### 1548-D1 + D2 + D-K (rewizje dokumentacji: INT-APPLE/GOOGLE, UI, DEC, WP, RB, AT) — 2026-11-10
+- Archetyp: Dokumentacja / rewizje normatywne
+- Stawka: średnia (dokumenty normatywne; bez kodu)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access write` (D1 502 s, D2 322 s, D-K 465 s)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R-D1 779 s, R-D2 559 s, R-DK 772 s)
+- Dopuszczone alternatywy: Sol `high`
+- Powód wyboru: dokumentacja poza pulą Claude'a
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — jak R1 (plan 2026-11-10 ~18:25)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty (D-K po recenzjach fali 1)
+- Rundy korekt: 1 (D-K; dotyczy D1+D2 łącznie — stąd wpis łączny)
+- Czas do akceptacji: brak danych (przebiegi 322–772 s)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak danych (recenzje zamknięte; treść niepodana)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: brak danych (dziennik nie podaje sprawdzeń dla fali 1)
+
+### 1548-F1 + F1-K (FE: klik znaku portfela, POST linku, toasty) — 2026-11-10
+- Archetyp: Frontend UI bez Figmy i SCSS (serwis HTTP, DTO, nawigacja)
+- Stawka: niska (klik i nawigacja; bez niezmiennika)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access write` (F1 689 s, F1-K 112 s)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R-F1, 644 s)
+- Dopuszczone alternatywy: Codex Sol `high`, `wykonawca`
+- Powód wyboru: brief bez Figmy i niezmiennika poza pulą Claude'a; F1 przeniesiony z fali 2 do fali 1
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — jak R1 (plan 2026-11-10 ~18:25)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty (F1-K)
+- Rundy korekt: 1 (F1-K: test blokady po błędzie)
+- Czas do akceptacji: brak danych (przebiegi 689 + 112 s, recenzja 644 s)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak danych (R-F1 zamknięta; treść niepodana)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `fala-odbior` fali 1: FE 8059/8059, lint/format/build zielone
+
+### 1548-B9 (źródło treści przepustki) — 2026-11-10
+- Archetyp: Backend / treść (źródło danych przepustki)
+- Stawka: średnia (treść; bez poświadczeń)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access write` (487 s)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R-B9, 527 s)
+- Dopuszczone alternatywy: brak danych (brief spoza planu)
+- Powód wyboru: brief spoza planu (wyłoniony w fali 2); bez niezmiennika → Spark `max`
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — jak R1 (plan 2026-11-10 ~18:25)
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: zaakceptowano (P3 odrzucone)
+- Rundy korekt: 0
+- Czas do akceptacji: brak danych (przebieg 487 s + recenzja 527 s)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): odrzucone P3 (liczba i treść niepodane); potwierdzone: brak
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: 674/674 testów portfela/startu/architektury z SQL (po scaleniach fali 2)
+
+### 1548-B4a + B4a-1T + B4a-2 + B4a-2T + K6a + K6b + K6c + K6d + K7 (PassKit WS, jednorazowy link, złożenie przepustki Apple) — 2026-11-10…11
+- Archetyp: Backend API / poświadczenia (PassKit Web Service, jednorazowy link, certyfikat Apple)
+- Stawka: wysoka (plik niezmiennika: poświadczenia i jednorazowy kod)
+- Niepewność: wysoka
+- Wykonawca (linia / model / native effort): Claude / Opus 5.5 / `xhigh` (`wykonawca-opus`) (B4a-1 kod bez testów — przekazanie na progu kontekstu; B4a-1T testy; B4a-2 kod; K6a–d ×4 równolegle; K7); Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access write` (B4a-2T testy, 1613 s)
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-MuseHost windows`, `-Access read` (R-B4a1, 1468 s); Codex / `gpt-6.1-sol` / `high`, `-Access read` (R-B4a2 314 s, R-K6 540 s); Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R-K7, 781 s)
+- Dopuszczone alternatywy: Sol `high`
+- Powód wyboru: poświadczenia i jednorazowy kod → Opus; podział kod/testy po przekazaniu na progu kontekstu; B4a-2T faktycznie wykonał Spark `max` (odchylenie od planu)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — jak R1 (plan 2026-11-10 ~18:25)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: wymagane korekty (K6a–d po R-B4a1/R-B4a2)
+- Rundy korekt: 2 (K6a–d po recenzjach B4a; K7 po R-K6; P3 z R-K7 poprawił architekt)
+- Czas do akceptacji: brak danych (11-10 → 11-11 ~09:25; same recenzje ~3300 s)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-B4a1/R-B4a2 → K6a (wydanie/pobranie/cert Apple), K6b (callbacki Google + `nonce ExpiresAt` — zahacza o B4b/B1), K6c (logi), K6d (PassKit: pusty numer → 401, maska logu, monotoniczny `lastUpdated`, no-store) — priorytety niepodane; R-K6 → K7; R-K7: P3 poprawione przez architekta (treść niepodana)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: K6a–d scalone: build 0/0, filtr Wallet+Common+StartupSettings+Architecture 1637/0/0; B4a-2T 1166/1 świadek/0
+
+### 1548-B4b + B4b-T (link Google Wallet, callbacki ECv2, `nonce`) — 2026-11-10
+- Archetyp: Backend API / poświadczenia (weryfikacja podpisu ECv2, JWT)
+- Stawka: wysoka (plik niezmiennika: weryfikacja podpisu)
+- Niepewność: wysoka (callbacki Google, klucze ECv2)
+- Wykonawca (linia / model / native effort): Claude / Opus 5.5 / `xhigh` (`wykonawca-opus`) (kod B4b; testy B4b-T)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Access read` (R-B4b, 304 s)
+- Dopuszczone alternatywy: Wonder Full `max`
+- Powód wyboru: weryfikacja podpisu → Opus; recenzent Sol zamiast Wondera (limit dzienny Wondera)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — jak R1 (plan 2026-11-10 ~18:25)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: brak danych (werdykt R-B4b niepodany; brak briefu korekty)
+- Rundy korekt: 0 (B4b-T to dopisane testy, nie korekta)
+- Czas do akceptacji: brak danych (kod + testy scalone 2026-11-10 ~21:40…22:10)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak danych
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: scalenia fali 2: 839/0/0 → 1099/0/0 (z B4a/B8a/K5)
+
+### 1548-B7 + B7-K (synchronizacja: `WalletSyncService`, ponowienia, APNs) — 2026-11-10
+- Archetyp: Backend / usługa w tle (worker, harmonogram ponowień)
+- Stawka: średnia (bez niezmiennika; opóźnienia synchronizacji)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access write` (B7 1167 s, B7-K 437 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Access read` (R-B7 150 s, R-B7K 130 s czysto)
+- Dopuszczone alternatywy: Gemini B `high`
+- Powód wyboru: bez niezmiennika → Spark `max`
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — jak 1548-R1 (plan 2026-11-10 ~18:25)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty (B7-K)
+- Rundy korekt: 1 (B7-K; R-B7K czysto)
+- Czas do akceptacji: brak danych (przebiegi 1167 + 437 s, recenzje 280 s)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak danych (treść R-B7 niepodana; R-B7K bez znalezisk)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: 674/674 testów portfela/startu/architektury z SQL
+
+### 1548-B8a + B8a-K + B8a-K2 + B8b (obiekt/klasa Google, klient PATCH, publiczne obrazy) — 2026-11-10
+- Archetyp: Backend API / integracja Google (obiekt generyczny, obrazy publiczne)
+- Stawka: średnia (bez niezmiennika)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access write` (B8b 1402 s, B8a 1568 s, B8a-K 882 s, B8a-K2 447 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Access read` (R-B8a 54 s i drugi przebieg 262 s; R-B8aK 187 s); Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R-B8b nieudana 647 s, bez ponowienia w dzienniku)
+- Dopuszczone alternatywy: Gemini B `high`
+- Powód wyboru: bez niezmiennika → Spark `max`; podział B8a/B8b w wykonaniu
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — jak 1548-R1 (plan 2026-11-10 ~18:25)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty (B8a-K po R-B8a)
+- Rundy korekt: 2 (B8a-K, B8a-K2: treść modułów w teście)
+- Czas do akceptacji: brak danych
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak danych (treść R-B8a niepodana; R-B8b nieudana)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: scalenia fali 2 do 1099/0/0
+
+### 1548-K5 + K5-K (kotwica WWDR z konfiguracji, maskowanie, enricher logów) — 2026-11-10
+- Archetyp: Backend / poświadczenia i logi (kotwica WWDR, maskowanie sekretów)
+- Stawka: wysoka (poświadczenia Apple; logi bez sekretów)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / Opus 5.5 / `xhigh` (`wykonawca-opus`) (K5, K5-K)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Access read` (R-K5 270 s → K5-K; R-K5K 285 s)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: zakres przy poświadczeniach → Opus; osobny wpis: rodzic korekty nieustalony w dzienniku
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — jak 1548-R1 (plan 2026-11-10 ~18:25)
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: wymagane korekty (K5-K po R-K5: enricher logów)
+- Rundy korekt: 1 (K5-K; scalony z K5 749/0/0)
+- Czas do akceptacji: brak danych (scalenia 2026-11-10 ~21:40…22:10)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak danych (treść R-K5/R-K5K niepodana)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: K5 scalony 749/0/0
+
+### 1548-B5 + K-B5 (znacznik w naliczaniu: skan, kod, nagroda, progi, korekta; ramię Sonnet próby C2) — 2026-11-11
+- Archetyp: Backend / logika przekrojowa (znacznik w plikach naliczania — niezmiennik)
+- Stawka: wysoka (plik niezmiennika: naliczanie pieczątek/nagród)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `xhigh` (`wykonawca-sonnet-xhigh`) — 3. brief ramienia Sonnet próby C2 (rywal: `wykonawca-opus`); B5 + kontynuacja po progu kontekstu; K-B5 (wykonawca niepodany w dzienniku)
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-MuseHost windows`, `-Access read` (R-B5: 1 przebieg przerwany, ponowienie 1221 s); Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access read` (R-KB5 571 s)
+- Dopuszczone alternatywy: Sol `high`
+- Powód wyboru: próba C2 — ten sam archetyp co ramię Opus, ta sama para recenzenta (Wonder Full `max`)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — jak 1548-R1 (plan 2026-11-10 ~18:25)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty (K-B5 po R-B5)
+- Rundy korekt: 1 (K-B5; R-KB5 rozstrzygnięta, P3 poprawił architekt) + kontynuacja B5 po progu kontekstu
+- Czas do akceptacji: brak danych (fala 3: 11-11 ~00:24 → ~10:18)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak danych (treść R-B5/R-KB5 niepodana)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: pełny BE po fali 3: 12004/0/1 (przed bramką)
+
+### 1548-B6a + B6a-K2 + B6a-K3 + K-B6a + K-B6a-T (znacznik w stanach, danych i języku) — 2026-11-11
+- Archetyp: Backend / logika przekrojowa (znacznik w stanach programu i ustawieniach)
+- Stawka: wysoka (plik niezmiennika)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / Opus 5.5 / `xhigh` (`wykonawca-opus`) (B6a + kontynuacja po progu kontekstu; B6a-K2/K3; K-B6a + kontynuacja; testy K-B6a-T)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Access read` (R-B6a 529 s); Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access read` (R-KB6a 464 s)
+- Dopuszczone alternatywy: Wonder Full `max`
+- Powód wyboru: znacznik w plikach niezmiennika → Opus; recenzent Sol (limit Wondera)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — jak 1548-R1 (plan 2026-11-10 ~18:25)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: wymagane korekty (K-B6a po R-B6a)
+- Rundy korekt: 1 (K-B6a z testami K-B6a-T; R-KB6a rozstrzygnięta, P3 poprawił architekt)
+- Czas do akceptacji: brak danych (fala 3: 11-11 ~00:24 → ~10:18)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-B6a: przyjęte 2×P2 + P3 (znacznik ostatniego, retry zmiany języka, test wycofania); R-KB6a: rozstrzygnięta, treść niepodana
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: pełny BE po fali 3: 12004/0/1
+
+### 1548-B6b + B6b-1 + B6b-2 + B6b-K + K-B6r (unieważnienie: udział, konto, retencja, sprzątanie) — 2026-11-11
+- Archetyp: Backend / usuwanie danych i retencja (unieważnienie przepustek)
+- Stawka: wysoka (plik niezmiennika: usuwanie danych)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / Opus 5.5 / `xhigh` (`wykonawca-opus`) (B6b: analiza bez zmian na progu kontekstu; B6b-1: usunięcie udziału i kont; B6b-2: retencja; B6b-K — najpierw B6b-2-K: pragma S107; K-B6r)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Access read` (R-B6b 440 s; pierwszy przebieg Wonder Full przerwany); Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access read` (R-B6bK 284 s poprawny; R-KB6r 303 s)
+- Dopuszczone alternatywy: Sol `high` (plan: Wonder; wykonanie: Sol po przerwanym Wonderze)
+- Powód wyboru: usuwanie danych → Opus; recenzent Sol po przerwanym przebiegu Wondera
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — jak 1548-R1 (plan 2026-11-10 ~18:25)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: wymagane korekty (B6b-K po walidacji: pragma S107; K-B6r po R-B6b)
+- Rundy korekt: 2 (B6b-K; K-B6r: ponowienie partii retencji)
+- Czas do akceptacji: brak danych (B6b-1/B6b-2 scalone 1923/0/0; K-B6r scalony 11-11 ~10:18)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-B6b: potwierdzone P2 (cykl retencja↔usunięcie konta); odrzucone P2 (`CancellationToken`); R-B6bK: poprawny; R-KB6r: rozstrzygnięta
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: B6b-1/B6b-2: 1923/0/0; B6b-2: 607/0/0; pełny BE 12004/0/1
+
+### 1548-K-CERT + K-CERT2 (testy portfela bez certyfikatów w magazynie Windows) — 2026-11-11
+- Archetyp: Testy / higiena środowiska (sprzątanie certyfikatów testowych)
+- Stawka: niska (testy; bez zmian produkcyjnych)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access write` (K-CERT 962 s, K-CERT2 400 s)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R-KCERT 597 s → K-CERT2)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: higiena testów poza pulą Claude'a → Spark `max`; osobny wpis: brak jednego briefu-rodzica
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: wymagane korekty (K-CERT2 po R-KCERT)
+- Rundy korekt: 1 (K-CERT2: poprawki sprzątania po recenzji)
+- Czas do akceptacji: brak danych (przebiegi 962 + 400 s, recenzja 597 s)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak danych (treść R-KCERT niepodana)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: magazyn `Cert:\CurrentUser\CA` wyczyszczony (101 testowych WWDR); pełny BE 12004/0/1
+
+### 1548-bramka-BE + K-G1 + K-G1b + K-G2 (bramka końcowa Sol `max` całego diffu BE) — 2026-11-11
+- Archetyp: Bramka końcowa (niezależny przegląd całego diffu; funkcja wysokiej stawki)
+- Stawka: wysoka (bramka funkcji wysokiej stawki)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Access read` (bramka 1495 s); korekty: Claude / Opus 5.5 / `xhigh` (`wykonawca-opus`) (K-G1, K-G1b); Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access write` (K-G2 384 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Access read` (R-KG1 235 s → K-G1b); Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R-KG2 539 s poprawny; R-KG1b 442 s poprawny 1,0)
+- Dopuszczone alternatywy: brak (limit = czekanie / darmowy reset)
+- Powód wyboru: reguła 6 (bramka Sol `max` po recenzjach fal; funkcja wysokiej stawki)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — Codex 5 h 23 %, tydzień 24 %, 1 darmowy reset (dziennik 11-11 ~10:18); Wonder zablokowany (wrapper odmówił 3/3, ~11:40)
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: wymagane korekty (2×P1 + 2×P2, wszystkie potwierdzone; P1-2 obniżone do P2)
+- Rundy korekt: 2 (K-G1 + K-G2 równolegle; K-G1b po R-KG1)
+- Czas do akceptacji: ok. 2 h (bramka ~10:24 → K-G1b scalony ~12:15)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): bramka: 2×P1 + 2×P2 potwierdzone (treść niepodana; P1-2 → P2); R-KG1: P2 + P3 → K-G1b; R-KG1b: P3-1 przyjęte bez zmian, P3-2 odrzucone; R-KG2: poprawny
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: pełny BE 12004/0/1 → 12035/0/1 → 12042/0/1; odbiór FE zielony
+
+### 1548-bramka-FE + F-G1 (bramka końcowa Sol `max` diffu FE) — 2026-11-11
+- Archetyp: Bramka końcowa (diff FE)
+- Stawka: średnia (FE: klik i toasty; bez niezmiennika)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Access read` (bramka 379 s); korekta: Claude / Opus 5.5 / `xhigh` (`wykonawca-opus`) (F-G1)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R-FG1 510 s poprawny)
+- Dopuszczone alternatywy: brak (limit = czekanie / darmowy reset)
+- Powód wyboru: reguła 6 (bramka FE po bramce BE)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — jak 1548-bramka-BE (dziennik 11-11 ~10:18)
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: wymagane korekty (F-G1)
+- Rundy korekt: 1 (F-G1; R-FG1 poprawny)
+- Czas do akceptacji: brak danych (bramka 379 s; F-G1 scalony 11-11 ~11:40)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak danych (treść bramki FE niepodana; R-FG1 poprawny)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: odbiór FE zielony (8071/0); `browser-check` macierz 8/8 (po bramkach)
+
+### 1548-D-4c + D-4c-K (przegląd zgodności dokumentacji z kodem) — 2026-11-11
+- Archetyp: Dokumentacja / przegląd zgodności z kodem
+- Stawka: średnia (dokumenty normatywne przed bramą)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access write` (D-4c 726 s + uzupełnienia architekta: resend Google, retencja 37 dni; D-4c-K 832 s); próba K-G1c (Opus) zatrzymana słusznie
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R-4c: 1. przebieg nieudany 82 s, 2. przebieg 1263 s — odrzucona w całości; R-D4cK 372 s zgodna 1,0); Codex / `gpt-6.1-terra` / `max`, `-Access read` (R-4c-2: 3 przebiegi 61 + 243 + 499 s; 1×P1 + 11×P2)
+- Dopuszczone alternatywy: Sol `high`
+- Powód wyboru: przegląd zgodności inną rodziną niż autor (Muse); Terra `max` po odrzuceniu recenzji Gemini (reguła 7)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: wymagane korekty (D-4c-K po R-4c-2)
+- Rundy korekt: 1 (D-4c-K; R-D4cK zgodna 1,0)
+- Czas do akceptacji: ok. 1,5 h (D-4c ~11:28 → zamknięcie ~12:50)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-4c odrzucona w całości (fałszywe P1, zmyślone linie); R-4c-2: P1 (`CustomerId` — próba K-G1c zatrzymana słusznie; właściciel: zostawić jak jest) + 11×P2 (treść niepodana; wdrożone w D-4c-K); R-D4cK: zgodna 1,0
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: dziennik bez `otwarty`/`w toku`; nowa KO (zawieszenie programów przez administratora)
+
+### 1548-W-apple (research wyglądu Apple Wallet: `posterGeneric`, geometria pasa) — 2026-11-11
+- Archetyp: Research (wygląd, źródła Apple)
+- Stawka: niska (analiza; decyzje po weryfikacji na urządzeniu)
+- Niepewność: wysoka (nowy styl `posterGeneric`, strefy bezpieczne)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Access write` (723 s)
+- Recenzent (linia / model / native effort): architekt (kluczowe źródła sprawdzone: `posterGeneric`, fallback `storeCard`)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: research wyglądu po uwagach właściciela z iPhone'a; Sol w researchu
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: zaakceptowano (`apple.md`; diagnoza: 1 rząd pól, pas w ~40 %, logo 30×30 pt)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 15 min (przebieg 723 s + weryfikacja architekta)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy (research; źródła potwierdzone przez architekta)
+- Defekty po odbiorze: brak znanych (usterki plakatu z testu iOS 27 to zakres W-P, nie błąd researchu)
+- Wymagane testy i dowody: `_robocze\1548-wyglad\apple.md` ze źródłami
+
+### 1548-W-google (research wyglądu Google Wallet: hero, logo) — 2026-11-11
+- Archetyp: Research (wygląd, źródła Google)
+- Stawka: niska (analiza; decyzje po weryfikacji na urządzeniu)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-terra` / `max`, `-Access write` (692 s) — brief Terry (reguła 7)
+- Recenzent (linia / model / native effort): architekt (hero 1032×812 i `wideLogo` potwierdzone)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: research wyglądu; Terra `max` (reguła 7 zbiera zaakceptowane briefy Terry)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: zaakceptowano (`google.md`)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 12 min (przebieg 692 s + weryfikacja architekta)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy (research; źródła potwierdzone przez architekta)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `_robocze\1548-wyglad\google.md` ze źródłami
+
+### 1548-WP (port palety metalu TS→C# z wyrocznią) — 2026-11-11
+- Archetyp: Backend / port matematyki (OKLCH, kotwiczenie, wyciszenie)
+- Stawka: średnia (kolory poziomów; wyrocznia w testach)
+- Niepewność: średnia (matematyka koloru, zgodność z FE)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-terra` / `max`, `-Access write` (przebieg 1: STOP 233 s; przebieg 2: 849 s, 5 plików) — brief Terry (reguła 7)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (957 s; 0 P0/P1)
+- Dopuszczone alternatywy: Sol `high`, Spark `max`
+- Powód wyboru: matematyka z wyrocznią, ≤ 5 plików, jedyny BE w fali; Terra `max` (reguła 7)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — Claude ZIELONY (hook, 5 h 5 %, tydzień 49 % przy 49 % upływu); Codex 5 h 21 %, tydzień 39 %, 1 darmowy reset (`[pule]`); Muse nieznany; Gemini A/B ok (plan 2026-11-11 ~14:50)
+- Pewność decyzji: niska (brak lokalnych wyników Terry)
+- Wynik pierwszego podejścia: STOP słuszny (przebieg 1: próbka FE poza portem; luka w słowniku do WD) → przebieg 2 zaakceptowany
+- Rundy korekt: 0 poprawek + 1 STOP (słuszny); P2 (rgba bez `Trim`) poprawił architekt (reguła 11); P3 pominięte
+- Czas do akceptacji: ok. 1,5 h (start ~15:20 → odbiór ~17:05)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone P2 (rgba bez `Trim` — poprawka 1 linii przez architekta); pominięte P3 (podział testu); 0 P0/P1
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `dotnet test` filtr palety 476/476 (przed i po poprawce); wartości hex speców FE w testach BE
+
+### 1548-WF + WF2 (makiety Figma: karta w portfelu v2, plakat, spec renderu) — 2026-11-11
+- Archetyp: Frontend UI / Figma (24 ramki, komponenty v2, spec renderu)
+- Stawka: niska (makiety; decyzje właściciela)
+- Niepewność: średnia (strefy bezpieczne Apple przybliżone — obrazy HIG niedostępne)
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`) (WF; WF2 świeży agent po progu kontekstu, ~20 min)
+- Recenzent (linia / model / native effort): architekt (kontrast, strefy, odcisk; poprawki reguła 11) + akceptacja właściciela (WF odrzucona; WF2 „ok”)
+- Dopuszczone alternatywy: Codex Sol `high` po sondzie Figmy (sonda bez dostępu → architekt)
+- Powód wyboru: bramka Figmy (MCP tylko Claude/Codex; Codex niepotwierdzony w sesji)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — jak 1548-WP (plan 2026-11-11 ~14:50)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: WF odrzucona przez właściciela (za mało podobna do kart systemu) → WF2 zaakceptowana
+- Rundy korekt: 1 (WF2: przeróbka w miejscu + przepisany `spec-renderu.md`; uwagi wykonawcy przyjęte)
+- Czas do akceptacji: brak danych (WF2 ~20 min; WF bez czasu)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): architekt: obszar QR w kolorze tła przepustki, płytka r=10, ukryte logo i tekst kodu (×8) — poprawione regułą 11; właściciel: podobieństwo do kart systemu (WF2)
+- Defekty po odbiorze: brak znanych (biały obszar QR w całej aplikacji → osobna pozycja ADO, decyzja: później)
+- Wymagane testy i dowody: zrzuty makiet; akceptacja właściciela „ok” (krok 22)
+
+### 1548-WA + WA2 + WA-K1 + WA-K2 (Apple v2: `storeCard`, plakat, malarze, `PosterEnabled`) — 2026-11-11
+- Archetyp: Backend / render obrazów i `pass.json` (Figma jako wzór; ImageMagick)
+- Stawka: średnia (render i pola; linie tokenu/`voided` bez zmian — bez bramki Sol `max`)
+- Niepewność: wysoka (plakat `posterGeneric`, wydajność renderu, strefy bezpieczne)
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`) (WA: przekazanie po progu kontekstu, produkcja gotowa, 6 oczekiwanych czerwonych, 48 renderów; WA2 24 min; WA-K1 7 min; WA-K2 tym samym agentem)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Access read` (R-WA 344 s: 4×P2 potwierdzone); Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access read` (ponowna recenzja poprawek 265 s: 4/4 naprawione)
+- Dopuszczone alternatywy: Codex Sol `high` porcjami ≤ 5 plików (po sondzie Figmy)
+- Powód wyboru: bramka Figmy, > 5 plików; jedyny BE w fali (własny `dotnet build/test`)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — Claude ZIELONY (hook 17:38, 21 %/51 %); Muse nieznany (dziennik 2026-11-11 17:40)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty (WA-K1 po R-WA; WA-K2: regres wizualny zaniku)
+- Rundy korekt: 2 (WA-K1: `Copy`+`PosterEnabled`, licznik, kolejność malowania, `using`; WA-K2: zanik od 246) + kontynuacja WA2
+- Czas do akceptacji: brak danych (WA2 24 min, WA-K1 7 min; pełny span nieustalony)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-WA: potwierdzone 4×P2 (`Copy` gubi `PosterEnabled`; licznik vs aplikacja; szew dolnej krawędzi; `GetPixels` bez `using`); ponowna: 4/4 naprawione (0,9) + odłożone do WK: P2 (słaby test wiersza 240) i 3×P3 (test licznika, `AssertDefaults`, `PaintFades`)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: Wallet 1352 → 1358 → 1360/0/~305; ciepły render 255/415 ms; podglądy zgodne z WF2; odbiór W2 BE 12540 zielonych + 1 niestabilny
+
+### 1548-WD + WD-K1 + WD-K2 + WD-K3 + WD-K4 + WD-K5 + WD-K6 + WD-K7 (rewizje dokumentacji portfela v2 i W-K) — 2026-11-11
+- Archetyp: Dokumentacja / rewizje normatywne (INT-APPLE/GOOGLE, UI, AT, sprzedawca)
+- Stawka: średnia (dokumenty normatywne przed bramami)
+- Niepewność: średnia (nowy styl plakatu, kontrakt hero v2)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access write` (WD 347 s, WD-K1 236 s, WD-K2 463 s, WD-K4 199 s, WD-K5 316 s, WD-K6 345 s, WD-K7 500 s) i `high` (WD-K3 247 s — redakcja z gotową treścią)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R-WD 840 s warunkowo odrzucony; ponowna 693 s; W-4c 640 s; W-K-4c 811 s); architekt (odbiór WD-K3/WD-K5 na diffie; poprawki reguła 11)
+- Dopuszczone alternatywy: Sol `high`
+- Powód wyboru: dokumentacja poza pulą Claude'a → Spark; WD-K3 `high` (redakcja ≤ 3 plików z gotową treścią)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany (`server_sent_no_usage`, dziennik 17:40); decyzje W-K: brak danych
+- Pewność decyzji: średnia (WD); korekty W-K: brak danych
+- Wynik pierwszego podejścia: wymagane korekty (WD-K1 po uwagach autora; WD-K2 po R-WD; WD-K3 po ponownej; WD-K5 po W-4c; WD-K6/WD-K7 nowy zakres W-FE/W-K)
+- Rundy korekt: 7 (K1: sprzeczności; K2: P1×4/P2×5/P3 + reguła tła; K3: wtórne P2×4/P3×2; K4: kontrakt hero v2; K5: po W-4c; K6: nakładka/kod/pas; K7: kod u sprzedawcy)
+- Czas do akceptacji: brak danych (przebiegi 199–500 s; recenzje 640–840 s)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-WD: obalone 2×P0 (`footerFields`, edycja przed bramą); potwierdzone P1×4 (znak Z, `BrandDivider`, AT:173, lista DEC); przyjęte P2×5/P3. Ponowna: P1/P2/P3 naprawione; nowe wtórne P2×4/P3×2 przyjęte. W-4c: obalone („plakat nie istnieje” — wiedza modelu nieaktualna); P1 (pasek najwyższego — błąd dokumentu) + P2×2 → WD-K5; P3 bez zmian. W-K-4c: P1 (okno skanera bez wejścia — rozbieżność sprzed #1548) + 3 uzupełnienia.
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: linki 301/0, 64/0 i 143/0 błędów; statusy nietknięte; dziennik bez `otwarty`/`w toku`
+
+### 1548-WG + WG2 (Google hero v2: malarz, spec, `contentDescription`) — 2026-11-11
+- Archetyp: Backend / render obrazów i API (hero 1032×812, trasa v2, bramka współbieżności)
+- Stawka: średnia (nowy spec v2; v1 działa dalej)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`) (WG 19 min: przekazanie po progu kontekstu, kod bez testów; WG2 23 min: testy + zrzuty)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Access read` (R-WG 216 s: 1×P2 potwierdzony)
+- Dopuszczone alternatywy: Codex Terra `max` (≤ 5 plików, po sondzie Figmy)
+- Powód wyboru: bramka Figmy; po WA (wspólny renderer, jeden `dotnet test`)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): znany — jak 1548-WP (plan 2026-11-11 ~14:50)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty (korekta zbiorcza WK — osobny wpis)
+- Rundy korekt: 0 w tym wpisie (poprawki w WK + WK2); kontynuacja WG2 w trakcie wykonania
+- Czas do akceptacji: brak danych (WG 19 min, WG2 23 min)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-WG: potwierdzone P2 (cache przed walidacją w `GetHeroV2`); ryzyko „zmiana kategorii bez znacznika” obalone przez autora
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: Wallet+Architecture 1411 → 1905/0; render 214–478 ms; zrzut 12 PNG; podgląd zgodny z aplikacją v2; pełny BE po W3: 12717 + 1 niestabilny
+
+### 1548-WK + WK2 (korekta zbiorcza WA+WG: cache, malarz, testy, `GetLogo`) — 2026-11-11
+- Archetyp: Backend / korekta zbiorcza po recenzji WG i odbiorze W3
+- Stawka: niska (poprawki po recenzji; wzorzec repo)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`) (WK 18 min, 7/7 pkt); Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access write` (WK2 419 s: `GetLogo` za walidacją)
+- Recenzent (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access read` (R-WK 581 s: 7/7 naprawione, 0,85); architekt (Opus; odbiór WK2 na diffie ~60 linii)
+- Dopuszczone alternatywy: recenzja WK2: Gemini B / Terra `max` (wybrano architekta — mały diff)
+- Powód wyboru: WK tą samą linią co WA/WG (wspólny malarz); WK2 Spark `max` (bez Figmy/niezmiennika, ≤ 5 plików, reguła 3); osobny wpis: korekta zbiorcza bez jednego briefu-rodzica
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: WK zaakceptowany z uwagą P3 (`GetLogo` sprzed etapu W) → WK2
+- Rundy korekt: 1 (WK2: cache za walidacją w handlerze + 6 testów)
+- Czas do akceptacji: ok. 1 h (WK ~18:05 → odbiór pełny ~18:55)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-WK: 7/7 naprawione, brak nowych defektów; P3 `GetLogo` (cache przed walidacją, sprzed W) → WK2
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: Wallet+Architecture+StartupSettings 2002/0; pełny po WK2: 12729/1 (1 niestabilny Auth, osobno 3/3); podgląd na bramę; brama właściciela „ok”
+
+### 1548-WF3 (makieta Figma: nakładka przygotowania przepustki) — 2026-11-11
+- Archetyp: Frontend UI / Figma (nakładka: pieczątki + poziomy, 360/1280, jasny/ciemny, klatki ruchu)
+- Stawka: niska (makieta; decyzja właściciela)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`)
+- Recenzent (linia / model / native effort): architekt (kontrast, tokeny) + akceptacja właściciela (bez zmian)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: bramka Figmy
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: zaakceptowano bez zmian
+- Rundy korekt: 0
+- Czas do akceptacji: brak danych
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak (odbiór bez uwag)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: akceptacja właściciela (krok 28)
+
+### 1548-WFE (FE: nakładka przygotowania przepustki, blokada znaku) — 2026-11-11
+- Archetyp: Frontend UI (nakładka, animacja, `aria-busy`, `prefers-reduced-motion`)
+- Stawka: niska (UI bez zmian logiki; koniec stanu: błąd/`pagehide`/`pageshow`/limit)
+- Niepewność: średnia (cztery końce stanu nakładki)
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Access read` (R-WFE 329 s)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: bramka Figmy (WF3 jako wzór)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: brak danych (werdykt R-WFE niepodany; brak briefu korekty)
+- Rundy korekt: 0 (brak briefu korekty)
+- Czas do akceptacji: brak danych
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak danych
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: FE pełny zielony ×2 (walidacja W-K); WV/WV2 (zrzuty nakładki)
+
+### 1548-WF4 (makieta Figma: arkusz sprzedawcy z przełącznikiem Telefon/Kod) — 2026-11-11
+- Archetyp: Frontend UI / Figma (arkusz „Wpisz numer lub kod”)
+- Stawka: niska (makieta; decyzja właściciela)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`)
+- Recenzent (linia / model / native effort): akceptacja właściciela (krok 30; dziennik nie cytuje werdyktu)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: bramka Figmy
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: przyjęta (WS zaimplementowany wg niej; brak korekty)
+- Rundy korekt: 0
+- Czas do akceptacji: brak danych
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak danych
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: brak danych
+
+### 1548-WK3 (BE: kod pod QR, pas poziomów, parser kodów) — 2026-11-11
+- Archetyp: Backend / treść i parser (altText/alternateText, pas, normalizacja kodu)
+- Stawka: średnia (parser poszerza formy; bez niezmiennika — bez bramki Sol `max`)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access write` (1099 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Access read` (R-WK3 125 s)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: brak danych (plan nie podaje)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: brak danych (werdykt R-WK3 niepodany; brak briefu korekty)
+- Rundy korekt: 0
+- Czas do akceptacji: brak danych (przebieg 1099 s)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak danych
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: BE 12781/3 (3 znane niestabilne czasowe, osobno 77/77)
+
+### 1548-WS (FE sprzedawca: pole kodu, tryb kodu w arkuszu) — 2026-11-11
+- Archetyp: Frontend UI (pole „Numer telefonu lub kod karty”, tryb arkusza)
+- Stawka: niska (formatowanie wejścia; walidacja po stronie serwera)
+- Niepewność: średnia (IME, granice bloków, `Delete`)
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Access read` (R-WS 220 s)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: bramka Figmy (WF4 jako wzór); po WFE (wspólne `pl.json`/`en.json`)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: wymagane korekty (P2×2 + P3 po R-WS)
+- Rundy korekt: 1 (korekta bez osobnego briefu w dzienniku)
+- Czas do akceptacji: brak danych
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone P2 (`Delete` na granicy bloków), P2 (IME) i P3 (ikona `inline-message`) — poprawione
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: FE pełny zielony ×2; WV2 (arkusz: format, błąd, pełny kod → karta)
+
+### 1548-WV + WV2 (weryfikacja Playwright: nakładka i arkusz sprzedawcy) — 2026-11-11
+- Archetyp: Weryfikacja w przeglądarce (Playwright CLI, zrzuty)
+- Stawka: niska (dowód wizualny)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access write` (WV 343 s, WV2 484 s)
+- Recenzent (linia / model / native effort): architekt (odbiór zrzutów)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: archetyp operacyjny Sparka (weryfikacja w przeglądarce)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: WV bez werdyktu w dzienniku; WV2 zaakceptowany (walidacja wizualna W-K zamknięta)
+- Rundy korekt: 0 (WV2 to drugi przebieg weryfikacji, nie korekta)
+- Czas do akceptacji: brak danych (przebiegi 343 + 484 s)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy (weryfikacja)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: WV2: nakładka jasna 360/1280 OK; arkusz (format, błąd, pełny kod → karta); panel komputera → karta
+
+### 1548-R-P (research układu `posterGeneric` na iOS 27) — 2026-11-11
+- Archetyp: Research (układ plakatu, pomiary z iOS 27)
+- Stawka: średnia (decyzja układu W-P)
+- Niepewność: wysoka (brak kontraktu geometrii)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Access write` (454 s)
+- Recenzent (linia / model / native effort): architekt (decyzje W-P wg §4; brak formalnej recenzji w dzienniku)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: research po usterkach plakatu na iOS 27 (QR na grafice, ucięcia, stopka)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: zaakceptowano (decyzja układu: nagłówek `PrimaryField`, grafika w pasie, stopka PROGRAM)
+- Rundy korekt: 0
+- Czas do akceptacji: brak danych (przebieg 454 s)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy (research)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: raport §4 (źródło decyzji W-P i WD-P)
+
+### 1548-WA-P + WA-P-K1 (plakat iOS 27 bez `logoText`: malarz, pola, symulacja) — 2026-11-11
+- Archetyp: Backend / render obrazów (plakat: grafika w pasie, stopka, symulacja nakładek iOS)
+- Stawka: średnia (linie tokenu/kodu/`voided` bez zmian — bez bramki Sol `max`)
+- Niepewność: wysoka (geometria bez kontraktu; weryfikacja na urządzeniu)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access write` (WA-P 1800 s, 13 plików) i `high` (WA-P-K1 445 s — korekta z gotową treścią)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Access read` (R-WA-P 459 s: 2×P2 potwierdzone)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: brief bez Figmy i niezmiennika poza pulą Claude'a (reguła 3)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: wymagane korekty (duplikat klucza nagłówka — poprawka architekta reguła 11; WA-P-K1 po R-WA-P)
+- Rundy korekt: 1 (WA-P-K1: pasek najwyższego + białe znaki w znaku; test unikalności klucza 39/39 po poprawce architekta)
+- Czas do akceptacji: brak danych (przebiegi 1800 + 445 s, recenzja 459 s)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone P2 (pasek na najwyższym poziomie plakatu — brief niespójny) i P2 (białe znaki w nazwie znaku); autor zgłosił duplikat klucza (poprawka architekta: prefiks + test unikalności)
+- Defekty po odbiorze: brak znanych (test plakatu na iOS 27 po bramie — poza wpisem)
+- Wymagane testy i dowody: Wallet 1564/1564; rendery obejrzane (pieczątki 10/20, poziomy, znak z długą nazwą) OK
+
+### 1548-WD-P (rewizja INT-APPLE-WALLET (3): plakat bez `logoText`) — 2026-11-11
+- Archetyp: Dokumentacja / rewizja normatywna
+- Stawka: średnia (dokument normatywny przed bramą)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access write` (331 s)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R-WD-P 880 s)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: dokumentacja W-P równolegle z WA-P (fala P1)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: wymagane korekty (poprawki architekta, bez briefu K)
+- Rundy korekt: 0 u autora (poprawki architekta reguła 11)
+- Czas do akceptacji: brak danych (przebieg 331 s + recenzja 880 s)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): obalone P1 (WWDC26 jako źródło — źródło z R-P §4); potwierdzone co do faktu P1 (ostatniej wizyty brak na odwrocie Apple — błędna przesłanka briefu; poprawione przez architekta); P2 (odesłanie) — nie defekt; P3 (skrócone odesłania) — poprawione
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: brak danych
+
+### 1548-WF5 (Figma: plakaty ×8, nagłówek karty sklepowej, ramka stref) — 2026-11-11
+- Archetyp: Frontend UI / Figma (plakaty, nagłówki ze znakiem, strefy)
+- Stawka: niska (makieta; decyzja właściciela)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`) (rendery WA-P jako warstwa grafiki)
+- Recenzent (linia / model / native effort): architekt (odbiór zrzutami)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: aktualizacja ramek plakatu i nagłówka po WA-P
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: zaakceptowano (zrzuty OK; krój materiału Roboto Mono)
+- Rundy korekt: 0
+- Czas do akceptacji: brak danych
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak (odbiór bez uwag; rozbieżność NAGRODA sprzed W-P — do bramy)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: zrzuty ramek
+
+### 1548-WF6 (FE+Figma: karta wsuwa się do portfela) — 2026-11-11
+- Archetyp: Frontend UI / Figma + implementacja (animacja nakładki: klapka→karta→korpus)
+- Stawka: niska (animacja; bez zmian logiki)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R-WF6 475 s: poprawny 0,98)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: brak danych
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: zaakceptowano (P3 poprawił architekt)
+- Rundy korekt: 0 u autora (P3: komentarz — poprawka architekta)
+- Czas do akceptacji: brak danych
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P3 (komentarz) — poprawione przez architekta; werdykt poprawny 0,98
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: FE pełna walidacja zielona (8148 testów); brama W-K+W-P „ok”
+
+### 1548-WF7 (FE+dok+Figma: mocniejsza zasłona, token maski ×2) — 2026-11-11
+- Archetyp: Frontend UI / Figma + implementacja (zasłona)
+- Stawka: niska (UI; bez zmian logiki)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): brak danych (dziennik nie podaje)
+- Recenzent (linia / model / native effort): brak danych
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: brak danych
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: wykonano (FE + dok + 8 zasłon w Figmie; deploy FE w toku)
+- Rundy korekt: 0 (brak briefu korekty)
+- Czas do akceptacji: brak danych
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak danych
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: brak danych
+
+### 1548-WF8 (makieta Figma logo W-L — STOP) — 2026-11-11
+- Archetyp: Frontend UI / Figma (makieta logo — nieudana kolejność)
+- Stawka: niska (makieta; decyzja właściciela)
+- Niepewność: średnia (raster plakatu w Figmie)
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`)
+- Recenzent (linia / model / native effort): nie dotyczy (STOP przed odbiorem)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: bramka Figmy; makieta przed kodem (kolejność odwrócona po STOP-ie)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: STOP słuszny (plakat w Figmie to raster; logo ≥ 24 px; pigułka Figma≠kod)
+- Rundy korekt: 0 (kolejność odwrócona: WA-L/WD-L → rendery → WF8b)
+- Czas do akceptacji: brak danych
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy
+- Defekty po odbiorze: nie dotyczy
+- Wymagane testy i dowody: decyzja o odwróceniu kolejności (dziennik 23:55)
+
+### 1548-WA-L + K1 + K2 + K3 + K4 (logo Zebrani.pl na przepustkach: plakat, pas, hero, odwrót) — 2026-11-11…12
+- Archetyp: Backend / render obrazów i pola (logo jednobarwne, PNG osadzony, barwienie w czasie działania)
+- Stawka: średnia (render i pola odwrotu; bez SVG w czasie działania)
+- Niepewność: średnia (położenie logo w bezpiecznym pasie; fonty po skalowaniu ~10–12 pt)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access write` (WA-L 2864 s, 20 plików; K1 1058 s; K2 1600 s; K3 453 s; K4 988 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Access read` (R-WA-L 275 s; R-WA-L-K1–K3 281 s: 1×P2 → K4); architekt (przegląd renderów → K1)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: brak danych (plan nie podaje)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: wymagane korekty (K1 po przeglądzie architekta; K2; K3 po teście właściciela; K4 po recenzji)
+- Rundy korekt: 4 (K1: prezent w pasie nagrody; K2: pigułka plakatu i wyrocznia odstępu — wyzwalacz niepodany; K3: kod do szczegółów Apple; K4: wyrocznia odstępu + levels-top)
+- Czas do akceptacji: brak danych (przebiegi 2864 + 1058 + 1600 + 453 + 988 s; 11-11 → 12-11 ~02:10)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-WA-L: brak danych (treść niepodana); R-WA-L-K1–K3: potwierdzone P2 (statyczna wyrocznia odstępu porównuje stałe) → K4; architekt: prezent nachodzi na pieczątki → K1; właściciel (iOS 27): altText rozpycha tabliczkę QR → K3
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: Wallet 1617/0 → 1630/0; rendery zaakceptowane przez właściciela; brama W-L „ok”; BE pełny 12874/3 (3 czasowe, osobno 91/91)
+
+### 1548-WD-L + K1 (rewizje logo: INT-APPLE (4), INT-GOOGLE (3), kod karty) — 2026-11-11…12
+- Archetyp: Dokumentacja / rewizje normatywne
+- Stawka: średnia (dokumenty normatywne przed bramą)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-MuseHost windows`, `-Access write` (WD-L 505 s; WD-L-K1 303 s, 4 dokumenty)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R-WD-L 517 s: niepoprawny → triaż); architekt (poprawki reguła 11; skrócona podpowiedź sprzedawcy)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: brak danych (plan nie podaje)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: wymagane korekty (poprawki architekta po R-WD-L; WD-L-K1 po decyzji właściciela)
+- Rundy korekt: 1 (WD-L-K1: kod karty w szczegółach Apple; podpowiedź sprzedawcy do zatwierdzenia na bramie)
+- Czas do akceptacji: brak danych (przebiegi 505 + 303 s, recenzja 517 s)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): obalone P0 (geometria: 20 jedn. ≈ 24,8 pt) i P1 (link Google — decyzja architekta); potwierdzone P1 (brzmienie statusu) i P1 (doprecyzowanie pt/px); potwierdzone P2 (metal bez znaku) — poprawki architekta
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: brama W-L „ok” (rewizje + podpowiedź sprzedawcy); 12 podmian znaczników
+
+### 1548-WF8b + WF8c (Figma: rendery W-L w ramkach, DO NAGRODY, wiersze Google) — 2026-11-12
+- Archetyp: Frontend UI / Figma (24 ramki z renderami, notatka sekcji, strefy)
+- Stawka: niska (makieta; decyzja właściciela)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / Sonnet 5.5 / `high` (`wykonawca`) (WF8b; WF8c po K4)
+- Recenzent (linia / model / native effort): architekt (uwagi do WF8b → WF8c; odbiór WF8c)
+- Dopuszczone alternatywy: brak danych
+- Powód wyboru: rendery jako warstwa grafiki (po akceptacji kodu); WF8c po K4
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): brak danych
+- Pewność decyzji: brak danych
+- Wynik pierwszego podejścia: WF8b z uwagami architekta → WF8c (0 dalszych rund); autor zgłosił 3 znaleziska spoza zakresu (bez zmian)
+- Rundy korekt: 1 (WF8c: wiersze Google wg kodu, levels-top, tabliczka QR nad materiałem)
+- Czas do akceptacji: brak danych
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): uwagi architekta do WF8b (3 pkt → WF8c); znaleziska autora spoza zakresu bez zmian (napis nad QR, kontrast w ciemnych, data względna)
+- Defekty po odbiorze: brak znanych (tabliczka QR: symulacja ucina o 13 pt — do sprawdzenia na iOS 27)
+- Wymagane testy i dowody: ramki 892→1106 px; sekcja 3290→3504
+
+### 1548-QAS (Q1 + R-Q1 + Q1-K1; foldery 235–238 i 182, seq 2441–2476, aktualizacje 851/852/853/1262, [Removed] 1727) — 2026-11-12
+- Archetyp: QA Sphere (Krok 2b na 69 istniejących przypadkach + nowe przypadki portfela i kodu karty)
+- Stawka: średnia (przepustki portfela, unieważnienie, kod karty u sprzedawcy; bez publikacji poza QA Sphere)
+- Niepewność: średnia (dane testowe: brak sprzedawcy w seedach klienta demo, programy poziomów tylko aktywne)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows (Q1, Q1-K1)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read`
+- Dopuszczone alternatywy: autor — Gemini A `high` write; recenzent — Codex Terra `max`
+- Powód wyboru: para z tabeli skilla QA Sphere i reguły 8; recenzja innej rodziny
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]` 2026-11-12 ~02:10, tydzień 18 %); Gemini B znany (`[pule]`, ok)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty — lint 0 błędów; 35 nowych, 5 aktualizacji, 64 keep; dane własne przez skrypty SQL (sprzedawcy i karty), bo brief architekta wskazał źle źródło numeru i PIN-u sprzedawcy (seq 851/1262 ich nie niosą)
+- Rundy korekt: 1 (Q1-K1: 1727 `update` → `retire` + nowy E1; A6 zawężony do odnośnika, bo dublował 1152; A7 bez zbędnego warunku; nowy B14 — poziomy wstrzymane i zakończone; dokładny tekst wyszukiwania w D1)
+- Czas do akceptacji: ok. 1 h 15 min (Q1 start 00:27Z → verify ~01:40Z); R-Q1 842 s; Q1-K1 651 s
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone — P1 1727 zmiana tezy w `update`, P2 A6 duplikat 1152, P2 luka poziomów wstrzymanych/zakończonych (ścieżka UI wskazana przez recenzenta nie istnieje — tylko SQL), P3 A7 (zgłoszone jako P1, obniżone), P3 D1 tekst; odrzucone — P1 „restart kontenera w C1–C4” (restart jest tylko w C7, z alternatywą odczekania; SQL przez osobę z dostępem do bazy to przyjęta praktyka), P2 „brak odbioru nagrody” (pokrywa C3). Autor obalił założenie briefu korekty: wyciszona paleta poziomu tylko przy zakończeniu, nie przy wstrzymaniu (potwierdzone w kodzie)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `qas.py` folders → push 1 (seq 2441) → verify 0 różnic → push 35 (do seq 2476) → update 4 → retire 1 → pełne verify 41: 10 różnic, wszystkie artefakty odczytu (`\[TEST ONLY]` ×7, kolejność `requirements` ×3), potwierdzone skryptem z `norm_text` i porównaniem zbiorów
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
