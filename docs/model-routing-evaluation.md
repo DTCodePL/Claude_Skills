@@ -13228,6 +13228,193 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: brak znanych
 - Wymagane testy i dowody: pełny `fala-odbior --pelny` — 8543/8543, kod 0, bez `NG0205`. Wniosek operacyjny: zmianę globalnego providera testów waliduje pełny `npm test`, nie spec, który ją wywołał
 
+### 1929-W1-BE (kontrakt sesji BE: odmowa konta zablokowanego, sesja ograniczona, middleware) — 2026-11-13
+- Archetyp: Backend API / logika bezpieczeństwa (pliki niezmiennika: logowanie, odnowienie, wydawcy sesji, middleware)
+- Stawka: wysoka / high-stakes (uwierzytelnianie i sesja)
+- Niepewność: średnia (nowy claim i middleware na wszystkich ścieżkach wydania sesji)
+- Wykonawca (linia / model / native effort): `wykonawca-opus` / Opus 5.5 / `xhigh`
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review`
+- Dopuszczone alternatywy: wykonawca — przy CZERWONYM `[konieczny]` (decyzja właściciela); Wonder Full `max` dopiero po 100 % tygodnia. Recenzent — Wonder Full `max` (odpadł: limit Wondera 10/10 w tygodniu)
+- Powód wyboru: pliki niezmiennika (reguła 3); recenzja plików niezmiennika poza Claude'em, a Wonder był wyczerpany → Sol `high`
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (ŻÓŁTY 93 %, hook, 13.11 ~15:00); Muse Wonder zablokowany limitem wrappera (10/10); Codex znany (`[pule]`)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano — build `-warnaserror` 0/0, 13226 testów zielonych
+- Rundy korekt: 0 w fali (późniejsze K2/K4/K5 po bramce — wpis 1929-BRAMKA)
+- Czas do akceptacji: tego samego dnia (fala 1)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Sol `high` — 0 znalezisk
+- Defekty po odbiorze: 3 — bramka Sol `max` znalazła 2×P2 (przeplot odnowienia i odbioru zakupu ze zmianą hasła), przegląd bezpieczeństwa po pushu 1×MEDIUM (odbiór zakupu bez sprawdzenia blokady konta); wszystkie poza zakresem kontraktu briefu architekta, czyli luki specyfikacji, nie wykonania
+- Wymagane testy i dowody: `fala-odbior` BE; `curl` lokalnie: 403 `ACCOUNT_BLOCKED` bez ciasteczka, 200 z claimem, 403 `PASSWORD_CHANGE_REQUIRED`, 200 profilu, złe hasło zablokowanego = nieistniejące bajt w bajt
+
+### 1929-W1-FIG (stan „konto zablokowane” w LoginCard i strona /zmiana-hasla w Figmie) — 2026-11-13
+- Archetyp: Frontend UI / Figma (makieta)
+- Stawka: średnia (ekran funkcji high-stakes bez niezmiennika)
+- Niepewność: średnia (12. stan zestawu w czterech przebiegach)
+- Wykonawca (linia / model / native effort): `wykonawca` / Sonnet 5.5 / `high`
+- Recenzent (linia / model / native effort): architekt — `get_screenshot` ramek; innej rodziny z dostępem do Figmy brak (zapisane w raporcie bramy)
+- Dopuszczone alternatywy: Codex po potwierdzeniu Figma MCP w sesji
+- Powód wyboru: jedyna linia z potwierdzonym Figma MCP (bramka Figma)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (ŻÓŁTY, hook, 13.11)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano po kontroli zrzutów; korekt nie odnotowano
+- Rundy korekt: 0
+- Czas do akceptacji: tego samego dnia (fala 1)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 w kontroli zrzutów; w `browser-check` po fali 2 rozbieżność kod–makieta (pola nieprzygaszone, „Wyloguj się” jako przycisk) — do raportu bramy
+- Defekty po odbiorze: brak znanych w Figmie
+- Wymagane testy i dowody: zrzuty każdej ramki (desktop/360 × jasny/ciemny)
+
+### 1929-DOC (W1-DOC + R-W1-DOC; W3-DOC + K1 + R-W3-DOC; 4c + dopiski G1–G4 + R-DOC-K2) — 2026-11-13
+- Archetyp: Dokumentacja produktowa (rewizje zatwierdzonych dokumentów, nowy dokument UI)
+- Stawka: średnia
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max` (W1-DOC, W3-DOC, W3-DOC-K1); dopiski G1–G4 — architekt (reguła 11)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R-W1-DOC, R-W3-DOC, 4c, R-DOC-K2)
+- Dopuszczone alternatywy: wykonawca — Gemini A `high`; recenzent — Codex Terra `max`, Sol `high`
+- Powód wyboru: archetyp Sparka `max`; recenzja innej rodziny, niska/średnia stawka → Gemini B (reguła 13)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany (`server_sent_no_usage`, 13.11 ~15:00), później znany; Gemini B znany (`[pule]`)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: W1-DOC — wymagane korekty; W3-DOC — wymagane korekty (3 nieaktualne zdania poprawił architekt)
+- Rundy korekt: W1-DOC 1; W3-DOC 1 (K1) + 2 odwołania poprawione przez architekta
+- Czas do akceptacji: tego samego dnia
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-W1-DOC — potwierdzone P1 + 2×P2, odrzucone 1×P2; R-W3-DOC — potwierdzone P1 + 3×P2 + P3; **4c — fałszywie pozytywny wynik „zgodna 1,00” z cytatem nieistniejącej sekcji** → architekt sam znalazł 4 braki (G1–G4); R-DOC-K2 w ścisłym formacie (zdanie × kod z cytatem) — 4 dopiski × 8 zdań prawdziwe
+- Defekty po odbiorze: 1 — dopisek o odbiorze zakupu dla konta zablokowanego dodany po przeglądzie bezpieczeństwa (K5)
+- Wymagane testy i dowody: diff dokumentacji, dziennik `1929-dokumentacja.md` bez otwartych wpisów. Wniosek operacyjny: macierz zgodności Gemini B bez wymogu dosłownego cytatu kodu nie jest dowodem — wymagaj formatu „zdanie × `plik:linia` z cytatem”
+
+### 1929-W2-FEI + K1 (sesja FE: strażniki, interceptor, trasa, sesja ograniczona) — 2026-11-13
+- Archetyp: Frontend — pliki niezmiennika (sesja, strażniki, interceptor)
+- Stawka: wysoka / high-stakes
+- Niepewność: wysoka (wyścigi nawigacji i spóźnione 403)
+- Wykonawca (linia / model / native effort): `wykonawca-opus` / Opus 5.5 / `xhigh` (K1 z `[konieczny]` przy CZERWONYM)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (R-W2-FEI, R-W2-FEI-K1)
+- Dopuszczone alternatywy: recenzent — Wonder Full `max` (odpadł: limit 10/10)
+- Powód wyboru: pliki niezmiennika (reguła 3); Wonder wyczerpany
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude zablokowany (CZERWONY, hook) → `[konieczny: decyzja właściciela — zużyć resztę tygodnia]`; Codex znany
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: wymagane korekty
+- Rundy korekt: 1 (K1) + 2 poprawki architekta (reguła 11: `canActivateChild` na `panel`, `NavigationSkipped`/`NavigationEnd` w powłoce, `dismissConfirmations`)
+- Czas do akceptacji: tego samego dnia
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-W2-FEI — potwierdzone P1 (render panelu przy sesji ograniczonej), P1 `canDeactivate` (→ W2-SHR-K1), 2×P2; R-W2-FEI-K1 — potwierdzone 2×P2 (powłoka po pominiętej nawigacji, otwarte okno potwierdzenia)
+- Defekty po odbiorze: bramka Sol `max` FE — P2 (odpowiedź dla innego konta zostawiała `completed`) i P3 (podwójna nawigacja po „Wyloguj się”) w komponencie strony, nie w plikach briefu
+- Wymagane testy i dowody: `fala-odbior` FE; `browser-check` logowanie-zablokowane 4/4, zmiana-hasla + panel-zawraca 8/8
+
+### 1929-W2-SHR + K1 (wspólne polecenia hasła do `shared/`, zasoby ustawień przy sesji ograniczonej) — 2026-11-13
+- Archetyp: Refactoring FE (przeniesienie serwisu i DTO, strażnik zasobów)
+- Stawka: średnia
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read`
+- Dopuszczone alternatywy: wykonawca — Codex Sol `high` (≤ 5 plików); recenzent — Sol `high`
+- Powód wyboru: brief bez Figmy i bez niezmiennika → najpierw poza pulą Claude'a (reguła 3)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany; Gemini B znany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano; K1 z ustaleń R-W2-FEI (nie z własnej recenzji)
+- Rundy korekt: 1 (K1 — raport Muse pusty, diff zgodny: 4 warunki + strażnik + 5 testów)
+- Czas do akceptacji: tego samego dnia
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-W2-SHR — odrzucone P1 (`readLockoutDeadline`) i P2 (testy delegacji istnieją), P3 pominięte; R-W2-SHR-K1 — 0
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `fala-odbior` FE 2a zielony
+
+### 1929-W2-FES (ekran logowania w stanie blokady i strona /zmiana-hasla z Figmy) — 2026-11-13
+- Archetyp: Frontend UI / Figma (ekran funkcji high-stakes bez niezmiennika)
+- Stawka: średnia
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): `wykonawca` / Sonnet 5.5 / `high`, `[konieczny]` przy CZERWONYM
+- Recenzent (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access read`
+- Dopuszczone alternatywy: wykonawca — brak (Figma); recenzent — Gemini B `high`
+- Powód wyboru: ekran z Figmy wymaga Figma MCP (reguła 3)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude zablokowany (CZERWONY) → `[konieczny]`; Muse znany
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: wymagane korekty
+- Rundy korekt: 0 u autora; 3×P2 + P3 poprawił architekt (reguła 11: Turnstile w stanie blokady, fokus po zamknięciu, strażnik konta po synchronizacji, role)
+- Czas do akceptacji: tego samego dnia
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 3×P2 + P3; P3 (wylogowanie po limicie odnowień) → ryzyko w raporcie bramy
+- Defekty po odbiorze: bramka FE — P2/P3 w `forced-password-change.ts` (wpis 1929-BRAMKA)
+- Wymagane testy i dowody: 375 testów `public/auth`; `browser-check` w macierzy 2×2
+
+### 1929-W2-BET + K1 (testy BE kontraktu sesji) — 2026-11-13
+- Archetyp: Testy (xunit, SQLEXPRESS)
+- Stawka: średnia
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max` (jedyny wykonawca BE w fali — własne `dotnet test --filter`)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read`
+- Dopuszczone alternatywy: wykonawca — Codex Sol `high` (≤ 5 plików); recenzent — Sol `high`
+- Powód wyboru: testy bez niezmiennika poza pulą Claude'a
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany; Gemini B znany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty (42 testy, 0 pominiętych)
+- Rundy korekt: 1 (K1: 1063 testy zielone)
+- Czas do akceptacji: tego samego dnia
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-W2-BET — potwierdzone 3×P1 + 3×P2 + P3; R-W2-BET-K1 — 7/7 zamknięte, „poprawny 1,0”
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: pełny BE w `fala-odbior`
+
+### 1929-W3-FET A/B/C + K3 (spece Vitest i AXE dla sesji, powłoki i ekranów) — 2026-11-13
+- Archetyp: Testy FE (Vitest, AXE, host testowy)
+- Stawka: średnia
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max` (trzy briefy równolegle, rozłączne pliki)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read`
+- Dopuszczone alternatywy: `tester` Haiku 5.5 `xhigh`; recenzent — Sol `high`
+- Powód wyboru: testy bez niezmiennika poza pulą Claude'a (CZERWONY)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany; Gemini B znany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano (A 57 testów, B 19, C 54)
+- Rundy korekt: 0 z recenzji (2 poprawki testowe architekta); K3 — testy poprawek bramki FE (32/32, czerwone bez poprawek)
+- Czas do akceptacji: tego samego dnia
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): odrzucone P0 (harness psuje build — build kod 0, ≥ 10 harnessów w HEAD) i P2 (`import type`); potwierdzone P1 jako P2 testowe (kolejność `logOut`) i P2 (`styleUrl` hostów)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `fala-odbior` fe-f3 — 8678 testów zielonych, build OK, 0 plików spoza briefów
+
+### 1929-A-SCSS (audyt SCSS nowej strony i logowania) — 2026-11-13
+- Archetyp: Audyt SCSS
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access read`
+- Recenzent (linia / model / native effort): — (audyt)
+- Dopuszczone alternatywy: Gemini B `high`
+- Powód wyboru: archetyp audytu SCSS (reguła 8)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano — zgodny 0,95, 0 znalezisk, 5/5 plików
+- Rundy korekt: 0
+- Czas do akceptacji: < 1 h
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: raport bez pominiętego pliku; stylelint w odbiorze fali
+
+### 1929-BRAMKA FE + BE (Sol `max`) + K2/K3/K4/K5 — 2026-11-13
+- Archetyp: Bramka końcowa high-stakes + korekty plików niezmiennika
+- Stawka: wysoka / high-stakes
+- Niepewność: wysoka (wyścigi blokady konta ze zmianą hasła)
+- Wykonawca (linia / model / native effort): poprawki — architekt Opus 5.5 `xhigh` (reguła 11: `completed`/`isHeadingToLogin` FE; `ReloadAccountUnderLockAsync`; blokada współdzielona w odbiorze zakupu; odmowa konta nieaktywnego w `PurchaseSessionIssuer`); testy poprawek — Muse Spark 1.3 `max` (W3-FET-K3, W-BE-K2, W-BE-K4, K5)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review` (FE, FE-K3, BE, BE-K2, BE-K4, BE-K5 ×2)
+- Dopuszczone alternatywy: bramka — brak (reguła 6); poprawki — `wykonawca-opus` `[konieczny]` (droższy od kilku linii)
+- Powód wyboru: reguła 6; poprawki po kilka linii tańsze od briefu (reguła 11) przy tygodniu Claude'a 97–100 %
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude zablokowany (CZERWONY, tydzień 97–100 %); Codex znany (tydzień 82 → 96 %, okno 5 h 96 % przed K5 → czekanie na reset 18:55, bez darmowego resetu)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: FE czerwona (P2 + P3); BE czerwona (P2 przeplot odnowienia)
+- Rundy korekt: FE 1 (K3 zielona); BE 3 (K2: odnowienie zamknięte, nowy P2 w odbiorze zakupu → K4 zielona 0,96; K5 po przeglądzie bezpieczeństwa → zielona 0,96 w drugim przebiegu)
+- Czas do akceptacji: tego samego dnia; K5 ok. 2 h od zgłoszenia do deployu
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone FE P2 + P3, BE 2×P2; K5 — 0. Pierwszy przebieg K5 zatrzymał się słusznie (STOP) na nieistniejącej ścieżce FE w briefie architekta
+- Defekty po odbiorze: **1 — automatyczny przegląd bezpieczeństwa commitu BE (po zielonej bramce K4) zgłosił odbiór zakupu bez sprawdzenia blokady konta (MEDIUM, potwierdzony)**; bramka czytała ten plik w K4 pod kątem przeplotu, nie parytetu sprawdzeń ścieżek wydania sesji. Wniosek: brief bramki high-stakes ma żądać zestawienia „każda ścieżka wydania sesji × każde sprawdzenie stanu konta”
+- Wymagane testy i dowody: FE końcowo 8680 testów + build; BE `--no-incremental` 13277/0/2, po K5 13281/0/2; mutacja K5 (usunięcie odmowy → 1/4 czerwony); deploy PRE FE i BE `success` (BE dwukrotnie)
+
+### 1929-QAS (generator + R + K1 + K2; folder 244, seq 2525–2556, aktualizacje 61/62) — 2026-11-13
+- Archetyp: QA Sphere (32 nowe + Krok 2b na 134 przypadkach folderów 36, 37, 108, 224)
+- Stawka: średnia (QA Sphere funkcji high-stakes)
+- Niepewność: średnia (oba stany konta tylko przez SQL; konta rejestrowane przez testera)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows (generator 1123 s, K1 598 s, K2 421 s)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (1008 s)
+- Dopuszczone alternatywy: autor — Gemini A `high`; recenzent — Codex Terra `max`
+- Powód wyboru: para z tabeli skilla QA Sphere
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany; Gemini B znany (`[pule]`, 18:51)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty — lint 0; 134 × `keep` (2 błędne); stałe adresy i numery w 31 z 32 przypadków (drugi przebieg niewykonalny)
+- Rundy korekt: 2 (K1 z recenzji: seq 61/62 → `update`, F13; K2 z wyrywkowej kontroli architekta: dane unikalne na przebieg, SQL ze znacznikiem `ADRES_KONTA_TESTOWEGO`)
+- Czas do akceptacji: ok. 3,5 h (generator ~18:15 → wysyłka ~22:28; w tym brama właściciela)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone P1 (seq 61 `keep` z nieaktualną regułą powrotu — kroki prawdziwe, warunek wstępny nie) + P2 (seq 62) + P3 (F13); odrzucone 2×P2 (seq 2358 — zachowanie bez zmian; `/zmiana-hasla?powrot=` — strona nie czyta parametrów). **Recenzja nie wykryła stałych danych rejestracji** — wykrył je architekt; ten sam błąd briefu („wzorzec z folderu 36/37”) i ścieżka i18n `public/i18n` w briefie (trafnie zgłoszone przez autora)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `qas.py` lint 0 → folders (244) → push 1 → `verify --only` → push 31 → update 2 → pełne `verify` 34: 63 różnice wyłącznie z escapowania `\_` w Markdown (HTML zgodny, sprawdzone na seq 2525). Wniosek: brief generatora ma wymagać danych unikalnych na przebieg wprost, a znaczniki z podkreślnikiem pisać w `kodzie`
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
