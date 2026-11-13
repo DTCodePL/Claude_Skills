@@ -13194,6 +13194,40 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: brak znanych
 - Wymagane testy i dowody: `qas.py` lint 0 → folders (240–243) → push 1 → `verify --only` → push 37 → update 4 → pełne `verify` 42: 0 różnic
 
+### 2701-F1-ZAL (aktualizacja zależności FE pod npm audit) — 2026-11-13
+- Archetyp: Konfiguracja / DevOps (menedżer pakietów: `ng update`, override, `npm audit fix`, SemVer)
+- Stawka: średnia (zależności produkcyjnego SSR i proxy `/api`; bez plików niezmiennika)
+- Niepewność: średnia (specyfikacja PBI sprzed 5 tygodni: 30 zamiast 13 wpisów, cel 22.2.1 niewystarczający)
+- Wykonawca (linia / model / native effort): architekt — sesja główna, Opus 5.5 `xhigh`, reguła 11
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (200 s)
+- Dopuszczone alternatywy: wykonawca — `wykonawca` Sonnet 5.5 `high`; recenzent — Codex Terra `max`, Gemini B `high`. Odpadły twardo: Muse i Gemini (zakaz `npm install`), Codex jako wykonawca (piaskownica bez sieci i cache npm)
+- Powód wyboru: ~10 poleceń menedżera pakietów i jedna linia `overrides`, a pełną walidację architekt i tak robi — brief i start subagenta byłyby droższe od pracy
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude ostrzegawczy (ŻÓŁTY, tempo +14 pp; hook, 2026-11-13 ~11:28); Codex znany (`[pule]`, ~11:21)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano po decyzjach właściciela (D1–D3 w planie; D6 `npm ls` invalid z upstreamu w trakcie); walidacja wykryła `NG0205` w testach → korekta 2701-K1
+- Rundy korekt: 0 w plikach briefu (korekta poza nimi: 2701-K1)
+- Czas do akceptacji: ok. 3 h (In Progress 10:39 → brama ~13:45 UTC; w tym przerwa sesji i dwie decyzje właściciela)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0; uwaga recenzenta o błędnej przesłance briefu (lockfile v3 nie powiela `overrides` w `packages[""]`) — trafna
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: audit 30 → 0; `npm ci`; wyrocznia lintu (te same 3171 pliki, identyczny `--print-config`); lint/format/8543 testy/build (te same 6 ostrzeżeń budżetu); SSR bez i z backendem; `browser-check` 16/16 z porównaniem pikseli (tylko etykieta wersji); PRE 1.23.1 + SHA
+
+### 2701-K1 (NG0205 w testach po Angularze 22.2 — router testowy) — 2026-11-13
+- Archetyp: Testy (infrastruktura testów FE)
+- Stawka: niska (wyłącznie test)
+- Niepewność: średnia (zachowanie `ROUTES` multi w TestBed z `providersFile`)
+- Wykonawca (linia / model / native effort): architekt — Opus 5.5 `xhigh`, reguła 11 (jedna linia, potem 8 linii)
+- Recenzent (linia / model / native effort): wariant globalny — Gemini konto B / `gemini-3.8-flash-high` / `-Access read`; wariant lokalny — Codex / `gpt-6.1-sol` / `high`, `-Mode review` (96 s)
+- Dopuszczone alternatywy: recenzent — Codex Terra `max`, Muse Spark 1.3 `max`
+- Powód wyboru: niska stawka → Gemini B (preferencja reguły 13); po fałszywie negatywnym wyniku Gemini na tym samym typie błędu → Sol `high`
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini B znany (`[pule]`, 14:14 lokalnie); Codex znany (`[pule]`, 5 h 4 %)
+- Pewność decyzji: niska
+- Wynik pierwszego podejścia: odrzucono — globalny catch-all w `test-providers.ts` (decyzja właściciela D7 na przesłance architekta „catch-all na końcu listy”) przesłaniał trasy speców (trasy globalne stoją w `ROUTES` przed trasami speca): 5 testów ekranu 500; przebieg w izolacji samego speca był zielony 3/3
+- Rundy korekt: 1 (wariant lokalny w `signal-card.spec.ts`, nowa decyzja właściciela)
+- Czas do akceptacji: ok. 1 h
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Gemini B `high` — werdykt „bez regresji” dla wariantu z 5 regresjami (**fałszywie negatywny**), 2×P3 bez zastosowania po zmianie wariantu; Sol `high` — 0 znalezisk, 1–3 OK
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: pełny `fala-odbior --pelny` — 8543/8543, kod 0, bez `NG0205`. Wniosek operacyjny: zmianę globalnego providera testów waliduje pełny `npm test`, nie spec, który ją wywołał
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
