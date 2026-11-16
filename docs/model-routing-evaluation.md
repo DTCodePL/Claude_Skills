@@ -13551,6 +13551,74 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: brak znanych
 - Wymagane testy i dowody: `qas.py` lint 0 → folders (245) → push 1 → `verify --only` → push 12 → update 10 → pełne `verify` 23: 7 różnic wyłącznie z escapowania `\_` (HTML zgodny, seq 2567). Wniosek: w briefie generatora dla zestawu wielu PBI `requirements` per przypadek wg ścieżki, którą przypadek faktycznie przechodzi
 
+### 1935-B1 + B1-K (BE: wdrożenie pre-produ bez wyłączenia flagi ciasteczka + komentarze opcji) — 2026-11-16
+- Archetyp: Konfiguracja / DevOps (plik niezmiennika: workflow wdrożenia) + komentarze XML w 5 plikach opcji i zapisu ciasteczek
+- Stawka: wysoka (uwierzytelnianie i sesja); błąd głośny (deploy albo `Set-Cookie` bez flagi, łapie weryfikacja PRE)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` (Opus 5.5) / `xhigh`; B1-K wznowieniem tego samego agenta (`SendMessage`)
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access read` (w tym samym przebiegu osobna sekcja: diff architekta B3 — instrukcje i komentarz FE)
+- Dopuszczone alternatywy: wykonawca — Wonder Full `max` tylko przy CZERWONYM (`wykonawca-sonnet-xhigh` pominięty: brief trywialny, niereprezentatywny dla C2); recenzent — Sol `high`
+- Powód wyboru: plik niezmiennika sesji → reguła 3; recenzja per brief pliku niezmiennika → Wonder Full (reguła 13)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, 08:30–09:00); Muse znany (17 % tygodnia; Wonder 1/10, 1/3 dziś — wrapper)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano funkcjonalnie (build 0/0, YAML, grep); wykonawca sam zgłosił 2 nieścisłości komentarzy i brak sekcji „Finishing” w BE `AGENTS.md`
+- Rundy korekt: 1 (B1-K: 6 plików, wyłącznie komentarze; 104 s)
+- Czas do akceptacji: ok. 35 min (B1 164 s, recenzja 689 s, B1-K 104 s)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 × P0/P1; potwierdzone 4 × P2 (komentarze: uzasadnienie „przeglądarka odrzuca” nieprawdziwe dla `localhost`, `appsettings.Development.json` niewersjonowany, „Secure poza Development” w nagłówkach writerów; FE: „Cloudflare i Cytrus kończą TLS”) i 2 × P3 (łańcuch bez kontenera FE; literał wyłączenia w komentarzu fałszywie trafia w grep AC) — wszystkie poprawione; odrzucone 0. Recenzent dodatkowo potwierdził brak zależności flagi od schematu żądania i poprawność `docker run`.
+- Defekty po odbiorze: brak (bramka Sol `max`: „Scalić”)
+- Wymagane testy i dowody: `fala-odbior --pelny` BE (pełny zestaw z SQLEXPRESS, 855 s) OK; deploy z gałęzi przed bramą (decyzja właściciela), `/api/version` = SHA gałęzi; kontener PRE bez zmiennych `SecureCookie` (`docker inspect`, same nazwy)
+
+### 1935-B2 (rewizje dokumentacji: AT sesji, konfiguracja ręczna) — 2026-11-16
+- Archetyp: Dokumentacja produktowa (rewizja dokumentu `zatwierdzony` + dokument `do-weryfikacji`)
+- Stawka: średnia (dokumentacja funkcji high-stakes)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows (244 s)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (578 s)
+- Dopuszczone alternatywy: wykonawca — Gemini A `high`, `wykonawca` z powodem; recenzent — Terra `max`, Sol `high`
+- Powód wyboru: archetyp „dokumentacja” poza pulą Claude'a (reguła 3); recenzja niskiej/średniej stawki → Gemini B
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (17 %, `[pule]` ok. 08:40); Gemini B znany (ok 08:45)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wymagane korekty — treść zgodna z briefem, ale **brief architekta** kazał objąć akapitem normatywnym sesję personelu, którą dokument z definicji wyklucza, i nieściśle opisał stan poprzedni
+- Rundy korekt: 1 (architekt sam, reguła 11: kilka linii w 2 plikach, treść znana)
+- Czas do akceptacji: ok. 40 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone 3 × P1 (zakres dokumentu; stan poprzedni; ustępstwo przypisane ciasteczkom, które go nie miały) i 2 × P2 (przyczyna publiczności surowych portów; dokument wdrożeniowy bez ścieżek menu, stan „zrobione” przedwczesny); odrzucone 2 × P2 (stan lokalnego Development — zdanie jest regułą dopuszczenia, plik niewersjonowany; treść normatywna przed zatwierdzeniem — zatwierdzenie na bramie poprzedza commit). Wniosek: Gemini B `high` wyłapał błędy briefu architekta, których wykonawca nie zakwestionował.
+- Defekty po odbiorze: brak; na bramie właściciel zlecił dopisanie luki (atrybuty ciasteczka personelu w AT-LOGOWANIE-PERSONELU) — architekt, reguła 11
+- Wymagane testy i dowody: diff tylko 2 plików; tabele 4 kolumny; odsyłacze względne istnieją; macierz zgodności 4c (8 zgodnych, 1 n/d). Wrapper oznaczył oba pliki jako „usunięty” — fałszywy alarm przy `-Repo` = podkatalog repozytorium (ścieżki z `git status` liczone od korzenia); do poprawki w `worker-run.ps1`.
+
+### 1935-B4 (worker przeglądarki: atrybuty ciasteczka i sesja na PRE) — 2026-11-16
+- Archetyp: Worker przeglądarki (Playwright CLI, host Windows)
+- Stawka: średnia (dowód AC funkcji high-stakes; tylko logowanie i wylogowanie)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `high`, `-Access write`, `-Repo` = pusty katalog scratchpadu (271 s)
+- Recenzent (linia / model / native effort): architekt — odbiór dowodów (surowe wyjście `cookie-get` w `session.jsonl` muse, zrzuty)
+- Dopuszczone alternatywy: Spark `max` po `NEED_FALLBACK`/`LOOP`; Gemini A `high` z MCP `--isolated`
+- Powód wyboru: archetyp operacyjny (reguła 8); `browser-check` nie odczytuje atrybutów ciasteczek ani ponownego uruchomienia przeglądarki
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (19 %, `[pule]` ok. 09:05)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano — P1–P5 PASS, jedna próba logowania, 19 wywołań powłoki, 43 polecenia CLI, 0 pełnych snapshotów
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 10 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): n/d; worker zgłosił błąd briefu — `cookie-list` nie podaje flag (`httpOnly`/`secure`/`sameSite`); dają je `cookie-get`, a `expires` — `state-save`; do dopisania w `browser-check/CLI-WORKER.md`
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: `open --profile=<katalog>` zamiast profilu w pamięci daje prawdziwe ponowne uruchomienie przeglądarki (AC „sesja po ponownym otwarciu”); raport workera zweryfikowany surowym wyjściem w sesji muse (log wrappera na Windows ma tylko wiadomość końcową)
+
+### 1935-BRAMKA BE (Sol `max`) — 2026-11-16
+- Archetyp: Bramka końcowa high-stakes (cały diff BE `main..gałąź`, 10 plików)
+- Stawka: wysoka
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): — (recenzja)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review`, `-BriefFile` z diffem (328 s)
+- Dopuszczone alternatywy: brak (reguła 6, para niezmienna)
+- Powód wyboru: reguła 6; równolegle z deployem i B4
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex znany (`[pule]` ok. 09:00: 5 h 2 %, tydzień 4 %; po bramce 9 % / 5 %)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: „Scalić”, bez znalezisk (zapis i czyszczenie ciasteczka z identycznymi atrybutami, brak zależności od schematu, proxy FE zachowuje `Set-Cookie`)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 6 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: brama właściciela 2026-11-16 („OK”), fast-forward tego samego commita na `main`
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
