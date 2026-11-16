@@ -13808,6 +13808,160 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: brak znanych (przed wykonaniem przez testera)
 - Wymagane testy i dowody: `qas.py lint` 0; `push --limit 1` + `verify --only`; pełne `verify` — 14 sprawdzonych, 0 różnic (ZEB/2570–2583, folder 246)
 
+### 1662-A-BE1 + K (BE: slice rejestru kont administratora — lista, karta, liczniki widoków, migracja kolumny) — 2026-11-16
+- Archetyp: Backend, slice odczytu z filtrami, sortowaniem i licznikami (46 plików, Dapper + DbUp, testy integracyjne SQLEXPRESS)
+- Stawka: średnia (dane osobowe za rolą administratora; bez niezmiennika — zapis logowania wydzielony do A-BE2)
+- Niepewność: średnia (mapowanie stanu abonamentu, normalizacja telefonu w wyszukiwaniu)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, host Windows, `-Access write`; korekta K tym samym modelem (403 s)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review`
+- Dopuszczone alternatywy: `wykonawca` (z powodem); recenzja: Gemini B `high`
+- Powód wyboru: brief bez Figmy i niezmiennika — najpierw poza pulą Claude'a (reguła 3); > 5 plików, więc nie Codex
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]` ok. 18:20: tydzień 21 %); Codex znany (5 h 9 %, tydzień 13 %)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowany z korektą; build bez ostrzeżeń, 37/37 z filtra
+- Rundy korekt: 1 (K: przepełnienie `OFFSET` → 500 i trzy testy bez mocy dowodowej — liczniki, sortowanie, stronicowanie; 26/26) + drobna korekta architekta po pełnym zestawie (reguła 11)
+- Czas do akceptacji: ok. 1 h 20 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Sol `high` — 4 × P2 potwierdzone (offset bigint, 3 słabe testy). Ani wykonawca, ani recenzent nie wychwycili parametru trasy `accountId`, który łamie test architektury `RequestBoundTypes_DoNotCarryAccountIdentity` (tożsamość tylko z tokenu); wykrył go dopiero pełny zestaw, poprawka architekta → `targetAccountId`
+- Defekty po odbiorze: brak znanych (bramka Sol `max` BE: 0 × P0/P1)
+- Wymagane testy i dowody: `dotnet test --filter` klas briefu; pełny zestaw po fali A2 (1 czerwony — test architektury, poprawiony) i przed bramką 13 689/0/2
+
+### 1662-A-FE1 + K + A-FE1b (FE: warstwa danych rejestru — API, stan listy, mapowania, etykiety enumów) — 2026-11-16
+- Archetyp: Frontend, warstwa danych bez ekranu (`httpResource`, stan sygnałowy z debounce, mapowania, speci)
+- Stawka: średnia
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max` (A-FE1, A-FE1-K); A-FE1b `high` (mapy etykiet i klucze i18n — mały brief mechaniczny)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-terra` / `max`, odczyt (A-FE1); Gemini B / `gemini-3.8-flash-high`, `-Access read` (A-FE1b)
+- Dopuszczone alternatywy: `wykonawca` (z powodem); recenzja: Sol `high`, Gemini B `high`
+- Powód wyboru: bez Figmy i niezmiennika → poza Claude'em (reguła 3); Terra `max` jako recenzent niskiej i średniej stawki (reguła 7)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (tydzień 21 %); Codex znany (5 h 9 %); Gemini B znany (ok)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: A-FE1 z korektą; A-FE1b bez korekt (0 znalezisk)
+- Rundy korekt: 1 (A-FE1-K: efekt ostatniej strony cofał do strony 4, inicjał „Ż” → „Z”, słaby test; nowe testy czerwone przed poprawką, 71/71)
+- Czas do akceptacji: ok. 40 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Terra — P1 obniżony do P2 i potwierdzony (pusta ostatnia strona po zmianie filtrów — przyjęte ryzyko wyścigu, reset do strony 1 przetestowany); P3 lokalne helpery w specach odrzucone (konwencja repo: 473 z 739 speców); Gemini B (A-FE1b) — 0
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `fala-odbior --pelny` FE zielony (lint, format, 65 → 71 testów, build)
+
+### 1662-A-DOC1 + A-DOC2 (rewizja UI-ADMINISTRATOR-UZYTKOWNICY: decyzje planu R1–R11 i luki z przeglądu zgodności R12–R22) — 2026-11-16
+- Archetyp: Dokumentacja produktowa, datowana rewizja dokumentu `zatwierdzony`
+- Stawka: średnia (źródło prawdy dla kodu i QA Sphere)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write` (repo Dokumentacja)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high`, `-Access read` (oba przebiegi)
+- Dopuszczone alternatywy: recenzja Sol `high`
+- Powód wyboru: dokumentacja → Spark `max` (reguła 8); odczyt najpierw na koncie B
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (tydzień 21 %); Gemini B znany (ok)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: A-DOC1 przyjęty z 5 doprecyzowaniami architekta (bez zmiany decyzji); A-DOC2 przyjęty z jednym zdaniem architekta (luka wskazana przez samego wykonawcę). Błędna przesłanka architekta w D10 (odnośnik ustawienia hasła nie wydaje sesji) — wykazana w A-BE2, poprawiona w rewizji
+- Rundy korekt: 0 (poprawki architekta, reguła 11)
+- Czas do akceptacji: ok. 25 min każdy
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-A-DOC1 — 2 × P1 odrzucone (recenzent zmyślił, że numer telefonu jest opcjonalny), 3 doprecyzowania przyjęte; R-A-DOC2 — werdykt poprawny 0,98, 1 × P3 (powtórzenie w R12) potwierdzone, poprawka architekta
+- Defekty po odbiorze: brak znanych; dwie decyzje właściciela na bramie dopisane jako R23 (telefon w grupach cyfr) i R24 („Nie odnotowano logowania”)
+- Wymagane testy i dowody: `prettier --check` plików dokumentacji; macierz 4c (wpis 1662-4c)
+
+### 1662-A-BE2 (BE: zapis ostatniego logowania w każdej ścieżce wydania sesji — pliki niezmiennika) — 2026-11-16
+- Archetyp: Backend, pliki niezmiennika high-stakes (uwierzytelnianie i sesja)
+- Stawka: wysoka / high-stakes
+- Niepewność: średnia (współbieżność z usuwaniem konta i zmianą hasła)
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` (Opus 5.5 `xhigh`) — 1. przebieg STOP; 2. przebieg świeżym agentem z decyzją i raportem przekazania: 104 wywołania, ok. 232 tys. kontekstu, 17 min
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (Wonder Full odpadł — dzienny limit 3/3)
+- Dopuszczone alternatywy: brak dla wykonawcy (C2 3:3 do rozstrzygnięcia); recenzent: Wonder Full `max` (zablokowany limitem dziennym)
+- Powód wyboru: pliki niezmiennika (reguły 3, 6); fakty o punktach wydania sesji od `zwiadowca` w briefie
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, 5 h 5 %, tydzień 15 %); Wonder zablokowany (wrapper: 3/3 w dniu); Codex znany
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: STOP słuszny — zapis po wstawieniu tokenu w ścieżce hasła i odbioru zakupu groził zakleszczeniem z równoległym usuwaniem konta (blokada 1205). Architekt wybrał wariant wykonawcy: zapis przed wstawieniem tokenu w tej samej transakcji (hasło, zakup), po wstawieniu (dostawca, rejestracja)
+- Rundy korekt: 0 po decyzji (2 poprawki testów architekta po bramce Sol `max`, reguła 11)
+- Pliki niezmiennika / pliki briefu: 7 / 13
+- Czas do akceptacji: ok. 1 h 30 min (z decyzją architekta po STOP)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1. przebieg Sol płytki — brief zakazał uruchamiania CLI, a Codex czyta repozytorium powłoką (błąd briefu); ponowny przebieg: 0 znalezisk, P2 ClaimedAt vs IssuedAt odrzucone (przyjęte odstępstwo). Bramka Sol `max` znalazła P3, którego recenzja nie miała: żaden test nie łapał regresji „zapis tylko, gdy kolumna pusta”
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `--filter LastSignedInAtApiTests|AdminUsersApiTests` 27/27 po poprawkach; testy wyścigów logowania ze zmianą i resetem hasła; pełny zestaw przed bramką 13 689/0/2. Kontekst przekroczył cel 200 tys. (reguła 15) — brief do podziału drobniej
+
+### 1662-A-FE2a + 2b + 3a + 3b + A2-FE-K + A3-FE-K + A4-FE-K (FE: ekran rejestru i karta konta z Figmy) — 2026-11-16
+- Archetyp: Frontend, ekran z Figmy (lista z widokami, filtrami, tabelą i kartami; nakładka okno/arkusz)
+- Stawka: średnia
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` (Sonnet 5.5 `high`, Figma MCP) — 4 briefy równoległe/potokowe (A-FE3a 286 tys./67 wywołań, A-FE3b 207 tys./72 wywołania); korekty A2-FE-K, A3-FE-K, A4-FE-K: Muse Spark 1.3 `max` (A4-FE-K 394 s)
+- Recenzent (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access read` (jedna recenzja na falę, 636 s)
+- Dopuszczone alternatywy: recenzja Gemini B `high`, Terra `max`; korekty: `wykonawca`
+- Powód wyboru: Figma MCP → `wykonawca` (próba Figmy zamknięta); korekty bez Figmy → Spark `max` (archetyp `-K`, reguła 8)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY; Muse znany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: 4/4 przyjęte; A-FE3b słusznie obalił przesłankę fokusu (menu znika przed zamknięciem karty) i dodał zapasowy zwrot fokusu
+- Rundy korekt: 3 (A2-FE-K po recenzji fali i browser-check; A3-FE-K po bramce FE — wykonawca słusznie zatrzymał się na bezwarunkowym `aria-controls`, architekt dopisał wariant warunkowy; A4-FE-K po przeglądzie 4c — daty względne wg WP-PREZENTACJA-CZASU) + 2 drobne korekty architekta (czyszczenie wyszukiwania w stanie braku wyników, `table-layout: fixed`)
+- Czas do akceptacji: ok. 3 h (ekrany → recenzja → bramka → 4c)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Spark — 5 × P3, werdykt poprawny 0,85; potwierdzone 3 (język menu, fokus „Wstecz”, test otwarcia) + kruchość selektorów → atrybuty danych; import między funkcjami odłożony (80 plików). Bramka Sol `max` FE znalazła 5 innych (2 × P2: wyzwalacz karty zapamiętany za późno, brak `aria-expanded`/`aria-controls`; 3 × P3) — wszystkie potwierdzone; recenzja fali nie miała żadnego z nich
+- Defekty po odbiorze: brak; obserwacja PRE — tekst wpisany w wyszukiwanie przed gotowością strony (~1–2 s) przepada (nie regresja etapu, do decyzji właściciela)
+- Wymagane testy i dowody: `fala-odbior --pelny` FE zielony po każdej korekcie (744 pliki testów); 238/238 testów Użytkowników; browser-check 2×2 (22/24 + 1 powtórka — zły lokator scenariusza) i po A4-FE-K; smoke PRE 8/8
+
+### 1662-A-AUD + A-FE-WYDZ (FE: audyt SCSS i wydzielenie wspólnych stylów listy oraz awatara z Kontaktów) — 2026-11-16
+- Archetyp: Audyt SCSS / refaktor stylów bez zmiany wyglądu (55 plików)
+- Stawka: średnia (zmiana dotyka istniejącego ekranu Kontaktów)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max` — audyt `-Access read` (23 pliki), wydzielenie `-Access write` (796 s)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high`, `-Access read` (2. przebieg)
+- Dopuszczone alternatywy: Gemini B `high` do audytu; recenzja Terra `max`
+- Powód wyboru: audyt SCSS → Spark `max` (reguła 8); wydzielenie bez Figmy i niezmiennika poza Claude'em (reguła 3)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany; Gemini B znany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: audyt — 0 propozycji zamiany na siatkę, propozycje wydzielenia; wykonawca wskazał sprzeczność formatu raportu w briefie. Wydzielenie — zrzuty 32/32 identyczne piksel w piksel, CSS Kontaktów 13/15 identyczny tekstowo (2 różnią się kolejnością); STOP-y W19/W21 (przeszacowane w audycie) słuszne
+- Rundy korekt: 0 (1 drobna korekta architekta: komentarze w 2 plikach SCSS)
+- Czas do akceptacji: ok. 1 h (z bazą zrzutów przed i po)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 1. przebieg Gemini padł na odmowie odczytu `C:\` (brief bez zakazu — błąd briefu); 2. przebieg: P2 `aria-hidden` na hoście odrzucone, P3 typ `fontSize` odrzucone (konwencja `null`), P3 komentarz `_row-identity.scss` potwierdzone. Przebieg zakończył się `stream interrupted` po wygenerowaniu raportu
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: browser-check przed i po (Kontakty 8/8, Użytkownicy 24/24); `fala-odbior --pelny` FE (170 plików, 5 min 19 s)
+
+### 1662-BRAMKA FE + BE (Sol `max`) — 2026-11-16
+- Archetyp: Bramka końcowa high-stakes (cały diff etapu A, FE i BE osobno)
+- Stawka: wysoka / high-stakes (zapis ostatniego logowania)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): — (bramka)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review` — BE 846 s (147 plików), FE 315 s
+- Dopuszczone alternatywy: brak (reguła 6)
+- Powód wyboru: reguła 6; sekwencyjnie — BE wystartowała, gdy FE czekał na wydzielenie
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex znany (5 h 9 % → 28 % po BE → 31 % przed FE; tydzień 13 %)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: obie bez P0/P1; kontrakt FE ↔ BE zgodny; i18n 111/111
+- Rundy korekt: BE — 2 × P3 poprawione przez architekta (reguła 11); FE — 1 (A3-FE-K, Spark `max`)
+- Czas do akceptacji: BE ok. 20 min; FE ok. 40 min (z korektą)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): BE — P2 token anulowania nie dociera do Dappera (sporne, konwencja całego repo → istniejący PBI #2783 rozszerzony komentarzem na bramie), 2 × P3 potwierdzone (testy: zapis tylko przy pustej kolumnie, sortowanie domyślne). FE — 2 × P2 + 3 × P3 potwierdzone; luka `aria-expanded` także w 4 istniejących menu Klientów i Kontaktów → Bug #2977. Recenzje fal nie wychwyciły żadnego z 8 znalezisk bramek
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: pełny zestaw BE przed bramką 13 689/0/2 (14 min 16 s); klasy po poprawkach 27/27; FE 238/238 Użytkowników + pełny odbiór
+
+### 1662-4c (przegląd zgodności dokumentacji z kodem) — 2026-11-16
+- Archetyp: Audyt zgodności dokumentacji (75 plików, macierz zdanie dokumentu ↔ linia kodu)
+- Stawka: średnia
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Gemini B / `gemini-3.8-flash-high`, `-Access read` (718 s) → po odrzuceniu Codex / `gpt-6.1-sol` / `high`, odczyt
+- Recenzent (linia / model / native effort): — (wynik weryfikuje architekt wyrywkowo)
+- Dopuszczone alternatywy: Muse wykluczony (autor dokumentacji)
+- Powód wyboru: inna rodzina niż autor dokumentacji; po rzeczywistym niepowodzeniu Gemini ponowna kwalifikacja na Sol `high` (effort ≤ `high` w funkcji high-stakes, reguła 7) z wymogiem dosłownych cytatów w każdym wierszu
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini B znany; Codex znany (ostatni odczyt przed bramką FE: 5 h 31 %, tydzień 13 %)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: ODRZUCONY — raport Gemini „115 zgodne, 0 rozbieżności” z halucynacjami (7 kolumn, brak kolumny ról, rozmiary strony 10/25/50/100, nieistniejące ścieżki SQL, role „Organizator/Uczestnik”)
+- Rundy korekt: 1 (ponowny przebieg na innej linii)
+- Czas do akceptacji: ok. 40 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Sol — 56 wierszy: 29 zgodnych, 3 „kod odbiega” (2 poprawione w A4-FE-K, 1 telefon → decyzja właściciela R23), 24 „brak w dokumencie” (22 → R12–R22, 1 kontrakt API odrzucony jako poza dokumentacją produktową, 1 → decyzja właściciela R24); cytaty wyrywkowo trafne
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: wyrywkowa kontrola cytatów przez architekta. Sygnał jakości: Gemini Flash `high` w 4c dużego zakresu bez wymogu cytatów — niewiarygodny
+
+### 1662-QAS (Q1 + R-Q1; foldery 247 i 248, seq 2584–2611, aktualizacja 2278) — 2026-11-16
+- Archetyp: QA Sphere — generator przypadków manualnych z przeglądem folderu istniejącego
+- Stawka: średnia
+- Niepewność: średnia (stany kont niedostępne z seedów, hasła kont demo)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write` (1 757 s)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high`, `-Access read`
+- Dopuszczone alternatywy: Gemini A jako autor przy zajętym Muse
+- Powód wyboru: wiersz QA Sphere macierzy (Spark `max` autor, Gemini recenzja)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany; Gemini B znany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: przyjęty bez korekty; lint 0 błędów; 28 nowych (12 high, 14 medium, 2 low), 14 przypadków zostaje, 1 aktualizacja. Wykonawca obalił przesłankę briefu: haseł kont `wlasciciel.demo` i `klient.demo` nie ma w seedach. Zastąpił logowania tymi kontami fixturami SQL na syntetycznych kontach, a sprzątanie warunkował identyfikatorem
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 50 min (z „ok” właściciela na podglądzie)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Gemini B — werdykt poprawny; 1 × P3 (konwencja sprzątania SQL) odrzucone — usuwanie po unikalnym syntetycznym adresie jest bezpieczne; wyrywkowa kontrola architekta (kaskady FK przy sprzątaniu) bez błędów
+- Defekty po odbiorze: brak znanych (przed wykonaniem przez testera)
+- Wymagane testy i dowody: `qas.py lint` 0; `push` + `verify` — 3 rzekome różnice (kolejność requirements, zwinięte białe znaki) zaakceptowane jako artefakt porównania
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
