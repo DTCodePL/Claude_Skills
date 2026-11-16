@@ -13791,6 +13791,23 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: brak znanych
 - Wymagane testy i dowody: B1-T i B3-T (SHA), mutacje, R1–R4, pełny zestaw 13657/0/2 (819 s, po przebudowie)
 
+### 2912-QAS (przypadki QA Sphere — podmiot zdarzeń i logowanie numerem kanonicznym, 14 przypadków) — 2026-11-16
+- Archetyp: QA Sphere — autor przypadków manualnych (plik podglądu wg skilla v1.14), przegląd 152 istniejących
+- Stawka: wysoka / high-stakes (uwierzytelnianie, limit prób; same przypadki bez niezmiennika w kodzie)
+- Niepewność: średnia (stan współdzielonej bazy PRE, liczniki prób i pole anty-bot zależne od stanu karty)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows (1067 s + korekta 687 s)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (603 s)
+- Dopuszczone alternatywy: autor — Gemini A `high` (Muse zajęty albo z limitem); recenzent — Sol `high`, Terra `max`
+- Powód wyboru: macierz — QA Sphere Spark `max` także przy high-stakes; recenzja odwrotnej rodziny (Gemini B, odczyt)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]` ~15:00, tydzień 21 %); Gemini B bez 429
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: odrzucono do korekty — lint 0, ale 2 × P1 i 2 × P2 wykonalności na PRE (niżej); przegląd 152 istniejących: wszystkie `keep`, utrzymane
+- Rundy korekt: 1 (Spark `max`, ten sam plik; lint 0; wykonawca trafnie zauważył, że brief uogólnił „pole anty-bot w ciemno” na sprzątanie A6, i zastosował wersję odporną)
+- Czas do akceptacji: ok. 55 min (generator → recenzja → triaż → korekta → tabela → „ok” właściciela)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Gemini B — 2 potwierdzone (P1 zapytanie A6 do `SecurityEvents` łapie cudze wiersze na PRE; P2 P4/P5 `LoginThrottles` bez filtra czasu); odrzucone: dodatkowe przypadki 102 (pokrycie już jest), numer sprzedawcy ze spacjami w S1; w raporcie zmyślone fakty (próg Turnstile 5, zakres IP 20, inny komunikat błędu, 11 zamiast 14 przypadków) — każdy obalony w kodzie. Architekt w triażu — 2 nowe: P1 reset licznika numeru logowaniem adresem (`ResetAsync` zeruje tylko użyty zakres), P2 zaznaczanie pola anty-bot, zanim się pojawi
+- Defekty po odbiorze: brak znanych (przed wykonaniem przez testera)
+- Wymagane testy i dowody: `qas.py lint` 0; `push --limit 1` + `verify --only`; pełne `verify` — 14 sprawdzonych, 0 różnic (ZEB/2570–2583, folder 246)
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
