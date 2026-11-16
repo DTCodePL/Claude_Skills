@@ -938,6 +938,58 @@ zawiera `cache_read_tokens`), cennik Spark contributor 0,002/0,10/0,20 $, Wonder
 - 28 % przy ~42 % upływu tygodnia — w tym tempie ~65 % na koniec tygodnia. Limit wrappera 10 Wonderów/tydzień
   ≈ 32 % puli; 8 z 10 zużyte w środę. Limit bez zmian (decyzja właściciela).
 
+## Czas przepływu fal — pomiar i lżejsza ścieżka — 2026-11-16
+
+**Pomiar.** Znaczniki czasu transkryptów 9 sesji implementacyjnych Zebrani z 08–16.11 (sesja główna i subagenci).
+Każdy odcinek między zdarzeniami przypisano do jednej kategorii:
+- czekanie na właściciela (pytania, plan, brama);
+- zawieszenie sesji;
+- oczekiwanie na zadanie w tle (worker zewnętrzny, agent Claude'a, walidacja);
+- myślenie i narzędzia architekta.
+
+Liczby korekt i recenzji klasyfikowano po opisach zadań, więc są przybliżone.
+
+| Sesja | Razem h | Właściciel h | Zawieszenie h | Aktywnie h | Uruchomień (≈ korekt / recenzji) |
+| --- | --- | --- | --- | --- | --- |
+| #2873 | 1,4 | 0,1 | 0 | 1,2 | 6 (3 / 4) |
+| #2701 | 3,5 | 0,5 | 2,0 | 1,0 | 3 |
+| Bug #2951/#2954 | 7,9 | 2,2 | 0 | 5,7 | 20 (6 / 7) |
+| #1929 | 8,0 | 3,7 | 0 | 4,3 | 28 (10 / 8) |
+| #1382 | 9,3 | 0,7 | 0 | 8,6 | 54 (24 / 17) |
+| #2913 + #2914 | 18,7 | 4,5 | 3,6 | 10,6 | 30 (10 / 8) |
+| #2905 | 25,9 | 2,4 | 12,7 | 10,8 | 64 (19 / 31) |
+| #1548 | 39,7 | 9,9 | 7,7 | 22,2 | 114 (41 / 48) |
+| #2368 | 69,1 | 58,2 | 0 | 10,9 | 58 (21 / 17) |
+
+**Ustalenia:**
+- **Zawieszenia, 26 h w 4 sesjach.** Dziennik System Windows potwierdza trzy przypadki: uśpienie 10.11 00:15, restart bez czystego zamknięcia 11.11 01:30 i uśpienie 15.11 19:06 przez `SetSuspendState` (zdarzenie 187). Czwarty to hook PreToolUse 13.11 („host client may be unreachable”) bez uśpienia. Sesja wraca dopiero po „wznów”. To nie jest reguła routingu; właściciel nie usypia PC w trakcie sesji.
+- **#2913, czas przebiegów** (częściowo równoległych):
+  - pierwsze przebiegi implementacji: ok. 2,7 h;
+  - korekty (7): ok. 2,0 h;
+  - kontynuacje Opusa po progu kontekstu (3): ok. 1,7 h;
+  - recenzje i bramki: ok. 2,5 h, w tym ok. 1,5 h czekania na reset Wondera i Sola;
+  - pełne odbiory BE (4): ok. 0,7 h.
+- **Seryjność.** W #2913 przez 75 % aktywnego czasu w tle działało dokładnie jedno zadanie, a dwa lub więcej tylko przez 7 %. W #1929 i #2368 dwa lub więcej działały przez 44–48 % czasu.
+- **Pełne testy BE.** Zestaw SQLEXPRESS trwa ok. 12–13 min. W #2913 wykonawcy Opus wywołali `dotnet test` ok. 37 razy, a B2-K1 czekał ok. 25 min na własny pełny przebieg.
+- **Architekt** robił 155–2244 wywołań API na sesję, przy medianie kontekstu 210–260 tys. i 1–4 kompakcjach.
+- **Zakres #2913.** Po decyzji „Wariant 2 — migracja nvarchar” i dołączeniu #2914 (rekomendacja architekta) poprawka walidatora FE stała się migracją 12 kolumn z pełną ścieżką high-stakes.
+
+**Decyzja właściciela (2026-11-16)** przyjmuje propozycje 2–6:
+- **Reguła 11 — drobna korekta.** Architekt sam poprawia potwierdzone znalezisko w plikach bez niezmiennika (znana treść, do ~10 linii w ≤ 2 plikach). Dowodem są ciche sprawdzenia, ponowna recenzja nie jest potrzebna.
+- **Reguła 13 — jednostka recenzji.** Pliki niezmiennika: recenzja per brief. Reszta: jedna recenzja na falę i rodzinę autora albo jedna na feature w jednej fali. Recenzja biegnie równolegle z następną niezależną falą.
+- **Reguła 14 — testy BE, potok i zakres.**
+  - Wykonawca BE: `dotnet build` i `--filter`. Architekt: pełny zestaw raz po fali BE i raz przed bramą.
+  - Potok: plan ma graf zależności, niezależne briefy nie czekają na siebie.
+  - Zakres: podział PBI, gdy rozszerzenie podnosi klasę stawki.
+- **Reguła 15 — brief `wykonawca-opus`.** Jeden niezmiennik, ≤ ~100 wywołań, ≤ ~200 tys. kontekstu. Kontynuacja to błąd podziału.
+- **Reguła 6 — bramki FE i BE** idą równolegle przy zapasie okna 5 h Codexa w `[pule]`, inaczej sekwencyjnie (1603-G-1).
+
+Przegląd skutków po 3–5 kolejnych funkcjach obejmie:
+- aktywny czas na PBI;
+- rundy korekt;
+- potwierdzone defekty po odbiorze i na bramce Sol;
+- defekty, które przeszły przez drobną korektę architekta bez ponownej recenzji.
+
 ---
 
 ## Część 3 — globalny CLAUDE.md z 2026-11-05 sprzed drugiej diety (dosłownie)

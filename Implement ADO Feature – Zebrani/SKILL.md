@@ -3,7 +3,8 @@ name: implement-ado-feature-zebrani
 description: >
   Planowanie i pełna implementacja feature'a / PBI / taska Zebrani.pl na
   podstawie linku lub numeru Azure DevOps — od Plan Mode z makietami Figmy,
-  przez rozłączne fale wykonania, audyt i niezależną recenzję każdego briefu,
+  przez rozłączne fale wykonania w potoku, audyt i niezależną recenzję
+  (per brief dla plików niezmiennika, per fala i rodzina autora dla reszty),
   aż po bramę potwierdzenia i domknięcie w ADO. Claude Opus xhigh pozostaje
   architektem, dyspozytorem i walidatorem w pilotażu; sesja główna nie pisze
   kodu ani testów. Dla każdego briefu najpierw kwalifikuje pary model–native
@@ -202,8 +203,9 @@ wszystkich kroków, a każda wiadomość mówi, na którym z nich jesteś.
    - dla każdej fali trzy kroki: **wykonanie** (briefy fali z liniami oraz
      tory poboczne — dokumentacja, Figma — wypisane w tym kroku),
      **walidacja** (diff, lint, testy, build, `browser-check`) i **recenzja
-     niezależna z poprawkami**; kroki się nakładają — recenzja briefu rusza
-     zaraz po jego odbiorze, a krok recenzji zamyka komplet recenzji
+     niezależna z poprawkami**; kroki się nakładają — recenzja jednostki
+     (brief niezmiennika albo komplet fali jednej rodziny autora) rusza
+     zaraz po jej odbiorze, a krok recenzji zamyka komplet recenzji
      i pełna walidacja fali;
    - dla Buga zamiast pierwszej fali: czerwony test → odbiór czerwieni →
      łatka → ten sam test zielony i cały pakiet;
@@ -288,6 +290,21 @@ Zanim zlecisz jakikolwiek kod, wejdź w Plan Mode i ustal:
   tuż po zatwierdzeniu planu, nie na koniec.
 - Jeżeli w PBI albo w Figmie brakuje specyfikacji potrzebnej do decyzji,
   **zatrzymaj się i zapytaj** zamiast zgadywać.
+- **Zakres PBI — podział przy wzroście stawki** (od 2026-11-16, reguła 14).
+  Plan może odkryć pracę ponad treść PBI, która podnosi klasę stawki:
+  migrację danych, plik niezmiennika z listy Fazy 4b albo dołączenie innego
+  PBI. Wtedy w pytaniu do właściciela rekomendujesz podział: najpierw zakres
+  PBI z własną bramą, rozszerzenie jako osobny PBI. Łączenie rekomendujesz
+  tylko wtedy, gdy nie podnosi stawki prostszej części. Przykład: #2913 po
+  dołączeniu migracji 12 kolumn i #2914 przeszedł pełną ścieżkę high-stakes
+  i trwał 10,6 h aktywnej pracy, a sam walidator FE był małą zmianą.
+- **Graf zależności briefów** (od 2026-11-16, potok z reguły 14). Tabela
+  „etap → fala → brief → linia” ma kolumnę „zależy od”. Briefy zależne tylko
+  od decyzji i kontraktu startują w pierwszej fali: dokumentacja, FE według
+  kontraktu DTO, testy według kontraktu. Kontrakt (sygnatury, kształt DTO)
+  zapisujesz dosłownie w obu briefach. Brief `wykonawca-opus` obejmuje jeden
+  niezmiennik (≤ ~100 wywołań, ≤ ~200 tys. kontekstu, reguła 15), a fakty
+  potrzebne wykonawcy zbierasz z góry przez `zwiadowca`.
 - **Klasyfikacja każdego briefu przed doborem**, także recenzenckiego:
   stawka i skutki błędu (w tym lista high-stakes z Fazy 4b oraz pliki niosące
   niezmiennik); niepewność/nowość; zależności, zakres plików i wpływ przekrojowy;
@@ -326,7 +343,9 @@ Zanim zlecisz jakikolwiek kod, wejdź w Plan Mode i ustal:
   niepowodzenie wymaga ponownej kwalifikacji wg Fazy 2, nie stałego fallbacku.
 - **Bramka końcowa** — plan mówi wprost, czy feature jest wysokiej
   stawki (lista w Fazie 4b), i jeśli tak, przewiduje recenzję 6.1 Sola
-  `max` całego diffu po recenzjach etapów (osobno FE i BE, sekwencyjnie).
+  `max` całego diffu po recenzjach etapów. Przy dużym diffie FE i BE mają
+  osobne przebiegi: równoległe, gdy `[pule]` pokazuje zapas okna 5 h Codexa
+  na oba, inaczej sekwencyjne (reguła 6).
 - **Scenariusz weryfikacji w przeglądarce** (`browser-check`, od 5.16):
   plik JSON w scratchpadzie sesji — specyfikacja odbioru, którą piszesz
   w planie jak kryteria akceptacji, nie test w repo produktu (E2E prowadzi
@@ -441,7 +460,12 @@ Główny wątek nigdy nie jest wykonawcą tego, co da się zlecić:
    i przed bramą: to samo bez `--brief`, z `--pelny` i `--katalog-logow
    <_robocze\<numer>-odbior>` — zakres całej fali (pliki bez właściciela,
    nakładki), a do tego FE: pełne lint, format, testy, build; BE: build
-   i testy. Zależna fala czeka dodatkowo na komplet recenzji. Baza odcina
+   i testy. **Pełny zestaw BE** (integracyjne SQL z
+   `ZEBRANI_TEST_SQLSERVER`, ok. 12–13 min) uruchamiasz raz po fali BE i raz
+   przed bramą Sol albo bramą potwierdzenia (od 2026-11-16, reguła 14).
+   Korekty między nimi sprawdzasz bez `--pelny`: `fala-odbior --brief`,
+   `dotnet build` i `dotnet test --filter` dotkniętych klas. Zależna fala
+   czeka na recenzję tylko wtedy, gdy zależy od recenzowanych plików. Baza odcina
    cudze pliki, nie cudze zmiany: plik zmieniony już przed falą i ruszony
    w fali niesie obie — wymieniasz go w raporcie bramy, a do commita
    bierzesz tylko fragmenty briefu (łatka zawężona do nich, `git apply
@@ -449,11 +473,32 @@ Główny wątek nigdy nie jest wykonawcą tego, co da się zlecić:
    i logi poleceń) czytasz przy błędzie albo werdykcie niejasnym lub uciętym. Przy walidacji fali przenosisz do dziennika rozbieżności każdą
    przyjętą pozycję z obu sekcji raportu i każdą decyzję podjętą po planie,
    a briefy dokumentacji dla nowych wpisów wysyłasz z kolejną porcją pracy.
-4. **Zlecasz recenzję każdego briefu od razu po jego odbiorze** (od
-   2026-11-05; Faza 4b) niezależnemu recenzentowi z innej rodziny niż
-   autor, bez czekania na resztę fali; dowody i recenzje całej fali
-   odbierasz przed rozpoczęciem zależnej. Nie zastępujesz jej okresową
+4. **Zlecasz recenzję od razu po odbiorze jej jednostki** (od 2026-11-16,
+   reguła 13; Faza 4b) niezależnemu recenzentowi z innej rodziny niż autor.
+   Jednostki recenzji:
+   - **brief z plikami niezmiennika** — recenzja per brief (Wonder Full
+     `max`);
+   - **briefy bez niezmiennika** — jedna recenzja na falę i rodzinę autora,
+     czyli cały diff fali tej rodziny w jednym przebiegu, po odbiorze
+     ostatniego briefu tej rodziny w fali;
+   - **feature bez niezmiennika mieszczący się w jednej fali** — jedna
+     recenzja na cały feature.
+
+   Recenzja biegnie równolegle z następną niezależną falą; czeka na nią
+   tylko fala zależna od recenzowanych plików. Nie zastępujesz jej okresową
    oceną routingu.
+4a. **Potok zamiast szeregu** (od 2026-11-16, reguła 14). Niezależny brief
+   nie czeka na recenzję, korektę ani odbiór innego. Gdy w tle działa jedno
+   zadanie, a graf zależności z planu ma niezależne, uruchamiasz je od razu.
+   W #2913 przez 75 % aktywnego czasu w tle działało dokładnie jedno zadanie.
+4b. **Drobną korektę robisz sam** (od 2026-11-16, reguła 11). Dotyczy
+   potwierdzonego znaleziska w plikach bez niezmiennika, z poprawką o znanej
+   treści do ~10 zmienionych linii w ≤ 2 plikach. Robisz ją bez briefu
+   korekty. Dowodem są ciche sprawdzenia tych plików: eslint i prettier,
+   `ng test --include` albo `dotnet test --filter`. Ponownej recenzji nie
+   zlecasz, chyba że poprawka zmienia logikę poza wskazanym miejscem.
+   Poprawkę wpisujesz do dziennika rozbieżności, jeśli zmienia zachowanie.
+   Pliki niezmiennika zawsze wracają do `wykonawca-opus`.
 5. **Nie odpytujesz workerów** (od 2026-11-05). Wrapper uruchamiasz w tle
    (domyślnie `-Console summary`: linia startu, raport końcowy, zmiany
    w repo i ścieżka logu) i czekasz na powiadomienie. Logu ani
@@ -598,6 +643,12 @@ Wykonawca sprawdza tylko własne pliki (`npx --no-install eslint <pliki>`,
 `npx --no-install prettier --check <pliki>`, `ng test --include <spec>`)
 i nigdy nie uruchamia `npm run lint:fix`, `npm run format`, `npm run build`
 ani — przy > 1 wykonawcy BE w fali — `dotnet build` / `dotnet test`.
+Jedyny wykonawca BE w fali uruchamia `dotnet build` i `dotnet test --filter
+<klasy testów briefu>` (z `ZEBRANI_TEST_SQLSERVER`). Pełnego zestawu nie
+uruchamia, chyba że wymaga tego oracle briefu, np. powtórzenia testu
+niestabilnego. Pełny zestaw należy do odbioru architekta (od 2026-11-16,
+reguła 14). W #2913 wykonawcy wywołali `dotnet test` ok. 37 razy, a pełny
+zestaw trwa 12–13 min.
 Brief każdej linii mówi to wprost (dla Sonneta/Opusa nadpisuje „Finishing
 Every Implementation”). Architekt uruchamia pełne sprawdzenia po fali;
 raport wykonawcy nie zastępuje dowodów.
@@ -615,13 +666,17 @@ Claude'a to ponowne czytanie kontekstu przy każdym wywołaniu narzędzia):
 jeden brief = jedna warstwa, cel ≤ ~150 wywołań i ≤ ~300 tys. kontekstu
 (koszt rośnie mniej więcej z kwadratem długości przebiegu); brief każe
 uruchamiać sprawdzenia z cichym wyjściem, a raport wykonawcy jest zwięzły,
-bez wklejonego diffu.
+bez wklejonego diffu. Brief `wykonawca-opus` celuje niżej (od 2026-11-16):
+jeden niezmiennik, ≤ ~100 wywołań, ≤ ~200 tys. kontekstu, ze ścieżkami,
+sygnaturami i faktami od `zwiadowca`, żeby skończył przed progiem miękkim.
+Kontynuacja po progu to błąd podziału: zapisujesz ją w rejestrze, a następny
+plan dzielisz drobniej. W #2913 trzy kontynuacje kosztowały ok. 1,7 h.
 
 ### Matryca możliwości i twardych ograniczeń
 
 | Linia / model / znane natywne efforty | Możliwości i dostęp | Twarde ograniczenia w pilotażu |
 | --- | --- | --- |
-| sesja główna — Claude Opus `xhigh` | plan, decyzje, briefy, WCAG/tokeny, walidacja dowodów, triaż, domknięcie ADO | architekt; nigdy nie pisze kodu ani testów poza istniejącym jednolinijkowym wyjątkiem reguły 11 |
+| sesja główna — Claude Opus `xhigh` | plan, decyzje, briefy, WCAG/tokeny, walidacja dowodów, triaż, domknięcie ADO | architekt; nie pisze kodu ani testów poza wyjątkami reguły 11 (zmiana jednolinijkowa, drobna korekta potwierdzonego znaleziska w plikach bez niezmiennika — Faza 2, krok 4b) |
 | `wykonawca-opus` — Opus `xhigh` | pliki niosące niezmiennik high-stakes; briefy za trudne dla Sonneta | nie wolumen, ekran, szablon, styl ani i18n bez niezmiennika; obowiązuje hook; rodzina Claude — nie recenzuje Claude'a |
 | `wykonawca` — Sonnet 5.5 `high` | Figma MCP, kontekst sesji, repo FE/BE, implementacja; inne narzędzia po potwierdzeniu | jedna warstwa; wymagany faktyczny dostęp; nie przejmuje niezmienników wymagających Opusa; brief bez Figmy tylko z powodem (krok 2); rodzina Claude — nie recenzuje Claude'a |
 | `wykonawca-sonnet-xhigh` — Sonnet 5.5 `xhigh` (próba C2 od 2026-11-01) | pliki niosące niezmiennik high-stakes wyłącznie jako ramię próby, naprzemiennie z `wykonawca-opus` | poza próbą nie dostaje briefów; ta sama para recenzenta co Opus, bramka Sol `max` bez zmian; rodzina Claude — nie recenzuje Claude'a |
@@ -634,7 +689,7 @@ bez wklejonego diffu.
 | `zwiadowca` — Haiku 5.5 `low` | fakty z repo przed decyzją | tylko odczyt |
 | `audytor-a11y` — Opus `high` | delegowany audyt kontrastu/fokusu/tokenów | audyt, nie przejęcie implementacji |
 | QA Sphere — autor Muse: Spark 1.3 `max`, także w funkcji high-stakes (od 2026-10-25); Gemini `-Access write`, gdy Muse zajęty albo z limitem | plik podglądu wg `qasphere-test-generator` | recenzja: plik Muse → Gemini `-Access read`, plik Gemini → Muse `-Access read`; publikacja/poprawki/weryfikacja przez architekta skryptem `qas.py`; sesja nie pisze przypadków i nie woła `create_test_case` / `update_test_case` |
-| bramka końcowa — `gpt-6.1-sol` `max` (od 2026-10-05, zamiast Astry) | cały feature high-stakes po recenzjach fal, osobno FE i BE, sekwencyjnie | bramka z Fazy 4b; niezależna wobec plików niosących niezmiennik (pisze je Opus); nie zastępuje recenzji fal, także dla plików bez niezmiennika pisanych przez Codex |
+| bramka końcowa — `gpt-6.1-sol` `max` (od 2026-10-05, zamiast Astry) | cały feature high-stakes po recenzjach fal; przy dużym diffie osobno FE i BE — równolegle przy zapasie okna 5 h Codexa w `[pule]`, inaczej sekwencyjnie | bramka z Fazy 4b; niezależna wobec plików niosących niezmiennik (pisze je Opus); nie zastępuje recenzji fal, także dla plików bez niezmiennika pisanych przez Codex |
 
 **Preferencje jakościowe — nie hard gates.** Dotychczasowe wyniki recenzji
 Spark/Gemini, researchu Sola i audytu SCSS Sparka (zmierzone na Sparku 1.3,
@@ -717,7 +772,7 @@ Pułapki, które w tym skillu kosztowały najwięcej:
 ## Faza 3 — Implementacja etapu (linie wykonują, sesja główna waliduje)
 
 Implementację wykonują linie z Fazy 2 wg briefów — **sesja główna nie pisze
-kodu**. Jej robota w tej fazie to walidacja dowodów raz na falę: diff,
+kodu** poza drobną korektą z Fazy 2 (krok 4b). Jej robota w tej fazie to walidacja dowodów raz na falę: diff,
 `fala-odbior.py` (Faza 2, krok 3 — `npm run lint` / `npm test` /
 `npm run build` albo `dotnet build` / `dotnet test` w jednym poleceniu),
 zrzuty 2×2 (360×530 i 1280×720, Light i Dark). Playwright MCP w sesji
@@ -769,7 +824,9 @@ pierwotny brief + raport przekazania (decyzje i pułapki dosłownie) + „nie
 powtarzaj zrobionego, zacznij od sprawdzenia stanu poleceniem X”. Nie
 wznawiasz starego agenta przez `SendMessage` — jego długi kontekst to
 właśnie koszt, przed którym chroni strażnik. W ocenie fal liczysz rundy
-korekty briefów z kontynuacją osobno od briefów bez niej. Workerów
+korekty briefów z kontynuacją osobno od briefów bez niej. Kontynuacja
+`wykonawca-opus` to sygnał za dużego briefu: wpisujesz ją w rejestrze
+i następny plan dzielisz drobniej (Faza 2, „Brief krótki”). Workerów
 zewnętrznych (Muse, Gemini, Codex) strażnik nie widzi — ich pilnuje podział
 briefu na jedną warstwę.
 
@@ -917,6 +974,13 @@ stawce Muse jest kandydatem z parą z tabeli reguły 8: Wonder Full `max`
 dla plików niezmiennika (w limicie Wondera), Spark `max` dla średniej
 stawki (od 2026-10-25; wcześniej Wonder `max`).
 
+**Jednostka recenzji** (od 2026-11-16, reguła 13):
+- **plik niezmiennika** — recenzja per brief;
+- **briefy bez niezmiennika** — jedna recenzja na falę i rodzinę autora, cały diff fali tej rodziny w jednym przebiegu;
+- **feature bez niezmiennika mieszczący się w jednej fali** — jedna recenzja na cały feature.
+
+Ponownej recenzji poprawki nie zlecasz po drobnej korekcie z Fazy 2 (krok 4b),
+chyba że poprawka zmienia logikę poza wskazanym miejscem.
 Fala mieszana → recenzje po zbiorach plików per autor, każda przez inną
 rodzinę niż ten autor. Liczby recenzji nie limitujesz. Brief recenzenta
 wymaga sprawdzenia scenariusza każdego P0/P1 przed zgłoszeniem i dosłownego
@@ -986,7 +1050,10 @@ limitów prób, **po** recenzjach etapów i ich poprawkach, a przed bramą
 potwierdzenia, zlecasz recenzję całego niescommitowanego diffu
 feature'a (ta sama komenda, `-Model gpt-6.1-sol -Effort max`,
 `-Title "Bramka Sol PBI #<numer> FE|BE"`) — osobno na każde repozytorium,
-**sekwencyjnie**, każde w całości w jednym przebiegu. Brief przez
+każde w całości w jednym przebiegu. Oba przebiegi puszczasz **równolegle**,
+gdy `[pule]` pokazuje zapas okna 5 h Codexa na oba (od 2026-11-16). Przy
+sygnale ostrzegawczym albo bez odczytu idą **sekwencyjnie**: w PBI #1603
+dwie równoległe bramki na dużym diffie wyczerpały okno Plus. Brief przez
 `-BriefFile` (niestandardowe instrukcje; zakres: `git diff HEAD` +
 `git status --porcelain -uall`) — sprawdź w nim kontrakt FE ↔ BE z kodem,
 bo błędna przesłanka zatrzymuje recenzję na klauzuli STOP. Bramka
@@ -1027,7 +1094,8 @@ Co robisz z wynikiem — **triaż, nie posłuszeństwo** (skill
 2. Defekty wracają **do tej samej linii, która pisała kod** (Muse do
    Muse, Gemini do Gemini, `wykonawca` do `wykonawcy`, `wykonawca-opus`
    do `wykonawca-opus`, Codex do wybranej linii Codexa) jako brief korekty
-   — nie łatasz sam. Po limicie albo rzeczywistym niepowodzeniu ponownie
+   — nie łatasz sam. Wyjątek to drobna korekta z Fazy 2 (krok 4b): plik bez
+   niezmiennika, znana treść, do ~10 linii w ≤ 2 plikach. Po limicie albo rzeczywistym niepowodzeniu ponownie
    kwalifikujesz i wybierasz pary wg Fazy 2; brak bezpiecznej linii oznacza
    zatrzymanie i zgłoszenie blokady.
 3. Po korekcie **nie zlecasz drugiej recenzji** — weryfikujesz poprawkę
