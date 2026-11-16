@@ -8518,7 +8518,7 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Wykonawca: dowód czerwony — `tester` (Haiku 5.5 `xhigh`, `AccountEntityMaterializationTests`, 13 przypadków); obie zmiany produkcyjne — architekt (reguła 11, jedna linia typu bazowego i jedna sygnatura loga). Recenzji innej rodziny nie robiono.
 - Wynik: **istotny defekt po odbiorze** — `AccountStatus` miał typ bazowy `byte`, kolumna `status` to `SMALLINT`; Dapper przy materializacji rekordów rzucał wyjątek, więc każdy odczyt konta (logowanie, profil, odświeżenie, rejestracja, reset hasła) dawał 500 i nie zostawiał śladu w logach. Wykryty dopiero, gdy właściciel zalogował się na PreProd; ścieżka kont nigdy wcześniej nie biegła na prawdziwej bazie, a testy BE nie mają bazy. Naprawa w `97ac1f3`, wdrożona, logowanie potwierdzone przez właściciela.
 - Wnioski do przeglądu (sekcja 5.3, przegląd doraźny): dla nowych enumów mapowanych z kolumn SQL typ bazowy musi zgadzać się z typem kolumny (wzorzec `ContactDeliveryStatus : short`); funkcje uwierzytelniania wymagają próby na prawdziwej bazie przed wdrożeniem. `GlobalExceptionHandler` loguje teraz wyjątek (możliwe dane osobowe w komunikatach wyjątków, np. wartości duplikatu klucza).
-- Konto administratora (`dymekk208j@gmail.com`) wstawione bezpośrednio do bazy PreProd; hasło tylko w hashu PBKDF2, długość 9 znaków łamie walidator BE (≥ 12) przy zmianie i resecie hasła, logowania nie dotyczy.
+- Konto administratora (adres właściciela) wstawione bezpośrednio do bazy PreProd; hasło tylko w hashu PBKDF2, długość 9 znaków łamie walidator BE (≥ 12) przy zmianie i resecie hasła, logowania nie dotyczy.
 
 ### 2800-BE (BE-A1, BE-A2a, BE-A2b, BE-A3 + migracja DB: sprawdzenie i zapis pieczątki gościa, bramka prób po znaczniku urządzenia, dowód akceptacji Regulaminu, retencja dowodu) — 2026-10-28
 - Archetyp: Backend — pliki niezmiennika high-stakes (jednorazowe kody, limit prób, naliczanie pieczątek, migracja danych); osobne briefy na migrację, handlery, bramkę i kontroler.
@@ -13652,6 +13652,144 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P2 potwierdzone (brak kontroli drogi PFX z surowego DER — na Linuksie test przeszedłby przy zepsutym generatorze), P3 komentarz potwierdzone, P3 nazwa teorii odrzucone (jawne v1 też jest niekanoniczne w DER)
 - Defekty po odbiorze: brak (do potwierdzenia w CI)
 - Wymagane testy i dowody: Windows — `--filter Wallet` 1 631 zielonych przed testem kontrolnym, klasa ładowarki 33/33 po nim; Linux w WSL (.NET 10.0.404) — `--filter Wallet` 1 632 zielonych po teście kontrolnym; nowy test i kontrola zielone na obu systemach
+
+### 2912-B1-T (BE: testy integracyjne test-first dla zapisu zdarzeń bezpieczeństwa) — 2026-11-16
+- Archetyp: Testy (xunit, integracyjne z SQL) według kontraktu, przed implementacją
+- Stawka: wysoka / high-stakes (wyrocznia dla plików niezmiennika; same testy bez niezmiennika)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows (1022 s)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R1, testy + dokumentacja jedną recenzją, 712 s)
+- Dopuszczone alternatywy: Codex Terra `max` (≤ 5 plików); `tester` Haiku 5.5 `xhigh`
+- Powód wyboru: testy bez niezmiennika najpierw poza pulą Claude'a (reguła 3); lokalny wynik archetypu (1929-W2-BET, 1 runda)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany (`server_sent_no_usage`, 12:30); Gemini B znany (`[pule]`, 12:32)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano — 3 nowe pliki w zakresie, 9 czerwonych (wyłącznie asercja podmiotu, „było null”) / 11 zielonych, dokładnie jak w briefie; wykonawca trafnie obalił przesłankę briefu o logach (framework na poziomie Trace wypisuje rekord DTO z numerem i PIN-em) i zawęził asercje do wpisów widocznych na produkcji z kontrolą pozytywną
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 30 min (przebieg + walidacja + R1)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1 0 × P0/P1; P2 (DTO z PIN-em w `ToString()`) potwierdzone, poza zakresem → osobny PBI; 2 × P3 odrzucone (asercja liczby wierszy — duplikaty łapią istniejące asercje; 9 cyfr numeru w A8 — ryzyko fałszywej kolizji). Jakość R1: raport przekręcał literały i nazwy sekcji (cytaty nie z plików) — wnioski oparte na własnym przebiegu architekta
+- Defekty po odbiorze: brak — pliki niezmienione do końca (SHA-256), po implementacji 20/20, mutacja kontrolna (102 bez podmiotu) zaczerwieniła A7
+- Wymagane testy i dowody: `fala-odbior --brief`; filtrowany przebieg architekta 9/11/0; pełny zestaw po fali 2
+
+### 2912-D1 (rewizje dokumentów: AT ×2, KO, polityka prywatności) — 2026-11-16
+- Archetyp: Dokumentacja produktowa (rewizje w granicach kontraktu zatwierdzonego z góry)
+- Stawka: średnia
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows (295 s)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R1 razem z B1-T; potem 4c)
+- Dopuszczone alternatywy: Gemini A `high`; Terra `max`
+- Powód wyboru: archetyp dokumentacji → Spark `max` (reguła 8)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany (12:30)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano — dokładnie 4 pliki, statusy bez zmian, kontrola wpływu z 2 obserwacjami (niejednoznaczność sprzed PBI w INT-DOSTAWCY; pokrycie IP/UA)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 10 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R1 i 4c — 0 niezgodności
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: diff przeczytany przez architekta; 4c 15/0/0
+
+### 2912-B2 + K1 + K2 (BE: zapis podmiotu w zdarzeniach bezpieczeństwa — pliki niezmiennika) — 2026-11-16
+- Archetyp: Backend, pliki niezmiennika high-stakes (zapis logu bezpieczeństwa, limity prób)
+- Stawka: wysoka / high-stakes
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` (Opus 5.5 `xhigh`) — B2 89 wywołań, 933 s; K1 39 wywołań, 360 s (świeży agent, nie kontynuacja); K2 11 wywołań, 139 s (komentarz + zapis SemVer skryptem)
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access read` (R2, 573 s; Wonder 2/10 w tygodniu)
+- Dopuszczone alternatywy: brak dla wykonawcy (C2 3:3 do rozstrzygnięcia — pliki niezmiennika pisze Opus); recenzent: Sol `high` przy limicie Wondera
+- Powód wyboru: pliki niezmiennika (reguły 3, 6); jeden niezmiennik na brief, fakty od zwiadowcy w briefie
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, okno 6–11 %, tydzień 13 %); Muse znany (tydzień 19–21 %)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: B1-T 20/20, helper 30/30; wykonawca trafnie wskazał lukę specyfikacji — brief pominął plik testu z atrapą ścisłą na starą sygnaturę (4 czerwone poza B1-T) → jednolinijkowa korekta architekta (reguła 11); obalona przesłanka briefu o CS0854 (na net10 nie występuje — realnym ograniczeniem był dekorator testowy implementujący interfejs)
+- Rundy korekt: 1 (K1: 5 × P3 z R2) + K2 (komentarz o błędzie 2628 nieścisły — przy jawnym rozmiarze parametru SqlClient obcina po cichu; wykazane mutacją w K1)
+- Pliki niezmiennika / pliki briefu: 7 / 12 (B2); 4 / 8 (K1); 1 / 4 (K2)
+- Czas do akceptacji: ok. 1 h 40 min (B2 → R2 → K1 → mutacja → bramka → K2)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R2 0 × P0–P2; 5 × P3 potwierdzone i poprawione (domyślna metoda interfejsu gubiła podmiot w dekoratorze; podmiot liczony pod blokadą wierszy; pusty napis przepuszczany; brak obrony w repozytorium; brak testu ponownego rozstrzygnięcia)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: pełny zestaw BE OK po B2 (`fala-odbior --pelny`, 817 s) i ponownie przed bramą potwierdzenia (798 s, 13612/0/2, 19 plików fali); po K1 115/115 klas dotkniętych; mutacje: 102 bez podmiotu → 3 czerwone, surowy podmiot w repozytorium → 2 czerwone; testy B1-T niezmienione (SHA-256)
+
+### 2912-BRAMKA BE (Sol `max`) — 2026-11-16
+- Archetyp: Bramka końcowa high-stakes
+- Stawka: wysoka / high-stakes
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): — (poprawka komentarza z dowodów → K2, wpis wyżej)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review -BriefFile` (330 s)
+- Dopuszczone alternatywy: brak (reguła 6)
+- Powód wyboru: reguła 6; tylko BE (FE bez zmian)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex znany (`[pule]` 5 h 0 %, tydzień 6 %)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: „dopuszczam”, 0 znalezisk
+- Rundy korekt: 0
+- Czas do akceptacji: 6 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: dowody architekta w briefie bramki; raport końcowy lakoniczny — log sprawdzony grepem pod kątem znalezisk (brak)
+
+### 2912-4c (przegląd zgodności dokumentacji z kodem) — 2026-11-16
+- Archetyp: Audyt dokumentów (odczyt)
+- Stawka: średnia
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): —
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (494 s), równolegle z bramką
+- Dopuszczone alternatywy: Terra `max`
+- Powód wyboru: odczyt, inna rodzina niż autor dokumentacji (Spark); B najpierw
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini B znany (`[pule]`, 14:19)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: 15 zgodnych / 0 niezgodnych / 0 nierozstrzygniętych; lista B i C bez zmian w dokumentach (1 opcja doprecyzowania dla właściciela)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 10 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak niezgodności; recenzent trafnie obalił przesłankę briefu (Grep — konto B nie ma powłoki, tylko `read_file`)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: dziennik rozbieżności bez wpisów `otwarty`/`w toku`
+
+### 2912-B3-T (BE: czerwone testy logowania numerem w postaci niekanonicznej — po bramie) — 2026-11-16
+- Archetyp: Testy (xunit, integracyjne z SQL) test-first przed poprawką pliku niezmiennika
+- Stawka: wysoka / high-stakes (wyrocznia dla plików niezmiennika; same testy bez niezmiennika)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows (364 s)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R3 — B3-T razem z poprawkami dokumentacji architekta z bramy, 515 s)
+- Dopuszczone alternatywy: Codex Terra `max` (1 plik); `tester` Haiku 5.5 `xhigh`
+- Powód wyboru: testy bez niezmiennika najpierw poza pulą Claude'a (reguła 3); lokalny wynik B1-T tej samej funkcji (0 rund)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]`, tydzień 21 %, ~15:00)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano — 1 nowy plik, 6 czerwonych / 3 zielone dokładnie jak w briefie (przebieg architekta 6/3/0); formy niekanoniczne wywodzone z numeru fixture'a (bez literału kolidującego z generatorem)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 10 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): uwagi wykonawcy do specyfikacji: P5 „nie dowodzi wyzerowania” — obalone (zerowanie surowego klucza zostawia licznik kanoniczny na 3 → 429 w drugiej z czterech prób); P4 bez odczytu zdarzeń — przyjęte jako świadome zawężenie. R3: 0 × P0–P2; 1 × P3 odrzucone (brak udanego logowania w zapisie 9 cyfr i `48 …` — wyszukiwanie tych zapisów pokrywają testy jednostkowe handlera z B4, licznik — P4); R3 trafnie obalił przesłankę briefu (brak sekcji `## BE · Testing` w `AGENTS.md`); poprawki dokumentacji architekta: 11/11 zdań zgodnych z kodem
+- Defekty po odbiorze: brak — plik niezmieniony przez B4 (SHA), po B4 9/9, mutacja klucza licznika zaczerwieniła P4 i P5
+- Wymagane testy i dowody: `fala-odbior --brief B3-T` OK; SHA-256 pliku zapisany przed B4
+
+### 2912-B4 (BE: wyszukiwanie konta i klucz licznika prób po numerze kanonicznym — pliki niezmiennika, po bramie) — 2026-11-16
+- Archetyp: Backend, pliki niezmiennika high-stakes (uwierzytelnianie, limit prób)
+- Stawka: wysoka / high-stakes
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` (Opus 5.5 `xhigh`) — 39 wywołań, 364 s, ~165 tys. tokenów
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review -BriefFile` (R4) — Wonder Full `max` odrzucony przez wrapper (dzień 3/3), ponowna kwalifikacja wg reguły 8
+- Dopuszczone alternatywy: brak dla wykonawcy (C2 do rozstrzygnięcia); recenzent: Wonder Full `max` jutro (czekanie odrzucone — Codex z zapasem: 5 h 9 %, tydzień 7 %)
+- Powód wyboru: pliki niezmiennika (reguły 3, 6); jeden niezmiennik (spójna postać identyfikatora dla wyszukiwania i licznika); fakty (ścieżki, linie, sygnatury) w briefie
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, okno 15 %, tydzień 14 %, ~16:05)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: B3-T 9/9 bez zmian w pliku (SHA), B1-T 20/20 (SHA), filtr 161/0/0; wspólny helper `LoginIdentifierNormalizer` w `Auth/Domain`; wskazał nieaktualny komentarz poza zakresem (`LoginCommandValidator`) i gałąź awaryjną kolacji jako decyzję dla właściciela
+- Rundy korekt: 1 (K3 — wyłącznie komentarz XML w `LoginCommandValidator.cs`, wznowiony ten sam agent, 2 wywołania; build kolidował z trwającym pełnym zestawem — MSB3027, bez błędów C#)
+- Pliki niezmiennika / pliki briefu: 3 / 6 (+1 komentarz w K3)
+- Czas do akceptacji: ok. 50 min (B4 → mutacja → R4 → K3 → bramka ∥ pełny zestaw)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R4 (Sol `high`, 183 s) 0 defektów; nieaktualny komentarz walidatora (zgłoszony też przez wykonawcę) poprawiony w K3
+- Defekty po odbiorze: brak znanych. Pierwszy pełny zestaw nieważny z winy architekta: mutacja przywrócona `Copy-Item` ze starą datą → build przyrostowy na mutancie → 20 fałszywych czerwonych (koszt: 13 min powtórki; wpis pamięci scalony i wzmocniony)
+- Wymagane testy i dowody: mutacja (klucz po `Trim`) → 17 czerwonych, w tym B3-T P4 i P5; plik przywrócony (hash); `fala-odbior --pelny` 13657/0/2 (819 s, po przebudowie)
+
+### 2912-BRAMKA BE 2 (Sol `max`, ponowna po poprawce z bramy potwierdzenia) — 2026-11-16
+- Archetyp: Bramka końcowa high-stakes
+- Stawka: wysoka / high-stakes
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): —
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review -BriefFile` (334 s), równolegle z ponownym pełnym zestawem
+- Dopuszczone alternatywy: brak (reguła 6)
+- Powód wyboru: reguła 6 — zakres funkcji high-stakes zmienił się po bramce (B4), więc cały diff BE jeszcze raz
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex znany (`[pule]` 5 h 9 %, tydzień 7 %, ~16:30)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: „dopuszczam”, 0 znalezisk (log sprawdzony grepem)
+- Rundy korekt: 0
+- Czas do akceptacji: 6 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): brak
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: B1-T i B3-T (SHA), mutacje, R1–R4, pełny zestaw 13657/0/2 (819 s, po przebudowie)
 
 ### Zapisy przeglądów
 
