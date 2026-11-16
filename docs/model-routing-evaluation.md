@@ -13415,6 +13415,142 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: brak znanych
 - Wymagane testy i dowody: `qas.py` lint 0 → folders (244) → push 1 → `verify --only` → push 31 → update 2 → pełne `verify` 34: 63 różnice wyłącznie z escapowania `\_` w Markdown (HTML zgodny, sprawdzone na seq 2525). Wniosek: brief generatora ma wymagać danych unikalnych na przebieg wprost, a znaczniki z podkreślnikiem pisać w `kodzie`
 
+### 2913-B1 + K1 / K1-cont / K1-cont2 (migracja kolumn adresu na nvarchar, kolacja BIN2, dane małymi literami) — 2026-11-15/16
+- Archetyp: Plik niezmiennika high-stakes — migracja danych + typ identyfikatora konta (Dapper, SQL, testy SQL)
+- Stawka: wysoka / high-stakes (pliki niezmiennika / pliki briefu: migracje 000034–000035, parametry adresu i `ScopeKey`, deklaracje SQL / te same + `DbDiagram.dbml`, `Scripts/README.md`, testy)
+- Niepewność: wysoka (zachowanie kolacji SQL Server wobec znaków spoza strony kodowej nieznane przed pomiarem)
+- Wykonawca (linia / model / native effort): `wykonawca-opus` — Opus 5.5 `xhigh` (B1; K1 → przekazanie → K1-cont → przekazanie → K1-cont2)
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access read` — jedna łączna recenzja B1+K1 (3859 s)
+- Dopuszczone alternatywy: recenzja — Sol 6.1 `high`; wykonawca — Wonder Full `max` tylko przy CZERWONYM
+- Powód wyboru: twarda bramka (migracja danych, identyfikator konta); recenzja B1 przeniesiona na łączną po zmianie decyzji (kolacja) zamiast dwóch Wonderów; Wonder po resecie limitu (10/10 do pon. 01:00)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY (hook, 2026-11-15 15:10); Wonder zablokowany limitem wrappera do 2026-11-16 01:00, potem znany
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: B1 zielony (13292/0/2) i **słusznie zgłosił P0 w specyfikacji**: kolacja `_CI_AS` pomija znaki bez wagi (emoji, U+200D) → `vic😀tim@x.pl` = `victim@x.pl`; potwierdzone pomiarem → decyzja właściciela BIN2 + małe litery → fala 4 (K1)
+- Rundy korekt: K1 w trzech przebiegach z dwoma przekazaniami na progu kontekstu (P0 z przekazania: `LoginThrottles.ScopeKey` zostaje w kolacji CI — przyjęte); po recenzji 0 korekt w plikach B1/K1 (P2 trafił do B3-K1, P3 jednolinijkowy u architekta)
+- Czas do akceptacji: ok. 11 h (14:24 → odbiór `be-f4` ok. 01:00, z decyzją właściciela w środku)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 0 × P0/P1; P2 `BounceClassifier` bez limitu długości — potwierdzone (kod B3); P2 strażnik 000035 przepuszcza NFD — odrzucone (dane CP1252 bez znaków łączących, 34+35 w jednym wydaniu); P3 `xn--` w dowolnym miejscu — przyjęte; P3 surowe `PendingEmail` — potwierdzone
+- Defekty po odbiorze: brak znanych; PRE po deployu: 12 kolumn `nvarchar(255)` BIN2, 0 adresów niekanonicznych (406 kont)
+- Wymagane testy i dowody: K1-cont2 13544/0/2, próba czerwieni 37/37; pomiar: statystyki automatyczne nie blokują `ALTER COLUMN`; odbiór `fala-odbior --pelny` OK (build `-warnaserror`)
+
+### 2913-B2 + B2-cont + B2-K1 + B2-K2 + B2-T (postać kanoniczna adresu, punkty wejścia, adres od dostawcy) — 2026-11-15
+- Archetyp: Plik niezmiennika high-stakes — logika przekrojowa tożsamości konta i limitu prób (+ testy integracyjne bez niezmiennika osobnym briefem)
+- Stawka: wysoka / high-stakes (pliki niezmiennika / pliki briefu: `AccountEmailNormalizer`, `AccountEmailPattern`, punkty wejścia rejestracji/logowania/odzyskiwania, `ExternalIdentityRules` / te same; B2-T: tylko testy)
+- Niepewność: wysoka (IDN, NFC, koszt obliczeń na wejściu bez limitu)
+- Wykonawca (linia / model / native effort): `wykonawca-opus` — Opus 5.5 `xhigh` (B2 → przekazanie → B2-cont, B2-K1, B2-K2); B2-T — Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Mode review` (R-B2, 376 s); ponowna recenzja poprawek — w łącznej Wonder Full (2913-B1) i w bramce Sol `max`
+- Dopuszczone alternatywy: recenzja — Wonder Full `max` (zablokowany limitem); B2-T — Codex Terra `max`
+- Powód wyboru: twarda bramka (tożsamość konta); Wonder 10/10 → reguła 8 (po limicie do innej rodziny); B2-T bez niezmiennika → poza pulą Claude'a (reguła 3)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany ZIELONY; Codex ostrzegawczy (tydzień 96 %, `[pule]`); Muse nieznany (`server_sent_no_usage`)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: B2 przekazany na progu kontekstu (domknięty przez B2-cont); B2-T 13427/0/3 (scenariusz `ß`=`ss` słusznie pominięty do fali kolacji)
+- Rundy korekt: 2 (B2-K1: 2 × P2 z recenzji; B2-K2: P1 kwadratowy koszt `GetUnicode`/NFC na wejściu bez limitu — 480 tys. znaków 814 ms, zgłoszony przez wykonawcę K1, potwierdzony pomiarem → limit 1020)
+- Czas do akceptacji: ok. 3 h (15:08 → 18:00)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Sol `high` — 2 × P2 potwierdzone (idempotencja `Normalize` po małych literach; surowy limit 255 w logowaniu)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: B2-K1 13486/0/3, B2-K2 13497/0/3, próby czerwieni po każdej korekcie
+
+### 2913-F1 + F1-K1 (FE: walidator adresu zgodny z WP) — 2026-11-15
+- Archetyp: Implementacja bez niezmiennika — funkcja walidująca + speci Vitest (7 plików)
+- Stawka: niska–średnia (walidacja FE to wygoda; granicą jest BE)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`; F1-K1 — ta sama linia `high` (korekta z gotową treścią)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read`
+- Dopuszczone alternatywy: Codex Terra `max` (porcje ≤ 5 plików); `wykonawca` tylko z powodem
+- Powód wyboru: reguła 3 (bez Figmy i niezmiennika → poza pulą Claude'a); recenzja niskiej stawki → Gemini (reguła 13)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany; Gemini B znany (`[pule]`, 2026-11-15 15:10)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zielony (49 testów, lint, format)
+- Rundy korekt: 1 (F1-K1: P1 z recenzji)
+- Czas do akceptacji: ok. 30 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P1 identyfikator > 255 znaków przechodzi walidator — potwierdzone
+- Defekty po odbiorze: brak; bramka Sol `max` FE — 0 znalezisk
+- Wymagane testy i dowody: 53 testy po K1; odbiór fali FE 8729 testów + build
+
+### 2913-D1 + D1-K1 (rewizje dokumentów: WP, RB, INT-DOSTAWCY, INT-POCZTA, konfiguracja prod) — 2026-11-15
+- Archetyp: Dokumentacja (rewizje dokumentów `zatwierdzony`)
+- Stawka: średnia (źródło prawdy funkcji high-stakes)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write` (D1: 6 dokumentów; D1-K1: 4 pliki po decyzji BIN2)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` — przegląd zgodności 4c (osobny wpis) + odczyt diffu przez architekta
+- Dopuszczone alternatywy: Gemini A `high`
+- Powód wyboru: reguła 8 (archetyp „dokumentacja”)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany (`server_sent_no_usage`)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: przyjęty z drobną poprawką architekta (opis `DeadLetter`)
+- Rundy korekt: 1 (D1-K1 — zmiana decyzji właściciela, nie błąd autora); RB pkt 3 poprawiony przez architekta („tylko `xn--`”)
+- Czas do akceptacji: w obrębie fali; ostatecznie na bramie 2026-11-16
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): w 2913-4c
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: diff przeczytany przez architekta; rewizje zatwierdzone przez właściciela na bramie
+
+### 2913-B3 + B3-K1 + K2 (BE: wiadomości i kontakty w postaci kanonicznej) — 2026-11-15/16
+- Archetyp: Implementacja bez niezmiennika — BE serwisy + testy (21 plików), korekty z gotową treścią
+- Stawka: średnia
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write` (B3; B3-K1 701 s; K2 474 s)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (R-B3); B3-K1 i K2 wynikły z recenzji Wonder Full (2913-B1) i bramki Sol `max`
+- Dopuszczone alternatywy: Codex Terra `max` (≤ 5 plików); `wykonawca` z powodem
+- Powód wyboru: reguła 3; jeden wykonawca BE naraz (pełny `dotnet test`)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany; Gemini B znany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: pierwszy przebieg zabity razem z sesją (bez wyniku); ponowienie zielone 13527/0/3 z próbą czerwieni
+- Rundy korekt: 2 (B3-K1: P2 limit długości adresu z raportu odbicia + test cyklu resetu; K2: P2 fragment wyszukiwania bez postaci kanonicznej)
+- Czas do akceptacji: ok. 8 h (21:46 → 02:20, w tym bramka)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Gemini B — 2 × P1 + 2 × P2 odrzucone (wszystkie zakładały niekanoniczne dane w bazie, które migracja 000035 wyklucza), P3 stan sprzed zmiany; potwierdzone dopiero przez Wonder (P2) i Sol `max` (P2). **Gemini B przy tej stawce: 0 potwierdzonych z 5**
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: K2 481/481 Contacts, czerwień 2/2; odbiór `be-f5` OK 13551/0/2
+
+### 2913-BRAMKA FE + BE (Sol `max`) — 2026-11-16
+- Archetyp: Bramka końcowa high-stakes
+- Stawka: wysoka / high-stakes
+- Niepewność: wysoka
+- Wykonawca (linia / model / native effort): poprawki — K2 Spark `max` (wpis 2913-B3); doprecyzowanie dokumentacji — architekt
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Mode review` (FE 411 s; BE 1498 s)
+- Dopuszczone alternatywy: brak (reguła 6)
+- Powód wyboru: reguła 6
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex ostrzegawczy (tydzień 96 %) → zablokowany w 1. przebiegu BE (`usage_limit_exceeded` w rolloucie; wrapper pokazał tylko exit 1) → darmowy pełny reset zużyty wg decyzji właściciela z planu (zostaje 1)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: FE zielona (0 znalezisk); BE „niepoprawny” (2 × P2)
+- Rundy korekt: 1 (K2); drugiej bramki nie było (poprawka dwóch plików odebrana pełnym `fala-odbior`)
+- Czas do akceptacji: ok. 1 h od drugiego przebiegu BE
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P2 fragment wyszukiwania kontaktów bez ponownej postaci kanonicznej — potwierdzone (K2); P2 znana para dostawca–identyfikator bez sprawdzenia wzorca — odrzucone jako kod (wzorzec sprzed zmiany, macierz dokumentu), doprecyzowane w dokumentacji i zatwierdzone przez właściciela
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `be-f5` OK (130 plików, build 0, 13551/0/2); deploy PRE FE i BE `success`, dokładne SHA na `/version.json` i `/api/version`
+
+### 2913-4c (przegląd zgodności dokumentacji z kodem) — 2026-11-16
+- Archetyp: Audyt dokumentów (odczyt)
+- Stawka: średnia
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): poprawki rewizji — architekt (dokumentacja)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read` (583 s)
+- Dopuszczone alternatywy: Sol 6.1 `high` (pula Codexa zostawiona na bramkę)
+- Powód wyboru: odczyt, inna rodzina niż autor dokumentacji (Spark); B najpierw
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini B znany (`[pule]`)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: 1 × P1 + 2 × P2 + 1 × P3
+- Rundy korekt: 1 (rewizje dopisane przez architekta, zatwierdzone na bramie)
+- Czas do akceptacji: ok. 1 h
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): potwierdzone P1 (domena `xn--` u operatora płatności nieopisana → rewizja INT-PLATNOSCI-CYKLICZNE), P2 (INT-FAKTUROWNIA bez sekcji rewizji), P3 („jak przyszedł”); odrzucone P2 (wyszukiwanie na BIN2 — fragment kanoniczny + test). Recenzent trafnie zgłosił błędną przesłankę briefu (`AGENTS.md` dokumentacji to zaślepka)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: dziennik rozbieżności bez wpisów `otwarty`/`w toku`
+
+### 2913-QAS (Q1 + R1 + K1; folder 245, seq 2557–2569, aktualizacje requirements ×10) — 2026-11-16
+- Archetyp: QA Sphere (13 nowych + Krok 2b na 282 przypadkach folderów 32, 34, 36, 40, 191, 217, 223, 224, 225, 241)
+- Stawka: średnia (QA Sphere funkcji high-stakes)
+- Niepewność: średnia (bez SMTP na PRE; dostawcy tożsamości nie dają adresu niezgodnego)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows (Q1 1440 s, K1 377 s)
+- Recenzent (linia / model / native effort): Gemini konto B / `gemini-3.8-flash-high` / `-Access read`
+- Dopuszczone alternatywy: autor — Gemini A `high`; recenzent — Codex Terra `max`
+- Powód wyboru: para z tabeli skilla QA Sphere
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (17 % tygodnia, `[pule]` 08:45); Gemini B znany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: lint 0; 282 × `keep`, 12 nowych; dane unikalne na przebieg od razu (wniosek z 1929-QAS wpisany w brief zadziałał)
+- Rundy korekt: 1 (K1)
+- Czas do akceptacji: ok. 50 min (07:09 → wysyłka 07:55, w tym brama właściciela)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2 × „P0” obniżone i przyjęte częściowo — wpis PBI #2914 w przypadkach, które nie przechodzą przez dostawcę (**błąd briefu architekta**: „oba wpisy w każdym przypadku”), regresja istniejących przez `update` samych `requirements`; P1 E11 bez wylogowania między kontami — potwierdzone; P2 granica 255 — przyjęte; odrzucone P2 (numer telefonu z seedu — brak w pliku) i P3 (komunikat E5 — zgodny z `pl.json`). Recenzent zmyślał cytaty (pole `requirements` jako tablica napisów, treść `coverage.skipped`)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `qas.py` lint 0 → folders (245) → push 1 → `verify --only` → push 12 → update 10 → pełne `verify` 23: 7 różnic wyłącznie z escapowania `\_` (HTML zgodny, seq 2567). Wniosek: w briefie generatora dla zestawu wielu PBI `requirements` per przypadek wg ścieżki, którą przypadek faktycznie przechodzi
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
