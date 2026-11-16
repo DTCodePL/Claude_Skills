@@ -13619,6 +13619,40 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: brak
 - Wymagane testy i dowody: brama właściciela 2026-11-16 („OK”), fast-forward tego samego commita na `main`
 
+### 2967-A (FE: skrócenie standardu w pliku reguł poniżej limitu rozmiaru) — 2026-11-16
+- Archetyp: Dokumentacja / plik reguł wykonawców (1 plik, kompresja bez utraty reguł)
+- Stawka: średnia (plik czytany przez wszystkich wykonawców; utracona reguła wraca jako defekt w kolejnych PBI)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, host Windows, `-Access write` (1 050 s)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high`, `-Access read` (409 s)
+- Dopuszczone alternatywy: Codex `gpt-6.1-terra` `max`; recenzja: Codex Sol `high`
+- Powód wyboru: brief bez Figmy i niezmiennika — najpierw poza pulą Claude'a (reguła 3); kontrola mechaniczna skryptem (tokeny, nagłówki, część wspólna, rozmiar)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse znany (`[pule]` ok. 11:00: 5 h 7 %, tydzień 19 %); Gemini B znany (ok)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: STOP — worker słusznie obalił przesłankę briefu (cel −5 194 B nieosiągalny; bezpieczny skrót prozy ≈ 1 400 B), plik nietknięty, kandydat zapisany poza repo. Właściciel wybrał przeniesienie czterech wąskich wyjątków do osobnego pliku; architekt nałożył kandydata i przeniesienie skryptem (63 640 B)
+- Rundy korekt: 1 (drobna korekta architekta po recenzji, reguła 11)
+- Czas do akceptacji: ok. 1 h 30 min (z decyzją właściciela)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P1 częściowo potwierdzone (przeredagowanie zawęziło regułę wariantu logo do rastrów; sam wymóg obrazu był duplikatem), P2 odrzucone (informacja o transporcie zachowana w innej sekcji), P3 odrzucone; recenzent słusznie wytknął, że kontrola tokenów na poziomie pliku maskuje usunięcie reguły zduplikowanej gdzie indziej
+- Defekty po odbiorze: brak (do potwierdzenia w CI)
+- Wymagane testy i dowody: skrypt kontrolny (część wspólna bajt w bajt, nagłówki, 0 utraconych tokenów), krok `instrukcje.yml` lokalnie (63 640 B ≤ 64 000 B), `prettier --check`
+
+### 2967-B (BE: test certyfikatu portfela niezależny od platformy) — 2026-11-16
+- Archetyp: Testy jednostkowe / helpery testowe (3 pliki, produkcja bez zmian)
+- Stawka: niska
+- Niepewność: średnia (różnice CryptoAPI i OpenSSL)
+- Wykonawca (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (289 s)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high`, `-Access read` (437 s)
+- Dopuszczone alternatywy: Muse Spark 1.3 `max`; recenzja: Muse Spark `max`
+- Powód wyboru: brief bez niezmiennika ≤ 5 plików, poza pulą Claude'a (reguła 3); zapas Codexa duży, brak bramki w toku
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex znany (`[pule]` ok. 11:00: 5 h 9 %, tydzień 5 %)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: STOP zgodnie z briefem — worker słusznie wykrył błąd przesłanki (konstruktor `Pkcs12CertBag` oczekuje certyfikatu opakowanego w OCTET STRING) i zostawił kompletną resztę; 25 czerwonych testów w jego przebiegu to piaskownica Codexa (poza nią zielono)
+- Rundy korekt: 1 (architekt: opakowanie OCTET STRING, potem test kontrolny drogi z surowego DER i komentarz po recenzji — reguła 11)
+- Czas do akceptacji: ok. 45 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): P2 potwierdzone (brak kontroli drogi PFX z surowego DER — na Linuksie test przeszedłby przy zepsutym generatorze), P3 komentarz potwierdzone, P3 nazwa teorii odrzucone (jawne v1 też jest niekanoniczne w DER)
+- Defekty po odbiorze: brak (do potwierdzenia w CI)
+- Wymagane testy i dowody: Windows — `--filter Wallet` 1 631 zielonych przed testem kontrolnym, klasa ładowarki 33/33 po nim; Linux w WSL (.NET 10.0.404) — `--filter Wallet` 1 632 zielonych po teście kontrolnym; nowy test i kontrola zielone na obu systemach
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
