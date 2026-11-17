@@ -14374,6 +14374,193 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: brak znanych (przed wykonaniem przez testera)
 - Wymagane testy i dowody: `qas.py lint` 0; `push --limit 1` + `verify --only` czyste; pełny `verify` — 1 rzekoma różnica (kolejność requirements B24, treść zgodna z odczytem MCP)
 
+### 1665-C-BE0 (podgląd usunięcia i `DeleteAccount` w dostępności działań — część bez niezmiennika) — 2026-11-17
+- Archetyp: BE implementacja bez niezmiennika (zapytanie podglądu, DTO, trasa, wpis w katalogu dostępności, testy integracyjne)
+- Stawka: średnia (odczyt za rolą administratora; plik niezmiennika usunięcia osobno w C-BE1)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows (536 s, 18 plików)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high`, `-Access read` (501 s)
+- Dopuszczone alternatywy: wykonawca — `wykonawca` Sonnet `high` (z powodem); recenzent — Sol `high`, Terra `max` (pula Codexa przed bramką)
+- Powód wyboru: plaster wysokiej stawki podzielony (r. 3) — część bez niezmiennika poza pulą Claude'a, Spark `max` (r. 8); odczyt najpierw na Gemini B
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany (`server_sent_no_usage`, [pule], 2026-11-17 14:15); Gemini B ok ([pule])
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: przyjęty; build bez ostrzeżeń, 122/122 testów dotkniętych klas, diff zgodny z pakietem; wykonawca słusznie wskazał sprzeczność briefu (rekordy „wzorem sąsiednich DTO”, a sąsiednie DTO to klasy)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 11 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Gemini B — poprawny 0,98; 2 × P3 (brak testu programu bez klientów — potwierdzone, domknięte w G-C-BE-K; zbędne zliczenia przy własnym koncie — przyjęte bez zmian)
+- Defekty po odbiorze: rozbieżność definicji „programu do zamknięcia” (status zamiast `ClosedAt IS NULL`) wykryta dopiero w bramce BE (P3), poprawiona w G-C-BE-K
+- Wymagane testy i dowody: `dotnet build` + `dotnet test --filter` klas briefu; pełny zestaw po fali C1
+
+### 1665-C-BE1 (usunięcie konta przez administratora — wspólny rdzeń z samoobsługą, sprawdzenie numeru, wpis logu typu 9) — 2026-11-17
+- Archetyp: BE plik niezmiennika high-stakes (nieodwracalne usunięcie danych, Stripe, sesje, blokady i ponowienie po zakleszczeniu)
+- Stawka: wysoka
+- Niepewność: średnia (wspólny rdzeń z samoobsługą, kolejność blokad, domykacz dopłaty)
+- Wykonawca (linia / model / native effort): `wykonawca-opus` / Opus 5.5 / `xhigh` (fakty od `zwiadowca` przed briefem)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Access read` (333 s, 64 pliki)
+- Dopuszczone alternatywy: recenzent — Wonder Full `max` (limit Wondera, pula Muse)
+- Powód wyboru: pliki niezmiennika wyłącznie `wykonawca-opus` (r. 3, 6); recenzja fali z innej rodziny — Sol `high` przy zapasie Codexa przed bramką
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook, 2026-11-17 14:29); Codex znany ([pule], okno 5 h z zapasem)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: przyjęty; build bez ostrzeżeń, 581 testów z filtrów zielonych, 4 mutacje czerwone; wykonawca słusznie obalił przesłankę briefu (strażnik etapu B zwraca 409 dla własnego konta, kontrakt wymaga 404 — osobne sprawdzenie jak w podglądzie)
+- Rundy korekt: 0 w fali; 1 po bramce (G-C-BE-K)
+- Czas do akceptacji: ok. 30 min do raportu, recenzja 6 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Sol `high` — 1 × P2 (domykacz dopłaty zamyka checkout także przy późniejszej porażce usunięcia) — potwierdzone jako luka dokumentu, nie kodu: zachowanie zgodne z samoobsługą, opisane w rewizji U8 i WP, zatwierdzone na bramie C
+- Defekty po odbiorze: 5 × P3 z bramki BE (komentarze kolejności blokad, brak trzech dowodów w testach, nazwa testu, definicja podglądu) — G-C-BE-K
+- Wymagane testy i dowody: `dotnet test --filter` klas briefu; pełny zestaw 14 046 / 0 nieudanych po fali C1
+
+### 1665-C-FE1 + C-FE1-K (okno „Usuń konto” w dwóch krokach — Figma 2900-101731; korekta po recenzji) — 2026-11-17
+- Archetyp: FE ekran z Figmy funkcji wysokiej stawki (okno, arkusz < `sm`, dwie metody API, pozycja menu, i18n)
+- Stawka: średnia (ekran bez pliku niezmiennika; usunięcie egzekwuje BE)
+- Niepewność: średnia (porównanie przepisanego numeru, warstwy arkuszy, odpowiedzi 404/422)
+- Wykonawca (linia / model / native effort): `wykonawca` / Sonnet 5.5 / `high` (C-FE1 i korekta C-FE1-K)
+- Recenzent (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access read` (711 s)
+- Dopuszczone alternatywy: recenzent — Gemini B `high`, Terra `max`
+- Powód wyboru: Figma MCP → `wykonawca` (próba Figmy zamknięta); dwie metody API w tym samym briefie (rozdzielenie droższe niż praca, r. 3)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook, 14:20); Muse nieznany ([pule])
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: przyjęty do recenzji; 410/410 testów `users`, eslint i prettier czyste; pełny odbiór FE zielony (764 pliki testów, build)
+- Rundy korekt: 1 (C-FE1-K: 422 i 404 podglądu jako działanie nieaktualne + znaleziska recenzji; 460 testów, mutacje 422/404 czerwone)
+- Czas do akceptacji: ok. 50 min (wykonanie, recenzja 12 min, korekta 10 min, odbiór)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Spark `max` — 2 × P2 (fokus po 422, `runAction` dla `DeleteAccount` bez numeru) potwierdzone, poprawione w C-FE1-K; 6 × P3 (część poprawiona w korekcie, reszta przyjęta)
+- Defekty po odbiorze: bramka FE (Sol `max`) — 2 × P2: prostsza normalizacja numeru niż w BE (np. „0048”, nawiasy) i kolizja blokad przewijania arkuszy przy zamykaniu nie w kolejności LIFO → G-C-FE-K1/K2
+- Wymagane testy i dowody: `ng test --include` speców briefu; `fala-odbior --pelny` FE; browser-check C (rejestr → „Usuń konto” → krok 1 → krok 2, bez zatwierdzenia; 360 i 1280, Light i Dark)
+
+### 1665-C-DOC1 (rewizja 2026-11-17 UI-ADMINISTRATOR-UZYTKOWNICY, U1–U8) — 2026-11-17
+- Archetyp: dokumentacja — datowana rewizja dokumentu `zatwierdzony` według dziennika rozbieżności
+- Stawka: średnia
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max` (286 s STOP; ponowienie 480 s)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high` w przeglądzie zgodności C-4c
+- Dopuszczone alternatywy: recenzent — Sol `high`, Terra `max`
+- Powód wyboru: dokumentacja → Spark `max` (r. 8)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany ([pule], 14:40)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: słuszny STOP — U5 opisywał zachowanie, którego kod jeszcze nie miał (wchodziło w C-FE1-K); brief miał też polecenie daty w front matter, której dokument nie ma
+- Rundy korekt: 1 (ponowienie po C-FE1-K z poprawionym briefem)
+- Czas do akceptacji: ok. 40 min (w tym oczekiwanie na C-FE1-K)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): w C-4c — rewizja U1–U8 zgodna z kodem; brak zmian w WP-USUWANIE-KONTA-I-DANYCH dopisany osobną rewizją architekta
+- Defekty po odbiorze: —
+- Wymagane testy i dowody: odczyt diffu dokumentu; przegląd zgodności 4c
+
+### 1665-C-AUD (audyt SCSS okna „Usuń konto”) — 2026-11-17
+- Archetyp: audyt SCSS (odczyt)
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access read` (448 s)
+- Recenzent (linia / model / native effort): —
+- Dopuszczone alternatywy: Gemini B `high`
+- Powód wyboru: audyt SCSS → Spark `max` (r. 8)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany ([pule], 15:08)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: przyjęty; tokeny, motywy, brak `::ng-deep`, `.p-*`, heksów i `@media`; 2 propozycje użycia wspólnych mixinów `logged/section-heading` i `logged/stack-list` — naniesione przed odbiorem FE
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 15 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): —; audytor słusznie wytknął briefowi wskazanie złych plików do porównania i odwróconą historię przeniesienia mixinów
+- Defekty po odbiorze: —
+- Wymagane testy i dowody: pełny odbiór FE po poprawce SCSS — zielony
+
+### 1665-C-4c (przegląd zgodności dokumentacji z kodem, etap C) — 2026-11-17
+- Archetyp: przegląd zgodności dokumentacji (odczyt repo FE, BE i dokumentacji)
+- Stawka: średnia
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Gemini B / `gemini-3.8-flash-high` (863 s — odrzucony); Codex / `gpt-6.1-terra` / `max` (502 s — `failed`, limit okna 5 h); Gemini B / `gemini-3.8-flash-high` ze ścisłymi zasadami cytowania (471 s — przyjęty)
+- Recenzent (linia / model / native effort): — (cytaty sprawdzał architekt skryptem)
+- Dopuszczone alternatywy: Sol `high` (pula Codexa przed bramką — odrzucone), Terra `max`
+- Powód wyboru: inna rodzina niż autor dokumentacji (Muse); odczyt najpierw na Gemini B; po odrzuceniu ponowna kwalifikacja do Terry, po jej limicie ponowienie na Gemini B z twardym kontraktem cytatów
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini B ok; Codex ostrzegawczy (okno 5 h 85 %, [pule], 15:34)
+- Pewność decyzji: niska (jakość Gemini Flash w tym archetypie niestabilna)
+- Wynik pierwszego podejścia: **odrzucony** — 22 z 24 cytatów nie istniało w plikach (skrypt `verify_quotes.py`); ponowienie: 8/8 cytatów prawdziwych, 18 twierdzeń zgodnych, 0 rozbieżności; jedna realna uwaga — WP-USUWANIE-KONTA-I-DANYCH nie opisywał czterech zachowań ścieżki administratora (rewizja WP 2026-11-17, zatwierdzona na bramie C)
+- Rundy korekt: 2 ponowienia (jedno przerwane limitem)
+- Czas do akceptacji: ok. 35 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): pierwszy raport w całości odrzucony (zmyślone cytaty)
+- Defekty po odbiorze: —
+- Wymagane testy i dowody: każdy cytat sprawdzony skryptem albo `grep -F`
+
+### 1665-G-C-BE (bramka końcowa BE etapu C — Wonder Full `max` zamiast Sola na polecenie właściciela) — 2026-11-17
+- Archetyp: bramka końcowa high-stakes BE (odczyt całego diffu)
+- Stawka: wysoka
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): — (recenzja)
+- Recenzent (linia / model / native effort): Muse / `muse-wonder-full-1.0-contributor` / `max`, `-Access read`, `-WonderPowod` (733 s; diff BE, 18 nowych plików, diff rewizji WP w `_robocze`)
+- Dopuszczone alternatywy: Sol `max` po resecie okna Codexa (para reguły 6) — właściciel polecił nie czekać („zmień model na inny, nie czekaj, wróć do Codexu po resecie”), jednorazowe odstępstwo dla tej funkcji
+- Powód wyboru: najmocniejsza dostępna linia z innej rodziny niż autor (Claude) i inna niż recenzja fali (Codex); Gemini nie recenzuje high-stakes, Spark za słaby na bramkę
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex zablokowany (okno 5 h wyczerpane do 18:19, [pule]); Wonder — limit dzienny 3/3 osiągnięty, tydzień 6/10 → obejście `-WonderPowod` zgłoszone właścicielowi
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: gotowe, 0,9; 0 × P0–P2, 5 × P3 (definicja podglądu `ClosedAt IS NULL`, komentarze kolejności blokad, trzy brakujące dowody w testach, nazwa testu); potwierdził zgodność rewizji WP z kodem
+- Rundy korekt: 1 (G-C-BE-K)
+- Czas do akceptacji: ok. 30 min z korektą
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 5 × P3 potwierdzone, wszystkie poprawione
+- Defekty po odbiorze: —
+- Wymagane testy i dowody: pełny zestaw BE po korekcie — 14 048 / 0 nieudanych / 2 pominięte
+
+### 1665-G-C-BE-K (korekty po bramce BE — 8 punktów) — 2026-11-17
+- Archetyp: BE korekta pliku niezmiennika (SQL podglądu, komentarze, testy integracyjne z prawdziwym zakleszczeniem)
+- Stawka: wysoka
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): `wykonawca-opus` / Opus 5.5 / `xhigh`
+- Recenzent (linia / model / native effort): — (zakres poprawek P3 sprawdzony przez architekta na diffie; produkcyjnie zmienił się tylko warunek SQL podglądu)
+- Dopuszczone alternatywy: —
+- Powód wyboru: pliki niezmiennika wracają do `wykonawca-opus` (r. 11)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook, 17:13)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: przyjęty; build czysty, 47/47 z filtra; każdy nowy test czerwony na celowo wprowadzonym błędzie (`LEFT`→`INNER JOIN`, brak ponowienia po zakleszczeniu, zmiana numeru w trakcie oczekiwania na blokadę); rdzeń usunięcia przywrócony po mutacjach
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 15 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): —
+- Defekty po odbiorze: —
+- Wymagane testy i dowody: pełny zestaw BE 14 048 / 0 nieudanych
+
+### 1665-G-C-FE (bramka końcowa FE etapu C) — 2026-11-17
+- Archetyp: bramka końcowa high-stakes FE (odczyt całego diffu)
+- Stawka: wysoka
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): — (recenzja)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `max`, `-Access read` (869 s)
+- Dopuszczone alternatywy: brak (para reguły 6)
+- Powód wyboru: reguła 6; start po resecie okna Codexa (BE na Wonderze, więc FE sekwencyjnie bez kolizji)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Codex znany (okno 5 h 0 % po resecie, [pule], 17:21)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: 2 × P2 (normalizacja przepisanego numeru prostsza niż w BE; blokada przewijania arkuszy „zapamiętaj i przywróć” psuje się przy zamknięciu nie w kolejności LIFO) + 1 × P3
+- Rundy korekt: 1 (K1 + K2 równolegle)
+- Czas do akceptacji: ok. 40 min z korektami i recenzją
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): 2 × P2 potwierdzone testami czerwonymi na starym kodzie; P3 domknięte w K1
+- Defekty po odbiorze: —
+- Wymagane testy i dowody: pełny odbiór FE po korektach — zielony (ostrzeżenia tylko znanych budżetów SCSS)
+
+### 1665-G-C-FE-K1 + K2 (pełna normalizacja numeru; wspólny licznik blokad przewijania arkuszy) — 2026-11-17
+- Archetyp: FE korekta bez niezmiennika (helper, speci, serwis warstw arkuszy)
+- Stawka: średnia
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write` (K1 593 s, K2 579 s, równolegle, rozłączne pliki)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high`, `-Access read` (395 s)
+- Dopuszczone alternatywy: wykonawca — `wykonawca` Sonnet `high` (autor C-FE1; z powodem); recenzent — Terra `max`, Gemini B `high`
+- Powód wyboru: korekta bez Figmy i bez niezmiennika → najpierw poza pulą Claude'a (r. 3), Spark `max` (r. 8); recenzent z innej rodziny niż Muse
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany ([pule]); Codex znany (17:48)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: przyjęty; K1 — tabela przypadków przepuszczona przez kod BE, 104/104, cztery mutacje kontroli w `onNextClick`/`onBackClick` czerwone; K2 — test zamknięcia nie-LIFO czerwony na starym kodzie, 35 speców konsumentów arkusza (874 testy) zielonych; wykonawca słusznie przypiął `'auto'` w specu (wyciek `hidden` maskował defekt); architekt usunął zbędny `eslint-disable` (r. 11)
+- Rundy korekt: 0 u wykonawców; 1 drobna korekta architekta po recenzji (r. 11)
+- Czas do akceptacji: ok. 30 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Sol `high` — P2 białe znaki (`\s` w JS ≠ `char.IsWhiteSpace` w .NET na U+0085/U+FEFF) potwierdzone, poprawione przez architekta (`\p{White_Space}` z flagą `u` + 2 przypadki testowe); P2 blokada przewijania kreatora onboardingu — istniejąca wcześniej, poza zakresem → Bug #2981; 2 × P3 (sprzątanie testu w `finally`, jedna deklaracja na plik w specu) przyjęte bez zmian
+- Defekty po odbiorze: —
+- Wymagane testy i dowody: eslint 0, prettier, 3 speci 106/106 po poprawce architekta; pełny odbiór FE
+
+### 1665-QAS (Q1 + R-Q1 odrzucone + R-Q2 + Q1-K; folder 250, seq 2636–2653, aktualizacje 2602, 2612, 2613, 2632) — 2026-11-17
+- Archetyp: QA Sphere — generator przypadków manualnych z przeglądem folderów istniejących (funkcja wysokiej stawki)
+- Stawka: średnia (przypadki manualne; usunięcia kont na współdzielonym PRE)
+- Niepewność: średnia (skutki usunięcia właściciela, ścieżki 404/422, obsługa sklepu na desktopie)
+- Wykonawca (linia / model / native effort): Muse / `muse-spark-1.3-contributor` / `max`, `-Access write`, host Windows (Q1 1336 s; Q1-K 638 s)
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high` (970 s — **odrzucony**); Codex / `gpt-6.1-sol` / `high`, `-Access read` (540 s — przyjęty)
+- Dopuszczone alternatywy: recenzent — Terra `max`; ponowienie Gemini B odrzucone, bo przebieg nie przeczytał pliku przypadków
+- Powód wyboru: wiersz QA Sphere macierzy (Spark autor, Gemini recenzja krzyżowa); po odrzuceniu ponowna kwalifikacja do Sola `high` (inna rodzina niż Muse, zapas Codexa po bramkach: 5 h 36 %, tydzień 57 %)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Muse nieznany ([pule], 18:04); Gemini B ok; Codex znany ([pule], 18:46)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: lint 0; 15 nowych, 47 zostaje, 4 aktualizacje; autor słusznie rozstrzygnął 6 przesłanek (programy usuwane z kartami, „Wstecz” bez „Anuluj” w kroku 2, tożsamość na wyzwalaczu, brak tekstu błędu powodu, karta pierwszą pieczątką, 409/zamknięty program niewykonalne ręcznie)
+- Rundy korekt: 1 (Q1-K: 6 znalezisk, nowe C16–C18)
+- Czas do akceptacji: ok. 1 h 15 min (z odrzuconą recenzją Gemini 16 min)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Gemini B — „poprawny 1,0”, 0 znalezisk, ale raport opisywał trasę `/admin/users`, konto `admin@zebrani.pl`, adresy i przypadki nieobecne w pliku (zero wystąpień) → recenzja odrzucona w całości (drugi zmyślony raport Gemini Flash tego dnia, po C-4c); Sol `high` — 5 × P2 + 1 × P3, wszystkie cytaty prawdziwe, wszystkie potwierdzone (mobilny tryb obsługi sklepu przy 1280 px, przewijanie na pustej liście, brak zwykłej porażki usunięcia, brak 422 po zmianie numeru, brak podglądu zawieszonego i 0 klientów, liczniki na współdzielonym PRE); wymuszony „dowód odczytu” per przypadek działał
+- Defekty po odbiorze: brak znanych (przed wykonaniem przez testera)
+- Wymagane testy i dowody: `qas.py lint` 0; `push --limit 1` + `verify --only` czyste; pełny `verify` — 4 rzekome różnice (escapowanie `\[`/`\*` i numeracja „01.” w QA Sphere, treść zgodna z odczytem MCP)
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
