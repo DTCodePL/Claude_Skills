@@ -12057,6 +12057,23 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak (do recenzji)
 - Wymagane testy i dowody: build 0 ostrzeżeń; filtr 81/81 (15 nowych); mutacja briefu 4 czerwone; dwie mutacje dodatkowe czerwone; pełny zestaw BE 9203 (2 pominięte); 196 tys. tokenów, 52 wywołania; przesłanka briefu błędna (test 3 nie mógł być czerwony bez kontroli drugiego klienta) — wykonawca dodał asercję kontrolną
 
+### pasuje-FAKT-AUTH (token API dostawcy faktur w adresie odczytów, klient bez przekierowań) — 2026-11-19
+- Archetyp: Backend / klient integracji zewnętrznej (bezpieczeństwo poświadczenia)
+- Stawka: wysoka (faktury, poświadczenie API)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 / `xhigh`
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (kolejka 18, w toku) — zamiast Wonder Full `max` (Muse tydzień wyczerpany)
+- Dopuszczone alternatywy: brak dla wykonawcy (plik niezmiennika)
+- Powód wyboru: klient faktur i droga tokenu API to pliki niezmiennika; przesłanka z researchu innej rodziny (RES-FAKT-BEARER)
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY, ~19:40); Muse zablokowany; Codex ostrzegawczy
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano; dwie nieścisłości briefu wykryte przez wykonawcę (kod 3xx dla PDF to `invoice_pdf_download_failed` jak w legacy; atrapa jako główny handler nie dowodzi braku przekierowań — dodany test przez prawdziwy `SocketsHttpHandler` z połączeniem w pamięci)
+- Rundy korekt: 0
+- Czas do akceptacji: ~19 min przebiegu + ~6 min odbioru
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): w toku (R-FAKT-AUTH)
+- Defekty po odbiorze: brak (do recenzji)
+- Wymagane testy i dowody: build 0 ostrzeżeń; filtr 764/764 (41 nowych lub zastąpionych przypadków); trzy mutacje czerwone (24, 9, 12 testów); pełny zestaw BE 9242 (2 pominięte); 283 tys. tokenów, 80 wywołań (blisko progu — brief z 4 plikami niezmiennika i dokumentacją był na granicy ~200 tys. dla Opusa)
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
