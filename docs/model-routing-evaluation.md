@@ -11938,6 +11938,125 @@ który kolejne wpisy mają potwierdzić albo obalić.
 - Defekty po odbiorze: brak (do potwierdzenia wydrukiem)
 - Wymagane testy i dowody: każde twierdzenie zmieniające konfigurację sprawdzone u źródła albo pomiarem; wniosek: research Gemini B nadaje się do zebrania hipotez, nie do decyzji bez weryfikacji
 
+### pasuje-INW-4 (A1, A2, B1, B2: weryfikacja inwentarza na poziomie zachowania) — 2026-11-19
+- Archetyp: Audyt / zgodność migracji (tylko odczyt, 26–32 pozycje na brief)
+- Stawka: wysoka (fałszywe „zmigrowane” ukrywa utraconą funkcję; pozycje płatności, faktur, limitów prób)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / `wykonawca` Sonnet 5.5 / `high` (4 briefy równolegle)
+- Recenzent (linia / model / native effort): brak osobnej recenzji (audyt); triaż i weryfikacja każdej luki przez architekta (grep, odczyt kodu), luka N1 sprawdzona researchem innej rodziny (Gemini B)
+- Dopuszczone alternatywy: Gemini B `gemini-3.8-flash-high` (odczyt; wcześniejszy audyt INW-1–3 na Gemini dał fałszywe „zmigrowane” F-RTE-01/28/29 na dowodach poziomu komponentu); Codex Terra `max` (pula Codexa zarezerwowana na bramki)
+- Powód wyboru: weryfikacja zachowania wymaga śledzenia wejścia przez trasę, kontroler, konfigurację i test — poprzednia linia (Gemini) myliła istnienie komponentu z zachowaniem; Muse wyczerpany
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY, ~18:30); Muse zablokowany (tydzień 99 %, `[pule]`); Codex ostrzegawczy (okno 5 h 92 %)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano wszystkie 4; B1 znalazł lukę P1 (limity prób i hash IP zgody po adresie proxy SSR) — potwierdzona grep-em (zero `UseForwardedHeaders`) → brief FWD-HDR; B2: N1 (`Bearer` w GET Fakturowni niezweryfikowany) potwierdzony researchem → FAKT-AUTH, N2 (brak `AllowAutoRedirect=false`) potwierdzony, N3 dokumentacyjny → D-169; B1 N1 (szerokość `StripeCheckoutUrl`) → STRIPE-URL; A2: 0 luk, 1 niepewne (tzdata) → krok dymny cutover
+- Rundy korekt: 0
+- Czas do akceptacji: ~9–11 min przebiegu na brief + triaż architekta ~15 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy (audyt); znaleziska audytu: potwierdzone P1 ×2 (L1, Bearer), P2 ×2, P3 ×6; odrzucone 0
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: tabela wejście legacy → wejście nowego stosu → test → werdykt per pozycja; przekroczenia kontekstu: B1 306 tys., B2 318 tys., A2 312 tys. (powyżej progu miękkiego 300 tys. — brief z 26–32 pozycjami jest za duży, dzielić na ≤ 20)
+
+### pasuje-T-PAR-K-BE (dwa testy parzystości legacy po recenzji) — 2026-11-19
+- Archetyp: Testy jednostkowe i integracyjne (xUnit)
+- Stawka: średnia
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / `tester` Haiku 5.5 / `xhigh`
+- Recenzent (linia / model / native effort): brak osobnej recenzji (same testy, korekta po recenzji R-T-PAR Codex); odbiór architekta (diff, pełny zestaw)
+- Dopuszczone alternatywy: Codex Terra `max` (≤ 5 plików), Gemini A
+- Powód wyboru: dwa scenariusze z gotowym wzorcem spec-u; tester wg zamkniętej próby
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY, ~18:30)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano
+- Rundy korekt: 0
+- Czas do akceptacji: ~6 min przebiegu + ~5 min odbioru
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: build 0 ostrzeżeń; filtr 49/49; mutacja (wyjątek → pusty tekst) 2/2 czerwone; pełny zestaw BE 9183/9183 (2 pominięte); 161 tys. tokenów, 33 wywołania
+
+### pasuje-T-PAR-K-FE (kolejność page_view przed view_item) — 2026-11-19
+- Archetyp: Testy jednostkowe (Vitest, prawdziwy ruter)
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / `tester` Haiku 5.5 / `xhigh`
+- Recenzent (linia / model / native effort): brak osobnej recenzji (sam test); odbiór architekta
+- Dopuszczone alternatywy: Codex Terra `max`, Gemini A
+- Powód wyboru: test na istniejącym `setup()` z prawdziwym ruterem; tester wg zamkniętej próby
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY, ~18:30)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano
+- Rundy korekt: 0
+- Czas do akceptacji: ~9,5 min przebiegu + ~6 min odbioru (pełna walidacja FE)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy; wykonawca zgłosił słabość mutacji z briefu (opóźnienie zamiast odwrócenia) — asercja na pełnej sekwencji i tak wykrywa odwrócenie
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: spec 36/36; mutacja czerwona; pełna walidacja FE (lint, format, 2252 testy, build); 214 tys. tokenów, 44 wywołania; plik spec na granicy `sonarjs/max-lines` (996/1000)
+
+### pasuje-I18N-SYNC (fragmenty tłumaczeń zgodne z pl.json, tryb --check) — 2026-11-19
+- Archetyp: Narzędzia / skrypt budowania (Node)
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Gemini A / `gemini-3.8-flash-high` / high (`-Access write`)
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-terra` / `max` (kolejka 17, w toku)
+- Dopuszczone alternatywy: Muse Spark `max` (zablokowany), Codex Terra `max` (pula na bramki), `wykonawca` Sonnet (pula Claude'a — brief bez kontekstu sesji)
+- Powód wyboru: brief bez Figmy i niezmiennika poza pulą Claude'a (reguła 3); Muse wyczerpany
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini A znany (`[pule]` ok, ~18:00); Muse zablokowany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano (architekt sprawdził głęboką równość `pl.json` z `main`, same dopisania we fragmentach, `--check` ok)
+- Rundy korekt: 0
+- Czas do akceptacji: ~17 min przebiegu + ~8 min odbioru
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): w toku (R-I18N-SYNC)
+- Defekty po odbiorze: brak (do recenzji)
+- Wymagane testy i dowody: `--check` ok i kod 0; dwie mutacje → kod 1 z właściwą ścieżką; pełna walidacja FE po scaleniu (lint z `--check`, format, 2252 testy, build)
+
+### pasuje-RES-FAKT-BEARER (research: autoryzacja GET w API dostawcy faktur) — 2026-11-19
+- Archetyp: Research / dokumentacja zewnętrzna (WWW, tylko odczyt)
+- Stawka: wysoka (rozstrzyga ryzyko blokady wysyłki faktur)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Gemini B / `gemini-3.8-flash-high` / high (`-Access read`)
+- Recenzent (linia / model / native effort): brak; architekt sprawdził spójność cytatów z kodem legacy (`Fakturownia.php:57`, `:150`)
+- Dopuszczone alternatywy: Codex Sol `high` (research bez powłoki; pula na bramki), Muse Spark `max` (zablokowany)
+- Powód wyboru: odczyt WWW i repo, właściciel: wszystko, co umie B, najpierw na B
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Gemini B znany (`[pule]` ok, ~18:10)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano — każde twierdzenie z adresem źródła i cytatem; wniosek „Bearer nieudokumentowany” (pewność 0,95–1,0) → D-170, brief FAKT-AUTH
+- Rundy korekt: 0
+- Czas do akceptacji: ~24 min przebiegu + ~3 min odbioru
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: cytaty z `github.com/fakturownia/api` (README, `example1.php`, `example.curl`, `KSeF.md`) z adresami
+
+### pasuje-STRIPE-URL (poszerzenie kolumny adresu sesji płatności, migracja schematu) — 2026-11-19
+- Archetyp: Backend / migracja schematu
+- Stawka: wysoka (migracja danych, przepływ płatności)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 / `xhigh`
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (kolejka 17, w toku) — zamiast Wonder Full `max` (Muse tydzień wyczerpany, reguła 8)
+- Dopuszczone alternatywy: brak dla wykonawcy (plik niezmiennika — tylko `wykonawca-opus`; C2 niewybrane)
+- Powód wyboru: migracja schematu = plik niezmiennika
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY, ~19:00); Muse zablokowany; Codex ostrzegawczy (okno 5 h 92 %, reset 20:17)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano; architekt poprawił regułą 11 nieaktualną szerokość w dokumentacji etapu (zgłoszoną przez wykonawcę)
+- Rundy korekt: 0
+- Czas do akceptacji: ~7 min przebiegu + ~6 min odbioru
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): w toku (R-STRIPE-URL)
+- Defekty po odbiorze: brak (do recenzji)
+- Wymagane testy i dowody: build 0 ostrzeżeń; filtr 65/65; mutacja (4000 → 1024) 4 czerwone + 1 zielony zgodnie z oczekiwaniem; pełny zestaw BE 9188 (2 pominięte); 188 tys. tokenów, 47 wywołań; przesłanka briefu „DdlParityTests dowodzi szerokości” błędna — dodany test kształtu kolumny
+
+### pasuje-FWD-HDR (adres klienta za zaufanym proxy dla limitów prób) — 2026-11-19
+- Archetyp: Backend / bezpieczeństwo potoku (middleware, konfiguracja)
+- Stawka: wysoka (limity prób, dowód zgody)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Claude / `wykonawca-opus` Opus 5.5 / `xhigh`
+- Recenzent (linia / model / native effort): Codex / `gpt-6.1-sol` / `high` (kolejka 17, w toku) — zamiast Wonder Full `max` (Muse tydzień wyczerpany)
+- Dopuszczone alternatywy: brak dla wykonawcy (limity prób — plik niezmiennika)
+- Powód wyboru: limity prób na liście high-stakes; zaufanie nagłówkom to niezmiennik bezpieczeństwa
+- Sygnał dostępności (znany/ostrzegawczy/zablokowany/nieznany, źródło, czas): Claude znany (hook ZIELONY, ~19:00); Muse zablokowany; Codex ostrzegawczy
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano; strona FE (`xfwd`, 2 linie) zrobiona przez architekta regułą 11; architekt dopisał do dokumentacji dwie pułapki wdrożeniowe zgłoszone przez wykonawcę
+- Rundy korekt: 0
+- Czas do akceptacji: ~14 min przebiegu + ~8 min odbioru
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): w toku (R-FWD-HDR)
+- Defekty po odbiorze: brak (do recenzji)
+- Wymagane testy i dowody: build 0 ostrzeżeń; filtr 81/81 (15 nowych); mutacja briefu 4 czerwone; dwie mutacje dodatkowe czerwone; pełny zestaw BE 9203 (2 pominięte); 196 tys. tokenów, 52 wywołania; przesłanka briefu błędna (test 3 nie mógł być czerwony bez kontroli drugiego klienta) — wykonawca dodał asercję kontrolną
+
 ## 5. Rytm przeglądów i ewaluacji
 
 Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie operacyjnym:
