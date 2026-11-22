@@ -14748,6 +14748,60 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: —
 - Wymagane testy i dowody: parity korków i CSP przed wdrożeniem
 
+### AmmoBox E4 I2-K2 + E6 S1 (strażnik zgód AmmoBox, BaseUrl null, kalibry; data startu sprzedaży w Omnibus) — 2026-11-22
+- Archetyp: BE korekta i rozszerzenie plików niezmiennika (zgody i rozsyłka; kalkulator najniższej ceny)
+- Stawka: wysoka
+- Niepewność: niska (I2-K2) / średnia (S1: przesłanka testu 2 błędna)
+- Wykonawca: `wykonawca-opus` / Opus 5.5 / `xhigh` ×2 (osobne worktree)
+- Recenzent: Gemini B / `gemini-3.8-flash-high` / odczyt ×2
+- Dopuszczone alternatywy: brak (pliki niezmiennika; Codex i Muse niedostępne)
+- Powód wyboru: pliki niezmiennika
+- Sygnał dostępności: Claude ŻÓŁTY (tydzień po resecie 28 %), Gemini B znany
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: I2-K2 przyjęty bez rund; S1 zatrzymał się na błędnej przesłance (test nie mógł być czerwony), po decyzjach architekta kontynuacja
+- Rundy korekt: 0 + drobna korekta architekta w S1 (brakująca asercja)
+- Czas do akceptacji: ok. 1,5 h łącznie z recenzjami (recenzje po ok. 12,5 min)
+- Znaleziska recenzji: I2-K2 brak (1,0); S1 4×P3 – 1 potwierdzone (asercja), 2 obalone, 1 przedwczesne (umiejscowienie opcji)
+- Defekty po odbiorze: —
+- Wymagane testy i dowody: pełny zestaw po scaleniu 8539/0/1; wdrożenie PreProd+Prod
+
+### AmmoBox E4 A3 (audyt diffu produkcyjnego: migracja, wysyłka, „Powiadom mnie”) — 2026-11-22
+- Archetyp: audyt tylko do odczytu łatki 4186 linii z niezmiennikami
+- Stawka: wysoka (bramka przed wdrożeniem BE na Prod; Sol niedostępny – D-172)
+- Wykonawca: `wykonawca-opus` / Opus 5.5 / `xhigh` (tylko odczyt)
+- Recenzent: — (audyt; znaleziska weryfikował architekt)
+- Wynik: brak P0/P1, 5×P3 (11 min, 70 wywołań, 312 tys. tokenów); 2 przyjęte do poprawki (A3-P3), 3 zamknięte decyzją lub faktem (walidator katalogu wymaga wagi > 0)
+- Pewność decyzji: średnia
+
+### AmmoBox E5 FK1/FK2 + E6 PRIMENG-CRM (zamówienie, analityka, kontrolki PrimeNG w CRM) — 2026-11-22
+- Archetyp: FE korekty i ekrany bez niezmiennika (FK1 ok. 18 plików, FK2 ok. 10, PRIMENG ok. 40)
+- Stawka: średnia
+- Wykonawca: `wykonawca` / Sonnet 5.5 / `high` ×3
+- Recenzent: Gemini B / `gemini-3.8-flash-high` / odczyt ×2 (FK1+FK2 razem, PRIMENG osobno)
+- Dopuszczone alternatywy: Gemini A – nieużyta (kontekst sesji i kontrakty)
+- Sygnał dostępności: Claude ŻÓŁTY, Gemini B znany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: przyjęte; pełny lint, 3188 testów, build zielone
+- Rundy korekt: FK – 2 drobne korekty architekta (region aria-live, jedna deklaracja na plik); PRIMENG – 1 korekta autora (Invalid Date), druga obalona przez autora z dowodem
+- Znaleziska recenzji Gemini B (oba werdykty „niepoprawny”): FK 3×P1 → 0 do natychmiastowej poprawki (1 obalone, 2 analityczne do follow-upu), 2×P2 → 1 poprawione; PRIMENG 1×P0 + 3×P1 → 0 potwierdzonych P0/P1 (P0 obalone: pola dat używają readonly), 1 tania obrona przyjęta. Wniosek: Gemini B zawyża klasę – P0/P1 obalać jednym poleceniem przed korektą
+- Defekty po odbiorze: —
+- Wymagane testy i dowody: browser-check Prod AmmoBox 18 zrzutów bez błędów
+
+### AmmoBox E6 A3-P3 (rozsyłka i zapis „Powiadom mnie” – 503 bez poczty do klientów i bez adresu) — 2026-11-22
+- Archetyp: BE bramki konfiguracji w handlerach bez niezmiennika, z testami
+- Stawka: niska–średnia
+- Wykonawca: Gemini A / `gemini-3.8-flash-high` / zapis (worktree)
+- Recenzent: `wykonawca` / Sonnet 5.5 / `high` (tylko odczyt, inna rodzina)
+- Powód wyboru: tempo tygodnia +22 pp – brief bez Figmy poza Claude'em; Codex i Muse niedostępne
+- Sygnał dostępności: Gemini A znany, Claude ŻÓŁTY
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: poprawny, czerwone→zielone udokumentowane, komentarze nieprzepisane; wyciszenie S107 bez uzasadnienia
+- Rundy korekt: 1 (P2: bramka gotowości zamiast wyciszenia S107 + 3×P3 testy i komentarze), przyjęta bez uwag
+- Czas do akceptacji: ok. 55 min (13,8 + 9,3 min przebiegów)
+- Znaleziska recenzji: P2 S107 (potwierdzone praktyką repo), 3×P3 (potwierdzone)
+- Defekty po odbiorze: —
+- Wymagane testy i dowody: pełny zestaw 8543/0/1 przed korektą, ponownie po korekcie
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
