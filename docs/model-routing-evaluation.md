@@ -14697,6 +14697,57 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: brak znanych (przed wykonaniem przez testera)
 - Wymagane testy i dowody: `qas.py lint` 0; `push --limit 1` + `verify --only` czyste; pełny `verify` — 4 rzekome różnice (escapowanie `\[`/`\*` i numeracja „01.” w QA Sphere, treść zgodna z odczytem MCP)
 
+### AmmoBox E4 K4b-K (ponowienie checkoutu i klucz idempotencji Stripe po audycie bramki) — 2026-11-22
+- Archetyp: BE korekta pliku niezmiennika (płatność, rezerwacja kodu, współbieżne ponowienie)
+- Stawka: wysoka
+- Niepewność: średnia (decyzja architekta o kluczu Stripe z `expires_at`)
+- Wykonawca (linia / model / native effort): `wykonawca-opus` / Opus 5.5 / `xhigh`
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high` / odczyt
+- Dopuszczone alternatywy: recenzja Sol `high` – niedostępny (Codex tydzień 100 %); Wonder Full – Muse bez danych o limicie
+- Powód wyboru: pliki niezmiennika tylko u Opusa; recenzja innej rodziny dostępna wyłącznie u Gemini (D-191)
+- Sygnał dostępności: Claude ostrzegawczy (hook, okno 5 h 87 %), Codex zablokowany (`[pule]`), Gemini B znany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: przyjęty; filtr 1100/0; pełny zestaw 8507/0/1 po scaleniu
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 1 h (z recenzją 8 min)
+- Znaleziska recenzji: P3 zbędny `using` (potwierdzone, do następnej korekty); werdykt poprawny 1,0
+- Defekty po odbiorze: —
+- Wymagane testy i dowody: test wyścigu ponowienia (dekorator repozytorium), atrapa Stripe sprawdzająca klucz idempotencji, test webhooka osieroconej sesji
+
+### AmmoBox E4 K1-K (historia cen: widoczność i zmiana ceny w promocji, Omnibus) — 2026-11-22
+- Archetyp: BE korekta pliku niezmiennika (wymóg prawny, kalkulator okresów)
+- Stawka: wysoka
+- Niepewność: średnia (luka specyfikacji: koniec okna przy przerwie w sprzedaży)
+- Wykonawca (linia / model / native effort): `wykonawca-opus` / Opus 5.5 / `xhigh`
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high` / odczyt
+- Dopuszczone alternatywy: jak K4b-K
+- Powód wyboru: plik niezmiennika (najniższa cena z 30 dni)
+- Sygnał dostępności: Claude ostrzegawczy (hook, 87–89 %), Codex zablokowany, Gemini B znany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wykonawca zatrzymał się na luce specyfikacji i zgłosił ją (zgodnie z kontraktem briefu); po decyzji architekta kontynuacja tego samego agenta – 637/637, mutacja potwierdza nowy test; jedno odstępstwo (okresy zerowej długości) przyjęte
+- Rundy korekt: 0 z wykonania, 1 doprecyzowanie specyfikacji
+- Czas do akceptacji: ok. 1,5 h (kontynuacja 21 min, 76 wywołań, 262 tys. tokenów)
+- Znaleziska recenzji: P3 podwójne wywołanie (odrzucone – bez wpływu na wynik); werdykt poprawny 0,98
+- Defekty po odbiorze: —
+- Wymagane testy i dowody: pełny zestaw 8517/0/1 po scaleniu
+
+### AmmoBox E5 fala 4 (Z3a–Z5b, 9 briefów FE) – pilotaż D, `koordynator-fali` — 2026-11-22
+- Archetyp: FE strony, formularz zamówienia, SEO i analityka bez niezmiennika (246 plików)
+- Stawka: średnia (formularz zamówienia i wspólne komponenty korków)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): `wykonawca` / Sonnet 5.5 / `high` ×9; koordynator `koordynator-fali` / Sonnet 5.5 / `high`
+- Recenzent (linia / model / native effort): Gemini B / `gemini-3.8-flash-high` / odczyt (jedna recenzja całej fali, 908 s)
+- Dopuszczone alternatywy: Gemini A dla Z5 (nowe pliki) – nieużyta
+- Powód wyboru: ekrany i teksty bez niezmiennika, potrzebny kontekst kontraktów; Muse i Codex niedostępne
+- Sygnał dostępności: Claude znany (tydzień po resecie), Gemini B znany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: 9/9 przyjętych bez rund; walidacja fali czysta poza jednym czerwonym testem spoza zakresów (błąd pakietu architekta, poprawka 1 linii); pełny lint, 3060 testów i build zielone
+- Rundy korekt: 0 z wykonania; paczka korekt FK1/FK2 po recenzji i decyzjach architekta (luki pakietu: szkic po anulowaniu, głęboki link, wyszukiwarka NIP, `page_view`)
+- Czas do akceptacji: wykonanie ok. 70 min równolegle; koordynator 80 min, 59 wywołań, 243 tys. tokenów
+- Znaleziska recenzji: P1 `canPay` po nieudanej wycenie (potwierdzone), P2 NIP ze spacji (potwierdzone), P3 stałe w pliku grupowym (obalone regułą `AGENTS.md`); koordynator sam znalazł 2 × P2 (analityka, linki dokumentów) i błąd Omnibus w podsumowaniu wykryty przez wykonawcę
+- Defekty po odbiorze: —
+- Wymagane testy i dowody: parity korków i CSP przed wdrożeniem
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
