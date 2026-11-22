@@ -14802,6 +14802,35 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: —
 - Wymagane testy i dowody: pełny zestaw 8543/0/1 przed korektą, ponownie po korekcie
 
+### pasu.je CRM panel — B1–B3 (automatyzacje per sklep, BE) — 2026-11-22
+- Archetyp: BE tabela + endpoint CRM (B1), bramka w dyspozytorze zadań zamówień (B2, niezmiennik: faktura i etykieta bez duplikatu), bramki DOI, alertów i druku (B3)
+- Stawka: B2 wysoka, B1 i B3 średnia
+- Wykonawca: B1 i B3 `wykonawca` / Sonnet 5.5 / `high`; B2 `wykonawca-opus` / Opus 5.5 / `xhigh` (pliki niezmiennika dyspozytora i `ClaimJobAsync.sql`)
+- Recenzent: Gemini B / `gemini-3.8-flash-high` / odczyt ×3 (per brief); bramka końcowa całego diffu Gemini B wg D-172 (Sol niedostępny – Codex tydzień 100 %)
+- Dopuszczone alternatywy: brak dla B2 (Codex i Muse niedostępne); Gemini A dla B1/B3 – nieużyta (kontekst kontraktu)
+- Sygnał dostępności: Claude ŻÓŁTY (tydzień ok. 30 %), Gemini B znany, Codex zablokowany do 25.11, Muse `nieznany`
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: B1 i B2 przyjęte; B3 z dwoma defektami (automat pełnych arkuszy ignorował wyłączony druk; wyłączenie w trakcie cyklu rzucało wyjątek)
+- Rundy korekt: B3 – 1 korekta architekta (bramka `IsAutoFullEnabledAsync` i sprawdzenie w pętli workera po blokadzie) + brakujący test AmmoBox; B2 – 0
+- Znaleziska recenzji: B3 P1 + P2 potwierdzone; B2 P1 i bramka P2 (`invoice_email` waitingFor w CRM) obalone – ścieżka nieosiągalna; Gemini Flash zmyślał część identyfikatorów, wnioski weryfikowane w kodzie
+- Defekty po odbiorze: — (znane i opisane: mail „opłacono” czeka 180 s przy fakturze wyłączonej przełącznikiem, jak przy próbnej)
+- Wymagane testy i dowody: pełny zestaw 8583/0/1; wdrożenie PreProd+Prod, smoke
+
+### pasu.je CRM panel — F1–F7 (panel z lewym menu, ekran Automatyzacje, nowy wygląd ekranów, FE) — 2026-11-22
+- Archetyp: FE powłoka i ekrany bez niezmiennika, bez Figmy (makieta HTML jako wzór)
+- Stawka: średnia (F1 routing CRM, F2 zapis przełączników), reszta niska
+- Wykonawca: F1, F2, F4, F5, F6, F7 `wykonawca` / Sonnet 5.5 / `high` (równolegle w worktree, F5 na gałęzi F4); F3 (wymiary paczki w katalogu AmmoBox) Gemini A / `gemini-3.8-flash-high` / zapis
+- Recenzent: Gemini B / `gemini-3.8-flash-high` / odczyt – F1 osobno, F2+F4+F6+F7 jedną recenzją fali (937 s), F5 osobno (835 s)
+- Dopuszczone alternatywy: Gemini A dla ekranów bez kontekstu sesji – użyta tylko w F3
+- Powód wyboru: właściciel „Sonneta też używaj… im więcej użyjemy, tym lepsza utylizacja”; Muse i Codex niedostępne
+- Sygnał dostępności: Claude ŻÓŁTY (tydzień 33 %, tempo +24 pp – podgląd), Gemini A i B znane
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wszystkie przyjęte; próbne scalenie 5 gałęzi i pełny lint, 3242 testy, build zielone
+- Rundy korekt: 0 z wykonania; 4 drobne korekty architekta (F1: wyścig licznika menu, zamykanie szuflady, test adresu `/crm`; F2: zapisy po kolei zamiast blokady per komórka; F4: chipy sklepu wczytują od razu; F5: nagłówek h3→h2)
+- Znaleziska recenzji: fala – P1 (`pl.json`) obalone, P2 (zakres kodów rabatowych) obalone regułą zaplecza, 2×P3 – 1 obalone (zmyślona metoda), 1 odrzucone (poprawka łamała zakaz `::ng-deep`); F5 – P2 hierarchia nagłówków potwierdzone. Gemini B znów zawyża klasę i cytuje nieistniejący kod
+- Defekty po odbiorze: —
+- Wymagane testy i dowody: pełny FE na `main` po scaleniu; wdrożenie PreProd+Prod, smoke `/crm`, `/crm/automatyzacje`
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
