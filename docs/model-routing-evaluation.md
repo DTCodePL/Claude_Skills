@@ -14831,6 +14831,21 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: —
 - Wymagane testy i dowody: pełny FE na `main` po scaleniu; wdrożenie PreProd+Prod, smoke `/crm`, `/crm/automatyzacje`
 
+### pasu.je CRM wygląd — fale A, B, C (panel wyłącznie na PrimeNG 22 + preset, FE) — 2026-11-22
+- Archetyp: FE restyling ekranów bez niezmiennika, bez Figmy (zasady w `projekt.md` + research trendów); logowanie CRM tylko szablon i style (pliki niezmiennika sesji nietknięte)
+- Stawka: niska–średnia (logowanie: szablon ekranu high-stakes, zakres zawężony do `login.html` + `imports`)
+- Wykonawca: A1, B0–B5, C1–C6 `wykonawca` / Sonnet 5.5 / `high`, równolegle w osobnych worktree, scalanie `--no-ff` do gałęzi zbiorczej; research trendów Gemini B / `gemini-3.8-flash-high` / odczyt; poprawki architekta wg reguły 11 (rozpychanie strony katalogu na 390 px, czerwona ramka pól witryny)
+- Recenzent: Gemini B / `gemini-3.8-flash-high` / odczyt – fale A+B jedną recenzją (278 s), fala C jedną recenzją (724 s)
+- Dopuszczone alternatywy: Gemini A dla ekranów – nieużyta (potrzebny kontekst zrzutów i kontraktu fali A); Muse i Codex niedostępne
+- Powód wyboru: właściciel „Sonneta też używaj… im więcej użyjemy, tym lepsza utylizacja”; ocena zrzutów 1920/390 przez architekta
+- Sygnał dostępności: Claude ŻÓŁTY (tydzień 33–38 %, tempo +24…+27 pp – podgląd), Gemini B znany, Codex zablokowany do 25.11, Muse `nieznany`
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wszystkie briefy przyjęte; błędne przesłanki briefu wykryte przez wykonawców i zgłoszone zamiast wykonane: C1 (`aria.close` nie nazywa „×” w `p-dialog`/`p-drawer`), C3 (przyczyna rozpychania strony), C5 (`p-confirmdialog` nie przekazuje `closeAriaLabel` → `[pt]` w C6)
+- Rundy korekt: 0 z wykonania; fala C6 jako dopracowanie po zrzutach (czerwone ramki pustych pól, tło zakładek, kolumny wariantów, pozycje zamówień); 2 poprawki architekta
+- Znaleziska recenzji: A+B – P1 (`p-drawer` bez `[modal]`) obalone (`modal = input(true)` w PrimeNG 22.1.5), 2×P2 potwierdzone (`th scope="row"`, przyczyna blokady protokołu niedostępna z klawiatury), P2 nagłówek szuflady nieprzyjęty (dialog ma nazwę z `aria-label`), P2 klasy `p-menu-item-*` w szablonie obalone (wzorzec szablonu pozycji PrimeNG, bez selektorów CSS), P3 `&ngsp;` potwierdzone; C – P2 globalne wygaszenie ramki błędu częściowo potwierdzone (ekran witryny bez przywrócenia), P2 sekcja „(both stacks)” błędnie wskazana, ale realna rozbieżność Visual Parity FE/BE znaleziona i zsynchronizowana, P3 `aria.close` martwe obalone (wskazany plik nie istnieje; klucz czytają `p-toast`/`p-message`)
+- Defekty po odbiorze: —
+- Wymagane testy i dowody: pełny FE na `main` 3305/2 oczekiwane; eslint, stylelint, prettier, i18n, `npx ng build`; harness zrzutów 73 przebiegi, 97 PNG, bez poziomego przewijania na 390 px i bez błędów konsoli; md5 licencji PrimeUI bez zmian; wdrożenie PreProd+Prod, smoke
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
