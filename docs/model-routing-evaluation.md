@@ -14876,6 +14876,57 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: —
 - Wymagane testy i dowody: BE pełny zestaw 8710/1 pominięty, Messaging 755 po poprawkach; FE pełny zestaw zielony; skrypt zgodności kluczy cs/de z en; wdrożenie PreProd+Prod i smoke
 
+### AmmoBox dodatek z checkboxem, „Usuń”, karty korzyści (FE) — 2026-11-23
+- Archetyp: FE ekrany, komponent i i18n bez niezmiennika, bez Figmy
+- Stawka: średnia (sklep z klientami, koszyk i wycena bez zmiany logiki cen)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / muse-spark-1.3-contributor / max
+- Recenzent (linia / model / native effort): Gemini B / gemini-3.8-flash / high
+- Dopuszczone alternatywy: wykonawca Sonnet 5.5 high (tylko z powodem, reguła 3); recenzent Spark wykluczony (ta sama rodzina), Codex zablokowany (tydzień)
+- Powód wyboru: brief bez Figmy i bez niezmiennika idzie najpierw poza pulę Claude'a; lokalne wyniki Sparka max w ekranach AmmoBox dobre
+- Sygnał dostępności: Muse znany (`[pule]`, 2026-11-23 rano), Gemini B ok, Codex zablokowany do 25.11
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano po drobnej korekcie architekta
+- Rundy korekt: 0 (2 × P3 poprawione przez architekta, reguła 11)
+- Czas do akceptacji: nie mierzono
+- Znaleziska recenzji: potwierdzone 2 × P3 (alt miniatury w nazwie checkboxa, warunek kwoty poza etykietą); odrzucone 0; sekcja „co błędne w specyfikacji” trafna (itemLines bez grupowania)
+- Defekty po odbiorze: brak do chwili wpisu
+- Wymagane testy i dowody: eslint, stylelint, prettier, pełny ng test (2 czerwone: test alt po zmianie architekta i znany niestabilny AXE — oba zielone osobno), zrzuty z atrapą API
+
+### AmmoBox paczkomat dla kilku skrzynek (BE, pliki niezmiennika) — 2026-11-23
+- Archetyp: BE logika dostawy i nadania (pliki niezmiennika: dostępność paczkomatu, zakup etykiety, nadanie ręczne w SQL i C#)
+- Stawka: wysoka (zakup etykiety raz na zamówienie, bramka nadania ręcznego)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Claude / wykonawca-opus (Opus xhigh)
+- Recenzent (linia / model / native effort): Muse / muse-wonder-full-1.0-contributor / max
+- Dopuszczone alternatywy: recenzent Sol high (Codex zablokowany — niedostępny); wykonawca brak (pliki niezmiennika)
+- Powód wyboru: pliki niezmiennika wyłącznie u wykonawca-opus; recenzja fali plików niezmiennika Wonderem Full max (reguła 8)
+- Sygnał dostępności: Claude ŻÓŁTY (hook, tydzień 48 %), Muse znany, Codex zablokowany
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowano
+- Rundy korekt: 0
+- Czas do akceptacji: nie mierzono
+- Znaleziska recenzji: P2 (SQL i C# równoważne tylko dla kanonicznych snapshotów) — odrzucone jako obrona przed stanem niemożliwym (snapshot pisze wyłącznie checkout); P3 × 3 potwierdzone, nieblokujące (nieaktualne komentarze, podwójny odczyt snapshotu, brakujące odmowy w testach) — do następnego briefu tej linii
+- Defekty po odbiorze: brak do chwili wpisu
+- Wymagane testy i dowody: dotnet build, testy z filtrem u wykonawcy, pełny zestaw u architekta 8719/8719
+
+### AmmoBox research paczkomaty za granicą — 2026-11-23
+- Archetyp: research WWW i odczyt repo
+- Stawka: średnia (decyzja produktowa o krajach dostawy)
+- Niepewność: wysoka
+- Wykonawca (linia / model / native effort): Gemini B / gemini-3.8-flash / high
+- Recenzent (linia / model / native effort): architekt — weryfikacja u źródła (web-fetch, cennik PDF InPost, sondy API punktów)
+- Dopuszczone alternatywy: Spark max z narzędziami webowymi; Sol (zablokowany)
+- Powód wyboru: research tylko do odczytu idzie najpierw na konto B
+- Sygnał dostępności: Gemini B ok (`[pule]`)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: częściowo błędny — lista 7 krajów trafna; zmyślone: Czechy i Słowacja, Austria i Węgry przez Polkuriera, adresy źródeł (404), „6-cyfrowe ID odrzucane przez wzorzec” (API globalne daje FR000008 itd.), pewności 95–100 %
+- Rundy korekt: 0 (architekt zweryfikował sam)
+- Czas do akceptacji: nie mierzono
+- Znaleziska recenzji: potwierdzone 7 krajów, limity A/B/C do 25 kg (cennik PDF); odrzucone 5 twierdzeń jak wyżej
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: sondy `api-global-points.easypack24.net` per kraj, strona inpost.pl/inpost-international/klient-indywidualny, cennik PDF z 13.11.2024
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
