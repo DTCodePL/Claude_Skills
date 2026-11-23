@@ -14927,6 +14927,41 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: brak
 - Wymagane testy i dowody: sondy `api-global-points.easypack24.net` per kraj, strona inpost.pl/inpost-international/klient-indywidualny, cennik PDF z 13.11.2024
 
+### AmmoBox paczkomat za granicą — BE (dostępność, normalizacja punktu, testy) — 2026-11-23
+- Archetyp: BE logika dostawy bez plików niezmiennika (lista krajów, wzorzec punktu zagranicznego; zakup etykiety i nadanie ręczne bez zmian)
+- Stawka: średnia (sklep z klientami; zamówienia zagraniczne idą do nadania ręcznego jak dotąd)
+- Niepewność: średnia (format nazw punktów spoza Polski)
+- Wykonawca (linia / model / native effort): Muse / muse-spark-1.3-contributor / max
+- Recenzent (linia / model / native effort): Gemini B / gemini-3.8-flash / high (wspólna recenzja z FE)
+- Dopuszczone alternatywy: wykonawca Sonnet 5.5 high (tylko z powodem); recenzent Sol high (Codex zablokowany do 25.11)
+- Powód wyboru: brief bez niezmiennika i bez Figmy idzie najpierw poza pulę Claude'a (reguła 3); do briefu dołączone P3 z recenzji Wondera poprzedniego briefu
+- Sygnał dostępności: Muse znany (`[pule]` 3–4 %), Gemini B ok, Codex zablokowany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano po drobnej korekcie architekta
+- Rundy korekt: 0 (P3 — martwa alternatywa w warunku — poprawił architekt, reguła 11)
+- Czas do akceptacji: nie mierzono
+- Znaleziska recenzji: potwierdzone 1 × P3 (martwy warunek); odrzucone 1 × P2 (wymuszenie kraju faktury = kraj dostawy w BE — FE wysyła kraj dostawy, stawka VAT jedna, BE celowo przyjmuje każdy kraj UE)
+- Defekty po odbiorze: brak do chwili wpisu
+- Wymagane testy i dowody: pełny zestaw BE 8748/8748 po briefie, filtr AmmoBox 727/727 po korekcie, smoke wyceny na Prod (PL/FR/IT paczkomat tak, DE nie)
+
+### AmmoBox paczkomat za granicą — FE (wyszukiwarka, mapa, formularz, i18n) — 2026-11-23
+- Archetyp: FE ekrany i komponenty współdzielone z korkami, bez niezmiennika, bez Figmy
+- Stawka: średnia (wyszukiwarka i mapa wspólne ze sklepem z korkami — korki muszą działać bez zmian)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / muse-spark-1.3-contributor / max (brief główny, korekta -K i podział specyfikacji mapy)
+- Recenzent (linia / model / native effort): Gemini B / gemini-3.8-flash / high
+- Dopuszczone alternatywy: wykonawca Sonnet 5.5 high (tylko z powodem); recenzent Sol high (zablokowany)
+- Powód wyboru: jak wyżej (reguła 3); recenzja innej rodziny na koncie B
+- Sygnał dostępności: Muse znany, Gemini B ok, Codex zablokowany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: odrzucono do korekty (2 × P1 potwierdzone)
+- Rundy korekt: 2 — korekta z wykonania (stan po zmianie kraju) i runda z winy specyfikacji (brief korekty kazał dopisać test do pliku na granicy `sonarjs/max-lines`; Spark zatrzymał się zgodnie z klauzulą STOP, potem podział pliku na 4 specyfikacje i `testing/`)
+- Czas do akceptacji: nie mierzono (przebiegi korekt 355 s i 745 s)
+- Znaleziska recenzji: potwierdzone 2 × P1 (tekst punktu w polu wyszukiwarki i karta punktu na mapie po zmianie kraju — możliwy wybór punktu z innego kraju), 2 × P2 (adres do faktury z poprzedniego kraju, fraza w polu mapy); odrzucone uwagi do briefu: kraj faktury ≠ kraj dostawy (decyzja D-218, VAT jedna stawka) i wzorzec nazw ES/PT (nazwy z katalogu pasują). Recenzja nie zauważyła braku katalogu globalnego w CSP — wykrył go architekt w przeglądarce (luka briefu, poprawka architekta)
+- Defekty po odbiorze: brak do chwili wpisu. Przy oględzinach wyszło, że filtr punktów (`isPickupPoint`, kod sprzed funkcji) odrzucał każdy punkt, bo katalog InPost zwraca `type` jako listę — wyszukiwarka paczkomatów na produkcji (korki i AmmoBox) nie pokazywała punktów; poprawka architekta wdrożona osobno (b50c9ad). Testy i parity miały atrapy z `type` jako tekstem
+- Wymagane testy i dowody: eslint, prettier, tsc, pełny ng test 3640 + 2 oczekiwane niepowodzenia, lokalne wyszukiwanie PL/FR/IT/NL z atrapą API, smoke Prod
+
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
