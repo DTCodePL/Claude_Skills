@@ -14961,6 +14961,40 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: brak do chwili wpisu. Przy oględzinach wyszło, że filtr punktów (`isPickupPoint`, kod sprzed funkcji) odrzucał każdy punkt, bo katalog InPost zwraca `type` jako listę — wyszukiwarka paczkomatów na produkcji (korki i AmmoBox) nie pokazywała punktów; poprawka architekta wdrożona osobno (b50c9ad). Testy i parity miały atrapy z `type` jako tekstem
 - Wymagane testy i dowody: eslint, prettier, tsc, pełny ng test 3640 + 2 oczekiwane niepowodzenia, lokalne wyszukiwanie PL/FR/IT/NL z atrapą API, smoke Prod
 
+### AmmoBox kreator — galeria zestawu na kroku „Dodatek” (FE, i18n 4 języki) — 2026-11-23
+- Archetyp: FE ekran sklepu bez niezmiennika, bez Figmy
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / muse-spark-1.3-contributor / max; tekst przycisku „Przejdź do zamówienia” w tej samej jednostce recenzji zrobił architekt (zmiana tekstu, reguła 11)
+- Recenzent (linia / model / native effort): Gemini B / gemini-3.8-flash / high (po wdrożeniu — właściciel czekał na zmianę na żywo)
+- Dopuszczone alternatywy: wykonawca Sonnet 5.5 high (tylko z powodem); recenzent Sol high (Codex zablokowany do 25.11)
+- Powód wyboru: brief bez niezmiennika i bez Figmy idzie najpierw poza pulę Claude'a (reguła 3)
+- Sygnał dostępności: Muse znany (`[pule]` 3–5 %), Gemini B ok, Codex zablokowany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano bez korekty
+- Rundy korekt: 0 (P3 poprawił architekt, reguła 11)
+- Czas do akceptacji: nie mierzono
+- Znaleziska recenzji: potwierdzone 1 × P3 (czeska etykieta grupy widoków „Pohledy na kufr” na kroku zestawu); uwagi do briefu trafne (w kreatorze nie ma okna propozycji dodatku — jest krok)
+- Defekty po odbiorze: brak do chwili wpisu
+- Wymagane testy i dowody: pełny ng test, eslint, prettier, i18n, smoke Prod (galeria kroku dodatku)
+
+### CRM — pola kwot i liczb z maską ngx-mask (część A: katalog AmmoBox, ustawienia; część B: promocje, kody rabatowe, sprzątanie) — 2026-11-23
+- Archetyp: FE formularze CRM bez plików niezmiennika (kody rabatowe i ceny zmieniają kwotę zamówienia, ale niezmiennik naliczania jest w BE); nowy wspólny komponent
+- Stawka: średnia (grosze w żądaniu muszą odpowiadać temu, co widzi operator)
+- Niepewność: średnia (zachowanie ngx-mask z Signal Forms i modelem liczbowym)
+- Wykonawca (linia / model / native effort): Muse / muse-spark-1.3-contributor / max — A, B (STOP), B2 (kontynuacja)
+- Recenzent (linia / model / native effort): Gemini B / gemini-3.8-flash / high (jedna recenzja A+B)
+- Dopuszczone alternatywy: wykonawca Sonnet 5.5 high (tylko z powodem); recenzent Sol high (zablokowany)
+- Powód wyboru: reguła 3; recenzja innej rodziny na koncie B
+- Sygnał dostępności: Muse znany, Gemini B ok, Codex zablokowany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: A zaakceptowano bez korekty (pierwszy start A z InputNumber przerwał architekt po zmianie wymagania właściciela na ngx-mask — bez zmian w repo); B zatrzymane klauzulą STOP
+- Rundy korekt: 1 z winy specyfikacji (brief B zakładał, że `separatorLimit` tylko blokuje wpisywanie — Spark sondą wykazał ucinanie wartości wczytanej z modelu; decyzja: limity pokrywające cały zakres `int` zaplecza, kontynuacja B2)
+- Czas do akceptacji: nie mierzono (przebiegi A 1695 s, B 816 s, B2 857 s)
+- Znaleziska recenzji: potwierdzone 1 × P0 (wklejona kwota z kropką dziesiętną „12.50” → 1 250 zł; kropka z klawiatury numerycznej działała — potwierdzone sondą; poprawka architekta: obsługa wklejania z testami, rozwiązanie z tablicą znaków dziesiętnych odrzucone, bo kwota z modelu pokazywała się z kropką) i 1 × P3 (jednostka w nagłówkach kolumn wariantów); odrzucone 1 × P1 (procent z ułamkiem po zmianie rodzaju kodu — maska sama zapisuje do modelu liczbę całkowitą, sonda: 49,9 → „49 %” i 49); przyjęte jako ryzyko 1 × P2 (kwota powyżej zakresu `int` w granicach 8 cyfr kończy się ogólnym 400 zaplecza). Część cytatów recenzenta była zmyślona (nieistniejący `decimalMarker` computed, linie z pliku diffu) — przy Gemini każde P0/P1 obalać sondą
+- Defekty po odbiorze: brak do chwili wpisu
+- Wymagane testy i dowody: eslint, prettier, stylelint, tsc, i18n, pełny ng test 3658 + 2 oczekiwane niepowodzenia, ng build (maska tylko w części CRM, nie w pakiecie startowym)
+
 
 ### Zapisy przeglądów
 
