@@ -14846,6 +14846,36 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: —
 - Wymagane testy i dowody: pełny FE na `main` 3305/2 oczekiwane; eslint, stylelint, prettier, i18n, `npx ng build`; harness zrzutów 73 przebiegi, 97 PNG, bez poziomego przewijania na 390 px i bez błędów konsoli; md5 licencji PrimeUI bez zmian; wdrożenie PreProd+Prod, smoke
 
+### AmmoBox fala UI — przyciski bez strzałek, druga skrzynka z wyborem, galeria jak w korkach, „Zobacz z bliska”, plakietki dostawy (FE) — 2026-11-23
+- Archetyp: FE ekrany i komponenty bez niezmiennika, bez Figmy (wzór: korki pasu.je i research Gemini B)
+- Stawka: niska–średnia (druga skrzynka zmienia pozycje zamówienia, ale kwoty liczy zaplecze — D-211)
+- Wykonawca: `wykonawca` / Sonnet 5.5 / `high`, 4 briefy równolegle w głównym drzewie z rozłącznymi plikami; research galerii Gemini B / `gemini-3.8-flash-high` / odczyt
+- Recenzent: Gemini B / `gemini-3.8-flash-high` / odczyt – jedna recenzja całej fali
+- Dopuszczone alternatywy: Muse Spark `max` (zapis) dla briefów bez kontekstu zrzutów – nieużyty (potrzebne zrzuty korków i decyzje z rozmowy)
+- Powód wyboru: kontekst sesji (zrzuty od właściciela, wzorce korków), Codex zablokowany do 25.11
+- Sygnał dostępności: Claude tydzień ~45 %, Gemini B znany, Muse znany po resecie, Codex zablokowany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: przyjęte z korektami; brief „Zobacz z bliska” sprzeczny ze starymi testami strony głównej (wykonawca usunął 3 testy strzałek, zostawił test liczby kart); agent galerii wyzerował i przywrócił `AB5-TEKSTY.pl.json` (sprawdzone diffem kluczy)
+- Rundy korekt: 1 (autor galerii: autoodtwarzanie na animacji CSS, pauza przy najechaniu i fokusie, neutralne klucze podglądu, plik stałych); 1 drobna poprawka architekta (asercje istnienia przycisków przed asercjami strzałek)
+- Znaleziska recenzji: P1/P2 galerii potwierdzone i poprawione przez autora; pozostałe P3 bez zmian
+- Defekty po odbiorze: —
+- Wymagane testy i dowody: pełny FE (lint, stylelint, prettier, i18n, 3597 testów, `npx ng build`); wdrożenie PreProd+Prod i smoke
+
+### AmmoBox języki cs i de — BE-1 (pliki niezmiennika), BE-2 (maile, katalog), FE-1 (adresy, flagi, SEO), tłumaczenia — 2026-11-23
+- Archetyp: BE-1 migracja i walidacja języka zamówienia (niezmiennik), BE-2 szablony maili i zapytania katalogu, FE-1 routing i SEO, tłumaczenia plików i18n
+- Stawka: BE-1 wysoka (migracja, język faktury i płatności), BE-2 i FE-1 średnia, tłumaczenia niska–średnia (zgody prawne dosłownie)
+- Wykonawca: BE-1 `wykonawca-opus` / Opus 5.5 / `xhigh`; BE-2 i FE-1 `wykonawca` / Sonnet 5.5 / `high`; tłumaczenia cs i de Gemini A / `gemini-3.8-flash-high` / zapis, dwa przebiegi równolegle
+- Recenzent: BE-1 Muse Wonder Full 1.0 / `max` / odczyt; BE-2 i tłumaczenia Muse Spark 1.3 contributor / `max` / odczyt; FE-1 Gemini B / `gemini-3.8-flash-high` / odczyt
+- Dopuszczone alternatywy: tłumaczenia – Spark `max` (zapis); recenzja BE-1 – Sol `high` (zablokowany)
+- Powód wyboru: pliki niezmiennika zawsze Opus; tłumaczenie to praca bez kontekstu sesji, więc poza pulą Claude'a; recenzja tłumaczeń przez inną rodzinę niż Gemini
+- Sygnał dostępności: Claude tydzień ~45 %, Muse znany (po resecie poniedziałkowym), Gemini A i B znane, Codex zablokowany do 25.11
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wszystkie przyjęte z korektami; klucze podglądu zdjęć przeniesione po wygenerowaniu tłumaczeń – brakujące klucze cs/de uzupełnione skryptem
+- Rundy korekt: 0 z wykonania; poprawki architekta wg reguły 11 – BE-2 (czeski nagłówek, `FormatDate` dla nieznanego języka, komentarze), FE-1 (hreflang tylko na stronach indeksowanych, słownik lokalizacji kwot w klasie), 40 poprawek tłumaczeń
+- Znaleziska recenzji: BE-2 2×P2 potwierdzone, P3 migawek HTML cs/de odłożone; FE-1 P2 (hreflang na noindex) i P3 potwierdzone; tłumaczenia ~40 uwag potwierdzonych, część pominięta jako styl
+- Defekty po odbiorze: —
+- Wymagane testy i dowody: BE pełny zestaw 8710/1 pominięty, Messaging 755 po poprawkach; FE pełny zestaw zielony; skrypt zgodności kluczy cs/de z en; wdrożenie PreProd+Prod i smoke
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
