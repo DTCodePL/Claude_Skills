@@ -15157,6 +15157,24 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Wymagane testy i dowody: zrzuty podglądu 1440 px (4 zestawy) i ramka 390 px, pomiar cyfr tabelarycznych w przeglądarce
 - Uwagi do pakietu: Google Fonts tylko w lokalnym podglądzie; przy wdrożeniu sprawdzić `tnum` w docelowych plikach `@fontsource`
 
+### MPLRT biblioteka Figma — paleta i typografia MPLRT (2 briefy + drobna korekta architekta) — 2026-11-24
+- Archetyp: Figma — zmienne, style kolorów i tekstu biblioteki komponentów (bez kodu repo)
+- Stawka: niska–średnia (biblioteka zasila wszystkie makiety; wartości z zatwierdzonego dokumentu)
+- Niepewność: średnia (struktura kopii biblioteki Zebrani rozpoznana odczytem architekta przed briefem)
+- Wykonawcy (linia / model / native effort): F1 dostosowanie — `wykonawca` Sonnet 5.5 `high` (92 wywołania, 277 tys. tokenów, 13,7 min); F2 korekta po recenzji — świeży `wykonawca` Sonnet 5.5 `high` (50 wywołań, 204 tys., 6,9 min); drobna korekta (opisy stylów, kolor ikony w 9 wariantach) — architekt (reguła 11)
+- Recenzent: Gemini C / gemini-3.8-flash-high (read, 776 s) na zrzucie zmiennych, stylach i zrzutach ekranu; odbiór architekta odczytem z Figmy (88 zmiennych wobec mapowania: 0 rozbieżności)
+- Dopuszczone alternatywy: wykonawca — brak (Figma MCP: tylko Claude albo Codex, Codex tydzień 100 %); recenzent — Gemini Neon A albo Flash B
+- Powód wyboru: bramka Figmy (reguła 3); recenzja spoza rodziny Claude na danych wyeksportowanych z pliku
+- Sygnał dostępności: Claude ŻÓŁTY, tempo +21 pp; Codex tydzień 100 % do 25.11 14:10; Gemini A, B, C ok (hook, 2026-11-24 19:05)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zmienne, style i typografia zgodne z briefem; zrzut `zmienne.json` częściowo odtworzony skryptem zamiast odczytu (architekt zweryfikował osobno); dodał nieproszoną, przydatną ramkę palety MPLRT
+- Rundy korekt: 1 (F2) + 2 drobne korekty architekta (druga po pytaniu właściciela: skan wszystkich wypełnień i obrysów znalazł w komponentach kolory spoza palety — przestarzały styl `base/white` w Listbox, Treemenu i pozycjach menu, surowe `#D9D9D9` w torach suwaka i kształtach Assets, surowe `#000000` 40 % w maskach okien dialogowych, surowe czarne napisy na Examples; 69 przepięć na style MPLRT, ponowny skan: 0 w komponentach; za zgodą właściciela usunięte 5 ramek dokumentacji PrimeNG „Colors” i 132 przestarzałe style palet, okładka pliku i tło zestawu Badge przepięte przed usunięciem)
+- Czas do akceptacji: ok. 1 h 45 min od briefu do odbioru
+- Znaleziska: recenzja — potwierdzone: tło pola wypełnionego = tło karty w Dark (P2, recenzent dał P0), 7 tokenów bez stylu, myląca nazwa stylu Header, surowe kolory w ramce Theme-Light, białe tło ramek Examples w Dark, opis `primary-text`; obalone: „wypełniony Secondary zamiast przycisku z obrysem” (P1 — rolę pełni Secondary Outline), brak odmian w grupie MPLRT (są w skali PrimeNG), kontrast `light-50` (powierzchnia, nie tekst), usunięcie stylów deprecated, „List of customers” jako pozostałość Zebrani. Architekt przy odbiorze: komunikaty z tekstem zwykłym i bez obrysu (wbrew rolom dokumentu)
+- Defekty po odbiorze: kolory spoza palety w komponentach (patrz rundy korekt) — ani brief, ani recenzja nie wymagały skanu wszystkich wypełnień, tylko zmiennych i stylów
+- Wymagane testy i dowody: odczyt zmiennych i stylów z Figmy wobec mapowania, skan wypełnień i obrysów wszystkich węzłów (styl przestarzały albo kolor bez zmiennej), zrzuty Light i Dark (przyciski, formularz, komunikaty, Theme-Light/Dark, Examples w Dark)
+- Uwagi do pakietu: briefy Figmy z decyzjami w tabeli token → wartość dały 0 rund z wykonania w wartościach; korekta wynikła z luk specyfikacji (komunikaty, style dla istniejących zmiennych, ramki dokumentacyjne). API Figmy nie ustawia cech OpenType w stylu tekstu (`tnum` tylko ręcznie). Decyzja właściciela w trakcie: przyciski w kolorach statusów z rodzin komunikatów (DEC-PRZYCISKI-STATUSOW)
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
