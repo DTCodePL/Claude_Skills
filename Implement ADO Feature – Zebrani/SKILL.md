@@ -210,8 +210,8 @@ wszystkich kroków, a każda wiadomość mówi, na którym z nich jesteś.
    - dla Buga zamiast pierwszej fali: czerwony test → odbiór czerwieni →
      łatka → ten sam test zielony i cały pakiet;
    - audyt SCSS (gdy diff zmienia SCSS);
-   - bramka końcowa Sol `max` (gdy feature jest wysokiej stawki; FE i BE
-     jako osobne kroki);
+   - recenzja dodatkowa Gemini 4 Carbon `high`, potem bramka końcowa Sol
+     `max` (gdy feature jest wysokiej stawki; FE i BE jako osobne kroki);
    - SemVer (podgląd i zapis wersji);
    - przegląd zgodności dokumentacji (Faza 4c);
    - brama potwierdzenia — **czeka na właściciela**;
@@ -560,7 +560,8 @@ odrzuć pary model–native effort niespełniające choć jednego twardego warun
   pliki są rozłączne, a kontrakt między nimi (sygnatury, kształt DTO) oba
   briefy zapisują dosłownie; inaczej zostaje w briefie Opusa. Wpis rejestru
   podaje „pliki niezmiennika / pliki briefu”. Gemini nigdy nie pisze
-  plików niezmiennika (recenzuje je tylko Gemini 4 Neon `xhigh` w próbie G4);
+  plików niezmiennika (recenzuje je tylko Gemini 4 Neon `xhigh` w próbie G4
+  i Gemini 4 Carbon `high` jako recenzent dodatkowy);
 - Figma: wykonawca ekranu z makiety sam pobiera kontekst projektu;
   wymagany jest faktyczny dostęp do Figmy. Link lub transkrypcja makiety
   nie zastępuje dostępu. Muse i Gemini nie kwalifikują się do Figmy.
@@ -982,7 +983,12 @@ decyzja właściciela 2026-10-12 — oraz tygodniowa pula Muse); przy wyższej
 stawce Muse jest kandydatem z parą z tabeli reguły 8: Wonder Full `max`
 dla plików niezmiennika (w limicie Wondera; w próbie G4 naprzemiennie
 z Gemini 4 Neon `xhigh`), Spark `max` albo Gemini 4 Neon `high` dla średniej
-stawki (od 2026-11-24; wcześniej sam Spark `max`).
+stawki (od 2026-11-24; wcześniej sam Spark `max`). **Recenzent dodatkowy**
+(właściciel, 2026-11-24, reguła 13): cały diff feature'a wysokiej stawki
+czyta dodatkowo Gemini 4 Carbon `high` (konto A, `-Access read`), raz,
+po recenzjach fal i poprawkach, przed bramką Sol, FE i BE osobno;
+potwierdzone znaleziska poprawiasz przed bramką. Nie zastępuje recenzji
+ani bramki i nie recenzuje pracy Gemini.
 
 **Jednostka recenzji** (od 2026-11-16, reguła 13):
 - **plik niezmiennika** — recenzja per brief;
