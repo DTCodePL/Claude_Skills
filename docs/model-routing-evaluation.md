@@ -15211,6 +15211,24 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Wymagane testy i dowody: JSON-y z odczytu wiązań i stylów, zrzuty Light, Dark i Dark na pasku, kontrasty policzone z hex, odczyt stylów po poprawce (6 wariantów przełącznika, 142 obwódki)
 - Uwagi do pakietu: projekt stanu wizualnego (cień jako obwódka) warto sprawdzić szkicem przed briefem — nieudany brief 2 kosztował 199 tys. tokenów. Recenzent Flash zgłosił 3 P1 do obalenia, bo brief nie mówił, który komponent stoi gdzie (Switch w menu, Toggle-Button na pasku); następny brief recenzji biblioteki podaje miejsca użycia każdego komponentu.
 
+### MPLRT plik Figmy — przepięcie zastępników layoutu i dolny pasek stopki (2 briefy + 4 zmiany w trakcie) — 2026-11-24
+- Archetyp: Figma — zmiana instancji, stylów i treści w komponentach layoutu (bez kodu repo)
+- Stawka: niska–średnia (komponenty layoutu użyte na każdym ekranie; zmiany bez nowych struktur)
+- Niepewność: niska (klucze stylów i zmiennych podane w briefie)
+- Wykonawca (linia / model / native effort): `wykonawca` Sonnet 5.5 `high` — brief przepięcia: 59 wywołań, 197 tys. tokenów, 6,1 min, w trakcie dwie wiadomości SendMessage z prawdziwymi danymi organizatora; brief stopki (Panel redaktora jako mały link, logo DTCode jako zasób): 34 wywołania, 150 tys., 3,5 min, w trakcie jedna wiadomość (usunięcie wiersza CEIDG). Drugi brief poszedł do świeżego agenta, bo wznowienie pierwszego przy ~200 tys. kontekstu kosztowałoby więcej
+- Recenzent: Gemini B / gemini-3.8-flash-high (read, 834 s) na 14 zrzutach, 2 JSON-ach i dokumentacji; odbiór architekta: 6 zrzutów i audyt wykonawcy 0/0/0
+- Dopuszczone alternatywy: wykonawca — brak (Figma MCP: Claude albo Codex, Codex tydzień 100 %); recenzent — Gemini C albo Neon A
+- Powód wyboru: bramka Figmy (reguła 3); recenzja spoza rodziny Claude, B i C naprzemiennie
+- Sygnał dostępności: Claude ŻÓŁTY, tempo +24 pp; Codex tydzień 100 % do 25.11 14:10; Gemini A, B, C ok (hook, 2026-11-24 23:17)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: oba briefy zgodne; wykonawca słusznie odszedł od briefu przy stanie przełącznika (nagłówek ma własną właściwość Theme, więc stan ustawił w wariantach nagłówka zamiast nadpisań w layoucie)
+- Rundy korekt: 0 z wykonania; zmiany w trakcie wynikały z decyzji właściciela (dane organizatora, telefon, CEIDG); po odbiorze właściciel odrzucił projekt przełącznika motywu (architekta), co otwiera nowy brief biblioteki
+- Czas do akceptacji: ok. 45 min od pierwszego briefu do odbioru recenzji
+- Znaleziska recenzji: potwierdzone — brak opisu stałego trybu Dark ramki nagłówka (P3, dopisany w layoucie publicznym); obalone — kontrast obrysu przełącznika 1,57:1 (P1: nieaktualne, przełącznik bez obrysu po decyzji właściciela; obrys był ozdobny), brak przecinka w dwuwierszowym adresie na tablecie (P1: łamanie wiersza zastępuje przecinek), stały tryb Dark nagłówka jako obejście (P2: celowy, daje obwódce fokusu i przyciskom kolory na ciemne tło), „Panel redaktora” bez komponentu linku (P2: biblioteka nie ma komponentu linku, linki to style tekstu), łamanie adresu tylko na tablecie (P3: wąska kolumna)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: zrzuty trzech układów w Light i Dark, zbliżenia nagłówka, cała stopka, sekcja Assets; audyt kolorów, stylów, odłączeń i nazw zastępników
+- Uwagi do pakietu: dosyłanie zmian właściciela przez SendMessage do działającego wykonawcy uniknęło równoległej edycji tej samej stopki. Recenzent Flash dał 2 P1, oba obalone; jego wartość tu to jedna luka w dokumentacji. Projekt wizualny architekta (przełącznik) bez makiety HTML dla właściciela został odrzucony — kolejne decyzje wyglądu najpierw na makiecie.
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
