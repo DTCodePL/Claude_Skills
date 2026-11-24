@@ -990,6 +990,31 @@ Przegląd skutków po 3–5 kolejnych funkcjach obejmie:
 - potwierdzone defekty po odbiorze i na bramce Sol;
 - defekty, które przeszły przez drobną korektę architekta bez ponownej recenzji.
 
+## Gemini 4 na koncie A i trzecie konto Gemini — 2026-11-24
+
+**Zmiana kont.** Na `agy` Windows (konto A) właściciel zalogował nowe konto Google AI Pro z dostępem do Gemini 4. Dotychczasowe konto A przeszło na konto C (WSL, użytkownik `gemini3`, tylko odczyt, `-GeminiHost wsl-c`). B i C mają tylko Gemini 3.8 Flash.
+
+**API AA.** Stary `/api/v2/data/llms/models` zwraca 410 od 2026-11-05. Nowy klucz jest darmowy: `/api/v2/language/models/free?page=N` (766 rekordów na 4 stronach), a endpoint Pro zwraca 403. Coding Index ma zawsze `null`, a koszt zadania indeksu jest już w API. TB4 i SciCode najwyższego wariantu są w HTML strony `evaluations/terminalbench-4-0`.
+
+**Odczyt AA z 2026-11-24** (II = Intelligence Index, koszt = koszt zadania indeksu w $, TB4 tylko dla najwyższego wariantu):
+
+| Model | II | Koszt | TB4 |
+| --- | --- | --- | --- |
+| Gemini 4 Neon `xhigh` / `high` / `medium` / `low` | 61,4 / 59,6 / 54,9 / 44,1 | 6,44 / 3,74 / 1,90 / 0,75 | 0,636 |
+| Gemini 4 Carbon `high` / `medium` / `low` | 60,0 / 58,3 / 54,2 | 7,76 / 6,59 / 7,19 | 0,651 |
+| Gemini 4 Hydrogen `xhigh` / `high` / `medium` | 53,9 / 50,8 / 41,2 | 3,16 / 1,87 / 0,80 | 0,535 |
+| Gemini 4 Argon `high` / `medium` | 50,4 / 47,6 | 9,95 / 8,63 | — |
+| Gemini 3.8 Flash `high` / `medium` | 30,8 / 30,1 | 7,77 / 6,26 | — |
+| Claude Opus 5.5 `max` / `xhigh` / `high` | 59,1 / 57,4 / 51,8 | 10,04 / 6,05 / 3,46 | 0,595 |
+| Claude Sonnet 5.5 `max` / `xhigh` / `high` | 54,5 / 49,9 / 41,5 | 10,02 / 4,09 / 1,64 | 0,636 |
+| GPT-6.1 Sol `max` / `high` | 54,6 / 50,3 | 1,27 / 0,59 | — |
+| GPT-6.1 Terra `max` | 51,3 | 0,96 | 0,555 |
+| Muse Wonder Full `max` / Wonder `max` / Spark 1.3 `max` | 50,1 / 43,6 / 36,6 | — / 6,95 / 2,39 | 0,570 / 0,520 / — |
+
+Neon ma na każdym poziomie kosztu wyższy indeks niż Hydrogen, Carbon i Argon, więc do routingu wszedł tylko Neon. Na stronie TB4 są też nowe modele innych linii: GPT-6.2 Sol (TB4 0,601), GPT-6.2 Astra (0,641), Claude Fable 5.2 (0,595) i Muse Ember (0,409). Ich dostępności w naszych narzędziach jeszcze nie sprawdzono.
+
+**Decyzje właściciela (2026-11-24).** Konto A ma abonament Google AI Pro. Gemini 4 Neon: wykonawca bez niezmiennika, recenzent niskiej i średniej stawki, research oraz próba G4 (recenzja plików niezmiennika naprzemiennie z Wonder Full `max`). Claude 5.5 przez `agy`: próba CA. Odczyt Flash na B i C naprzemiennie, konto podaje architekt jawnie, bez automatycznej rotacji. Kryteria prób są w regule 14.
+
 ---
 
 ## Część 3 — globalny CLAUDE.md z 2026-11-05 sprzed drugiej diety (dosłownie)

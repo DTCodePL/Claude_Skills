@@ -15086,6 +15086,41 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Wymagane testy i dowody: BE `dotnet build -warnaserror` 0/0, `dotnet test` 89/89, CI (BE) zielone na runnerze `local`; FE lint, `format:check`, `ng test` 83/83, `ng build` z prerenderem, smoke SSR (`/` 200 z `<h1>`, nieznany adres 404, `/api` bez BE 502), test regresji K1 czerwony na starym układzie
 - Uwagi do pakietu: źródłem P1 FE była specyfikacja architekta (dwa osobne inicjalizatory bez zależności czasowej); inne sprzeczności specyfikacji zgłoszone przez wykonawców: „adaptacja testów, które Zebrani ma” (nie miał), EmbeddedResource tylko `*.sql` wbrew AGENTS.md, `server-error-fallback` wymagany przy wyłączonych stronach błędów. Infrastruktura: runnery z usług użytkownika startowały `run.sh` (bez `.path`, więc bez pomocnika poświadczeń Docker Desktop), a `KillMode=process` zostawiał przy restarcie stary listener; runner MPLRTBE nie miał `DOTNET_INSTALL_DIR` — naprawione dla 5 runnerów
 
+### Narzędzia Gemini — konto C we wrapperze i `[pule]` oraz modele tylko-A z effortem `xhigh` (2 briefy) — 2026-11-24
+- Archetyp: narzędzia PowerShell i Node (wrapper workerów, moduł hooka) z testami bez prawdziwego `agy`/`wsl.exe`
+- Stawka: średnia (błąd wyboru konta = rotacja kont Google albo cicha praca na złym koncie)
+- Niepewność: niska (wzorzec konta B już istniał)
+- Wykonawca (linia / model / native effort): Muse / muse-spark-1.3-contributor / max (write) — konto C (ok. 15 min) i modele tylko-A (448 s)
+- Recenzent (linia / model / native effort): Gemini B / gemini-3.8-flash / high (read) dla konta C; Gemini C / gemini-3.8-flash / high (read, 898 s) dla modeli tylko-A — B i C naprzemiennie
+- Dopuszczone alternatywy: Gemini 4 Neon A (wtedy recenzja spoza Gemini); Codex wykluczony (tydzień 100 % do 25.11)
+- Powód wyboru: reguła 3 (bez Figmy i niezmiennika → poza pulą Claude'a), reguła 8 (Spark `max`); recenzja niskiej/średniej stawki → Flash, inna rodzina
+- Sygnał dostępności: Muse 4 % tygodnia, Gemini A/B/C ok, Codex zablokowany do 25.11 14:10, Claude ŻÓŁTY, tempo +21 pp (hook, 2026-11-24 14:00–15:20)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: oba zaakceptowane po drobnych korektach architekta (reguła 11)
+- Rundy korekt: 0 rund wykonawcy; korekty architekta: konto C — 2 asercje DryRun (argumenty w osobnych liniach) i symetryczny komunikat blokady; tylko-A — komunikat dla krótkiego `-GeminiPowod` i test 31 bez `-GeminiHost`
+- Czas do akceptacji: ok. 30 min każdy
+- Znaleziska recenzji: konto C — potwierdzone 1 × P3 (asymetryczna podpowiedź przy blokadzie C), obalona 1 przesłanka (`/mnt/d` z translacji ścieżek wrappera); tylko-A — potwierdzone 1 × P1 zgłoszone, obniżone do P3 (krótki powód przy modelu tylko-A → mylący komunikat o koncie B, odmowa przed startem) i 1 × P3 (test 31 nie sprawdzał domyślnego konta na rekordzie), odrzucone 1 × P2 (`-Effort xhigh` dla `gemini-pro-orchestrator` — poza routingiem) i 1 × P3 (miejsce domyślnego modelu)
+- Defekty po odbiorze: brak do chwili wpisu
+- Wymagane testy i dowody: `worker-run-gemini-host.tests.ps1` 166/166, `worker-run-console.tests.ps1` 128/128, `limity-gemini.tests.mjs` 25/25; sonda konta C (hash adresu konta zgodny), DryRun: Neon `xhigh` → A, Neon na `wsl-c` → odmowa, Flash read → B
+
+### ZebraniFE AGENTS.md poniżej limitu Sparka (sekcje FE, pierwszy brief Gemini 4 Neon) — 2026-11-24
+- Archetyp: dokumentacja reguł dla AI — skrócenie bez zmiany treści (65 557 → 59 798 B, limit 64 000 B, cel 63 000 B)
+- Stawka: średnia (utrata reguły = wykonawcy łamią ją po cichu; ponad 64 000 B Spark obcina koniec pliku)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Gemini A / gemini-4-neon / high (write), 523 s
+- Recenzent (linia / model / native effort): Muse / muse-spark-1.3-contributor / max (read), 727 s
+- Dopuszczone alternatywy: Spark `max` jako wykonawca (wtedy recenzja Gemini); Codex wykluczony (tydzień 100 %)
+- Powód wyboru: polecenie właściciela („zleć to Gemini 4 Neon”); pierwszy brief Neona jako wykonawcy bez niezmiennika
+- Sygnał dostępności: Gemini A ok, Muse 4 %, Claude ŻÓŁTY, tempo +21 pp (hook, 2026-11-24 14:45)
+- Pewność decyzji: niska (pierwszy brief Neona)
+- Wynik pierwszego podejścia: cel rozmiaru osiągnięty z zapasem, sekcje wspólne i nagłówki bajt w bajt, Prettier zielony; skrót zgubił 9 niuansów reguł
+- Rundy korekt: 0 rund wykonawcy; drobna korekta architekta (reguła 11): przywrócone słowa w 9 miejscach + wyrównanie tabeli Prettierem
+- Czas do akceptacji: ok. 45 min
+- Znaleziska recenzji: potwierdzone 1 × P1 (zgubione „nothing else runs outside Angular”), 5 × P2 (kolejność odczytu motywu, „single helper” AXE, „utilities only”, „visible grabber”, spinner „in the content”), 3 × P3 („handful”, „secondary actions”, „source notes”); obalone 0. Walidacja mechaniczna architekta (tokeny `kod`, daty, kody DEC/WP/AT, URL) tych strat nie wykryła — wykryła je dopiero recenzja treści
+- Defekty po odbiorze: brak do chwili wpisu
+- Wymagane testy i dowody: `rozmiar.py` exit 0 (59 798 B), prefiks do pierwszego `## FE · ` identyczny, nagłówki identyczne, lokalna symulacja `instrukcje.yml` zgodna, `prettier --check` zielony
+- Uwagi do pakietu: Neon samodzielnie przetłumaczył polskie akapity na angielski (dozwolone przez „pisz po angielsku”, bez zmiany znaczenia wg recenzji) i rozbił dwa wiersze tabeli, żeby zdjąć wypełnienie Prettiera; skrót „bez zmiany reguły” gubi przymiotniki zawężające (only, single, visible) — następny brief tego typu wymienia je jawnie jako nietykalne
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
