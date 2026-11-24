@@ -15068,6 +15068,24 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Uwagi do pakietu: skrypt kontrolny architekta miał wadę kotwicy (2 fałszywe błędy) — poprawiony; pakiet nie przewidział recenzenta dla briefu, który przeszedł na inną rodzinę
 - Zmiana decyzji właściciela po odbiorze (2026-11-24): motyw jasny i ciemny (`DEC-MOTYW-JASNY-I-CIEMNY`) zamiast „ciemny nierozstrzygnięty”. Korekta skilla naprawy buga, skilla ADO i 2 loaderów z kopiami: Gemini A / gemini-3.8-flash / high (autor B5), 379 s, zaakceptowana bez rundy, 1 zgubiony odnośnik przywrócił architekt. Reguły FE (motywy, zatwierdzony prefiks `mplrt`) i 6 miejsc w skillu implement poprawił architekt (reguła 11: treść znana, brief droższy od zmiany). Bez ponownej recenzji (zmiany tylko we wskazanych miejscach). Uwagi Gemini, że „SSR zawsze renderuje Light” i ścieżka `core/theme/` przesądzają kwestię otwartą — obalone: to mechanizm techniczny z reguł FE, nie wybór motywu przy pierwszej wizycie
 
+### MPLRT szkielet aplikacji FE i BE — platforma z Zebrani bez funkcji biznesowych (PBI #2990) — 2026-11-24
+- Archetyp: inicjalizacja projektu z platformy innego projektu — BE ok. 80 plików (.NET 10, testy), FE ok. 110 plików (Angular 22 SSR, testy); bez niezmiennika; 2 briefy równolegle, rozłączne repo
+- Stawka: średnia (fundament każdego kolejnego modułu; błąd platformy bywa cichy)
+- Niepewność: średnia (podział Zebrani na platformę i moduły, zależności przenoszonych plików)
+- Wykonawca (linia / model / native effort): BE — Muse / muse-spark-1.3-contributor / max (`-MuseHost windows`, dotnet), 1049 s; FE — Gemini A / gemini-3.8-flash / high, 914 s + korekta K1 460 s. `package.json`, lock i `npm install` FE przygotował architekt (wykonawcom nie wolno `npm install`)
+- Recenzent (linia / model / native effort): BE — Gemini B / gemini-3.8-flash / high, 813 s; FE — Muse / muse-spark-1.3-contributor / max (read), 794 s
+- Dopuszczone alternatywy: Codex wykluczony (tydzień 100 % do 25.11); `wykonawca` Sonnet bez powodu z reguły 3 (brief bez Figmy, tempo +21 pp)
+- Powód wyboru: reguła 3 (brief bez Figmy i niezmiennika poza pulą Claude'a), reguła 8 (implementacja bez niezmiennika → Spark `max`); FE na Gemini A, żeby oba briefy szły naraz, a recenzje krzyżowe miały inną rodzinę
+- Sygnał dostępności: Muse 0–1 % tygodnia, Gemini A i B ok, Codex zablokowany do 25.11 14:10, Claude ŻÓŁTY, tempo +21–22 pp (hook, 2026-11-24 12:00–13:10)
+- Pewność decyzji: niska (pierwszy brief tego archetypu)
+- Wynik pierwszego podejścia: BE zaakceptowany bez rundy; FE po 1 rundzie (K1)
+- Rundy korekt: FE 1 (K1: P1 + 2 × P2 + P3); poprawki architekta (reguła 11): BE 4 (glob `**\*.html` zgodnie z AGENTS.md, usunięty martwy `.gitattributes`, nazwa zmiennej, komentarz-notatka), FE 3 (nazwa pliku zgodna z deklaracją, precyzyjny komentarz, `secure: false` usunięte z proxy SSR po automatycznym przeglądzie bezpieczeństwa commita)
+- Czas do akceptacji: BE ok. 1 h, FE ok. 1 h od startu briefu do commita; CI BE zielone dopiero za 3. przebiegiem (naprawa runnerów, niżej)
+- Znaleziska recenzji: BE (Gemini B) — obalone 1 × P1 (brak testu `WebApplicationFactory` — test istniał), potwierdzone 2 × P3, bez zmian 2 × P3 (`CustomDictionary.xml` w Dockerfile przed restore, `.gitattributes`); FE (Spark `max`) — potwierdzone 1 × P1 (tłumaczenia PrimeNG przed załadowaniem słownika: dwa inicjalizatory startują bez czekania na siebie), 2 × P2 (komentarze), 1 × P3 (fixtura z pojęciami Zebrani); obalona uwaga o `workItem 2990` w `version.json`. Żaden recenzent nie zauważył `secure: false` w proxy SSR (wykrył automatyczny przegląd bezpieczeństwa; to samo jest w ZebraniFE)
+- Defekty po odbiorze: brak do chwili wpisu
+- Wymagane testy i dowody: BE `dotnet build -warnaserror` 0/0, `dotnet test` 89/89, CI (BE) zielone na runnerze `local`; FE lint, `format:check`, `ng test` 83/83, `ng build` z prerenderem, smoke SSR (`/` 200 z `<h1>`, nieznany adres 404, `/api` bez BE 502), test regresji K1 czerwony na starym układzie
+- Uwagi do pakietu: źródłem P1 FE była specyfikacja architekta (dwa osobne inicjalizatory bez zależności czasowej); inne sprzeczności specyfikacji zgłoszone przez wykonawców: „adaptacja testów, które Zebrani ma” (nie miał), EmbeddedResource tylko `*.sql` wbrew AGENTS.md, `server-error-fallback` wymagany przy wyłączonych stronach błędów. Infrastruktura: runnery z usług użytkownika startowały `run.sh` (bez `.path`, więc bez pomocnika poświadczeń Docker Desktop), a `KillMode=process` zostawiał przy restarcie stary listener; runner MPLRTBE nie miał `DOTNET_INSTALL_DIR` — naprawione dla 5 runnerów
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
