@@ -15121,6 +15121,42 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Wymagane testy i dowody: `rozmiar.py` exit 0 (59 798 B), prefiks do pierwszego `## FE · ` identyczny, nagłówki identyczne, lokalna symulacja `instrukcje.yml` zgodna, `prettier --check` zielony
 - Uwagi do pakietu: Neon samodzielnie przetłumaczył polskie akapity na angielski (dozwolone przez „pisz po angielsku”, bez zmiany znaczenia wg recenzji) i rozbił dwa wiersze tabeli, żeby zdjąć wypełnienie Prettiera; skrót „bez zmiany reguły” gubi przymiotniki zawężające (only, single, visible) — następny brief tego typu wymienia je jawnie jako nietykalne
 
+### MPLRT kolory motywu jasnego i ciemnego — dwa researche i strona podglądu 4 wariantów (3 briefy) — 2026-11-24
+- Archetyp: research (metodyka palet + benchmark niszy) i jednorazowa strona podglądu z danych architekta (HTML/CSS/JS w `_robocze`, nie kod repo)
+- Stawka: niska (propozycje do wyboru właściciela; paleta i kontrasty liczone przez architekta skryptem, nie przez workerów)
+- Niepewność: średnia (research), niska (podgląd)
+- Wykonawcy (linia / model / native effort): R1 metodyka — Gemini A / gemini-4-neon-high (read, 592 s); R2 benchmark — Gemini B / gemini-3.8-flash-high (read, 383 s); P1 podgląd — Muse / muse-spark-1.3-contributor / max (write, 417 s)
+- Recenzent: brak osobnej recenzji — research weryfikowany krzyżowo (R1 i R2 zbieżne w zaleceniach: chłodne neutralne, czerwień jako akcent, jasne kafelki sponsorów); podgląd odebrany przez architekta na własnych zrzutach (1440 px i ramka 375 px)
+- Dopuszczone alternatywy: R1 — Flash C; R2 — Neon A; P1 — Gemini 4 Neon A albo `wykonawca` z powodem; Codex wykluczony (tydzień 100 %)
+- Powód wyboru: briefy bez Figmy i niezmiennika najpierw poza pulą Claude'a (reguła 3); tempo +22 pp — na Opusie tylko projekt palet i odbiór
+- Sygnał dostępności: Gemini A, B ok, Muse 4 %, Codex tydzień 100 %, Claude ŻÓŁTY, tempo +22 pp (hook, 2026-11-24 16:50)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: R1 kompletny ze źródłami i policzonymi kontrastami (wrapper uciął środek raportu w strumieniu — pełny tekst z logu JSON); R2 kompletny, część hex oznaczona jako odczyt wizualny; P1 działał, ale makieta przy 375 px była przycięta (siatka `auto` rozpychana przez tabelę z `min-width`)
+- Rundy korekt: 0 rund wykonawcy; drobna korekta architekta (reguła 11): `grid-template-columns: minmax(0, 1fr)` w `.makieta-tresc`; zmiana danych architekta: obwódka fokusu z czerwieni na grafit (czerwona wyglądała jak błąd pola)
+- Czas do akceptacji: ok. 75 min od briefów do otwarcia podglądu
+- Znaleziska: R1 i R2 wskazały nieścisłość briefu (pplrs.pl to inne zawody, nie „dotychczasowa strona”) i otwarte kwestie produktu (motyw domyślny, poziom WCAG, panel redaktora z czerwonym CTA); worker P1 słusznie wytknął niespójność opisu `logo` w briefie z danymi
+- Defekty po odbiorze: brak do chwili wpisu
+- Wymagane testy i dowody: 24 kontrole kontrastu × 4 warianty × 2 motywy bez przekroczeń (`palety.py`), tabela kontrastu w podglądzie liczona w JS tym samym wzorem, zrzuty architekta
+- Uwagi do pakietu: zrzut z `--window-size=390` w Chrome bez okna nie pokazuje widoku telefonu (minimalna szerokość okna) — do sprawdzania wąskiego widoku służy ramka iframe o zadanej szerokości
+
+### MPLRT typografia, motyw przy pierwszej wizycie i poziom dostępności — trzy researche i strona podglądu krojów (3 briefy + podgląd architekta) — 2026-11-24
+- Archetyp: research (typografia z kandydatami i skalą; motyw domyślny, przełącznik, zapis wyboru i SSR; formalny poziom dostępności i prawo) oraz jednorazowa strona podglądu w `_robocze`, nie kod repo
+- Stawka: niska (propozycje do decyzji właściciela; pytanie prawne T3 oznaczone jako nie-porada, fakty do potwierdzenia z organizatorką)
+- Niepewność: średnia (T1, T2), wysoka (T3 — zależy od nieznanych faktów o organizatorze)
+- Wykonawcy (linia / model / native effort): T1 typografia — Gemini A / gemini-4-neon-high (read, 513 s); T2 motyw — Gemini C / gemini-3.8-flash-high (read, 336 s); T3 dostępność — Gemini B / gemini-3.8-flash-high (read, 313 s); podgląd krojów — architekt (reguła 11: przeróbka istniejącego podglądu kolorów, tańsza niż brief)
+- Recenzent: brak osobnej recenzji — twierdzenia sprawdzone wyrywkowo przez architekta względem dokumentacji (budżet „koło tysiaka” i „Team 99” potwierdzone w notatkach; domena „system-zapisow.pl” w T3 zmyślona); cyfry tabelaryczne czterech krojów tekstu sprawdzone pomiarem w podglądzie (szerokość 1111111111 = 8888888888 przy `tabular-nums`)
+- Dopuszczone alternatywy: T1 — Flash B/C; T2, T3 — Neon A albo drugie konto Flash; Codex wykluczony (tydzień 100 %)
+- Powód wyboru: research bez powłoki poza pulą Claude'a (reguła 3), trzy konta Gemini równolegle; tempo Claude'a +21 pp — na Opusie tylko synteza i odbiór
+- Sygnał dostępności: Gemini A, B, C ok, Muse ok, Codex tydzień 100 %, Claude ŻÓŁTY, tempo +21 pp (hook, 2026-11-24 16:25)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wszystkie trzy kompletne ze źródłami i sekcją krytyki briefu; wrapper uciął środek raportów w strumieniu (pełny tekst z logu JSON); T3 z jednym zmyślonym szczegółem (nazwa domeny systemu zapisów)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 75 min od briefów do otwarcia podglądu krojów
+- Znaleziska: T1 słusznie poprawił brief (cały napis logo jest pochylony, nie tylko „LONG RANGE”; Aura nie ma tokenu `font-family`; panel powinien mieć jeden krój); T2 wskazał brak skryptu motywu i meta `color-scheme` w `src/index.html` oraz to, że prerenderowana strona główna wyklucza odczyt ciasteczka przez serwer; T3 wskazał fakty o organizatorze rozstrzygające obowiązek (dotacja publiczna, mikroprzedsiębiorca, rola PZSS)
+- Defekty po odbiorze: brak do chwili wpisu
+- Wymagane testy i dowody: zrzuty podglądu 1440 px (4 zestawy) i ramka 390 px, pomiar cyfr tabelarycznych w przeglądarce
+- Uwagi do pakietu: Google Fonts tylko w lokalnym podglądzie; przy wdrożeniu sprawdzić `tnum` w docelowych plikach `@fontsource`
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
