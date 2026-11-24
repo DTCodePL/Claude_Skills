@@ -15175,6 +15175,42 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Wymagane testy i dowody: odczyt zmiennych i stylów z Figmy wobec mapowania, skan wypełnień i obrysów wszystkich węzłów (styl przestarzały albo kolor bez zmiennej), zrzuty Light i Dark (przyciski, formularz, komunikaty, Theme-Light/Dark, Examples w Dark)
 - Uwagi do pakietu: briefy Figmy z decyzjami w tabeli token → wartość dały 0 rund z wykonania w wartościach; korekta wynikła z luk specyfikacji (komunikaty, style dla istniejących zmiennych, ramki dokumentacyjne). API Figmy nie ustawia cech OpenType w stylu tekstu (`tnum` tylko ręcznie). Decyzja właściciela w trakcie: przyciski w kolorach statusów z rodzin komunikatów (DEC-PRZYCISKI-STATUSOW)
 
+### MPLRT layout publiczny w Figmie — komponenty nagłówka, stopki i strony w trzech układach (1 brief + 2 zmiany w trakcie) — 2026-11-24
+- Archetyp: Figma — komponenty layoutu złożone z instancji biblioteki (bez kodu repo)
+- Stawka: średnia (layout jest podstawą wszystkich ekranów strony publicznej)
+- Niepewność: średnia (pierwsza praca w pliku MPLRT; slot komponentu użyty pierwszy raz)
+- Wykonawca (linia / model / native effort): `wykonawca` Sonnet 5.5 `high` (81 wywołań, 276 tys. tokenów, 13,9 min); w trakcie dwie wiadomości ze zmianą briefu od właściciela: nazewnictwo i podział stron jak w pliku Zebrani, potem usunięcie Full HD
+- Recenzent: Gemini B / gemini-3.8-flash-high (read, 500 s) na 4 zrzutach, makietach HTML i dokumentacji; odbiór architekta: 4 zrzuty i własny audyt strony Desktop (0 kolorów bez zmiennej, 0 tekstów bez stylu)
+- Dopuszczone alternatywy: wykonawca — brak (Figma MCP: Claude albo Codex, Codex tydzień 100 %); recenzent — Gemini C albo Neon A
+- Powód wyboru: bramka Figmy (reguła 3); recenzja spoza rodziny Claude na zrzutach, bo Muse i Gemini nie mają Figmy
+- Sygnał dostępności: Claude ŻÓŁTY, tempo +22–24 pp; Codex tydzień 100 % do 25.11 14:10; Gemini A, B, C ok (hook, 2026-11-24 20:30)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: struktura, warianty (Theme, Registration, Page), slot „Treść”, logo jako komponenty Assets i audyt 0/0/0 zgodne z briefem po obu zmianach; zastępniki tam, gdzie brakowało biblioteki (przycisk Wyróżnienie, styl linku, styl etykiety, rola linku stopki), zgłoszone w raporcie
+- Rundy korekt: 0 z wykonania; zmiany briefu w trakcie wynikały z decyzji właściciela, nie z błędu wykonawcy
+- Czas do akceptacji: ok. 50 min od briefu do odbioru architekta
+- Znaleziska recenzji: potwierdzone — przełącznik „Motyw ciemny” bez stanu włączonego w wariancie Dark (P2, recenzent dał P1), telefon i e-mail w stopce bez stylu linku (P2), „DTCode” bez stylu linku (P2), niejasność dokumentu: strona dla części layoutu (P3) i ikona rozwinięcia przy Zawodach (P3), oba poprawione w dokumentacji; obalone — brak ciemnych zrzutów telefonu i tabletu oraz pusty slot (P1: braki materiału briefu, warianty Dark istnieją), kontrast przycisku „Panel redaktora” (P1: jawny tryb Dark daje jasny obrys), h1 tabletu 30 px (P2: na zrzutach tytuł tabletu i komputera ma tę samą szerokość 241 px, czyli 42 px), podgląd PDF w karcie przykładu (P3: poza zakresem); odłożone — wąskie kolumny stopki na tablecie (P3, dopracowanie)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: zrzuty przykładów Light w trzech układach i wariantu Desktop Dark; audyt wypełnień, obrysów i stylów tekstu; lista stron i wariantów odczytana z pliku
+- Uwagi do pakietu: zmiana nazewnictwa w trakcie przebiegu (SendMessage) wykonawca przyjął bez straty pracy — przemianował i przeniósł węzły. Materiał recenzji ze zrzutów był niepełny (brak Dark telefonu i tabletu), co dało 1 obalone P1; następny raz do recenzji zrzutów dawać komplet Light i Dark każdego układu.
+
+### MPLRT biblioteka Figmy — uzupełnienie braków layoutu: Wyróżnienie, role, style tekstu, stany fokusu i przełącznika (3 briefy + poprawka architekta) — 2026-11-24
+- Archetyp: Figma — rozszerzenie biblioteki komponentów (warianty, zmienne, style), bez kodu repo
+- Stawka: średnia (biblioteka zasila wszystkie makiety; błąd roli koloru albo kontrastu przechodzi na każdy ekran)
+- Niepewność: średnia (pierwsze stany fokusu w bibliotece; przepis obwódki ustalany w trakcie)
+- Wykonawca (linia / model / native effort): `wykonawca` Sonnet 5.5 `high` — brief 1 (Wyróżnienie, accent-active, footer-link, style Etykieta i Link): 46 wywołań, 169 tys. tokenów, 6,6 min; brief 2 (fokus jako cień DROP_SHADOW): 84 wywołania, 199 tys., 13,7 min, wykonany zgodnie z briefem, ale projekt z briefu nie działał; brief 3 (obwódka jako prostokąt z przerwą 2 px, Focus i Active Focus przełączników, Icon swap): 41 wywołań, 144 tys., 6,3 min. Poprawka architekta w sesji (ok. 9 wywołań use_figma, taniej niż start nowego briefu): kolory i stany najechania przełącznika z ikoną, wariant domyślny, style „Light/…” na przełączniku i na 142 obwódkach fokusu
+- Recenzent: Gemini C / gemini-3.8-flash-high (read, 466 s) na JSON-ach z odczytu Figmy, 7 zrzutach i dokumentacji; odbiór architekta: zrzuty Light, Dark i Dark na pasku, odczyt wiązań i stylów po poprawce
+- Dopuszczone alternatywy: wykonawca — brak (Figma MCP: Claude albo Codex, Codex tydzień 100 %); recenzent — Gemini B albo Neon A
+- Powód wyboru: bramka Figmy (reguła 3); recenzja spoza rodziny Claude na materiale tekstowym i zrzutach, B i C naprzemiennie
+- Sygnał dostępności: Claude ŻÓŁTY, tempo +23 pp; Codex tydzień 100 % do 25.11 14:10; Gemini A, B, C ok (hook, 2026-11-24 22:41)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: brief 1 zgodny; brief 2 — błąd projektu w briefie architekta (cień niewidoczny na przyciskach bez wypełnienia i zlany z wypełnionym przyciskiem głównym), nie wykonawcy; brief 3 zgodny i ujawnił wadę istniejącego komponentu: stan włączony przełącznika z ikoną w trybie Dark prawie zlewał się z paskiem nagłówka
+- Rundy korekt: 1 (brief 3 poprawia projekt briefu 2) + poprawka architekta po odbiorze briefu 3 i po recenzji
+- Czas do akceptacji: ok. 1 h od pierwszego briefu do odbioru recenzji
+- Znaleziska recenzji: potwierdzone — zmiana wariantu domyślnego przełącznika bez zapisu (P3, dopisane w karcie braków); częściowo — kolor bez stylu „Light/…” (P2): zgłoszony dla Wyróżnienia obalony (wariant Active ma styl Light/Surfaces/Accent-Active, JSON z briefu 1 był sprzed dodania stylu), ale ta reguła ujawniła przełącznik i 142 obwódki fokusu bez stylu, poprawione; obalone — „błędne założenie briefu, przełącznik jest też w menu telefonu” (menu ma przełącznik suwakowy Switch, jak makieta HTML), kontrast obrysu i najechania wyłączonego przełącznika w Light i Dark (P1 ×2: obrys jest ozdobny, komponent identyfikuje ikona 12–15:1, stan włączony ma tło 13:1 wobec paska, różnica koloru najechania nie podlega WCAG 1.4.11; obrys #39414B i najechanie #262F39 pochodzą z makiety zaakceptowanej przez właściciela), „zniszczenie komponentu bazowego” (P1: poprzedni stan wyłączony w Light miał ikonę 2,2:1, nowy jest spójny w obu trybach), rola tła wyróżnionego wiersza jako najechanie (P2: ta sama rola co najechanie wiersza, odpowiednik content.hover.background w PrimeNG), obwódka na przycisku bez wypełnienia (P2: przerwa 2 px jest, kontrast obwódki ≥ 3:1); odłożone — najechanie w trybie Light zlewa się z tłem strony (P3, przełącznik stoi tylko na pasku w trybie Dark)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: JSON-y z odczytu wiązań i stylów, zrzuty Light, Dark i Dark na pasku, kontrasty policzone z hex, odczyt stylów po poprawce (6 wariantów przełącznika, 142 obwódki)
+- Uwagi do pakietu: projekt stanu wizualnego (cień jako obwódka) warto sprawdzić szkicem przed briefem — nieudany brief 2 kosztował 199 tys. tokenów. Recenzent Flash zgłosił 3 P1 do obalenia, bo brief nie mówił, który komponent stoi gdzie (Switch w menu, Toggle-Button na pasku); następny brief recenzji biblioteki podaje miejsca użycia każdego komponentu.
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
