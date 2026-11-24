@@ -82,7 +82,7 @@ z `Dokumentacja\MPLRT\wymagania-przekrojowe\czytelnosc-i-nawigacja.md` × oba mo
 - `browser_resize(width=360, height=560)` — telefon (mobile-first).
 - `browser_resize(width=768, height=1024)` — tablet.
 - `browser_resize(width=1280, height=720)` — HD.
-- Full HD nie jest ekranem odniesienia (właściciel, 2026-11-24); szerszy ekran sprawdzasz tylko, gdy zgłoszenie go dotyczy.
+- Ekran szerszy niż HD sprawdzasz tylko wtedy, gdy zgłoszenie go dotyczy.
 - Light + Dark są w MPLRT **obowiązkowe na całej stronie**, panel redaktora włącznie (`DEC-MOTYW-JASNY-I-CIEMNY`).
   Regresje tokenów kolorów najczęściej ujawniają się tylko w jednym motywie — dlatego
   oba są w macierzy także dla bugów, które „wyglądają na niezwiązane z kolorem”.
