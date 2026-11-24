@@ -15229,6 +15229,24 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Wymagane testy i dowody: zrzuty trzech układów w Light i Dark, zbliżenia nagłówka, cała stopka, sekcja Assets; audyt kolorów, stylów, odłączeń i nazw zastępników
 - Uwagi do pakietu: dosyłanie zmian właściciela przez SendMessage do działającego wykonawcy uniknęło równoległej edycji tej samej stopki. Recenzent Flash dał 2 P1, oba obalone; jego wartość tu to jedna luka w dokumentacji. Projekt wizualny architekta (przełącznik) bez makiety HTML dla właściciela został odrzucony — kolejne decyzje wyglądu najpierw na makiecie.
 
+### MPLRT biblioteka Figmy — Tooltip i przełącznik motywu z samą ikoną (1 brief) — 2026-11-24
+- Archetyp: Figma — nowy komponent biblioteki i zmiana wyglądu istniejącego zestawu wariantów (zmienne, style, warianty; bez kodu repo)
+- Stawka: niska–średnia (komponent biblioteki publikowanej do pliku MPLRT; zmiana wyglądu zestawu zmienia wszystkie jego instancje)
+- Niepewność: niska (wygląd z makiety HTML wybranej przez właściciela, wartości i klucze stylów w briefie)
+- Wykonawca (linia / model / native effort): `wykonawca` Sonnet 5.5 `high` — 35 wywołań, 152 tys. tokenów, 4,6 min
+- Recenzent: Gemini C / gemini-3.8-flash-high (read, 410 s) na zrzucie, JSON-ie zmian, makiecie HTML i dokumentacji; odbiór architekta: zrzut podglądu, JSON, odczyt w Figmie zagnieżdżonych instancji zestawu
+- Dopuszczone alternatywy: wykonawca — brak (Figma MCP: Claude albo Codex, Codex tydzień 100 %); recenzent — Gemini B albo Neon A
+- Powód wyboru: bramka Figmy (reguła 3); recenzja spoza rodziny Claude, B i C naprzemiennie
+- Sygnał dostępności: Claude ŻÓŁTY, tempo +24 pp; Codex tydzień 100 % do 25.11 14:10; Gemini A, B, C ok (hook, 2026-11-24 23:33)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zgodny z briefem; wykonawca sam zgłosił niewidoczne tło najechania w trybie Light na jasnym pasie i usunięcie starego opisu zestawu
+- Rundy korekt: 0; architekt sam dopisał ostrzeżenia w opisach Toggle-Select i Toggle-Button (reguła 11)
+- Czas do akceptacji: ok. 25 min od zakończenia briefu do triażu recenzji
+- Znaleziska recenzji: potwierdzone — tekst podpowiedzi 14 px Regular zamiast 13 px/500 z makiety (P1 → P3, zostaje styl ze skali typografii, odstępstwo zapisane w karcie braków), odstęp 4 px między strzałką a przełącznikiem z makiety (P2 → uwaga do ramek stanów, nie do komponentu); obalone — kontrast tła podpowiedzi wobec tła strony 1,57–1,72:1 (P1: obrys dymka nie identyfikuje komponentu, tekst ma 10,3:1, kolory z makiety właściciela), ikony księżyca i słońca nie są przypięte do wariantów (P1: ikona to właściwość treści jak onIcon/offIcon w kodzie, ustawia ją nagłówek), brak podpowiedzi zagnieżdżonej w wariantach (P1: podpowiedź to osobna nakładka jak pTooltip, w ramce stanu stoi obok przełącznika), brak podpowiedzi w stanach fokusu na podglądzie (P1: podgląd to dowód, nie ramka stanu), modyfikacja generycznego Toggle-Button (P2: decyzja właściciela), usunięcie starego opisu (P3: opis dotyczył segmentów z Zebrani); zastrzeżenia do briefu — podpowiedź leży na tle strony, nie paska (słuszne, bez wpływu na wynik), przełącznik w menu telefonu (obalone: tam jest przełącznik suwakowy)
+- Defekty po odbiorze: Toggle-Select, zbudowany z instancji Toggle-Button, przestał pokazywać wybraną opcję. Nie wykrył tego ani brief architekta, ani wykonawca, ani recenzent; znalazł architekt przy odbiorze. MPLRT go nie używa, więc zestaw dostał ostrzeżenie w opisie i wiersz w karcie braków zamiast przeróbki
+- Wymagane testy i dowody: zrzut trzech rzędów (Light pas, Dark pas, Dark pasek) we wszystkich 6 stanach z podpowiedzią; odczyt stylów wszystkich wariantów; rozmiar instancji 36 × 36
+- Uwagi do pakietu: brief zmiany wyglądu istniejącego zestawu w bibliotece musi kazać wykonawcy znaleźć instancje tego zestawu w innych komponentach biblioteki i opisać skutek. Recenzent Flash dał 5 P1, wszystkie obalone albo obniżone; jego wartość to dwie drobne rozbieżności z makietą. Architekt poprawił też opis roli w dokumentacji (tło po najechaniu na pasku `#262F39` w obu motywach), bo wskazana rola w motywie jasnym dawała w kodzie kolor ikony.
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
