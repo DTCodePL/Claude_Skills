@@ -363,8 +363,8 @@ Zanim zlecisz jakikolwiek kod, wejdź w Plan Mode i ustal:
   w planie jak kryteria akceptacji, nie test w repo produktu (E2E prowadzi
   kto inny); nie zastępuje czerwonego testu Buga z Fazy 3, poza jej
   wyjątkiem przeglądarkowym. `matrix`: trasy
-  zmienione przez feature × telefon 360×560, HD 1280×720 i Full HD
-  1920×1080 × Light/Dark, z `waitFor`
+  zmienione przez feature × telefon 360×560, tablet 768×1024 i HD
+  1280×720 × Light/Dark, z `waitFor`
   na elemencie gotowości. `flows` (opcjonalnie, 2–5 przejść): cel
   nazywający drogę słowami interfejsu (Jev czyta dosłownie), `forbidden`
   dla akcji nieodwracalnych i asercje **efektu** (wartość po zapisie,
@@ -805,8 +805,8 @@ Implementację wykonują linie z Fazy 2 wg briefów — **sesja główna nie pis
 kodu** poza drobną korektą z Fazy 2 (krok 4b). Jej robota w tej fazie to walidacja dowodów raz na falę: diff,
 `fala-odbior.py` (Faza 2, krok 3 — `npm run lint` / `npm test` /
 `npm run build` albo `dotnet build` / `dotnet test` w jednym poleceniu),
-zrzuty na trzech ekranach odniesienia (telefon 360×560, HD 1280×720,
-Full HD 1920×1080) × Light i Dark. Playwright MCP w sesji
+zrzuty na trzech ekranach odniesienia (telefon 360×560, tablet 768×1024,
+HD 1280×720) × Light i Dark. Playwright MCP w sesji
 architekta nie używasz (od 2026-11-05). Dowód
 w przeglądarce dajesz sam narzędziem **`browser-check`**
 (`D:\projects\DTCode\Claude_Skills\browser-check`, `README.md` i `FLOWS.md`):
@@ -937,7 +937,7 @@ gwarancjami co test:
   sprawdzają stylu): worker przeglądarkowy (narzędzie jak w Fazie 3: CLI
   w linii Muse, MCP w Gemini i Codexie) wykonuje **wyłącznie kroki 3
   (BEFORE) i 6 (AFTER)** procedury `fix-devops-bug-mplrt` — zrzuty na
-  trzech ekranach odniesienia (telefon, HD, Full HD) × Light i Dark,
+  trzech ekranach odniesienia (telefon, tablet, HD) × Light i Dark,
   mierzalna asercja przez `--raw eval` w CLI albo `browser_evaluate` w MCP
   (wyliczony styl wobec tokenu), spisane wartości i sparowane zrzuty
   (`screenshot --filename` / `browser_take_screenshot`) — na `baseUrl`
@@ -1312,7 +1312,7 @@ Wykonaj w tej kolejności:
      Figma, nie opis taska ani link w PBI: pobierz metadane wskazanych
      node-id (`mcp__claude_ai_Figma__get_metadata`, ew. `get_screenshot`)
      i potwierdź, że każda kompozycja wymieniona w opisie taska (strony,
-     zestawy komponentów, warianty telefon/HD/Full HD × Light/Dark
+     zestawy komponentów, warianty telefon/tablet/HD × Light/Dark
      itp.) faktycznie tam jest. Makiety z Fazy 1 zwykle już to spełniają —
      wtedy Figma idzie do `Done` w tym samym batchu co FE/BE/DB. Jeśli
      opis obiecuje więcej, niż plik zawiera, task zostaje otwarty, a w

@@ -361,7 +361,7 @@ Przekaż HTML z czystymi URL-ami (Wzorzec 3). Sprawdź wynik — jeśli obrazki 
 - **Dopóki ekran nie ma makiety w pliku MPLRT:** Opis PBI linkuje dokument specyfikacji z `Dokumentacja\MPLRT\interfejsy/`.
 - **Gdy ekran ma makietę:** Zawsze, gdy istnieją odpowiednie node-idy w Figmie dla danej funkcjonalności.
 - Minimum jeden screenshot na PBI (chyba że funkcjonalność jest czysto backendowa i nie ma UI).
-- Preferowane: oddzielny screenshot dla widoku **telefon (mobile)**, **HD** i **Full HD** (zgodnie z ekranami odniesienia MPLRT).
+- Preferowane: oddzielny screenshot dla widoku **telefon (mobile)**, **tablet** i **HD** (zgodnie z ekranami odniesienia MPLRT).
 - **Light i Dark:** w MPLRT oba motywy są obowiązkowe na całej stronie, panel redaktora włącznie (`DEC-MOTYW-JASNY-I-CIEMNY`). Jeśli mockup istnieje w obu wariantach — dołącz oba i podpisz je („Light” / „Dark”), żeby tester wiedział, że ma sprawdzić oba.
 
 ---

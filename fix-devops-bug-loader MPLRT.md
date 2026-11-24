@@ -6,7 +6,7 @@ description: >
   https://dev.azure.com/DTCode/MPLRT/_workitems/edit/123) albo sam numer i poprosi
   o analizę/naprawę zgłoszenia. Skill pobiera work item i jego sub-taski (Fix/Retest),
   weryfikuje czy błąd występuje w kodzie, odtwarza buga w działającej aplikacji przez
-  Playwright na macierzy ekranów odniesienia (telefon 360×560, HD 1280×720, Full HD 1920×1080, każdy w motywie jasnym i ciemnym)
+  Playwright na macierzy ekranów odniesienia (telefon 360×560, tablet 768×1024, HD 1280×720, każdy w motywie jasnym i ciemnym)
   — test BEFORE, implementuje poprawkę zgodnie z CLAUDE.md, potwierdza Playwrightem
   że bug zniknął (test AFTER), uruchamia lint:fix + format, commituje i pushuje,
   zgłasza kwestię deployu pre-prod, a następnie aktualizuje statusy
@@ -45,7 +45,7 @@ cat /tmp/fix_devops_bug_mplrt_skill.md
 procedurę krok po kroku:
 
 - identyfikacja work itema i sub-tasków Fix/Retest, weryfikacja buga w kodzie,
-- **macierz testowa 3×2 (6 kombinacji)** — ekrany odniesienia (telefon 360×560; HD 1280×720; Full HD 1920×1080), każdy w Light i Dark (przełączanie motywu przez `ThemeMode` / klasę `.app-dark`),
+- **macierz testowa 3×2 (6 kombinacji)** — ekrany odniesienia (telefon 360×560; tablet 768×1024; HD 1280×720), każdy w Light i Dark (przełączanie motywu przez `ThemeMode` / klasę `.app-dark`),
 - naprawa wg `.claude/CLAUDE.md` (tokeny kolorów, i18n wyłącznie `pl`, brak
   `@deprecated`, brak `::ng-deep`, WCAG AA),
 - `lint:fix` + `format`, commit `fix(<scope>): #<idBuga> …`, push po zgodzie,
