@@ -93,8 +93,10 @@ z `Dokumentacja\MPLRT\wymagania-przekrojowe\czytelnosc-i-nawigacja.md` × oba mo
   `wit_add_work_item_comment` (oraz skrypt pomocniczy `ado-wi.py`). Schematy doładuj przez `ToolSearch`.
   - ⚠️ Jeśli MCP/API zwróci `203` albo stronę logowania — **PAT wygasł**. Zgłoś to
     użytkownikowi i zatrzymaj część devopsową; nie obchodź tego innym tokenem.
-- Figma MCP (warunkowo, gdy powstanie plik makiety Figmy): `get_design_context`,
-  `get_variable_defs`, `get_screenshot`. Do czasu utworzenia pliku ekrany opisuje wyłącznie dokumentacja w `interfejsy/`.
+- Figma MCP (warunkowo, gdy ekran ma makietę w pliku MPLRT, fileKey `4wlzvrRUg5fr89LjGDS5Bd`):
+  `get_design_context`, `get_variable_defs`, `get_screenshot`. Ekran bez makiety opisuje wyłącznie
+  dokumentacja w `interfejsy/`. Biblioteka `Primeng Design system (MPLRT)` jest kopią Zebrani
+  w trakcie dostosowania — jej kolory i fonty Zebrani nie są wzorcem MPLRT.
 - **Playwright MCP** (`mcp__playwright__*`): `browser_navigate`, `browser_evaluate`,
   `browser_take_screenshot`, `browser_snapshot`, `browser_resize`, `browser_click`,
   `browser_wait_for`, `browser_console_messages`. Schematy doładuj przez `ToolSearch`.
@@ -153,8 +155,8 @@ z `Dokumentacja\MPLRT\wymagania-przekrojowe\czytelnosc-i-nawigacja.md` × oba mo
   w presetach motywu. Pamiętaj o pułapce Aury: wypełnione warianty przycisku żyją pod
   `button.root.<severity>`, a token wpisany w złej ścieżce jest **po cichu ignorowany**
   (brak błędu kompilacji). Kolory zawsze z tokenów.
-- Jeśli repro odwołuje się do Figmy: dopóki plik Figmy nie powstał, odnieś się do specyfikacji
-  ekranu w `Dokumentacja\MPLRT\interfejsy/`. Gdy makieta powstanie — pobierz kontekst węzła przez Figma MCP.
+- Jeśli repro odwołuje się do Figmy: gdy ekran nie ma makiety w pliku MPLRT, odnieś się do specyfikacji
+  ekranu w `Dokumentacja\MPLRT\interfejsy/`. Gdy makieta istnieje — pobierz kontekst węzła przez Figma MCP.
 - Jeśli błędu **nie ma** w kodzie (np. już naprawiony) — zatrzymaj się, zgłoś to
   użytkownikowi i zapytaj o dalsze kroki zamiast „naprawiać na siłę".
 

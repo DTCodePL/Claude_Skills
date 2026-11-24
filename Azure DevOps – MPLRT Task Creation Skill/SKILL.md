@@ -76,7 +76,8 @@ cp /tmp/skill_remote.md <ścieżka_do_lokalnego_SKILL.md>
 | E2e Sprint URL   | *brak* (nie istnieje osobna iteracja)                                                                |
 | Repo FE          | `https://github.com/DTCodePL/MPLRTFE` (folder lokalny `D:\projects\DTCode\MPLRT_FE`)                  |
 | Repo BE          | `https://github.com/DTCodePL/MPLRTBE` (folder lokalny `D:\projects\DTCode\MPLRT_BE`)                  |
-| Figma            | **brak pliku** — do czasu makiety ekrany opisuje wyłącznie `interfejsy/` w dokumentacji produktowej  |
+| Figma            | `https://www.figma.com/design/4wlzvrRUg5fr89LjGDS5Bd/MPLRT` (fileKey `4wlzvrRUg5fr89LjGDS5Bd`) — makiety; na start pusty, ekran bez makiety opisuje wyłącznie `interfejsy/` |
+| Biblioteka Figmy | `https://www.figma.com/design/yjXyyREvbjtZ9envpxlDDS/Primeng-Design-system--MPLRT-` — `Primeng Design system (MPLRT)`, kopia biblioteki Zebrani w trakcie dostosowania (`PROD-PROJEKT-GRAFICZNY`) |
 | Dokumentacja     | `d:\projects\DTCode\Dokumentacja\MPLRT` (po polsku, ze `status` we front matter)                     |
 
 ### Konta i typy work itemów (zweryfikowane)
@@ -206,7 +207,7 @@ Każdy task: Typ = `Task`, Rodzic = ID PBI z kroku 3.
 > 🛈 **Zestaw jest pełny nawet teraz, gdy `MPLRTBE` jest jeszcze pustym repozytorium.**
 > Backend MPLRT dopiero powstaje — taski `BE` i `DB` tworzymy planowo, a nie warunkowo.
 > Nie pomijaj ich „bo backendu nie ma". Podobnie task `Figma` tworzymy planowo,
-> mimo że plik makiety Figmy jeszcze nie powstał (do tego czasu ekrany specyfikuje dokumentacja interfejsów).
+> także gdy ekran nie ma jeszcze makiety w pliku MPLRT (do tego czasu ekran specyfikuje dokumentacja interfejsów).
 > W projekcie MPLRT brak dedykowanej iteracji E2e — task `E2e tests` trafia do iteracji PBI (Sprint 1).
 
 ### Kolejność wykonania dla PBI
@@ -299,16 +300,16 @@ Screenshoty dołączane do opisu PBI **muszą pochodzić z Figmy** — nie z prz
 
 Powód: Figma zawiera zaakceptowane mockupy, które tester ma weryfikować. Screenshot z implementacji pokazuje „jak jest", a nie „jak powinno być".
 
-> 🛈 **Warunek braku pliku Figmy:** W projekcie MPLRT plik makiety Figmy jeszcze nie powstał (kontrakt B: do czasu makiety ekrany opisuje wyłącznie `interfejsy/` w dokumentacji). Dopóki plik Figmy nie istnieje, opis PBI **zamiast screenshotów linkuje odpowiedni dokument z `Dokumentacja\MPLRT\interfejsy/`**. Gdy makieta w Figmie powstanie, screenshoty dodawaj ściśle według poniższej procedury.
+> 🛈 **Warunek braku makiety:** Plik makiet MPLRT (fileKey `4wlzvrRUg5fr89LjGDS5Bd`) istnieje, ale na start jest pusty. Dopóki ekran nie ma makiety w tym pliku, opis PBI **zamiast screenshotów linkuje odpowiedni dokument z `Dokumentacja\MPLRT\interfejsy/`**. Gdy makieta ekranu powstanie, screenshoty dodawaj ściśle według poniższej procedury.
 
 ### Procedura dodawania screenshotów
 
-**Krok 1 — Pobierz screenshot z Figmy (gdy plik powstanie)**
+**Krok 1 — Pobierz screenshot z Figmy (gdy ekran ma makietę)**
 
-Używając `get_screenshot` lub `use_figma` z Figma MCP pobierz PNG dla odpowiedniego node-id z pliku MPLRT (gdy zostanie utworzony).
+Używając `get_screenshot` lub `use_figma` z Figma MCP pobierz PNG dla odpowiedniego node-id z pliku MPLRT.
 
 ```
-get_screenshot(fileKey: "<fileKey>", nodeId: "<node-id>")
+get_screenshot(fileKey: "4wlzvrRUg5fr89LjGDS5Bd", nodeId: "<node-id>")
 ```
 
 Wynik to plik PNG (binarny lub base64). Zapisz go lokalnie do pliku tymczasowego.
@@ -357,8 +358,8 @@ Przekaż HTML z czystymi URL-ami (Wzorzec 3). Sprawdź wynik — jeśli obrazki 
 
 ### Kiedy dodawać screenshoty
 
-- **Dopóki plik Figmy nie istnieje:** Opis PBI linkuje dokument specyfikacji z `Dokumentacja\MPLRT\interfejsy/`.
-- **Gdy plik Figmy powstanie:** Zawsze, gdy istnieją odpowiednie node-idy w Figmie dla danej funkcjonalności.
+- **Dopóki ekran nie ma makiety w pliku MPLRT:** Opis PBI linkuje dokument specyfikacji z `Dokumentacja\MPLRT\interfejsy/`.
+- **Gdy ekran ma makietę:** Zawsze, gdy istnieją odpowiednie node-idy w Figmie dla danej funkcjonalności.
 - Minimum jeden screenshot na PBI (chyba że funkcjonalność jest czysto backendowa i nie ma UI).
 - Preferowane: oddzielny screenshot dla widoku **telefon (mobile)**, **HD** i **Full HD** (zgodnie z ekranami odniesienia MPLRT).
 - **Light i Dark:** w MPLRT oba motywy są obowiązkowe na całej stronie, panel redaktora włącznie (`DEC-MOTYW-JASNY-I-CIEMNY`). Jeśli mockup istnieje w obu wariantach — dołącz oba i podpisz je („Light” / „Dark”), żeby tester wiedział, że ma sprawdzić oba.
@@ -384,13 +385,13 @@ Przekaż HTML z czystymi URL-ami (Wzorzec 3). Sprawdź wynik — jeśli obrazki 
 ## Linkowanie do Figmy
 
 - Jeśli makieta w Figmie istnieje i użytkownik poda link do Figmy lub konkretnego mockupu, **dołącz go do opisu** odpowiedniego elementu (PBI, Bug lub task `Figma`).
-- Do czasu powstania pliku Figmy, linkuj bezpośrednio dokument specyfikacji ekranu:
+- Dopóki ekran nie ma makiety w pliku MPLRT, linkuj bezpośrednio dokument specyfikacji ekranu:
   ```
   📄 Specyfikacja ekranu: [Nazwa ekranu / sekcji](Dokumentacja/MPLRT/interfejsy/...)
   ```
-- Gdy plik Figmy powstanie, linki wstawiaj w formacie:
+- Gdy ekran ma makietę, linki do jej węzła wstawiaj w formacie:
   ```
-  🎨 Mockup: [Nazwa ekranu / sekcji](https://figma.com/...)
+  🎨 Mockup: [Nazwa ekranu / sekcji](https://www.figma.com/design/4wlzvrRUg5fr89LjGDS5Bd/MPLRT?node-id=...)
   ```
 - Jeśli do jednego zadania pasuje kilka mockupów lub dokumentów, dołącz wszystkie z krótkim opisem czego dotyczą.
 

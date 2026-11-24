@@ -276,7 +276,10 @@ Zanim zlecisz jakikolwiek kod, wejdź w Plan Mode i ustal:
   prawdy, nigdy pomijana”. Tabela „etap → fala → brief → linia” ma briefy
   dokumentacji przypięte do decyzji, od których zależą, i brief przeglądu
   zgodności z Fazy 4c.
-- **Makiety z Figmy (warunkowo — plik Figmy nie istnieje).** Gdy opis PBI
+- **Makiety z Figmy (warunkowo — plik MPLRT, fileKey `4wlzvrRUg5fr89LjGDS5Bd`,
+  jest na start pusty; biblioteka `Primeng Design system (MPLRT)` to kopia
+  Zebrani w trakcie dostosowania, a jej kolory i fonty Zebrani nie są
+  wzorcem MPLRT — `PROD-PROJEKT-GRAFICZNY`).** Gdy opis PBI
   ma link do makiety: pobierz makiety pod tymi linkami i w planie odwołuj
   się do nich linkami/node-id, nigdy własnym opisem "na oko" — UI ma być
   1:1 zgodne z Figmą. Do rzeczy, których Figma nie pokazuje
@@ -1285,9 +1288,9 @@ Wykonaj w tej kolejności:
    `Rejected` z komentarzem uzasadniającym dla pominiętych (zwykle już
    ustawione w Fazie 1b — tu tylko te, które wypadły z zakresu później).
    - **Task „Figma” zamykaj tylko wtedy, gdy makiety rzeczywiście istnieją
-     — i sprawdź to, zanim ustawisz `Done`.** Plik Figmy MPLRT nie istnieje,
-     więc task bez linku do makiety w briefie idzie do `Rejected`
-     z tym uzasadnieniem. Gdy brief ma link: dowodem jest makieta w pliku
+     — i sprawdź to, zanim ustawisz `Done`.** Plik makiet MPLRT startuje
+     pusty, więc task bez linku do makiety w briefie idzie do `Rejected`
+     z uzasadnieniem, że ekran opisuje dokumentacja `interfejsy/`. Gdy brief ma link: dowodem jest makieta w pliku
      Figma, nie opis taska ani link w PBI: pobierz metadane wskazanych
      node-id (`mcp__claude_ai_Figma__get_metadata`, ew. `get_screenshot`)
      i potwierdź, że każda kompozycja wymieniona w opisie taska (strony,
