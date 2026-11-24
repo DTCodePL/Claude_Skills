@@ -675,11 +675,12 @@ raport wykonawcy nie zastępuje dowodów.
 
 **Dane zewnętrzne tylko pomocniczo.** Jeśli potrzebne, liczby indeksów
 i ceny odczytujesz z API Artificial Analysis:
-`GET https://artificialanalysis.ai/api/v2/data/llms/models`, nagłówek
+`GET https://artificialanalysis.ai/api/v2/language/models/free?page=N`, nagłówek
 `x-api-key: <klucz z ~/.claude/CLAUDE.md>`. Potwierdź, jaki model i native
 effort opisuje rekord — brak przyrostka nie dowodzi równoważności effortów.
-Koszt zadania indeksu jest na stronie modelu
-(`artificialanalysis.ai/models/<slug>`), nie jest kosztem lokalnego briefu.
+Koszt zadania indeksu
+(`artificial_analysis_intelligence_index_cost.cost_per_task.total_cost`)
+nie jest kosztem lokalnego briefu.
 
 Brief krótki = tani (reguła 15, od 2026-09-28 — 54–81 % kosztu każdej linii
 Claude'a to ponowne czytanie kontekstu przy każdym wywołaniu narzędzia):
