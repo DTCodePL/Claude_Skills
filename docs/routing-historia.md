@@ -1015,6 +1015,8 @@ Neon ma na każdym poziomie kosztu wyższy indeks niż Hydrogen, Carbon i Argon,
 
 **Decyzje właściciela (2026-11-24).** Konto A ma abonament Google AI Pro. Gemini 4 Neon: wykonawca bez niezmiennika, recenzent niskiej i średniej stawki, research oraz próba G4 (recenzja plików niezmiennika naprzemiennie z Wonder Full `max`). Claude 5.5 przez `agy`: próba CA. Odczyt Flash na B i C naprzemiennie, konto podaje architekt jawnie, bez automatycznej rotacji. Kryteria prób są w regule 14.
 
+
+**Rozkład pracy pomocniczej (właściciel, 2026-11-24, później tego dnia).** Celem jest używanie także innych silników, nie przeniesienie całej pracy z Claude'a. Testy według wzorca dzieli `tester` ze Sparkiem `max` i Neonem (czerwony test Buga zostaje u `tester`), fakty z repo `zwiadowca` z Gemini Flash na B/C, delegowany audyt a11y `audytor-a11y` z Neonem `xhigh`. Odrzucone na razie: Figma MCP w `agy` dla próby CA. Hydrogen, Carbon i Argon zostają poza routingiem: wszystkie modele Gemini konta A biorą z jednej puli „Gemini”, więc model słabszy przy tym samym koszcie nie dodaje przepustowości (Neon `medium` 54,9 / 1,90 $ wobec Hydrogen `xhigh` 53,9 / 3,16 $). Muse Ember (II 36,0, 0,14 $ po cenie standardowej 0,10 / 0,50 $ za 1M) nie ma wariantu contributor, więc po naszych cenach kosztuje mniej więcej tyle co Spark contributor (0,10 / 0,20 $) przy podobnym indeksie i TB4 0,409; bez próby nie wchodzi.
 ---
 
 ## Część 3 — globalny CLAUDE.md z 2026-11-05 sprzed drugiej diety (dosłownie)
