@@ -15066,6 +15066,7 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: brak do chwili wpisu
 - Wymagane testy i dowody: skrypt kontrolny (bramka `instrukcje.yml` w obu repo, sekcje wspólne = kontrakt, Working Mode = ZebraniFE, kopie loaderów), `sync-routing.py --check` (20/20 zgodne), prettier FE, `python -m unittest` skryptu SemVer (32 OK), wyrywkowy odczyt sekcji
 - Uwagi do pakietu: skrypt kontrolny architekta miał wadę kotwicy (2 fałszywe błędy) — poprawiony; pakiet nie przewidział recenzenta dla briefu, który przeszedł na inną rodzinę
+- Zmiana decyzji właściciela po odbiorze (2026-11-24): motyw jasny i ciemny (`DEC-MOTYW-JASNY-I-CIEMNY`) zamiast „ciemny nierozstrzygnięty”. Korekta skilla naprawy buga, skilla ADO i 2 loaderów z kopiami: Gemini A / gemini-3.8-flash / high (autor B5), 379 s, zaakceptowana bez rundy, 1 zgubiony odnośnik przywrócił architekt. Reguły FE (motywy, zatwierdzony prefiks `mplrt`) i 6 miejsc w skillu implement poprawił architekt (reguła 11: treść znana, brief droższy od zmiany). Bez ponownej recenzji (zmiany tylko we wskazanych miejscach). Uwagi Gemini, że „SSR zawsze renderuje Light” i ścieżka `core/theme/` przesądzają kwestię otwartą — obalone: to mechanizm techniczny z reguł FE, nie wybór motywu przy pierwszej wizycie
 
 ### Zapisy przeglądów
 

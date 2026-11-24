@@ -45,7 +45,7 @@ cat /tmp/mplrt_ado_skill.md
 - tryby Bug (Fix + Retest) i PBI (pełne 6 tasków: FE / BE / DB / Figma / Manual tests / E2e tests),
 - wzorce wywołań MCP `azure-devops` (tworzenie, linkowanie, opisy HTML, batch assignee),
 - zasady czerpania treści z dokumentacji produktowej wg pola `status`,
-- procedurę dołączania screenshotów (motyw jasny; linkowanie do dokumentacji interfejsów / Figmy) jako załączników ADO,
+- procedurę dołączania screenshotów (Light i Dark; linkowanie do dokumentacji interfejsów / Figmy) jako załączników ADO,
 - Definition of Done i tabelę częstych błędów.
 
 **3. Obsługa błędu pobierania** — jeśli `curl` zwróci 404, nie ma sieci albo plik

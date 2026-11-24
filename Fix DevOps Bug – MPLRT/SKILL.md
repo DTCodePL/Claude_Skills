@@ -6,7 +6,7 @@ description: >
   https://dev.azure.com/DTCode/MPLRT/_workitems/edit/123) albo sam numer i poprosi
   o analizę/naprawę zgłoszenia. Skill pobiera work item i jego sub-taski (Fix/Retest),
   weryfikuje czy błąd występuje w kodzie, odtwarza buga w działającej aplikacji przez
-  Playwright na macierzy ekranów odniesienia (telefon od 360 px, HD 1280×720, Full HD 1920×1080 w motywie jasnym)
+  Playwright na macierzy ekranów odniesienia (telefon od 360 px, HD 1280×720, Full HD 1920×1080, każdy w motywie jasnym i ciemnym)
   — test BEFORE, implementuje poprawkę zgodnie z CLAUDE.md, potwierdza Playwrightem
   że bug zniknął (test AFTER), sprawdza zgodność dokumentacji produktowej (źródła
   prawdy) z poprawką i ją aktualizuje, uruchamia lint:fix + format, commituje i pushuje,
@@ -68,23 +68,23 @@ na plik, komentarz wyjaśnia „dlaczego” w 1–3 zdaniach.
 - **Środowisko pre-prod:** **nie istnieje** — serwery, porty i workflow nie zostały jeszcze
   ustalone (`AT-DOMENA-I-HOSTING`). Nigdy nie kieruj testera na `mplrt.eu` (produkcja nie istnieje).
 
-### Macierz testowa — 3 ekrany odniesienia × motyw jasny
+### Macierz testowa — 3 ekrany odniesienia × 2 motywy (stała, obowiązkowa)
 
-Każdy test Playwright BEFORE i AFTER uruchamiaj na **trzech ekranach odniesienia**
-z `Dokumentacja\MPLRT\wymagania-przekrojowe\czytelnosc-i-nawigacja.md`:
+Każdy test Playwright BEFORE i AFTER uruchamiaj na **sześciu** kombinacjach — ekrany odniesienia
+z `Dokumentacja\MPLRT\wymagania-przekrojowe\czytelnosc-i-nawigacja.md` × oba motywy:
 
-| Klasa | Ekran odniesienia | Rozdzielczość | Motyw jasny (Light) |
-| --- | --- | --- | --- |
-| **Telefon** | szerokość od 360 px | `360×800` (lub `390×844`) | baseline T-L |
-| **HD** | format HD | `1280×720` | baseline HD-L |
-| **Full HD** | format Full HD | `1920×1080` | baseline FHD-L |
+| Klasa | Ekran odniesienia | Rozdzielczość | Light | Dark |
+| --- | --- | --- | --- | --- |
+| **Telefon** | szerokość od 360 px | `360×800` (lub `390×844`) | baseline T-L | baseline T-D |
+| **HD** | format HD | `1280×720` | baseline HD-L | baseline HD-D |
+| **Full HD** | format Full HD | `1920×1080` | baseline FHD-L | baseline FHD-D |
 
 - `browser_resize(width=360, height=800)` — telefon (mobile-first, szerokość od 360 px, np. 360×800 lub 390×844).
 - `browser_resize(width=1280, height=720)` — HD.
 - `browser_resize(width=1920, height=1080)` — Full HD.
-- **Motyw jasny i status motywu ciemnego:** Zgodnie z decyzją C5 (motyw ciemny nierozstrzygnięty)
-  wszystkie testy, zrzuty ekranu i weryfikacje wykonujemy wyłącznie w **motywie jasnym**.
-  Druga oś macierzy (motyw ciemny / Dark) wraca, gdy właściciel zdecyduje o wdrożeniu motywu ciemnego.
+- Light + Dark są w MPLRT **obowiązkowe na całej stronie**, panel redaktora włącznie (`DEC-MOTYW-JASNY-I-CIEMNY`).
+  Regresje tokenów kolorów najczęściej ujawniają się tylko w jednym motywie — dlatego
+  oba są w macierzy także dla bugów, które „wyglądają na niezwiązane z kolorem”.
 
 ## Narzędzia
 
@@ -167,23 +167,41 @@ występuje.
 - Upewnij się, że dev server działa (`npm start` w tle; poczekaj aż wstanie na
   `http://localhost:4200`). Ekrany zależne od backendu **nie zadziałają** — BE nie istnieje;
   jeśli repro tego wymaga, zgłoś to i ustal z użytkownikiem.
-- `browser_navigate` na właściwą trasę, a następnie przejdź **trzy ekrany odniesienia**:
+- `browser_navigate` na właściwą trasę, a następnie przejdź **całą macierz 3×2**:
   1. `browser_resize(360, 800)` (lub `390×844`) → Light → asercja + screenshot
-  2. `browser_resize(1280, 720)` → Light → asercja + screenshot
-  3. `browser_resize(1920, 1080)` → Light → asercja + screenshot
+  2. `browser_resize(360, 800)` (lub `390×844`) → Dark → asercja + screenshot
+  3. `browser_resize(1280, 720)` → Light → asercja + screenshot
+  4. `browser_resize(1280, 720)` → Dark → asercja + screenshot
+  5. `browser_resize(1920, 1080)` → Light → asercja + screenshot
+  6. `browser_resize(1920, 1080)` → Dark → asercja + screenshot
 - Po każdej zmianie szerokości ponów nawigację/odświeżenie, jeśli układ zależy od szerokości.
-- **Zapisz trzy baseline'y osobno** — porównanie „po" robisz parami, nie zbiorczo.
-- Jeśli bug z natury dotyczy jednej szerokości (np. tylko na telefonie), i tak uruchom
-  asercję na wszystkich trzech ekranach odniesienia — pozostałe potwierdzają baseline „zdrowy".
+- **Zapisz sześć baseline'ów osobno** — porównanie „po" robisz parami, nie zbiorczo.
+- Jeśli bug z natury dotyczy jednej kombinacji (np. tylko Dark na telefonie), i tak uruchom
+  asercję na wszystkich sześciu — pozostałe potwierdzają baseline „zdrowy".
 - Jeśli buga **nie da się odtworzyć** (asercja „przed" nie potwierdza problemu) —
   zatrzymaj się i skonsultuj z użytkownikiem; nie naprawiaj na ślepo.
 
-#### Motyw jasny i przełączanie motywu
+#### Przełączanie motywu Light ⇄ Dark
 
-W MPLRT obowiązuje **motyw jasny** (decyzja C5: motyw ciemny nierozstrzygnięty, więc testy,
-zrzuty i makiety obejmują wyłącznie motyw jasny). Jeśli aplikacja posiada przełącznik motywu,
-domyślnym stanem jest Light. Druga oś macierzy testowej (motyw ciemny / Dark) zostanie
-aktywowana, gdy właściciel podejmie decyzję o jego wdrożeniu.
+Motyw w MPLRT steruje serwis `ThemeMode` (`core/theme/`), który przełącza klasę
+`.app-dark` na elemencie root. SSR **zawsze renderuje Light** — motyw z pamięci wraca
+dopiero po hydracji. Aplikacja i przełącznik jeszcze nie istnieją, a sposób wyboru
+motywu przez odwiedzającego jest otwarty (`KO-NAWIGACJA-I-MATERIALY`), więc dopóki
+przełącznika nie ma w interfejsie, używasz fallbacku.
+
+1. **Preferowany sposób:** kliknij realny przełącznik motywu w interfejsie
+   (`browser_click`) — testujesz wtedy też jego działanie.
+2. **Fallback** (gdy na danym ekranie nie ma przełącznika):
+
+   ```js
+   // włącz Dark
+   () => { document.documentElement.classList.add('app-dark'); return document.documentElement.className; }
+   // wróć do Light
+   () => { document.documentElement.classList.remove('app-dark'); return document.documentElement.className; }
+   ```
+
+3. Po przełączeniu odczekaj na przerysowanie (`browser_wait_for`) zanim odczytasz
+   computed style — inaczej złapiesz wartości sprzed zmiany.
 
 ### 4. Zaplanuj i wprowadź poprawkę
 
@@ -225,17 +243,17 @@ Dodatkowo zweryfikuj (wymogi CLAUDE.md MPLRT):
 
 ### 6. Zweryfikuj fix w działającej aplikacji — Playwright (AFTER)
 
-**Obowiązkowe przed commitem.** Na tej samej trasie powtórz asercje na **trzech ekranach odniesienia**
-(telefon `360×800` / `390×844`, HD `1280×720`, Full HD `1920×1080` w motywie jasnym) i potwierdź, że bug **zniknął**.
+**Obowiązkowe przed commitem.** Na tej samej trasie powtórz asercje na **całej macierzy
+3×2** (telefon `360×800` / `390×844`, HD `1280×720`, Full HD `1920×1080` × Light / Dark) i potwierdź, że bug **zniknął**.
 
 - Jeśli dev server był podniesiony, poczekaj na hot-reload (`browser_wait_for`) lub
   odśwież (`browser_navigate` ponownie).
-- Dla **każdego z trzech ekranów odniesienia** powtórz asercje (`browser_evaluate`) — teraz muszą
+- Dla **każdej z sześciu kombinacji** powtórz asercje (`browser_evaluate`) — teraz muszą
   zwracać stan oczekiwany. Zrób screenshot „po" do porównania z **odpowiadającym**
-  baseline'em (T-L z T-L, HD-L z HD-L, FHD-L z FHD-L).
+  baseline'em (T-L z T-L, T-D z T-D, HD-L z HD-L, HD-D z HD-D, FHD-L z FHD-L, FHD-D z FHD-D).
 - Sprawdź **brak regresji**: `browser_console_messages` (zero nowych błędów) i szybki rzut
   oka na sąsiednie ekrany dzielące te same komponenty.
-- **Jeśli asercja „po" na którymkolwiek ekranie nadal pokazuje buga — NIE commituj.**
+- **Jeśli asercja „po" w którejkolwiek kombinacji nadal pokazuje buga — NIE commituj.**
   Wróć do kroku 4 i popraw.
 
 ### 6b. Przegląd zgodności dokumentacji z poprawką (przed commitem)
@@ -350,7 +368,7 @@ Fix jest na main (środowisko pre-prod jeszcze nie istnieje — deploy pominięt
 Jak zretestować ręcznie:
 1. <gdzie wejść, co kliknąć / jaki ekran otworzyć>
 2. <na jakiej szerokości: telefon (od 360 px), HD (1280×720) lub Full HD (1920×1080)>
-3. <w motywie jasnym>
+3. <w jakim motywie: jasny i ciemny — jeśli zgłoszenie dotyczyło wyglądu>
 4. <co należy zaobserwować — oczekiwany, poprawny efekt>
 5. <ewentualnie: gdzie wcześniej był błąd, żeby tester wiedział na co patrzeć>
 
@@ -363,7 +381,7 @@ Naprawiono na main (commit <hash>).
 ### 9. Podsumuj użytkownikowi
 
 Wypisz: które punkty potwierdzone w kodzie (plik:linia), **wynik testów Playwright
-(before → after) dla trzech ekranów odniesienia w motywie jasnym**, zmienione pliki, hash commita,
+(before → after) dla wszystkich sześciu kombinacji (3 ekrany odniesienia × Light / Dark)**, zmienione pliki, hash commita,
 informację o pominięciu deployu (brak środowiska pre-prod), nowe statusy (#Fix=Done,
 #Bug=Ready for tests → tester) oraz ewentualne niepowiązane zmiany pominięte w commicie.
 Wskaż screenshoty „przed/po" i zgodność ze specyfikacją interfejsów / Figmą. Punkt **„Dokumentacja"**: mapa
@@ -377,7 +395,7 @@ Zasada: **zamień każdy punkt repro w mierzalną asercję** i sprawdź ją tym 
 przed i po fixie. Screenshot jest dowodem pomocniczym, ale werdykt daje `browser_evaluate`
 (deterministyczny), nie „oko".
 
-**Trzy obowiązkowe ekrany odniesienia:** telefon `360×800` (lub `390×844`), HD `1280×720`, Full HD `1920×1080` w motywie jasnym. Trzymaj baseline i screenshot osobno dla każdego.
+**Sześć obowiązkowych kombinacji:** telefon `360×800` (lub `390×844`), HD `1280×720`, Full HD `1920×1080`, każda w Light i Dark. Trzymaj baseline i screenshot osobno dla każdej.
 
 **Start serwera:** odpal `npm start` w tle i poczekaj aż odpowie `http://localhost:4200`,
 zanim wejdziesz `browser_navigate`. Po naprawie poczekaj na hot-reload przed asercją „po".
@@ -397,6 +415,7 @@ zanim wejdziesz `browser_navigate`. Po naprawie poczekaj na hot-reload przed ase
       color: cs.color,
       background: cs.backgroundColor,
       token: root.getPropertyValue('--p-primary-color').trim(),
+      dark: document.documentElement.classList.contains('app-dark'),
     };
   }
   ```
@@ -422,7 +441,7 @@ zanim wejdziesz `browser_navigate`. Po naprawie poczekaj na hot-reload przed ase
 
 **Pozostałe sygnały:**
 
-- `browser_take_screenshot` — dowód „przed/po" (odpowiadający ekran odniesienia).
+- `browser_take_screenshot` — dowód „przed/po" (ta sama kombinacja ekran odniesienia + motyw).
 - `browser_console_messages` — po fixie zero nowych błędów (regresja).
 - `browser_snapshot` — drzewo dostępności (role, nagłówki, etykiety `aria-*`).
 - Przy bugach interaktywnych użyj `browser_click`/`browser_fill_form` do odtworzenia kroków
@@ -437,12 +456,12 @@ zanim wejdziesz `browser_navigate`. Po naprawie poczekaj na hot-reload przed ase
 - [ ] Bug backendowy → zatrzymany i zgłoszony (`MPLRTBE` jest puste), nie „załatany" w FE.
 - [ ] **Mapa dokumentacji** z kroku 2 (dokument, sekcja, id, status); zgłoszenie sprzeczne
       z dokumentem → zatrzymane i zgłoszone, nie „naprawione" wbrew dokumentowi.
-- [ ] **Playwright BEFORE:** asercja odtwarza buga na wszystkich trzech ekranach odniesienia
-      (telefon, HD, Full HD w motywie jasnym) + screenshot każdego.
+- [ ] **Playwright BEFORE:** asercja odtwarza buga na wszystkich sześciu kombinacjach
+      (telefon, HD, Full HD × Light / Dark) + screenshot każdej.
 - [ ] Poprawka zgodna z CLAUDE.md: brak surowych kolorów, brak `::ng-deep` i `.p-*`,
       brak `@deprecated`, i18n wyłącznie w `src/assets/i18n/pl.json`, dostępność WCAG AA,
       zasada „Kod dla człowieka, nie dla agentów”.
-- [ ] **Playwright AFTER:** te same asercje na wszystkich trzech ekranach odniesienia potwierdzają
+- [ ] **Playwright AFTER:** te same asercje na wszystkich sześciu kombinacjach potwierdzają
       brak buga; zero nowych błędów w konsoli.
 - [ ] **Krok 6b:** macierz zgodności dokumentacji z poprawką; dokumentacja zaktualizowana
       (rewizja dokumentu `zatwierdzony` po zgodzie użytkownika) albo „bez zmian"
@@ -455,5 +474,5 @@ zanim wejdziesz `browser_navigate`. Po naprawie poczekaj na hot-reload przed ase
 - [ ] **Deploy pre-prod:** pominięty z powodu braku środowiska, użytkownik poinformowany.
 - [ ] Fix → Done; Bug → Ready for tests + przypisany do testera (`Piotr.Tunski@DTCode.pl`); Retest bez zmian.
 - [ ] **Komentarz do Buga dodany** — nietechniczny opis „co naprawiono" + „jak zretestować
-      ręcznie" (ekrany odniesienia w motywie jasnym), informacja o braku środowiska pre-prod.
+      ręcznie" (ekrany odniesienia i motywy wprost), informacja o braku środowiska pre-prod.
 - [ ] Podsumowanie + instrukcja weryfikacji przekazane użytkownikowi.
