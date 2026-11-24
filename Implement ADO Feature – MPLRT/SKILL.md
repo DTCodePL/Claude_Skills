@@ -363,7 +363,7 @@ Zanim zlecisz jakikolwiek kod, wejdź w Plan Mode i ustal:
   w planie jak kryteria akceptacji, nie test w repo produktu (E2E prowadzi
   kto inny); nie zastępuje czerwonego testu Buga z Fazy 3, poza jej
   wyjątkiem przeglądarkowym. `matrix`: trasy
-  zmienione przez feature × telefon 360×800, HD 1280×720 i Full HD
+  zmienione przez feature × telefon 360×560, HD 1280×720 i Full HD
   1920×1080 × Light/Dark, z `waitFor`
   na elemencie gotowości. `flows` (opcjonalnie, 2–5 przejść): cel
   nazywający drogę słowami interfejsu (Jev czyta dosłownie), `forbidden`
@@ -805,7 +805,7 @@ Implementację wykonują linie z Fazy 2 wg briefów — **sesja główna nie pis
 kodu** poza drobną korektą z Fazy 2 (krok 4b). Jej robota w tej fazie to walidacja dowodów raz na falę: diff,
 `fala-odbior.py` (Faza 2, krok 3 — `npm run lint` / `npm test` /
 `npm run build` albo `dotnet build` / `dotnet test` w jednym poleceniu),
-zrzuty na trzech ekranach odniesienia (telefon 360×800, HD 1280×720,
+zrzuty na trzech ekranach odniesienia (telefon 360×560, HD 1280×720,
 Full HD 1920×1080) × Light i Dark. Playwright MCP w sesji
 architekta nie używasz (od 2026-11-05). Dowód
 w przeglądarce dajesz sam narzędziem **`browser-check`**

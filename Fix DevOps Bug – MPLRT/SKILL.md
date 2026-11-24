@@ -6,7 +6,7 @@ description: >
   https://dev.azure.com/DTCode/MPLRT/_workitems/edit/123) albo sam numer i poprosi
   o analizę/naprawę zgłoszenia. Skill pobiera work item i jego sub-taski (Fix/Retest),
   weryfikuje czy błąd występuje w kodzie, odtwarza buga w działającej aplikacji przez
-  Playwright na macierzy ekranów odniesienia (telefon od 360 px, HD 1280×720, Full HD 1920×1080, każdy w motywie jasnym i ciemnym)
+  Playwright na macierzy ekranów odniesienia (telefon 360×560, HD 1280×720, Full HD 1920×1080, każdy w motywie jasnym i ciemnym)
   — test BEFORE, implementuje poprawkę zgodnie z CLAUDE.md, potwierdza Playwrightem
   że bug zniknął (test AFTER), sprawdza zgodność dokumentacji produktowej (źródła
   prawdy) z poprawką i ją aktualizuje, uruchamia lint:fix + format, commituje i pushuje,
@@ -75,11 +75,11 @@ z `Dokumentacja\MPLRT\wymagania-przekrojowe\czytelnosc-i-nawigacja.md` × oba mo
 
 | Klasa | Ekran odniesienia | Rozdzielczość | Light | Dark |
 | --- | --- | --- | --- | --- |
-| **Telefon** | szerokość od 360 px | `360×800` (lub `390×844`) | baseline T-L | baseline T-D |
+| **Telefon** | format telefonu | `360×560` | baseline T-L | baseline T-D |
 | **HD** | format HD | `1280×720` | baseline HD-L | baseline HD-D |
 | **Full HD** | format Full HD | `1920×1080` | baseline FHD-L | baseline FHD-D |
 
-- `browser_resize(width=360, height=800)` — telefon (mobile-first, szerokość od 360 px, np. 360×800 lub 390×844).
+- `browser_resize(width=360, height=560)` — telefon (mobile-first).
 - `browser_resize(width=1280, height=720)` — HD.
 - `browser_resize(width=1920, height=1080)` — Full HD.
 - Light + Dark są w MPLRT **obowiązkowe na całej stronie**, panel redaktora włącznie (`DEC-MOTYW-JASNY-I-CIEMNY`).
@@ -170,8 +170,8 @@ występuje.
   `http://localhost:4200`). Ekrany zależne od backendu **nie zadziałają** — BE nie istnieje;
   jeśli repro tego wymaga, zgłoś to i ustal z użytkownikiem.
 - `browser_navigate` na właściwą trasę, a następnie przejdź **całą macierz 3×2**:
-  1. `browser_resize(360, 800)` (lub `390×844`) → Light → asercja + screenshot
-  2. `browser_resize(360, 800)` (lub `390×844`) → Dark → asercja + screenshot
+  1. `browser_resize(360, 560)` → Light → asercja + screenshot
+  2. `browser_resize(360, 560)` → Dark → asercja + screenshot
   3. `browser_resize(1280, 720)` → Light → asercja + screenshot
   4. `browser_resize(1280, 720)` → Dark → asercja + screenshot
   5. `browser_resize(1920, 1080)` → Light → asercja + screenshot
@@ -246,7 +246,7 @@ Dodatkowo zweryfikuj (wymogi CLAUDE.md MPLRT):
 ### 6. Zweryfikuj fix w działającej aplikacji — Playwright (AFTER)
 
 **Obowiązkowe przed commitem.** Na tej samej trasie powtórz asercje na **całej macierzy
-3×2** (telefon `360×800` / `390×844`, HD `1280×720`, Full HD `1920×1080` × Light / Dark) i potwierdź, że bug **zniknął**.
+3×2** (telefon `360×560`, HD `1280×720`, Full HD `1920×1080` × Light / Dark) i potwierdź, że bug **zniknął**.
 
 - Jeśli dev server był podniesiony, poczekaj na hot-reload (`browser_wait_for`) lub
   odśwież (`browser_navigate` ponownie).
@@ -369,7 +369,7 @@ Fix jest na main (środowisko pre-prod jeszcze nie istnieje — deploy pominięt
 
 Jak zretestować ręcznie:
 1. <gdzie wejść, co kliknąć / jaki ekran otworzyć>
-2. <na jakiej szerokości: telefon (od 360 px), HD (1280×720) lub Full HD (1920×1080)>
+2. <na jakiej szerokości: telefon (360×560), HD (1280×720) lub Full HD (1920×1080)>
 3. <w jakim motywie: jasny i ciemny — jeśli zgłoszenie dotyczyło wyglądu>
 4. <co należy zaobserwować — oczekiwany, poprawny efekt>
 5. <ewentualnie: gdzie wcześniej był błąd, żeby tester wiedział na co patrzeć>
@@ -397,7 +397,7 @@ Zasada: **zamień każdy punkt repro w mierzalną asercję** i sprawdź ją tym 
 przed i po fixie. Screenshot jest dowodem pomocniczym, ale werdykt daje `browser_evaluate`
 (deterministyczny), nie „oko".
 
-**Sześć obowiązkowych kombinacji:** telefon `360×800` (lub `390×844`), HD `1280×720`, Full HD `1920×1080`, każda w Light i Dark. Trzymaj baseline i screenshot osobno dla każdej.
+**Sześć obowiązkowych kombinacji:** telefon `360×560`, HD `1280×720`, Full HD `1920×1080`, każda w Light i Dark. Trzymaj baseline i screenshot osobno dla każdej.
 
 **Start serwera:** odpal `npm start` w tle i poczekaj aż odpowie `http://localhost:4200`,
 zanim wejdziesz `browser_navigate`. Po naprawie poczekaj na hot-reload przed asercją „po".
