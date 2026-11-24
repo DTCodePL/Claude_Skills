@@ -14996,6 +14996,77 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Wymagane testy i dowody: eslint, prettier, stylelint, tsc, i18n, pełny ng test 3658 + 2 oczekiwane niepowodzenia, ng build (maska tylko w części CRM, nie w pakiecie startowym)
 
 
+### MPLRT dokumentacja — menu, stopka i dokumenty w kartach (27 punktów) z korektą po recenzji — 2026-11-23
+- Archetyp: dokumentacja projektowa, przeniesienie zatwierdzonej decyzji do ~30 kart, bez niezmiennika
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse / muse-spark-1.3-contributor / max — propagacja (284 s) i korekta po recenzji (7 plików, gotowa treść)
+- Recenzent (linia / model / native effort): Gemini B / gemini-3.8-flash / high — wszystkie zmiany dnia w MPLRT w jednym przebiegu (760 s)
+- Dopuszczone alternatywy: wykonawca Sonnet 5.5 high (tylko z powodem); recenzent Sol high (Codex tydzień 100 %)
+- Powód wyboru: reguła 3; recenzja innej rodziny na koncie B
+- Sygnał dostępności: Muse znany (`[pule]` 3–5 %), Gemini B ok, Codex zablokowany do 25.11
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano; jedną linię listy otwartych spraw poprawił architekt (reguła 11)
+- Rundy korekt: 1 (po recenzji)
+- Czas do akceptacji: nie mierzono
+- Znaleziska recenzji: potwierdzone 2 × P1 (karta materiałów regulaminowych linkowała do wycofanego widoku; plan uruchomienia kazał sprawdzać role mimo jednego konta), 3 × P2 (brak odnośnika do następcy, zdanie o polu PDF powtórzone w 3 kartach, brak przeciągania plików w 3 kartach), 1 × P3 (nazwa sekcji panelu); obalone 1 × P1 (status `zatwierdzona` decyzji — zgoda właściciela jest, zmiany wobec spotkania idą na makietę). Uwagi Sparka do briefu trafne (4 drobne)
+- Defekty po odbiorze: brak do chwili wpisu
+- Wymagane testy i dowody: sprawdzenie odnośników (0), unikalność ID, końce linii LF, wyrywkowy diff
+
+### MPLRT umowa o wykonanie strony (docx ze wzoru, B2B) — 2026-11-23
+- Archetyp: dokument dla klienta na bazie wzoru .docx (edycja `document.xml` biblioteką standardową Pythona), bez niezmiennika
+- Stawka: średnia (umowa z klientem, przeniesienie praw autorskich)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse / muse-spark-1.3-contributor / max (475 s); dane stron wpisał architekt lokalnie w pola zastępcze, więc nie trafiły do workera; drobne poprawki i poprawki po recenzji architekt (plik z danymi stron, gotowa treść)
+- Recenzent (linia / model / native effort): Gemini B / gemini-3.8-flash / high (tekst z polami zastępczymi)
+- Dopuszczone alternatywy: wykonawca Sonnet 5.5 high (tylko z powodem); recenzent Sol high (zablokowany)
+- Powód wyboru: reguła 3; projekt treści w briefie od architekta
+- Sygnał dostępności: Muse znany, Gemini B ok, Codex zablokowany
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zaakceptowano technicznie (Word otwiera, 5 stron); w stopce został napis „Wzór umowy” z winy briefu (kazał przepisać bez zmian części poza `document.xml`)
+- Rundy korekt: 1 (architekt, 14 podmian po recenzji)
+- Czas do akceptacji: nie mierzono
+- Znaleziska recenzji: potwierdzone 1 × P0 (forma pisemna przy przeniesieniu praw, art. 53 pr. aut. — wzór miał sformułowanie warunkowe), 3 × P1 (prawa zależne i osobiste; tryb odbioru; brak danych od dostawcy zapisów blokował odbiór i płatność), P1 o sprzeczności § 7/§ 9 przyjęty inną poprawką, P2/P3 przyjęte jako propozycje dla właściciela; odrzucone 1 × P1 (wstrzymanie dostępu do panelu do zapłaty — sprzeczne z decyzją o kontroli zamawiającego) i 1 × P3 (osoba kontaktowa to pole do uzupełnienia). Recenzent błędnie twierdził, że poprawki opisane w briefie nie weszły (czytał zapowiedziany wyciąg sprzed poprawek)
+- Defekty po odbiorze: brak do chwili wpisu
+- Wymagane testy i dowody: eksport do PDF przez Word COM i odczyt stron, sprawdzenie pól zastępczych
+- Lekcja: wzory DTCode mają branding w nagłówku i stopce — brief do dokumentu ze wzoru obejmuje też `header*.xml` i `footer*.xml`
+
+### DTCodeFE — sekcja „Projekty” jako karuzela relacji + pasu.je i AmmoBox (FE, i18n, zrzuty CRM) — 2026-11-23
+- Archetyp: FE sekcja landingu bez niezmiennika i bez Figmy (interakcja: automat, pauzy, gesty, a11y), 3 zadania z planu + 1 runda korekt
+- Stawka: niska–średnia (publiczna strona; zrzuty z produkcyjnego CRM z maskowaniem danych osobowych zrobił architekt)
+- Niepewność: średnia (logika wielu powodów pauzy, `animationend`, przytrzymanie kontra przesunięcie)
+- Wykonawca (linia / model / native effort): Muse / muse-spark-1.3-contributor / max — zad. 1 (treść, model, ProjectCase, i18n), zad. 2 (ProjectStories + StoryProgress, równolegle z 1 w drzewie-cieniu), zad. 3 (złożenie sekcji, 229 s), korekty K1–K6 (388 s); drobne poprawki architekta (reguła 11): zerowanie blokady kliknięcia po przesunięciu, limit 20 s AXE, `:host` w pustym `projects.scss`, asercje przycisku w teście galerii
+- Recenzent (linia / model / native effort): Gemini B / gemini-3.8-flash / high — cała funkcja (573 s), potem ponowna recenzja korekt (322 s)
+- Dopuszczone alternatywy: wykonawca Sonnet 5.5 high (tylko z powodem); recenzent Sol high (Codex zablokowany do 25.11)
+- Powód wyboru: reguła 3 (bez Figmy i niezmiennika → poza pulą Claude'a); recenzja innej rodziny na koncie B
+- Sygnał dostępności: Muse znany (`[pule]` 4 %), Gemini B ok, Codex tydzień 100 %
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zad. 1–3 zaakceptowane; recenzja odrzuciła funkcję (werdykt „niepoprawny”)
+- Rundy korekt: 1 (K1–K6 w jednym briefie); 3 z 4 defektów P1/P2 wynikały z planu architekta (jedna flaga `paused` dla przycisku i zegara, „`finished` przy pauzie ignorowane”, brak priorytetu przesunięcia nad przytrzymaniem), nie z wykonania
+- Czas do akceptacji: nie mierzono
+- Znaleziska recenzji: potwierdzone 3 × P1 (przycisk pauzy zmieniał się od najechania/fokusu → klawiatura wstrzymywała na stałe; porzucony `animationend` zabijał automat; przesunięcie > 200 ms brane za przytrzymanie) i 1 × P2 (karuzela przełączała slajdy pod otwartą galerią, fokus nie wracał na `inert`); obalone 1 × P2 sondą (host `inline` — Chrome liczy pełną wysokość, przyjęte jako higiena); pominięte 1 × P3. Recenzja korekt: kod poprawny, 1 × P2 luka asercji (poprawił architekt), 2 × P3 pominięte. Odbiór w przeglądarce dodał 1 defekt, którego recenzja nie widziała (przyciski skakały na telefonie przez niewidoczny znacznik) i 1 (blokada kliknięcia zostawała po przesunięciu palcem)
+- Defekty po odbiorze: brak do chwili wpisu
+- Wymagane testy i dowody: eslint, stylelint, prettier, pełny ng test (1630/1632; 2 niestabilne specy CRM spoza zmiany, osobno 83/83), ng build SSR, skrypt Playwright 30/30 (1440, 360/390/414, ograniczony ruch, galeria 13 s, wolne przesunięcie). Uwaga do narzędzi: emulacja dotyku CDP tłumi pierwsze stuknięcie po geście — logikę aplikacji sprawdzać przesunięciem ze zdarzeń JS
+
+### MPLRT zasady dla AI i dokumentacji — przeniesienie z Zebrani (reguły FE i BE, protokół dokumentacji, 3 skille ADO z loaderami) — 2026-11-24
+- Archetyp: adaptacja zestawów reguł i skilli między projektami (5 briefów tekstowych, 6–100 kB źródła na brief), bez niezmiennika; pilotaż D (`koordynator-fali`)
+- Stawka: niska–średnia (reguły wpływają na każde przyszłe zadanie MPLRT)
+- Niepewność: średnia (projekt bez kodu, wiele wartości nieustalonych)
+- Wykonawca (linia / model / native effort): Muse / muse-spark-1.3-contributor / max — B1 reguły FE (546 s), B2 reguły BE (517 s), B3 protokół dokumentacji (345 s), B4 skill implement + skrypt SemVer (687 s + korekta 77 s); B5 skille ADO i bug: Gemini A / gemini-3.8-flash / high (631 s) po 2 awariach Muse (HTTP 400 „Recursive JSON schemas are not currently supported”, 65 s i 78 s, bez zmian w plikach; przyczyny nie ustalono, B5 jako jedyny wymagał MCP ADO)
+- Recenzent (linia / model / native effort): Gemini B / gemini-3.8-flash / high — B1–B4 w jednym przebiegu; Muse / muse-spark-1.3-contributor / max (read) — B5
+- Koordynator: koordynator-fali (Sonnet 5.5 high), ok. 242 tys. tokenów, 1 wznowienie przez architekta
+- Dopuszczone alternatywy: wykonawca Gemini A high (użyta dla B5); Codex wykluczony (tydzień 100 %); Sonnet wykluczony (tempo +22 pp)
+- Powód wyboru: reguła 3 (brief tekstowy poza pulą Claude'a), reguła 8 (archetyp dokumentacji → Spark `max`), tempo tygodnia +22 pp → fala bez niezmiennika do `koordynator-fali`
+- Sygnał dostępności: Muse nieznany (`server_sent_no_usage`), Gemini A i B ok, Codex zablokowany do 25.11 14:10, Claude ŻÓŁTY
+- Pewność decyzji: niska (brak lokalnych wyników archetypu)
+- Wynik pierwszego podejścia: B1–B3 i B5 zaakceptowane bez rund; B4 po 1 rundzie (3 × P2)
+- Rundy korekt: 1 (B4) + 6 drobnych poprawek architekta (reguła 11; 1 z nich w 3 identycznych kopiach loadera)
+- Czas do akceptacji: ok. 1,5 h zegarowo (w tym przestój koordynatora do wznowienia)
+- Znaleziska recenzji: potwierdzone 4 × P1 (ścieżki `MPLRTFE/` zamiast folderu `MPLRT_FE/` w regułach BE; skill ADO wymieniał wycofaną grupę „O nas”; wzorzec opisu PBI zakładał motyw ciemny; opis loadera wymagał makiety Figmy), 3 × P2 (pozostałości Zebrani w skillu implement), 2 × P3 (przykłady nazw w tabeli FE, przykład ID 331); obalone 0. R1 zgłosił fałszywie brak pliku briefu B4
+- Defekty po odbiorze: brak do chwili wpisu
+- Wymagane testy i dowody: skrypt kontrolny (bramka `instrukcje.yml` w obu repo, sekcje wspólne = kontrakt, Working Mode = ZebraniFE, kopie loaderów), `sync-routing.py --check` (20/20 zgodne), prettier FE, `python -m unittest` skryptu SemVer (32 OK), wyrywkowy odczyt sekcji
+- Uwagi do pakietu: skrypt kontrolny architekta miał wadę kotwicy (2 fałszywe błędy) — poprawiony; pakiet nie przewidział recenzenta dla briefu, który przeszedł na inną rodzinę
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
