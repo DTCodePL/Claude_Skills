@@ -1043,6 +1043,39 @@ Pewność niska: nie ma lokalnych wyników 6.2, a koszt zadania w AA to nie waga
 **Usunięta reguła (CLAUDE.md, reguła 7, do 2026-11-25, dosłownie):**
 
 > **Terra (od 2026-11-04).** `gpt-6.1-terra` `max` jest kandydatem tam, gdzie wybrałbyś Sola `high` albo `medium`: implementacja i testy ≤ 5 plików, research, recenzja niskiej i średniej stawki. Indeks ma ≥ Sola `high`, a koszt ~0,7 (pewność niska). Terra `high`/`xhigh` są słabsze o 5–8 punktów i nie zastępują Sola `high` bez powodu. Terra nie jest bramką i nie recenzuje plików niezmiennika, dopóki rejestr nie ma ≥ 5 zaakceptowanych jej briefów z rundami i znaleziskami nie gorszymi niż Sol `high`. Rodzina Codex.
+
+## Gemini 4 Hydrogen na kontach B i C, Argon wykreślony — 2026-11-25
+
+**Dostępność.** Właściciel zgłosił, że Hydrogen jest dostępny także poza jednym kontem. `agy models` (2026-11-25 wieczorem) pokazuje `gemini-4-hydrogen-low/medium/high/xhigh` na wszystkich trzech kontach. Na B (`gemini2`) i C (`gemini3`) poza Hydrogenem jest tylko Gemini 3.8 Flash; Neon i Carbon zostają wyłącznie na A.
+
+**Odczyt AA z 2026-11-25** (II / koszt zadania indeksu w $; rekord bez przyrostka to Hydrogen `xhigh`):
+
+| Model | `xhigh` | `high` | `medium` | `low` |
+| --- | --- | --- | --- | --- |
+| Gemini 4 Hydrogen | 54,1 / 3,16 | 51,0 / 1,87 | 41,1 / 0,80 | 26,9 / 0,29 |
+| Gemini 3.8 Flash | — | 30,7 / 7,77 | 30,1 / 6,26 | 22,5 / — |
+| Gemini 4 Neon (dla porównania) | 61,5 / 6,44 | 59,8 / 3,74 | 54,9 / 1,90 | 44,1 / 0,75 |
+
+Zużycie puli AI Pro jest proporcjonalne do kosztu tokenów (skill `external-workers`), więc Hydrogen dominuje Flasha na B i C jednocześnie indeksem i obciążeniem puli. Dotychczasowy powód odrzucenia Hydrogena („wszystkie modele konta A biorą z jednej puli, Neon dominuje”) dotyczy tylko konta A. B i C mają własne pule, więc Hydrogen dodaje tam przepustowość.
+
+**Decyzje właściciela (2026-11-25).** Hydrogen przejmuje na B i C wszystkie role Flasha: recenzję niskiej stawki (`high`), research, fakty z repo, audyt dokumentów i recenzję QA Sphere. Dodatkowo Hydrogen `xhigh` (B lub C) jest kandydatem do recenzji średniej stawki obok Sparka `max` i Neona `high`. Flash zostaje dopuszczoną alternatywą z tej samej puli konta. Hydrogen na A zostaje poza routingiem. Pliki niezmiennika recenzuje dalej tylko Wonder Full `max` albo Neon `xhigh` w próbie G4. Argon wykreślony z dokumentacji na polecenie właściciela („Argona już nie ma”); `agy` 1.5.16 na koncie A w chwili zmiany wciąż wystawiał `gemini-4-argon-low/medium/high` i `gemini-pro-orchestrator-argon`.
+
+**Wrapper.** `$GeminiOnlyAModelPrefixes` miało ogólny prefiks `gemini-4-`, który odrzucał Hydrogen na B i C. Teraz lista ma `gemini-4-neon-`, `gemini-4-carbon-`, `gemini-pro-orchestrator` i Claude'a 5.5. Hydrogen bez `-GeminiHost` przy odczycie idzie na B, jawnie na C, a odczyt na A wymaga `-GeminiPowod`. Test 32 w `worker-run-gemini-host.tests.ps1`, wynik 172/172. Kopie sprzed zmiany: `*.bak-2026-11-25-hydrogen`.
+
+**Sekcja wspólna.** `MPLRT_FE/AGENTS.md` miał 63 971 B przy limicie 64 000 B, więc zmiana w sekcji „Working Mode” musiała być prawie zerowa (+1 B). Z sekcji wypadły nazwy użytkowników Linuksa kont B i C (są w `external-workers`).
+
+Pewność niska: nie ma jeszcze lokalnych wyników Hydrogena. Do obserwacji: potwierdzone i obalone P0/P1 Hydrogena `high` i `xhigh` wobec Flasha i Sparka `max` oraz 429 na B i C.
+
+**Zmienione reguły (CLAUDE.md do 2026-11-25, dosłownie):**
+
+> Budżety: „**B** i **C** WSL (tylko odczyt, tylko Flash)”, „na B i C wyłącznie Gemini 3.8 Flash (właściciel, 2026-11-01 i 2026-11-24)”.
+>
+> Macierz, wiersz Gemini: „**B, C**: wyłącznie `gemini-3.8-flash-low/medium/high`. Carbon `high` wyłącznie jako recenzent dodatkowy (reguła 13); Argon, Hydrogen i Orchestrator poza routingiem (AA 2026-11-24: Neon daje wyższy indeks przy niższym koszcie zadania, a wszystkie modele konta A biorą z jednej puli)”; „**B i C**: odczyt `D:\projects\DTCode` i WWW — recenzja, research, audyt dokumentów, recenzja QA Sphere; bez MCP i powłoki”; „Odczyt Flash: **B i C naprzemiennie** […]; Flash na A do odczytu tylko z `-GeminiPowod` (B i C zablokowane, 3 × 503, potrzebny MCP).”
+>
+> Reguła 3: „fakty z repo: `zwiadowca` albo Gemini 3.8 Flash `high` (konto B lub C, tylko odczyt, wynik ze ścieżką i linią);”
+>
+> Reguła 13: „Gemini 4 Neon `high` (konto A) albo Gemini 3.8 Flash `high` (B i C naprzemiennie) przed Muse”; „dla średniej stawki Spark `max` albo Gemini 4 Neon `high` (właściciel, 2026-11-24).”
+
 ---
 
 ## Część 3 — globalny CLAUDE.md z 2026-11-05 sprzed drugiej diety (dosłownie)

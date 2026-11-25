@@ -610,7 +610,7 @@ rodziny i odbiór architekta bez zmian. **Pracę pomocniczą też rozkładasz**
 (właściciel, 2026-11-24: używać także innych silników, nie przenosić całej
 pracy z Claude'a): testy według wzorca — `tester`, Spark `max` albo Neon
 (czerwony test Buga zostaje u `tester`); fakty z repo — `zwiadowca` albo
-Gemini 3.8 Flash `high` na koncie B lub C (odczyt, `ścieżka:linia`);
+Gemini 4 Hydrogen na koncie B lub C (odczyt, `ścieżka:linia`);
 delegowany audyt a11y — `audytor-a11y` albo Neon `xhigh` (odczyt, inna
 rodzina niż autor audytowanego kodu). **Tempo tygodnia**
 (reguła 2, podgląd do 2026-11-08): przy wyprzedzeniu tempa w linii
@@ -691,11 +691,11 @@ plan dzielisz drobniej. W #2913 trzy kontynuacje kosztowały ok. 1,7 h.
 | `wykonawca-sonnet-xhigh` — Sonnet 5.5 `xhigh` (próba C2 od 2026-11-01) | pliki niosące niezmiennik high-stakes wyłącznie jako ramię próby, naprzemiennie z `wykonawca-opus` | poza próbą nie dostaje briefów; ta sama para recenzenta co Opus, bramka Sol `max` bez zmian; rodzina Claude — nie recenzuje Claude'a |
 | `koordynator-fali` — Sonnet 5.5 `high` (pilotaż D od 2026-11-01) | wykonanie pakietu fali napisanego przez architekta: uruchomienie briefów, walidacja diffu i cichych sprawdzeń, recenzje, obalanie P0/P1, korekty, raport | bez kodu, bez zmiany decyzji, bez fal z plikami niezmiennika; odbiór fali (pełne lint/test/build) zostaje u architekta; rodzina Claude |
 | Muse (`-Engine spark`) — para per archetyp briefu od 2026-10-25 (reguła 8 globalnego `CLAUDE.md`; dwa szczeble kosztu: Spark contributor ~0,045 % tygodnia na przebieg `max`, Wonder ~3,2 % (≈ 70 Sparków) — tryb contributor go nie obejmuje): `muse-wonder-full-1.0-contributor` `max` tylko wyjątek CZERWONEGO i recenzja fali plików niezmiennika, w limicie Wondera egzekwowanym przez wrapper (10 przebiegów w tygodniu, 3 w dniu; obejście tylko `-WonderPowod` dla krytycznego briefu, z meldunkiem dla użytkownika); `muse-wonder-1.0-contributor` bez archetypu (liczy się do limitu jak Full); `muse-spark-1.3-contributor` `max` — pozostała implementacja, złożony brief bez niezmiennika, testy, dokumentacja, audyt SCSS, QA Sphere (także w funkcji high-stakes), korekty, recenzja niskiej i średniej stawki; Spark `high` — przeglądarka `pwcli`, PRE, ADO; para wyższa tylko z powodem w briefie; limit tygodniowy (reset pon. 00:00 UTC) — odczyt `muse usage --json` w `[pule]` (`minimal|low|medium|high|xhigh|max`; `none` i `ultra` wrapper odrzuca — `ultra` ma zamkniętą bramkę i biegnie jako `xhigh`); Wonder i Spark to jedna rodzina | natywnie na Windows (`-MuseHost windows`, zawsze `--no-foreign-personal-context`; WSL — tryb awaryjny); `-Access write`: Node/dotnet, pętla własnych testów, MCP ADO, Playwright, Angular, QA Sphere, Mikrus; `-Access read`: audyt i recenzja | brak Figma MCP; high-stakes tylko w zachowanym wyjątku blokady hooka; bez gita i `npm install`; bez limitu slotów, ale rozłączne cele |
-| Gemini — `agy`, effort zakodowany w sufiksie identyfikatora; trzy konta wybierane parametrem wrappera `-GeminiHost` (od 2026-11-24). **A**: `gemini-4-neon-low/medium/high/xhigh`, `gemini-3.8-flash-*`, `claude-sonnet-5-5-high` tylko w próbie CA. **B i C**: wyłącznie `gemini-3.8-flash-low/medium/high` | **Konto A** (`windows`, domyślne dla `-Access write` i dla modeli tylko-A): zapis i pętla lint/test na Windows oraz MCP ADO, Playwright, Angular, QA Sphere, Mikrus; Gemini 4 Neon — wykonawca bez niezmiennika, recenzja niskiej i średniej stawki, research, w próbie G4 recenzja plików niezmiennika (`xhigh`). **Konta B** (`wsl`, użytkownik `gemini2`, domyślne dla `-Access read`) **i C** (`wsl-c`, użytkownik `gemini3`): wyłącznie odczyt — recenzja, research, audyt dokumentów, recenzja QA Sphere; bez MCP i powłoki. Brief ze ścieżkami Windows — dla B i C wrapper tłumaczy je na `/mnt/d/…` | nigdy pisanie plików niezmiennika ani Figma; ścieżki absolutne (ze spacją — w backtickach), jawny odczyt `AGENTS.md`, zakaz powłoki w briefie recenzji zgodnie z `external-workers`; konta A, B i C to jedna rodzina (Claude przez `agy` — rodzina Claude); **odczyt Flash na B i C naprzemiennie**, konto podaje architekt jawnie (decyzja właściciela 2026-11-24) — Flash na A do odczytu tylko z `-GeminiPowod "<powód>"` (B i C zablokowane, 3 × 503, MCP); modele tylko-A wrapper kieruje na A sam; stan kont w linii `[pule]`, wrapper odmawia startu na koncie z zapisaną blokadą 429 |
+| Gemini — `agy`, effort zakodowany w sufiksie identyfikatora; trzy konta wybierane parametrem wrappera `-GeminiHost` (od 2026-11-24). **A**: `gemini-4-neon-low/medium/high/xhigh`, `gemini-3.8-flash-*`, `claude-sonnet-5-5-high` tylko w próbie CA. **B i C**: `gemini-4-hydrogen-low/medium/high/xhigh` (od 2026-11-25, preferowany) i `gemini-3.8-flash-low/medium/high` (alternatywa); Hydrogen na A poza routingiem | **Konto A** (`windows`, domyślne dla `-Access write` i dla modeli tylko-A): zapis i pętla lint/test na Windows oraz MCP ADO, Playwright, Angular, QA Sphere, Mikrus; Gemini 4 Neon — wykonawca bez niezmiennika, recenzja niskiej i średniej stawki, research, w próbie G4 recenzja plików niezmiennika (`xhigh`). **Konta B** (`wsl`, użytkownik `gemini2`, domyślne dla `-Access read`) **i C** (`wsl-c`, użytkownik `gemini3`): wyłącznie odczyt — recenzja niskiej stawki, recenzja średniej stawki (Hydrogen `xhigh`), research, fakty z repo, audyt dokumentów, recenzja QA Sphere; bez MCP i powłoki. Brief ze ścieżkami Windows — dla B i C wrapper tłumaczy je na `/mnt/d/…` | nigdy pisanie plików niezmiennika ani Figma; ścieżki absolutne (ze spacją — w backtickach), jawny odczyt `AGENTS.md`, zakaz powłoki w briefie recenzji zgodnie z `external-workers`; konta A, B i C to jedna rodzina (Claude przez `agy` — rodzina Claude); **odczyt Hydrogenem i Flashem na B i C naprzemiennie**, konto podaje architekt jawnie (decyzja właściciela 2026-11-24) — Hydrogen i Flash na A do odczytu tylko z `-GeminiPowod "<powód>"` (B i C zablokowane, 3 × 503, MCP); modele tylko-A wrapper kieruje na A sam; stan kont w linii `[pule]`, wrapper odmawia startu na koncie z zapisaną blokadą 429 |
 | Codex — `gpt-6.2-sol` (`low|medium|high|xhigh|max|ultra`; Terra poza routingiem od 2026-11-25 — reguła 7), `gpt-6-luna` (`low|medium|high|xhigh|max`) | implementacja, testy, research, audyt/recenzja; Figma i Playwright po potwierdzeniu dostępu w konkretnej sesji; `-Mode review` do odczytu | pełnoprawny kandydat, porcje ≤ 5 plików (implementacja/testy; recenzji nie dzielisz — bramka końcowa czyta cały diff w jednym przebiegu); nie zastępuje Opusa na high-stakes; nie recenzuje własnej rodziny; research bez poleceń powłoki; najmniejsza pula (Plus), zapas z `[pule]` — w funkcji high-stakes tylko krótkie briefy bez niezmiennika (≤ 5 plików, effort ≤ `high`) przy zapasie tygodnia na bramkę, po limicie przed bramką brak kolejnych briefów tej funkcji |
 | `tester` — Haiku 5.5 `xhigh` (od 2026-10-13, po próbie z reguły 14 globalnego `CLAUDE.md`; wcześniej Sonnet 5.5 `medium`) | speci Vitest / AXE / xunit; czerwony test Buga; testy według wzorca dzieli ze Sparkiem `max` i Neonem (reguła 3) | test przed łatką i bez edycji przez autora łatki; odrębne briefy testu i łatki; obowiązuje hook |
 | `mechanik` — Haiku 5.5 `low` | pojedyncze klucze i18n, rename, przeniesienie pliku | mechaniczne drobiazgi, nie implementacja wysokiej stawki |
-| `zwiadowca` — Haiku 5.5 `low` | fakty z repo przed decyzją; dzieli z Gemini Flash B/C (reguła 3) | tylko odczyt |
+| `zwiadowca` — Haiku 5.5 `low` | fakty z repo przed decyzją; dzieli z Gemini Hydrogen B/C (reguła 3) | tylko odczyt |
 | `audytor-a11y` — Opus `high` | delegowany audyt kontrastu/fokusu/tokenów; dzieli z Gemini 4 Neon `xhigh` (reguła 3) | audyt, nie przejęcie implementacji |
 | QA Sphere — autor Muse: Spark 1.3 `max`, także w funkcji high-stakes (od 2026-10-25); Gemini `-Access write`, gdy Muse zajęty albo z limitem | plik podglądu wg `qasphere-test-generator` | recenzja: plik Muse → Gemini `-Access read`, plik Gemini → Muse `-Access read`; publikacja/poprawki/weryfikacja przez architekta skryptem `qas.py`; sesja nie pisze przypadków i nie woła `create_test_case` / `update_test_case` |
 | bramka końcowa — `gpt-6.2-sol` `max` (od 2026-10-05, zamiast Astry) | cały feature high-stakes po recenzjach fal; przy dużym diffie osobno FE i BE — równolegle przy zapasie okna 5 h Codexa w `[pule]`, inaczej sekwencyjnie | bramka z Fazy 4b; niezależna wobec plików niosących niezmiennik (pisze je Opus); nie zastępuje recenzji fal, także dla plików bez niezmiennika pisanych przez Codex |
@@ -977,13 +977,15 @@ nie recenzuje kodu rodziny Codexa; Muse nie recenzuje Muse, Gemini
 Gemini (konta A, B i C to jedna rodzina; Claude przez `agy` to rodzina Claude). Fable nie recenzuje (ta sama rodzina co Sonnet i Opus).
 Przy niskiej stawce preferujesz Sola `high` (tylko,
 gdy `[pule]` pokazuje zapas tygodnia Codexa na bramkę), Gemini 4 Neon `high`
-(konto A) albo Gemini 3.8 Flash `high` (B i C naprzemiennie) przed
+(konto A) albo Gemini 4 Hydrogen `high` (B i C naprzemiennie, Flash
+jako alternatywa) przed
 Muse (mniej zawyżonych P0/P1 do obalenia — zmierzone na Sparku 1.3,
 decyzja właściciela 2026-10-12 — oraz tygodniowa pula Muse); przy wyższej
 stawce Muse jest kandydatem z parą z tabeli reguły 8: Wonder Full `max`
 dla plików niezmiennika (w limicie Wondera; w próbie G4 naprzemiennie
-z Gemini 4 Neon `xhigh`), Spark `max` albo Gemini 4 Neon `high` dla średniej
-stawki (od 2026-11-24; wcześniej sam Spark `max`). **Recenzent dodatkowy**
+z Gemini 4 Neon `xhigh`), Spark `max`, Gemini 4 Neon `high` (konto A) albo
+Gemini 4 Hydrogen `xhigh` (B lub C) dla średniej stawki (od 2026-11-24
+i 2026-11-25; wcześniej sam Spark `max`). **Recenzent dodatkowy**
 (właściciel, 2026-11-24, reguła 13): cały diff feature'a wysokiej stawki
 czyta dodatkowo Gemini 4 Carbon `high` (konto A, `-Access read`), raz,
 po recenzjach fal i poprawkach, przed bramką Sol, FE i BE osobno;
@@ -1042,8 +1044,8 @@ innej rodziny wklejony do briefu,
 wprost (w trybie bez interfejsu nie ładuje się sam), zakaz poleceń powłoki.
 Uprawnienia Antigravity dopuszczają tylko odczyt `D:\projects\DTCode`
 i stron WWW, więc recenzja z definicji niczego nie zmienia.
-**Konto (od 2026-11-24, decyzja właściciela):** recenzję Gemini 3.8 Flash
-puszczasz na kontach B i C naprzemiennie i podajesz konto jawnie
+**Konto (od 2026-11-24, decyzja właściciela):** recenzję Gemini 4 Hydrogen
+albo Gemini 3.8 Flash puszczasz na kontach B i C naprzemiennie i podajesz konto jawnie
 (`-GeminiHost wsl` albo `wsl-c`; bez parametru wrapper bierze B, sam kont
 nie przełącza). Recenzja Gemini 4 Neon idzie na konto A — wrapper kieruje
 tam model tylko-A bez `-GeminiPowod`. Brief pisz ze ścieżkami Windows;
@@ -1052,7 +1054,7 @@ spacją ujmij w backticki, inaczej odmowa). Materiał spoza
 `D:\projects\DTCode` (np. `~/.claude/bin`) skopiuj do `_robocze`. Przed
 kwalifikacją sprawdź `Gemini: A …, B …, C …` w linii `[pule]`: gdy konto
 jest `zablokowane do …`, wrapper odmówi startu — bierzesz drugie konto
-WSL, a Flash na A tylko z `-GeminiPowod "B i C zablokowane do HH:MM"`
+WSL, a Hydrogen lub Flash na A tylko z `-GeminiPowod "B i C zablokowane do HH:MM"`
 albo kwalifikujesz inną linię.
 
 **Lokalny sygnał jakości z 2026-09-23** (3 etapy: PBI #2282 +
