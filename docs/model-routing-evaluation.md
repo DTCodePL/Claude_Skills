@@ -15265,6 +15265,222 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Wymagane testy i dowody: 6 ramek stanów w obu motywach, zrzut podpowiedzi, JSON z mapowaniem rola → zmienna; odczyt nadpisań, odłączeń, rozmiaru przełącznika i kolejności warstw
 - Uwagi do pakietu: przed briefem w pliku MPLRT architekt sprawdza status publikacji komponentów biblioteki (`getPublishStatusAsync`), bo „opublikowałem” nie gwarantuje publikacji. Po zmianie wyglądu komponentu biblioteki instancje mogą mieć stare nadpisania kolorów i trzeba je odczytać. Flash znalazł jedną realną lukę dostępności (kontrast znacznika) i dwie poprawki projektowe, przy dwóch obalonych P1.
 
+### MPLRT plik Figmy — zaznaczenie podstron oraz ramki najechania i fokusu layoutu publicznego (1 brief) — 2026-11-25
+- Archetyp: Figma — nowe warianty istniejących zestawów (panel Zawodów 5, menu 2 × 10) przez klonowanie i 20 ramek stanów elementów jako instancji layoutu
+- Stawka: niska (makieta, bez kodu; ryzyko zgubionych powiązań po klonowaniu i stanu udawanego nadpisaniem)
+- Niepewność: niska (stany z biblioteki, tabela ramek w briefie)
+- Wykonawca (linia / model / native effort): `wykonawca` Sonnet 5.5 `high` — 59 wywołań, 197 tys., 6,1 min
+- Recenzent: Gemini C / gemini-3.8-flash-high (read, 899 s) na 23 zrzutach, JSON-ie, briefie i dokumentacji; odbiór architekta: odczyt stanów przełącznika, trybów zmiennych, znaczników i geometrii obwódki w Figmie
+- Dopuszczone alternatywy: wykonawca — brak (Figma MCP: Claude albo Codex, Codex tydzień 100 % do 25.11 14:10); recenzent — Gemini B albo Neon A
+- Powód wyboru: bramka Figmy (reguła 3); recenzja spoza rodziny Claude, B i C naprzemiennie
+- Sygnał dostępności: Claude ŻÓŁTY, tempo +25 pp; Codex tydzień 100 %; Gemini B, C ok (hook, 2026-11-25 00:12)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zgodny z briefem
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 40 min (przebieg, recenzja 15 min, triaż)
+- Znaleziska recenzji: potwierdzone — brak ramek fokusu przycisku „Zamknij” przy otwartym menu (uwaga do briefu, P3 → kolejny brief); obalone — wyłączony przełącznik w wariantach `Theme=Dark` menu (P1: odczyt pokazał `State=Active` we wszystkich 5 wariantach obu zestawów), znacznik `#E00911` w wariantach `Theme=Light` menu (P1: menu ma tryb `Dark` na stałe, znacznik `#F96456` we wszystkich wariantach), grot podpowiedzi zasłania obwódkę fokusu (P1: grot zaczyna się na zewnętrznej krawędzi obwódki, y=158), brak przerwy 2 px w obwódce przełącznika (P2: obwódka 44×44 z obrysem 2 px do środka wokół pola 36×36), znacznik wystaje poza róg panelu (P2: kończy się 9 px nad dołem, w pozycji, która przycina zawartość)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: 20 przyciętych zrzutów, 3 zrzuty zestawów, JSON z wariantem elementu w każdej ramce
+- Uwagi do pakietu: Flash na przyciętych zrzutach mylił stany i kolory przy małych elementach (5 z 5 znalezisk obalonych). Przy ramkach stanów drobnych elementów recenzent dostaje zrzuty z większym powiększeniem albo odczyt właściwości w JSON-ie, a nie sam podgląd.
+
+### MPLRT plik Figmy — strona główna: komponenty, przykłady i stan „Sezon z plakatem” w trzech szerokościach (1 brief) — 2026-11-25
+- Archetyp: Figma — nowy ekran z makiety HTML: 4 własne zestawy komponentów (15 wariantów), 2 komponenty przykładów na `Assets`, 6 ramek całej strony jako instancji layoutu ze slotem
+- Stawka: niska–średnia (makieta, bez kodu; pierwszy ekran treści, wzór dla ~90 kopii w kolejnych briefach)
+- Niepewność: średnia (wygląd z zaakceptowanej makiety HTML, układ tabletu i część wartości ustalone przez architekta bez właściciela, zapisane w karcie kwestii otwartej)
+- Wykonawca (linia / model / native effort): `wykonawca` Sonnet 5.5 `high` — 88 wywołań, 316 tys., 17,9 min (ponad progiem miękkim strażnika 300 tys., bez kontynuacji)
+- Recenzent: Gemini B / gemini-3.8-flash-high (read, 451 s) na 6 zrzutach w pełnej skali, JSON-ie, briefie, makiecie HTML i dokumentacji; odbiór architekta: 3 zrzuty w pełnej skali, zrzut grafiki wbudowanej, odczyt szerokości kolumny i kafelków, nazw zmiennych i koloru podpisu w Figmie
+- Dopuszczone alternatywy: wykonawca — brak (Figma MCP: Claude albo Codex, Codex tydzień 100 % do 25.11 14:10); recenzent — Gemini C albo Neon A
+- Powód wyboru: bramka Figmy (reguła 3); recenzja spoza rodziny Claude, B i C naprzemiennie
+- Sygnał dostępności: Claude ŻÓŁTY, tempo +24–25 pp; Codex tydzień 100 %; Gemini B, C ok (hook, 2026-11-25 01:29–02:01)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zgodny z briefem poza dwoma uzasadnionymi odstępstwami (zastępnik obrazu bez ikony, bo biblioteka nie ma takiego wariantu; najechanie kafelka bez rozmycia tła, bo styl efektu zastępuje wszystkie efekty)
+- Rundy korekt: 0 briefów korekty; architekt sam (reguła 11): tło pasa na rolę „Stopka: tło” w 6 ramkach, przeniesienie 3 ramek `Dark` do sekcji, tryb `Light` na 12 przyciskach „Powiększ”
+- Czas do akceptacji: ok. 1 h (przebieg 18 min, odbiór, recenzja 8 min, triaż)
+- Znaleziska recenzji: potwierdzone — pas zlewa się z tłem strony w motywie ciemnym (P1, znalezione też przy odbiorze → poprawione przed recenzją; błąd briefu architekta), jasny przycisk „Powiększ” na zdjęciu w motywie ciemnym (P2 → poprawione); obalone — zapadnięta kolumna części górnej na komputerze (P1: kolumna 724 px, kafelki po 356 px do krawędzi 1240 px), zmienne spoza ról `Semantic/` (P1: JSON skracał nazwy, wszystkie wiązania to `Semantic/…` z kolekcji „MPLRT PrimeNG”), kontrast podpisu odliczania 4,1:1 (P1: podpis ma rolę „Tekst”, 9,5:1), opis skrótu „Zawodnicy” (P3: celowo jak w panelu Zawodów), wersaliki podpisu odliczania (uwaga do briefu: tak było w zaakceptowanej makiecie HTML); przyjęte bez poprawki — brak ikony w zastępniku obrazu (P2 → brak w bibliotece)
+- Defekty po odbiorze: 3 ramki `Dark` poza sekcją, nachodzące na sekcję komponentów (wykonawca raportował je w sekcji), poprawione przez architekta; krycie 60 % tła kafelków i pól odliczania z briefu nie zapisało się (wykryte przy odbiorze fali 3 i poprawione przez architekta)
+- Wymagane testy i dowody: zrzuty 6 ramek, sekcji komponentów i przykładów, JSON z audytem wiązań, stylów, odłączeń i trybów
+- Uwagi do pakietu: zrzuty wykonawcy z `maxDimension` 2000 były dla telefonu nieczytelne (186 px szerokości) — dowodem ramki całej strony jest zrzut w pełnej skali. Flash z tymi zrzutami nadal mylił geometrię i czytał skrócone nazwy w JSON-ie jako błąd (3 z 4 P1 obalone). Raport wykonawcy o położeniu ramek trzeba sprawdzić odczytem rodzica, nie tylko listą identyfikatorów.
+
+### MPLRT plik Figmy — strona główna: siedem pozostałych stanów strony w trzech szerokościach (1 brief) — 2026-11-25
+- Archetyp: Figma — 42 ramki stanów ekranu jako kopie ramek wzorcowych z ograniczonymi zmianami (wymiana komponentu, usunięcie elementów, wariant layoutu, nowe karty treści)
+- Stawka: niska (makieta, bez kodu; ryzyko zmian niezgodnych z regułą sezonu i przerwy)
+- Niepewność: niska (tabela zmian per stan w briefie)
+- Wykonawca (linia / model / native effort): `wykonawca` Sonnet 5.5 `high` — 53 wywołania, 227 tys., 8 min; równolegle z falą 3 na rozłącznych obszarach strony
+- Recenzent: Gemini C / gemini-3.8-flash-high (read, 496 s), jedna recenzja fal 2 i 3; odbiór architekta: odczyt rodziców i wariantów 42 ramek, zrzuty w pełnej skali stanów przerwy, bez plakatu, bez adresu zapisów, bez odliczania i obu braków
+- Dopuszczone alternatywy: wykonawca — brak (Figma MCP: Claude albo Codex, Codex tydzień 100 % do 25.11 14:10); recenzent — Gemini B albo Neon A
+- Powód wyboru: bramka Figmy (reguła 3); recenzja spoza rodziny Claude, B i C naprzemiennie
+- Sygnał dostępności: Claude ŻÓŁTY, tempo +25 pp; Codex tydzień 100 %; Gemini B, C ok (hook, 2026-11-25 02:01)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zgodny z briefem (wykonawca sam poprawił błędy skryptów: `indexOf` na dzieciach instancji, opakowania akapitów na telefonie, stare nadpisania po `swapComponent`)
+- Rundy korekt: 0 briefów korekty; architekt sam (reguła 11): treść pierwszej karty aktualności w 6 ramkach stanu bez adresu zapisów
+- Czas do akceptacji: ok. 50 min (przebieg 8 min, odbiór, wspólna recenzja z falą 3)
+- Znaleziska recenzji: potwierdzone — karta aktualności odsyła do przycisku Rejestracja, którego w stanie bez adresu zapisów nie ma (P3, treść przykładowa z kopii → poprawione)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: zrzut każdej sekcji, ramka komputera w pełnej skali per stan, JSON z wariantem layoutu i zawartością części górnej per ramka
+- Uwagi do pakietu: kopie ramek wzorcowych przenoszą treść przykładową, która w innym stanie może przeczyć temu stanowi. Brief stanu wymienia treść do zmiany razem z elementami do usunięcia.
+
+### MPLRT plik Figmy — strona główna: najechanie, fokus, powiększony obraz i fokus „Zamknij” w layoucie (1 brief) — 2026-11-25
+- Archetyp: Figma — 40 ramek stanów elementów (wariant stanu przez właściwość instancji), 6 ramek nakładki budowanej w slocie layoutu, 4 ramki stanu w zestawie layoutu
+- Stawka: niska–średnia (makieta, bez kodu; ramki fokusu są dowodem dostępności dla wdrożenia)
+- Niepewność: średnia (nakładka nad nagłówkiem w instancji ze slotem, obwódki fokusu w opakowaniach przycinających)
+- Wykonawca (linia / model / native effort): `wykonawca` Sonnet 5.5 `high` — 93 wywołania, 250 tys., 15,7 min
+- Recenzent: Gemini C / gemini-3.8-flash-high (read, 496 s), wspólnie z falą 2; odbiór architekta: przycięte zrzuty fokusu i najechania, zrzuty nakładki i nagłówka, odczyt wypełnień i krycia w Figmie, CSS makiety HTML
+- Dopuszczone alternatywy: wykonawca — brak (Figma MCP: Claude albo Codex, Codex tydzień 100 % do 25.11 14:10); recenzent — Gemini B albo Neon A
+- Powód wyboru: bramka Figmy (reguła 3); recenzja spoza rodziny Claude, B i C naprzemiennie
+- Sygnał dostępności: Claude ŻÓŁTY, tempo +25 pp; Codex tydzień 100 %; Gemini B, C ok (hook, 2026-11-25 02:01–02:32)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zgodny z briefem z uzasadnionymi odstępstwami (wyłączone przycinanie opakowań w kopiach, slot bez przycinania i odwrócona kolejność rysowania w ramkach nakładki); wykonawca zgłosił w sekcji o błędach briefu dwa realne problemy: niewidoczne najechanie kafelka i niewidoczny fokus „Powiększ” na ciemnym zdjęciu
+- Rundy korekt: 0 briefów korekty; architekt sam (reguła 11): wyłączone przycinanie 552 opakowań we wszystkich 94 ramkach, krycie 60 % tła kafelków i pól odliczania (komponenty i 692 instancje), nowe tło wariantu najechania kafelka, ramki powiększenia skrócone do wysokości ekranu
+- Czas do akceptacji: ok. 1 h (przebieg 16 min, odbiór, recenzja 8 min, triaż i poprawki)
+- Znaleziska recenzji: potwierdzone — nakładka przyciemnia tylko górny fragment ramki całej strony (P1, błąd briefu architekta → ramki skrócone do wysokości ekranu, ustalenie w karcie do potwierdzenia); obalone — obraz na telefonie ucięty w pionie (P1: okno makiety HTML przewija się w obu kierunkach, `.lightbox .wrap { overflow: auto }`; nieprecyzyjny był brief), jaskrawy przycisk „Zamknij” (P2: makieta HTML miała jasny przycisk na ciemnym pasku nakładki), najechanie przycisków jako `State=Active` (P2: paleta ma jeden kolor po najechaniu i wciśnięciu, biblioteka nazywa ten stan `Active`)
+- Defekty po odbiorze: brak nowych; przy odbiorze wyszło, że krycie 60 % z briefu fali 1 nie zapisało się w komponentach ani w instancjach
+- Wymagane testy i dowody: 40 przyciętych zrzutów, 6 zrzutów nakładki, 4 zrzuty nagłówka, JSON z wariantem i napisem elementu per ramka oraz kontrolą ucięcia obwódek
+- Uwagi do pakietu: sekcja „Co uważasz za błędne w tym briefie?” dała dwa realne problemy dostępności, których nie wykrył ani brief, ani recenzja fali 1. Ramka stanu z nakładką przypiętą do ekranu ma wysokość ekranu, nie całej strony. Krycie farby zapisane w jednym wywołaniu na wszystkich ramkach utrzymało się, więc uwaga wykonawcy o gubieniu krycia w pętli się nie potwierdziła; odczyt w osobnym wywołaniu jest jednak konieczny.
+
+### MPLRT makieta HTML — strona główna bez plakatu, trzy warianty części górnej (1 brief) — 2026-11-25
+- Archetyp: makieta HTML do wyboru wyglądu przez właściciela — trzy warianty w jednym pliku, przełączniki ekranu, motywu i stanu, zdjęcia zastępcze
+- Stawka: niska (prototyp jednorazowy, bez kodu produkcyjnego)
+- Niepewność: średnia (nowy układ bez plakatu, wymóg „strona nie może być biedna wizualnie”)
+- Wykonawca (linia / model / native effort): Gemini A / gemini-4-neon-high (write) — 10,5 min
+- Recenzent: brak recenzji kodu (prototyp jednorazowy); odbiór architekta: zrzuty headless Chrome 3 warianty × 3 szerokości × 2 motywy i przerwa, arkusze porównawcze
+- Dopuszczone alternatywy: Spark 1.3 `max`, `wykonawca` Sonnet (pula Claude'a, tempo +21 pp)
+- Powód wyboru: brief bez Figmy i bez niezmiennika najpierw poza pulą Claude'a (reguła 3); Neon na koncie A ma zapis i przeglądarkę
+- Sygnał dostępności: Claude ŻÓŁTY, tempo +21 pp; Codex tydzień 100 %; Gemini A ok (hook, 2026-11-25 09:20)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zgodny z briefem; właściciel wybrał wariant A
+- Rundy korekt: 0 (poprawki właściciela poszły osobnym briefem v2)
+- Czas do akceptacji: ok. 30 min (przebieg 10,5 min, zrzuty i arkusze architekta)
+- Znaleziska recenzji: nie dotyczy
+- Defekty po odbiorze: Playwright MCP Gemini odrzuca adresy `file:` — zrzuty zrobił architekt
+- Wymagane testy i dowody: arkusze zrzutów wariantów w obu motywach
+- Uwagi do pakietu: zrzuty headless Chrome z parametrami adresu (`?e=&m=&s=&ui=0`) są tańsze od workera przeglądarki i wystarczają do wyboru wariantu.
+
+### MPLRT dokumentacja — strona główna bez plakatu w 19 dokumentach (1 brief + 5 poprawek architekta) — 2026-11-25
+- Archetyp: dokumentacja — rozpropagowanie nowej decyzji po interfejsach, regułach, słowniku, modelu systemu, zasobach i kartach kwestii otwartych
+- Stawka: niska–średnia (dokumentacja źródłowa dla wdrożenia)
+- Niepewność: niska (decyzja napisana przez architekta, lista dokumentów i zmian w briefie)
+- Wykonawca (linia / model / native effort): Muse Spark 1.3 `max` contributor (write) — 9,4 min, 19 plików
+- Recenzent: Gemini B / gemini-3.8-flash-high (read, 519 s); odbiór architekta: diff słowny, skrypt kontroli linków (310 linków w 23 plikach, wszystkie działają)
+- Dopuszczone alternatywy: Gemini 4 Neon A, `wykonawca` Sonnet (pula Claude'a)
+- Powód wyboru: dokumentacja to archetyp Sparka `max` (reguła 8); brief bez Figmy poza pulą Claude'a (reguła 3)
+- Sygnał dostępności: Muse 4 % tygodnia; Claude ŻÓŁTY, tempo +21 pp (hook, 2026-11-25 10:14)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zgodny z briefem; worker zgłosił cztery błędy briefu (wiersz „Brak zdjęć w Galerii” ze starym odnośnikiem, sprzeczna karta nawigacji, martwa kotwica po usunięciu sekcji wyjątków, przykład „czwartej sekcji”) i pięć dokumentów spoza listy
+- Rundy korekt: 0 briefów korekty; architekt sam (reguła 11): wiersz „Brak zdjęć w Galerii”, punkt „odnośnik z plakatu” w otwartych, martwa kotwica w wycofanej regule, link do wycofanej reguły w „Dokumentach zależnych”, „przyciemniony tylko pod tekstem” w zasobach
+- Czas do akceptacji: ok. 1 h 10 min razem z drugą rundą
+- Znaleziska recenzji: 4 × P1 i 5 × P2/P3 potwierdzone, poprawione w drugiej rundzie (osobny wpis); 1 × P3 i zarzut briefu obalone
+- Defekty po odbiorze: dokumenty spoza listy (layout publiczny, braki w bibliotece, karty przejścia do zapisów, rejestracji i edycji) czekały na decyzje właściciela z makiet; weszły do drugiej rundy
+- Wymagane testy i dowody: kontrola linków i kotwic, wyszukanie słów „plakat”, „grafika wbudowana”, „Cała galeria”
+- Uwagi do pakietu: sekcja „Co uważasz za błędne w tym briefie?” wskazała wszystkie usterki, które architekt potem poprawił. Brief propagacji decyzji powinien wymieniać też dokumenty zależne, nie tylko normatywne.
+
+### MPLRT makiety HTML — wariant A v2 i klikalny panel „Strona główna” dla redaktorki (2 briefy równolegle) — 2026-11-25
+- Archetyp: makieta HTML — (1) poprawki właściciela w wybranym wariancie: przycisk galerii, pływające ikony mediów w dwóch wyglądach, mała ikona pauzy; (2) klikalny prototyp formularza z podglądem na żywo, walidacją i stanami dla testu z nietechniczną redaktorką
+- Stawka: niska (prototypy jednorazowe)
+- Niepewność: średnia (panel: składanie polskich dat i cel odliczania; v2: dostępność małej ikony pauzy)
+- Wykonawca (linia / model / native effort): Gemini A / gemini-4-neon-high (write) — v2 9,8 min, panel 9,5 min, równolegle
+- Recenzent: brak recenzji kodu (prototypy); odbiór architekta: zrzuty v2 (1280 w 2 motywach × 2 wyglądy ikon, 768, 360), panel (1280 w 2 motywach, stany błędów i zapisu, 360)
+- Dopuszczone alternatywy: Spark 1.3 `max`, `wykonawca` Sonnet (pula Claude'a)
+- Powód wyboru: brief bez Figmy i bez niezmiennika poza pulą Claude'a (reguła 3); ciągłość z makietą 1 tej samej linii
+- Sygnał dostępności: Gemini A ok; Claude ŻÓŁTY, tempo +21 pp (hook, 2026-11-25 10:14)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: oba zgodne z briefem z uzasadnionymi odstępstwami — v2: bez `aria-pressed` przy zmiennej nazwie przycisku (zgodnie z WAI-ARIA), krycie tła pauzy 55 % zamiast 45 % (najgorszy kontrast ikony 3,08 → 4,36:1), obrys paska ikon w motywie ciemnym; panel: zegar symulowany, bo dane startowe z briefu leżą w przeszłości
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 40 min (przebiegi 10 min równolegle, zrzuty i triaż)
+- Znaleziska recenzji: nie dotyczy; sekcje „Co uważasz za błędne” dały decyzje dla właściciela — pływające ikony zasłaniają treść na telefonie i tablecie, dane startowe panelu w przeszłości, podgląd nad formularzem na telefonie, brak reguł dla niepełnych par pól i sezonu bez dat, „Zapisz” wobec wymogu nazwy ze skutkiem
+- Defekty po odbiorze: v2 — na telefonie pływające ikony nie są przypięte do ekranu, bo `container-type` ramki makiety staje się blokiem zawierającym dla `position: fixed` (tylko makieta; ocena zasłaniania z raportu workera)
+- Wymagane testy i dowody: zrzuty w obu motywach i trzech szerokościach, stany błędów i zapisu panelu
+- Uwagi do pakietu: brief architekta zawierał błędy, które worker słusznie podważył (`aria-pressed` ze zmienną nazwą, dane startowe sprzed daty testu). W briefie makiety podawać daty przykładowe w przyszłości względem dnia testu.
+
+### MPLRT plik Figmy — strona główna bez plakatu: część górna wariantu A w stanie „Sezon po starcie zapisów” (1 brief) — 2026-11-25
+- Archetyp: Figma — przebudowa części górnej w 6 ramkach według zaakceptowanej makiety HTML, obraz tła z `generate_image`, nowe komponenty (kafelek logotypu, ikona pauzy), wariant `Surface=Page` kafelka skrótu
+- Stawka: niska–średnia (makieta, bez kodu; kontrast tekstu na filmie i dostępność ikony pauzy)
+- Niepewność: średnia (gradient przyciemnienia, brak stylów większych niż h1)
+- Wykonawca (linia / model / native effort): `wykonawca` Sonnet 5.5 `high` — 78 wywołań, 294 tys., 17 min
+- Recenzent: Gemini C / gemini-3.8-flash-high (read, 421 s), na zrzutach; odbiór architekta: arkusze zrzutów w obu motywach, odczyt obrazów w ramkach
+- Dopuszczone alternatywy: wykonawca — brak (Figma MCP: Claude albo Codex, Codex tydzień 100 % do 25.11 14:10); recenzent — Gemini B (zajęty recenzją dokumentów)
+- Powód wyboru: bramka Figmy (reguła 3); recenzja spoza rodziny Claude
+- Sygnał dostępności: Claude ŻÓŁTY, tempo +21 pp; Codex tydzień 100 % (hook, 2026-11-25 10:15)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zgodny z briefem z uzasadnionymi odstępstwami (gradient bez zmiennej, termin `h1` i tytuł `h2` z braku większego stylu, dodatkowy komponent pauzy)
+- Rundy korekt: 0 osobnych briefów; poprawki recenzji weszły do briefu fali 2 (stany)
+- Czas do akceptacji: ok. 1 h 15 min (przebieg 17 min, recenzja 7 min, poprawki w fali 2)
+- Znaleziska recenzji: potwierdzone — ikona pauzy na telefonie daleko od pasa filmu i zlana z tłem (P1), styl `h1` terminu myli semantykę dla programisty (P1 → P2: nazwy warstw i zdanie w opisie ekranu, brak stylu w bibliotece), nierówne kafelki organizatorów na telefonie (P3); do decyzji właściciela — przycisk galerii pod paskiem zdjęć na telefonie wobec „nad paskiem” w decyzji (P2)
+- Defekty po odbiorze: data przykładowa 14–15 marca 2027 to niedziela–poniedziałek (zauważył worker makiety panelu; poprawione w fali 2)
+- Wymagane testy i dowody: zrzuty 6 ramek, kontrola poziomego przewijania skryptem, wiązania zmiennych
+- Uwagi do pakietu: recenzja na zrzutach wykrywa problemy układu i dostępności, ale bez dostępu do Figmy myli nazwy stylów z semantyką HTML. Brief Figmy z datami przykładowymi powinien podawać dni tygodnia.
+
+### MPLRT dokumentacja — druga runda po recenzji: pływające ikony, reguły pól panelu, odesłania w kartach (1 brief + poprawki architekta) — 2026-11-25
+- Archetyp: dokumentacja — poprawki z recenzji + nowa podsekcja layoutu + reguły walidacji panelu + odesłania w kartach kwestii otwartych
+- Stawka: niska–średnia
+- Niepewność: niska (treść poprawek w briefie dosłownie)
+- Wykonawca (linia / model / native effort): Muse Spark 1.3 `max` contributor (write) — 4,9 min, 15 plików
+- Recenzent: recenzja pierwszej rundy przez Gemini B / gemini-3.8-flash-high (read, 519 s) dała treść tej rundy; druga runda bez osobnej recenzji (treść dosłownie z briefu), odbiór architekta: diff wybranych plików, kontrola linków (377 linków w 29 plikach)
+- Dopuszczone alternatywy: Gemini 4 Neon A
+- Powód wyboru: archetyp dokumentacji Sparka `max` (reguła 8)
+- Sygnał dostępności: Muse 4 % tygodnia (hook, 2026-11-25 10:39)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zgodny z briefem; worker wskazał jeszcze jedną sprzeczność (plakat w kontekście karty nawigacji) i trzy uwagi do briefu
+- Rundy korekt: 0 briefów; architekt sam (reguła 11): zasada właściciela „w przerwie bez pól danych zawodów” w opisie panelu i decyzji, miejsce i kontrast ikony pauzy, semantyka terminu i tytułu, dwa braki biblioteki, opis komponentów paska w „Makiecie” layoutu
+- Czas do akceptacji: ok. 30 min
+- Znaleziska recenzji (pierwszej rundy, Gemini B): potwierdzone — procedura testowa z wgrywaniem grafiki, proces publikacji z wyborem grafiki, reguła sezonu z ręczną datą odliczania, proces zapisów z „wymaga decyzji” (4 × P1), brak Instagrama, nieaktualne odesłanie do ustalenia, karta nawigacji, plan uruchomienia (P2), link w Ustawieniach (P3); obalone — decyzja w „Dokumentach zależnych” reguły (P3: szablon reguły nie ma sekcji pochodzenia), zarzut briefu o decyzji wykonawcy zamiast organizatora (decyzja wymaga pokazania jej Agnieszce)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: kontrola linków i kotwic, wyszukanie słów
+- Uwagi do pakietu: pierwsza runda propagacji decyzji ominęła procesy, wymagania przekrojowe i plan — brief propagacji powinien kazać wyszukać wszystkie wystąpienia pojęć z decyzji w całym katalogu, nie tylko w podanej liście.
+
+### MPLRT plik Figmy — pływający pasek Facebook i Instagram w layoucie publicznym (1 brief) — 2026-11-25
+- Archetyp: Figma — nowe komponenty ze stanami (12 wariantów linku, 2 warianty paska) i instancje w 28 wariantach layoutu, ramki najechania i fokusu
+- Stawka: niska–średnia (makieta; fokus i kontrast na kolorach marek)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): `wykonawca` Sonnet 5.5 `high` — 79 wywołań, 192 tys., 9 min
+- Recenzent: wspólna recenzja fali 2 — Gemini B / gemini-3.8-flash-high (read, 705 s), na zrzutach; odbiór architekta: 19 zrzutów, zrzut wariantu tabletu po poprawce
+- Dopuszczone alternatywy: wykonawca — brak (Figma MCP: Claude albo Codex, Codex tydzień 100 %)
+- Powód wyboru: bramka Figmy (reguła 3)
+- Sygnał dostępności: Claude ŻÓŁTY, tempo +22 pp (hook, 2026-11-25 10:47)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zgodny z briefem; trzy uzasadnione odstępstwa (warianty tabletu niższe niż ekran odniesienia, `FIXED` niedostępne w Plugin API, podpowiedź bez strzałki po lewej)
+- Rundy korekt: 0 briefów; architekt sam (reguła 11): najmniejsza wysokość wariantów layoutu tabletu 1024 px i komputera 720 px
+- Czas do akceptacji: ok. 25 min
+- Znaleziska recenzji (wspólne z falą 2, część paska): obalone — P0 „pasek zmienia wysokość między stanami” (pomiar w 24 ramkach: stałe 316 / 928 / 464 px; recenzent mierzył na przeskalowanych arkuszach), P1 obwódka fokusu na zewnątrz kwadratu (na zrzutach wewnątrz), P1 przykrycie skraju przycisku galerii na tablecie (zachodzenie na krawędź treści przyjął właściciel w decyzji; częściowe przykrycie spełnia WCAG 2.4.11)
+- Defekty po odbiorze: brak nowych
+- Wymagane testy i dowody: zrzuty przykładów w 3 szerokościach × 2 motywy, ramki stanów, kolejność warstw wobec menu i nakładki
+- Uwagi do pakietu: brief zakładał, że warianty layoutu mają wysokość ekranu odniesienia — przed briefem z elementami przypiętymi do ekranu sprawdzić wysokości wariantów.
+
+### MPLRT plik Figmy — część górna bez plakatu w siedmiu pozostałych stanach i poprawki wzorca (1 brief) — 2026-11-25
+- Archetyp: Figma — 42 ramki stanów jako kopie części górnej z ramek wzorcowych z różnicą stanu + poprawki 6 ramek wzorca
+- Stawka: niska
+- Niepewność: niska (tabela różnic stanów w briefie)
+- Wykonawca (linia / model / native effort): `wykonawca` Sonnet 5.5 `high` — 94 wywołania, 242 tys., 11 min; równolegle z briefem stanów elementów na rozłącznych sekcjach
+- Recenzent: wspólna recenzja fali 2 — Gemini B / gemini-3.8-flash-high (read, 705 s), na zrzutach; odbiór architekta: arkusze ramek komputera i telefonu wszystkich stanów
+- Dopuszczone alternatywy: wykonawca — brak (Figma MCP: Claude albo Codex, Codex tydzień 100 %)
+- Powód wyboru: bramka Figmy (reguła 3)
+- Sygnał dostępności: Claude ŻÓŁTY, tempo +22 pp (hook, 2026-11-25 10:55)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zgodny z briefem; kontrola skryptem (0 starych elementów, 48/48 pauz i nazw warstw)
+- Rundy korekt: 0 briefów; architekt sam (reguła 11): spójność treści przykładowej — dni odliczania w stanie przed startem zapisów, karta aktualności w stanie bez adresu zapisów (18 węzłów)
+- Czas do akceptacji: ok. 20 min + recenzja 12 min
+- Znaleziska recenzji: obalone — P1 „sezon bez odliczania niemożliwy przy datach przed zawodami” (data karty aktualności to data publikacji, nie dzień oglądania); potwierdzone — P3 podpowiedź powiększenia „Na telefonie” na tablecie (architekt: „Na ekranie dotykowym”, 6 ramek)
+- Defekty po odbiorze: brak nowych
+- Wymagane testy i dowody: 42 zrzuty, kontrola skryptem starych elementów, odbić tła i wystawania poza ramkę
+- Uwagi do pakietu: kopie z jednego stanu wzorcowego przenoszą chronologię przykładową (odliczanie, daty kart). Brief stanu podaje datę „dnia makiety” dla każdego stanu.
+
+### MPLRT plik Figmy — stany pauzy i kafelka skrótu, „Ruch zatrzymany”, najechanie i fokus strony głównej (1 brief) — 2026-11-25
+- Archetyp: Figma — zestaw wariantów ikony pauzy (6), nowe warianty kafelka, przebudowa 46 ramek w trzech sekcjach stanów, 8 nowych ramek, usunięcie nieużywanego komponentu
+- Stawka: niska–średnia (makieta; fokus i kontrast ikony na obrazie)
+- Niepewność: niska–średnia
+- Wykonawca (linia / model / native effort): `wykonawca` Sonnet 5.5 `high` — 82 wywołania, 245 tys., 13 min; równolegle z briefem pozostałych stanów na rozłącznych sekcjach
+- Recenzent: wspólna recenzja fali 2 — Gemini B / gemini-3.8-flash-high (read, 705 s), na zrzutach; odbiór architekta: zrzuty zestawów, sekcji „Ruch zatrzymany” i arkusze najechania i fokusu
+- Dopuszczone alternatywy: wykonawca — brak (Figma MCP: Claude albo Codex, Codex tydzień 100 %)
+- Powód wyboru: bramka Figmy (reguła 3)
+- Sygnał dostępności: Claude ŻÓŁTY, tempo +22 pp (hook, 2026-11-25 10:55)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zgodny z briefem; wykonawca sam zgłosił niewidoczne najechanie kafelka w motywie ciemnym i uzasadnił odstępstwa (brak najechania na telefonie, ramki galerii w prawej części sekcji, wyłączone przycinanie obwódki fokusu)
+- Rundy korekt: 0 briefów; architekt sam (reguła 11): tło najechania kafelka w roli wyróżnionego wiersza, usunięcie 5 nieużywanych wariantów kafelka i właściwości `Surface`, zdjęcie stałego trybu Dark z zestawu, przykładowy podpis odliczania, daty w kartach aktualności wypadające w niedzielę i poniedziałek (183 wystąpienia, spadek po wcześniejszym layoucie)
+- Czas do akceptacji: ok. 40 min + recenzja 12 min
+- Znaleziska recenzji: obalone — P1 kontrast ikony pauzy na telefonie (recenzent liczył 2,6–2,8:1; tło `#0A1017` 55 % na czystej bieli daje 4,2:1); P2 fokus „Powiększ” w motywie ciemnym i P2 położenie nowych ramek galerii (oba podane w briefie jako znane). Uwaga do briefu potwierdzona: konto B (hook tylko do odczytu) nie pozwala wylistować katalogu, więc brief recenzji na zrzutach podaje pełne nazwy plików. Ocena przebiegu: mała użyteczność, 0 potwierdzonych P0/P1 przy 6 obalonych. Na przeskalowanych arkuszach recenzent źle odczytał pozycje, a kontrast policzył dla złego koloru tła. Przy recenzji Figmy na zrzutach lepiej podać pojedyncze zrzuty w skali 1:1 i liczby z Figmy
+- Defekty po odbiorze: brak nowych
+- Wymagane testy i dowody: zrzuty zestawów i ramek, kontrola liczby instancji po zmianach zestawu (396 połączonych)
+- Uwagi do pakietu: wykonawca przeniósł do zestawu tylko wariant, o który prosił brief, a stare warianty zostały bez instancji. Brief zmiany zestawu powinien kazać policzyć instancje każdego wariantu i usunąć nieużywane.
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
