@@ -261,9 +261,9 @@ Opis w PBI jest przeznaczony **dla testera, który nie jest technicznym programi
 W MPLRT pamiętaj o dwóch kontekstach dostępu — to zmienia treść kroków testowych:
 
 - **publiczny** (bez logowania: strona główna, aktualności, harmonogram, regulaminy i wyniki w formacie PDF, lista zawodników, sponsorzy, galeria, dojazd i noclegi, kontakt, regulamin zapisów i płatności, płatności i polityka prywatności; link do zewnętrznego systemu rejestracji i opłat — serwis sam nie przetwarza płatności),
-- **panel redaktora** (jedno wspólne konto redaktora, bez ról i bez zarządzania użytkownikami — logowanie do panelu do publikowania i edycji treści, wgrywania PDF-ów oraz zdjęć do galerii; brak multi-tenancy).
+- **panel redaktora** (kilka kont redaktorów z takimi samymi uprawnieniami, bez ról; konto zakłada się zaproszeniem e-mail z widoku Ustawienia > Redaktorzy — logowanie do panelu do publikowania i edycji treści, wgrywania PDF-ów oraz zdjęć do galerii; brak multi-tenancy).
 
-Jeśli scenariusz dotyczy panelu, napisz wprost, że tester loguje się na wspólne konto redaktora.
+Jeśli scenariusz dotyczy panelu, napisz wprost, że tester loguje się na własne konto redaktora (aktywowane z zaproszenia wysłanego na jego adres e-mail).
 
 ### Struktura opisu PBI
 

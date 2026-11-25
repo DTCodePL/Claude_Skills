@@ -15535,6 +15535,187 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Wymagane testy i dowody: odczyt struktury (Registration, motyw, Page, warianty i liczby kafelków per stan), zrzuty 24 ramek po poprawce, 306 instancji strony głównej nadal połączonych
 - Uwagi do pakietu: (1) resize podwarstwy w instancji Figma ignoruje — brief ma żądać zmiany wysokości przez właściwość komponentu albo w głównym komponencie i sprawdzenia we wszystkich ramkach, nie w jednej; (2) brief nazwał zasoby organizatorów „prawdziwymi logotypami”, a to zastępniki z nazwą — opisywać stan zasobów z odczytu; (3) szablon Harmonogramu ma etykietę „ZAWODY”, której Sponsorzy nie mają — brief ma mówić, co z szablonu pominąć; (4) wykonawca zgłosił braki biblioteki: mały półgruby styl tekstu zastępczego, h2 26 px, token zaokrąglenia kafelka, myląca nazwa `Semantic/surfaces/band` (zapisane w karcie braków)
 
+### MPLRT makieta HTML — logowanie, aktywacja konta i nowe hasło: 3 warianty, 16 stanów, potem wariant B po uwagach właściciela (2 briefy + poprawka architekta) — 2026-11-25
+- Archetyp: makieta HTML do wyboru wyglądu przez właściciela — klikalne ekrany dostępu z przełącznikami ekranu, motywu, stanu i zestawu reguł hasła, podglądy dwóch e-maili
+- Stawka: niska (prototyp jednorazowy; logika uwierzytelniania powstanie osobno u `wykonawca-opus`)
+- Niepewność: średnia (16 stanów, lista wymagań hasła na żywo, trzy układy)
+- Wykonawca (linia / model / native effort): Gemini A / gemini-4-neon-high (write) — 7,9 min (3 warianty) + 8,3 min (poprawki, wariant B, dwa zestawy reguł)
+- Recenzent: brak recenzji kodu (prototyp); odbiór architekta: arkusze zrzutów headless Chrome 3 szerokości × 2 motywy × stany
+- Dopuszczone alternatywy: Spark 1.3 `max`, Codex (≤ 5 plików), `wykonawca` Sonnet (pula Claude'a, tempo +20 pp)
+- Powód wyboru: brief bez Figmy i bez niezmiennika najpierw poza pulą Claude'a (reguła 3); Neon A ma 0–1 rund w tym archetypie (strona główna, Sponsorzy)
+- Sygnał dostępności: Claude ŻÓŁTY, tydzień ok. 73 %, tempo +20 pp; Gemini A ok (hook, 2026-11-25 18:35)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zgodny z briefem; usterka logiki: lista wymagań pokazywała czerwone ✗ od pierwszego znaku, a reguły negatywne („nie jest popularnym”) zieleniały po jednym znaku — wykonawca sam to zgłosił w sekcji „Co uważasz za błędne”
+- Rundy korekt: 1 brief (uwagi właściciela: długie myślniki i strzałki-znaki w tekstach, „Pokaż” jako ikona oka w polu, pole błędu z samym obrysem, komunikaty jak PrimeNG Message, prostszy komunikat limitu prób, lista wymagań z ikonami); architekt sam (reguła 11): stan „oczekuje” reguł i czerwień dopiero po „Zapisz hasło”, komunikat ponownego logowania zgodny z sesją 30-dniową
+- Czas do akceptacji: ok. 50 min do wyboru wariantu B; zatwierdzenie całości po researchu haseł
+- Znaleziska recenzji: nie dotyczy
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: arkusze zrzutów wariantów A/B/C i stanów wariantu B (1280 i 360 px)
+- Uwagi do pakietu: zasady „bez manier AI” (bez „—” łączących zdania, bez strzałek-znaków) i „elementy jak komponenty PrimeNG” wpisywać w każdy brief makiety od początku (zapisane w pamięci projektu). Lista wymagań hasła potrzebuje w briefie trzech stanów ikony (oczekuje, spełnione, brak po wysłaniu), inaczej wykonawca robi dwa.
+
+### MPLRT research — reguły haseł: rodzaje znaków czy długość (2 briefy równolegle) — 2026-11-25
+- Archetyp: research z adresami źródeł — normy i zalecenia haseł (NIST, OWASP, CERT Polska, PCI DSS, praktyka serwisów) pod decyzję właściciela
+- Stawka: średnia (wynik wchodzi do decyzji i wymagania przekrojowego funkcji uwierzytelniania)
+- Niepewność: średnia (świeże wersje norm: NIST SP 800-63B-4 z lipca 2025, ASVS 5.0)
+- Wykonawcy (linia / model / native effort): Codex / gpt-6.1-sol `high` (read, 8,5 min) i Gemini C / gemini-3.8-flash-high (read, 6,2 min) jako druga niezależna opinia
+- Recenzent: architekt — porównanie obu raportów i wyrywkowe sprawdzenie WebSearch kluczowych twierdzeń
+- Dopuszczone alternatywy: Spark 1.3 `max` z narzędziami web, Gemini B
+- Powód wyboru: research bez powłoki dopuszczony dla Codexa (reguła 7), okno Codexa wolne; Gemini C jako druga rodzina do wychwycenia rozbieżności; poza pulą Claude'a przy tempie +20 pp
+- Sygnał dostępności: Codex okno i tydzień wolne; Gemini C ok (hook, 2026-11-25 19:05)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: Codex — rzeczowy, z adresem przy każdym twierdzeniu, cytaty zgodne z wyrywkową weryfikacją; Gemini C — wnioski zgodne co do kierunku, ale cytaty CERT Polska, ENISA i ISO („odradza”) zmyślone albo nie do potwierdzenia
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 25 min (przebiegi równolegle + weryfikacja architekta + wybór właściciela „długość”)
+- Znaleziska recenzji: nie dotyczy; odrzucone twierdzenia Gemini C: 3 cytaty bez potwierdzenia w źródłach
+- Defekty po odbiorze: brak; do migawki źródła (ZR-REGULY-HASEL) wchodzi tylko raport Codexa, twierdzenia ENISA i ISO oznaczone jako niepotwierdzone przez architekta
+- Wymagane testy i dowody: adres źródła przy każdym twierdzeniu, dosłowne cytaty kluczowych zdań
+- Uwagi do pakietu: Gemini Flash w researchu norm daje kierunek, ale cytatów nie można brać bez sprawdzenia — w briefie researchu wymagać „jeśli nie masz dosłownego tekstu ze strony, napisz «nie znalazłem», nie parafrazuj jako cytat”. Codex Sol `high` w tym archetypie: 0 rund, pewny materiał na źródło.
+
+### MPLRT dokumentacja — konta redaktorów, logowanie i hasła: decyzja przeniesiona do 23 dokumentów (2 briefy równolegle + 1 korekta + poprawki architekta) — 2026-11-25
+- Archetyp: dokumentacja — propagacja decyzji wysokiej stawki (uwierzytelnianie) do reguły, wymagania przekrojowego, architektury, modelu, integracji, 5 ekranów, 2 nowych kwestii, migawki źródła i indeksów
+- Stawka: średnia–wysoka (dokumenty, ale błąd przechodzi do kodu uwierzytelniania)
+- Niepewność: średnia (dużo przypadków brzegowych: usuwanie kont, wysyłka spoza panelu, limity)
+- Wykonawca (linia / model / native effort): Muse Spark 1.3 `max` contributor (write, host wsl) — część 1 (reguły, AT, INT, KO, ZR) 7,0 min, część 2 (ekrany, projekt graficzny) 6,9 min, korekta 3,0 min
+- Recenzent: Gemini B / gemini-3.8-flash-high (read, 670 s) — cały diff + 11 nowych plików
+- Dopuszczone alternatywy: Gemini 4 Neon A (wykonawca); Gemini C, Sol `high` (recenzja)
+- Powód wyboru: archetyp dokumentacji Sparka `max` (reguła 8), tempo +21 pp — tekst poza pulą Claude'a; dwa briefy o rozłącznych plikach równolegle; recenzja innej rodziny, konto B na zmianę z C
+- Sygnał dostępności: Muse 4 % tygodnia, Gemini B ok (hook, 2026-11-25 19:25)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zgodny z briefami, linki czyste; obaj wykonawcy w „Co uważasz za błędne” trafnie wskazali statusy do przestawienia przez architekta, lukę „ostatniego konta” w UI i różnicę „urządzenie” wobec pary IP + e-mail
+- Rundy korekt: 1 brief Sparka z gotową treścią (7 plików); architekt sam (reguła 11): statusy `zastapiona` i `rozstrzygnieta` z notkami, kolejność indeksu kwestii, jedno zdanie w AT, ładowanie przycisku w zasadach wspólnych, miejsce komunikatu odrzucenia hasła, zdanie o nadawcy w integracji (wskazane przez Sparka po korekcie), etykieta stanu w makiecie
+- Czas do akceptacji: ok. 45 min (przebiegi równolegle, recenzja 11 min, korekta 3 min)
+- Znaleziska recenzji: potwierdzone — 6 (brak polecenia serwerowego w planie uruchomienia, brak linku do nowego hasła w modelu, e-mail zaproszenia od DTCode bez adresu wysyłającego, wyścig dwóch usunięć kont, ponowne zaproszenie po usunięciu konta, parafraza komunikatu), częściowo 1 (urządzenie wobec IP + e-mail), 1 × P2 w makiecie (etykieta „po bezczynności”); obalone — 2 („Uprawniony redaktor” i „Panel →” to konwencja wszystkich dokumentów panelu); 1 przekazane właścicielowi (podpis Agnieszki pod decyzją o uprawnieniach). Recenzent zawyżał wagę (5 × P1, realnie P2)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: kontrola linków i kotwic (242 w 23 plikach), wyszukanie „—”, „←”, „→” w tekstach ekranów
+- Uwagi do pakietu: w briefach dokumentacji funkcji uwierzytelniania od razu wymagać sekcji „przypadki brzegowe” (usunięcie w trakcie, wysyłka spoza panelu, równoczesne operacje). Gemini Flash w recenzji tego archetypu dał 6 trafnych luk przy 2 obalonych — dobry stosunek, ale wagi P0/P1 trzeba przeliczać.
+
+### MPLRT Figma — ekrany dostępu: układ, logowanie z najechaniem i fokusem, prośba o link, aktywacja i nowe hasło (4 briefy + sonda Codexa + recenzja) — 2026-11-25
+- Archetyp: makieta w Figmie — cztery ekrany dostępu z biblioteki, nowe komponenty pliku (pole hasła, pole tekstowe, błąd pola, wymaganie hasła), komponenty układu Mobile/Tablet/Desktop
+- Stawka: średnia (wzór dla FE funkcji uwierzytelniania; sama makieta bez niezmiennika)
+- Niepewność: średnia (stany najechania i fokusu bez wariantów w bibliotece, lista wymagań hasła z trzema stanami ikony)
+- Wykonawca (linia / model / native effort): `wykonawca` — Sonnet 5.5 `high` (Figma MCP): F1 układ i logowanie 174 wywołania, 336 tys., 22,7 min; F2a najechanie i fokus 130 wywołań, 251 tys., 13,3 min; F2b prośba o link 141 wywołań, 272 tys., 16,3 min; F3 aktywacja i nowe hasło 102 wywołania, 278 tys., 12,5 min (F2a i F2b równolegle)
+- Sonda: Codex / gpt-6.2-sol `low` (read) — w sesji `exec` brak narzędzi Figma MCP, skille wtyczki Figmy „Access denied”; Codex nie przechodzi bramki Figmy
+- Recenzent: Codex / gpt-6.2-sol `high` (read) — 81 s (zatrzymany na nieścisłości briefu) + 397 s; wcześniej Gemini C / gemini-3.8-flash-high (read) — niepowodzenie, exit 3
+- Dopuszczone alternatywy: brak innego wykonawcy z Figma MCP (Muse i Gemini odpadają, Codex po sondzie); recenzja: Gemini B, Neon A
+- Powód wyboru: bramka Figmy, próba Figmy zamknięta na `wykonawca` Sonnet `high`; recenzja zrzutów spoza rodziny Claude
+- Sygnał dostępności: Claude ŻÓŁTY, tydzień 76 %, tempo +23 pp; Codex tydzień 3 % (hook, 2026-11-25 20:20)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: struktura, stany i komponenty zgodne z dokumentami; F3 skończył się limitem wywołań Figma MCP bez 19 zrzutów; w ramkach „zaproszenie/link nieważny” zły nagłówek („Ustaw hasło do panelu” / „Ustaw nowe hasło”); obwódka fokusu w F2a obejmowała etykietę zamiast ramki pola
+- Rundy korekt: 0 briefów; architekt sam (reguła 11): nagłówki ramek nieważnego linku, rozmiar obwódek fokusu, fokus w polu hasła, ikona sukcesu, przygaszone podkreślenie linków w zdaniu, 19 brakujących zrzutów
+- Czas do akceptacji: ok. 1,5 h od startu F1 do odbioru po recenzji (przebiegi 65 min łącznie, część równolegle)
+- Znaleziska recenzji: 1 × P2 + 6 × P3; potwierdzone i poprawione 3 (fokus pola hasła, ikona sukcesu, najechanie linku w zdaniu); odłożone do właściciela 1 (rozmiar nagłówka ekranu: h3 22 px wobec 24–26 px makiety HTML i h1 w dokumentach); pominięte 1 (separator pod obwódką fokusu); obalone 2 (zdjęcie w pasie, wariant odrzucenia e-maila)
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: 26 zestawień telefon + komputer × jasny i ciemny, odczyt identyfikatorów sekcji i komponentów, 0 osieroconych warstw
+- Uwagi do pakietu: (1) Gemini Flash w recenzji katalogu zrzutów zgadywał nazwy plików i nie wczytał żadnego; brief recenzji zrzutów musi mieć jawną listę ścieżek; (2) Codex zatrzymuje się na drobnej nieścisłości briefu — reguła STOP w briefie recenzji ma dotyczyć tylko błędnych założeń, drobiazgi zgłasza w raporcie; (3) brief Figmy z ponad ~20 ramkami do zrzutu przekracza limit wywołań Figma MCP — zrzuty zbiera architekt albo osobny brief; (4) sufiks wiadomości o nieważnym linku i nagłówki stanów błędu wpisywać w brief dosłownie dla każdej ramki
+
+### MPLRT dokumentacja — sekcje „Makieta” w 4 ekranach dostępu i braki biblioteki Figmy (1 brief + poprawki architekta) — 2026-11-25
+- Archetyp: dokumentacja — linki do węzłów Figmy i karta braków biblioteki
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse Spark 1.3 `max` contributor (write, host wsl) — 436 s
+- Recenzent: odbiór architekta (linki, identyfikatory węzłów, „—” i strzałki w tekstach ekranów)
+- Dopuszczone alternatywy: Gemini 4 Neon A, Codex (≤ 5 plików)
+- Powód wyboru: archetyp dokumentacji Sparka `max` (reguła 8), tempo +23 pp — poza pulą Claude'a
+- Sygnał dostępności: Muse ok (hook, 2026-11-25 20:20)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zgodny z briefem, linki czyste; wykonawca trafnie przeniósł brak „ikona w polu” do istniejącego wiersza
+- Rundy korekt: 0 briefów; architekt sam: usunięte 2 wiersze, które brief podał bez źródła w dokumentach (nagłówek 24–26 px, ikony 18 px), dopisany 1 wiersz (przygaszone podkreślenie linku)
+- Czas do akceptacji: ok. 15 min
+- Znaleziska recenzji: nie dotyczy
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: kontrola linków, obecność wszystkich identyfikatorów węzłów w pliku Figmy
+- Uwagi do pakietu: brak biblioteki wpisywać do briefu tylko z dokumentem, który go wymaga — inaczej wykonawca przepisze do karty fakt bez źródła
+
+### MPLRT ADO — Epic, Feature, 3 PBI kont redaktorów i logowania z opisami dla testera, 26 zrzutami i 18 taskami (1 brief + architekt) — 2026-11-25
+- Archetyp: pozycje ADO — opisy PBI i kryteria akceptacji dla testera z dokumentacji; zrzuty jako załączniki
+- Stawka: niska–średnia (opis steruje testami ręcznymi funkcji uwierzytelniania)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse Spark 1.3 `max` contributor (write, host wsl) — 6 plików HTML, 351 s; architekt: zestawienia zrzutów, wysyłka załączników REST, Epic #3023, Feature #3024, PBI #3025–#3027, taski #3028–#3045
+- Recenzent: odbiór architekta — skrypt porównujący cytowane teksty z dokumentami + czytanie opisów
+- Dopuszczone alternatywy: Gemini 4 Neon A, Codex
+- Powód wyboru: tekst z dokumentów bez Figmy — poza pulą Claude'a (reguła 3), archetyp ADO Sparka
+- Sygnał dostępności: Muse ok (hook, 2026-11-25 20:04)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: struktura i cytaty zgodne; 2 błędy merytoryczne (sprawdzenie limitu prób jako „inne urządzenie” zamiast innego adresu IP; skutek usunięcia konta dla wysłanego zaproszenia)
+- Rundy korekt: 0 briefów; architekt sam poprawił oba miejsca
+- Czas do akceptacji: ok. 40 min z przygotowaniem zrzutów i pozycji ADO
+- Znaleziska recenzji: nie dotyczy
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: zgodność cytatów z dokumentami, odczyt pozycji po zapisie (rodzic, sprint, przypisania, długość opisu)
+- Uwagi do pakietu: opis i kryteria wysyłane skryptem REST z plików zamiast przez MCP oszczędzają ~30 tys. znaków kontekstu architekta; wynik `update_batch` MCP dla 18 tasków przekracza limit odpowiedzi — sprawdzać skryptem z pliku
+
+### MPLRT galeria — research UI/UX dużych galerii zdjęć (2 briefy równolegle, ta sama treść) — 2026-11-25
+- Archetyp: research — trendy, biblioteki, dostępność i wydajność galerii, z adresem źródła przy każdym twierdzeniu
+- Stawka: niska (wybór kierunku wyglądu, bez kodu)
+- Niepewność: średnia (stan bibliotek i przeglądarek po dacie wiedzy modeli)
+- Wykonawca (linia / model / native effort): Codex `gpt-6.2-sol` `high` (read) — 691 s; Gemini 4 Hydrogen `high` (konto B, read) — 352 s
+- Recenzent: odbiór architekta — porównanie obu raportów, sprawdzenie kluczowego faktu w `node_modules` repo FE
+- Dopuszczone alternatywy: Muse Spark `max`, Gemini Flash B/C
+- Powód wyboru: research bez powłoki poza pulą Claude'a (tempo +23 pp); dwa silniki, bo stan bibliotek po dacie wiedzy był niepewny
+- Sygnał dostępności: Codex i Gemini B ok (hook, 2026-11-25)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: Codex — konkretne źródła z datami, trafnie wykrył nowy komponent Gallery w PrimeNG 22 (Galleria i Image oznaczone jako przestarzałe); Hydrogen — źródła na poziomie domen, sam przyznał brak dosłownego odczytu, błędnie odradzał PrimeNG z powodu licencji i nie znał nowego Gallery
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 15 min po obu przebiegach
+- Znaleziska recenzji: nie dotyczy
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: zgodność wniosków obu raportów; wersja i oznaczenia `@deprecated` sprawdzone lokalnie w `MPLRT_FE/node_modules/primeng`
+- Uwagi do pakietu: w researchu bibliotek po dacie wiedzy Hydrogen `high` dał płytkie źródła; przy podobnym briefie preferować Sola `high` albo dać Hydrogenowi `xhigh` z wymogiem dosłownego cytatu z dokumentacji
+
+### MPLRT galeria — klikalna makieta HTML trzech wariantów galerii (1 brief + poprawki architekta) — 2026-11-25
+- Archetyp: makieta HTML do wyboru wyglądu przez właściciela (jeden plik, bez kodu aplikacji)
+- Stawka: niska
+- Niepewność: średnia (nowy widok, trzy układy, przeglądarka zdjęć)
+- Wykonawca (linia / model / native effort): Gemini 4 Neon `high` (konto A, write) — 552 s, plik 97 KB
+- Recenzent: odbiór architekta — zrzuty headless Chrome 3 wariantów × 360/768/1280 × jasny i ciemny oraz przeglądarki zdjęć
+- Dopuszczone alternatywy: Muse Spark `max`, Codex (1 plik)
+- Powód wyboru: brief bez Figmy i bez niezmiennika poza pulą Claude'a (reguła 3), tempo +23 pp
+- Sygnał dostępności: Gemini A ok (hook, 2026-11-25)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wszystkie widoki, stany i przełączniki działają; raport trafnie wskazał 5 błędów briefu (mozaika 4 a nie 5 kadrów, rytm siatki C z dziurami, hash bez sezonu, chevron sprzeczny z projektem graficznym, opis rundy w C jako ręczna praca redakcji)
+- Rundy korekt: 0 briefów; architekt sam (reguła 11): dane do skali ~250 zdjęć na rundę, grupa z tytułem z daty, teksty automatyczne zamiast wymyślonych opisów rund
+- Czas do akceptacji: ok. 30 min ze zrzutami
+- Znaleziska recenzji: nie dotyczy
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `node --check` skryptu (wykonawca), zrzuty wszystkich wariantów, brak „—” i strzałek w tekstach strony
+- Uwagi do pakietu: zrzut headless Chrome z oknem 360 px ucina przeglądarkę zdjęć (minimalna szerokość okna) — telefon zrzucać w oknie 1280 z przełącznikiem ekranu makiety
+
+### MPLRT galeria — makieta HTML panelu Galeria w dwóch wariantach (1 brief + poprawki architekta) — 2026-11-25
+- Archetyp: makieta HTML do wyboru wyglądu przez właściciela (jeden plik, bez kodu aplikacji)
+- Stawka: niska
+- Niepewność: średnia (stany wgrywania, wyniku, potwierdzeń i okien poprawek)
+- Wykonawca (linia / model / native effort): Gemini 4 Neon `high` (konto A, write) — 460 s
+- Recenzent: odbiór architekta — zrzuty headless Chrome obu wariantów × 360/768/1280 × jasny i ciemny oraz wszystkich stanów
+- Dopuszczone alternatywy: Muse Spark `max`, Codex (1 plik)
+- Powód wyboru: brief bez Figmy i bez niezmiennika poza pulą Claude'a (reguła 3), tempo +25 pp
+- Sygnał dostępności: Gemini A ok (hook, 2026-11-25)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wszystkie stany i oba warianty działały; brak pozycji „Inne zawody” w oknie przenoszenia i dwa teksty niezgodne ze specyfikacją
+- Rundy korekt: 0 briefów; architekt sam (reguła 11): „Inne zawody” z polem terminu, dwa teksty, po wyborze właściciela przełącznik „Karty”/„Lista” nad albumami
+- Czas do akceptacji: ok. 25 min ze zrzutami
+- Znaleziska recenzji: nie dotyczy
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: zrzuty stanów, brak „—” i strzałek w tekstach strony
+- Uwagi do pakietu: brak
+
+### MPLRT galeria — dokumentacja systemu albumów zawodów (1 brief + 3 rundy korekt, 3 recenzje) — 2026-11-25/26
+- Archetyp: dokumentacja produktowa wielu plików według specyfikacji architekta (reguła biznesowa z algorytmami, decyzja, widoki, słownik, model)
+- Stawka: średnia (reguły, z których programista wylicza zachowanie systemu bez dopytywania)
+- Niepewność: wysoka (nowy system automatycznego grupowania; specyfikacja przebudowana dwa razy po recenzjach)
+- Wykonawca (linia / model / native effort): Muse Spark 1.3 contributor `max` (WSL, write) — 4 przebiegi: 428 s, 637 s (K1), 522 s (K2), 440 s (K3); pliki 19 / 19
+- Recenzent: Codex `gpt-6.2-sol` `high` (read) — 3 przebiegi: 558 s, 560 s, 450 s (trzeci zawężony do diffu rundy)
+- Dopuszczone alternatywy: wykonawca — Gemini 4 Neon `high` (A); recenzent — Gemini 4 Hydrogen `xhigh` (B/C)
+- Powód wyboru: tekst bez Figmy i bez niezmiennika poza pulą Claude'a (reguła 3), tempo tygodnia +25 pp; recenzent innej rodziny z rzetelnymi scenariuszami na danych w poprzednim researchu
+- Sygnał dostępności: Muse 7 % tygodnia, Codex 5 h 44–57 %, tydzień 7–9 % (hook, 2026-11-25/26)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wierne specyfikacji v1, ale recenzja 1 znalazła 9 P1 i 18 P2, głównie wady samej specyfikacji (tożsamość albumu, zależność od kolejności wgrań, stałość adresów)
+- Rundy korekt: 3 briefy (K1 spec v2, K2 spec 2.1 i wybór widoku panelu, K3 spec 2.2) + drobne poprawki architekta po K2, K3 i recenzji 3 (reguła 11; po recenzji 3 cztery pliki, ok. 8 linii tekstu, powyżej progu 2 plików — uzasadnienie: tańsze niż brief)
+- Czas do akceptacji: ok. 2,5 h od pierwszego przebiegu
+- Znaleziska recenzji: R1 9 P1 + 18 P2 + 2 P3 (potwierdzone prawie wszystkie, większość jako wady specyfikacji); R2 2 P1 + 11 P2 + 2 P3 (1 P1 potwierdzony, 1 P1 przeklasyfikowany na wybór właściciela); R3 0 P1, 2 P2 + 3 P3 (poprawione tekstem albo zapisane jako znane ograniczenie)
+- Defekty po odbiorze: brak znanych; kontrola linków 1144 (2 stare błędy poza zakresem), ID unikalne, statusy bez zmian
+- Wymagane testy i dowody: tabela statusu każdego znaleziska w kolejnej recenzji, scenariusze na konkretnych danych, kontrola linków i kotwic, brak „—” i strzałek w tekstach interfejsu
+- Uwagi do pakietu: koszt dominowały rundy wynikające ze specyfikacji, nie z wykonania — Spark w każdej rundzie trafnie zgłaszał luki w sekcji „Co uważasz za błędne”. Przy algorytmicznych regułach warto przed pierwszym briefem dokumentacji dać specyfikację do recenzji innej rodziny (tańsze niż recenzja całej dokumentacji). Trzecia recenzja zawężona do diffu rundy była krótsza i wystarczyła.
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
