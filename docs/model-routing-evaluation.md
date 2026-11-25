@@ -15247,6 +15247,24 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Wymagane testy i dowody: zrzut trzech rzędów (Light pas, Dark pas, Dark pasek) we wszystkich 6 stanach z podpowiedzią; odczyt stylów wszystkich wariantów; rozmiar instancji 36 × 36
 - Uwagi do pakietu: brief zmiany wyglądu istniejącego zestawu w bibliotece musi kazać wykonawcy znaleźć instancje tego zestawu w innych komponentach biblioteki i opisać skutek. Recenzent Flash dał 5 P1, wszystkie obalone albo obniżone; jego wartość to dwie drobne rozbieżności z makietą. Architekt poprawił też opis roli w dokumentacji (tło po najechaniu na pasku `#262F39` w obu motywach), bo wskazana rola w motywie jasnym dawała w kodzie kolor ikony.
 
+### MPLRT plik Figmy — przełącznik motywu, panel Zawodów i rozwinięte menu (1 brief, 2 przebiegi) — 2026-11-25
+- Archetyp: Figma — nowe komponenty layoutu, nowe warianty istniejących zestawów (40 + 8 + 8), kolejność warstw w layoutach i ramki stanów rozwinięcia
+- Stawka: niska–średnia (nagłówek każdej strony; nowe warianty przez klonowanie z ryzykiem zgubionych powiązań)
+- Niepewność: średnia (wygląd z zaakceptowanej makiety HTML; brief z regułami wyboru ról zamiast kluczy zmiennych)
+- Wykonawca (linia / model / native effort): `wykonawca` Sonnet 5.5 `high` — przebieg 1: 22 wywołania, 134 tys., 1,9 min, zatrzymany słusznie (biblioteka nieopublikowana, właściciel publikował drugi raz); przebieg 2 (świeży agent, brief z ustaleniami przebiegu 1): 67 wywołań, 246 tys., 11,5 min
+- Recenzent: Gemini B / gemini-3.8-flash-high (read, 436 s) na 7 zrzutach, JSON-ie, briefie, makiecie i dokumentacji; odbiór architekta: 3 zrzuty, odczyt nadpisań przełącznika i znaczników w Figmie
+- Dopuszczone alternatywy: wykonawca — brak (Figma MCP: Claude albo Codex, Codex tydzień 100 % do 25.11 14:10); recenzent — Gemini C albo Neon A
+- Powód wyboru: bramka Figmy (reguła 3); recenzja spoza rodziny Claude, B i C naprzemiennie
+- Sygnał dostępności: Claude ŻÓŁTY, tempo +24–25 pp; Codex tydzień 100 %; Gemini A, B, C ok (hook, 2026-11-24 23:40 – 2026-11-25 00:12)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: przebieg 2 zgodny z briefem; wykonawca sam zgłosił niewidoczne słońce w motywie ciemnym
+- Rundy korekt: 0 briefów korekty; architekt sam (reguła 11) usunął starą nadpisaną wartość koloru ikony w 20 wariantach, przestawił domyślny `Current` panelu w 4 wariantach nagłówka z nadpisaniem w 2 ramkach, zmienił wartość roli znacznika w bibliotece i podmienił ikonę „Zamknij” w 8 wariantach po decyzji właściciela
+- Czas do akceptacji: ok. 1 h 15 min od pierwszego briefu (w tym ok. 15 min czekania na ponowną publikację)
+- Znaleziska recenzji: potwierdzone — sztywne `Current=Schedule` przy `Page=Competition` w nagłówku (P2 → poprawione), kontrast znacznika `#F96456` na jasnym tle panelu 2,7:1 (P1 → nowa wartość roli w motywie jasnym, decyzja właściciela), ikona hamburgera przy napisie „Zamknij” (P3 → krzyżyk, decyzja właściciela), brak wartości `Current` dla pozostałych podstron (P2 → do kolejnego briefu); obalone — znacznik przy etykiecie „ZAWODY” zamiast przy Harmonogramie (P1: odczyt w Figmie pokazał znacznik w wierszu Harmonogramu we wszystkich 4 wariantach), podpowiedź przecięta krawędzią paska (P1: ta sama geometria co w makiecie wybranej przez właściciela), kontrast bryły podpowiedzi 1,7:1 (P2: obrys dymka nie identyfikuje komponentu, tekst 10,4:1), nazwa właściwości `Theme` w menu (P3: spójna z nagłówkiem i layoutem)
+- Defekty po odbiorze: niewidoczne słońce w motywie ciemnym (stara nadpisana wartość koloru ikony w instancjach z czasu wypełnionego stanu włączonego), znalezione przez wykonawcę, poprawione przez architekta
+- Wymagane testy i dowody: 6 ramek stanów w obu motywach, zrzut podpowiedzi, JSON z mapowaniem rola → zmienna; odczyt nadpisań, odłączeń, rozmiaru przełącznika i kolejności warstw
+- Uwagi do pakietu: przed briefem w pliku MPLRT architekt sprawdza status publikacji komponentów biblioteki (`getPublishStatusAsync`), bo „opublikowałem” nie gwarantuje publikacji. Po zmianie wyglądu komponentu biblioteki instancje mogą mieć stare nadpisania kolorów i trzeba je odczytać. Flash znalazł jedną realną lukę dostępności (kontrast znacznika) i dwie poprawki projektowe, przy dwóch obalonych P1.
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
