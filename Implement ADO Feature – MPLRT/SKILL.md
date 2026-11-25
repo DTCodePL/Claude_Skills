@@ -713,13 +713,13 @@ plan dzielisz drobniej.
 | `koordynator-fali` — Sonnet 5.5 `high` (pilotaż D od 2026-11-01) | wykonanie pakietu fali napisanego przez architekta: uruchomienie briefów, walidacja diffu i cichych sprawdzeń, recenzje, obalanie P0/P1, korekty, raport | bez kodu, bez zmiany decyzji, bez fal z plikami niezmiennika; odbiór fali (pełne lint/test/build) zostaje u architekta; rodzina Claude |
 | Muse (`-Engine spark`) — para per archetyp briefu od 2026-10-25 (reguła 8 globalnego `CLAUDE.md`; dwa szczeble kosztu: Spark contributor ~0,045 % tygodnia na przebieg `max`, Wonder ~3,2 % (≈ 70 Sparków) — tryb contributor go nie obejmuje): `muse-wonder-full-1.0-contributor` `max` tylko wyjątek CZERWONEGO i recenzja fali plików niezmiennika, w limicie Wondera egzekwowanym przez wrapper (10 przebiegów w tygodniu, 3 w dniu; obejście tylko `-WonderPowod` dla krytycznego briefu, z meldunkiem dla użytkownika); `muse-wonder-1.0-contributor` bez archetypu (liczy się do limitu jak Full); `muse-spark-1.3-contributor` `max` — pozostała implementacja, złożony brief bez niezmiennika, testy, dokumentacja, audyt SCSS, QA Sphere (także w funkcji high-stakes), korekty, recenzja niskiej i średniej stawki; Spark `high` — przeglądarka `pwcli`, PRE, ADO; para wyższa tylko z powodem w briefie; limit tygodniowy (reset pon. 00:00 UTC) — odczyt `muse usage --json` w `[pule]` (`minimal|low|medium|high|xhigh|max`; `none` i `ultra` wrapper odrzuca — `ultra` ma zamkniętą bramkę i biegnie jako `xhigh`); Wonder i Spark to jedna rodzina | natywnie na Windows (`-MuseHost windows`, zawsze `--no-foreign-personal-context`; WSL — tryb awaryjny); `-Access write`: Node/dotnet, pętla własnych testów, MCP ADO, Playwright, Angular, QA Sphere, Mikrus; `-Access read`: audyt i recenzja | brak Figma MCP; high-stakes tylko w zachowanym wyjątku blokady hooka; bez gita i `npm install`; bez limitu slotów, ale rozłączne cele |
 | Gemini — `agy`, effort zakodowany w sufiksie identyfikatora; trzy konta wybierane parametrem wrappera `-GeminiHost` (od 2026-11-24). **A**: `gemini-4-neon-low/medium/high/xhigh`, `gemini-3.8-flash-*`, `claude-sonnet-5-5-high` tylko w próbie CA. **B i C**: wyłącznie `gemini-3.8-flash-low/medium/high` | **Konto A** (`windows`, domyślne dla `-Access write` i dla modeli tylko-A): zapis i pętla lint/test na Windows oraz MCP ADO, Playwright, Angular, QA Sphere, Mikrus; Gemini 4 Neon — wykonawca bez niezmiennika, recenzja niskiej i średniej stawki, research, w próbie G4 recenzja plików niezmiennika (`xhigh`). **Konta B** (`wsl`, użytkownik `gemini2`, domyślne dla `-Access read`) **i C** (`wsl-c`, użytkownik `gemini3`): wyłącznie odczyt — recenzja, research, audyt dokumentów, recenzja QA Sphere; bez MCP i powłoki. Brief ze ścieżkami Windows — dla B i C wrapper tłumaczy je na `/mnt/d/…` | nigdy pisanie plików niezmiennika ani Figma; ścieżki absolutne (ze spacją — w backtickach), jawny odczyt `AGENTS.md`, zakaz powłoki w briefie recenzji zgodnie z `external-workers`; konta A, B i C to jedna rodzina (Claude przez `agy` — rodzina Claude); **odczyt Flash na B i C naprzemiennie**, konto podaje architekt jawnie (decyzja właściciela 2026-11-24) — Flash na A do odczytu tylko z `-GeminiPowod "<powód>"` (B i C zablokowane, 3 × 503, MCP); modele tylko-A wrapper kieruje na A sam; stan kont w linii `[pule]`, wrapper odmawia startu na koncie z zapisaną blokadą 429 |
-| Codex — `gpt-6.1-sol` i `gpt-6.1-terra` (`low|medium|high|xhigh|max|ultra`; Terra `max` jako kandydat tam, gdzie Sol `high`/`medium`, nigdy bramka ani recenzja plików niezmiennika do wyników lokalnych — reguła 7), `gpt-6-luna` (`low|medium|high|xhigh|max`) | implementacja, testy, research, audyt/recenzja; Figma i Playwright po potwierdzeniu dostępu w konkretnej sesji; `-Mode review` do odczytu | pełnoprawny kandydat, porcje ≤ 5 plików (implementacja/testy; recenzji nie dzielisz — bramka końcowa czyta cały diff w jednym przebiegu); nie zastępuje Opusa na high-stakes; nie recenzuje własnej rodziny; research bez poleceń powłoki; najmniejsza pula (Plus), zapas z `[pule]` — w funkcji high-stakes tylko krótkie briefy bez niezmiennika (≤ 5 plików, effort ≤ `high`) przy zapasie tygodnia na bramkę, po limicie przed bramką brak kolejnych briefów tej funkcji |
+| Codex — `gpt-6.2-sol` (`low|medium|high|xhigh|max|ultra`; Terra poza routingiem od 2026-11-25 — reguła 7), `gpt-6-luna` (`low|medium|high|xhigh|max`) | implementacja, testy, research, audyt/recenzja; Figma i Playwright po potwierdzeniu dostępu w konkretnej sesji; `-Mode review` do odczytu | pełnoprawny kandydat, porcje ≤ 5 plików (implementacja/testy; recenzji nie dzielisz — bramka końcowa czyta cały diff w jednym przebiegu); nie zastępuje Opusa na high-stakes; nie recenzuje własnej rodziny; research bez poleceń powłoki; najmniejsza pula (Plus), zapas z `[pule]` — w funkcji high-stakes tylko krótkie briefy bez niezmiennika (≤ 5 plików, effort ≤ `high`) przy zapasie tygodnia na bramkę, po limicie przed bramką brak kolejnych briefów tej funkcji |
 | `tester` — Haiku 5.5 `xhigh` (od 2026-10-13, po próbie z reguły 14 globalnego `CLAUDE.md`; wcześniej Sonnet 5.5 `medium`) | speci Vitest / AXE / xunit; czerwony test Buga; testy według wzorca dzieli ze Sparkiem `max` i Neonem (reguła 3) | test przed łatką i bez edycji przez autora łatki; odrębne briefy testu i łatki; obowiązuje hook |
 | `mechanik` — Haiku 5.5 `low` | pojedyncze klucze i18n, rename, przeniesienie pliku | mechaniczne drobiazgi, nie implementacja wysokiej stawki |
 | `zwiadowca` — Haiku 5.5 `low` | fakty z repo przed decyzją; dzieli z Gemini Flash B/C (reguła 3) | tylko odczyt |
 | `audytor-a11y` — Opus `high` | delegowany audyt kontrastu/fokusu/tokenów; dzieli z Gemini 4 Neon `xhigh` (reguła 3) | audyt, nie przejęcie implementacji |
 | QA Sphere — autor Muse: Spark 1.3 `max`, także w funkcji high-stakes (od 2026-10-25); Gemini `-Access write`, gdy Muse zajęty albo z limitem | plik podglądu wg `qasphere-test-generator` | recenzja: plik Muse → Gemini `-Access read`, plik Gemini → Muse `-Access read`; publikacja/poprawki/weryfikacja przez architekta skryptem `qas.py`; sesja nie pisze przypadków i nie woła `create_test_case` / `update_test_case` |
-| bramka końcowa — `gpt-6.1-sol` `max` (od 2026-10-05, zamiast Astry) | cały feature high-stakes po recenzjach fal; przy dużym diffie osobno FE i BE — równolegle przy zapasie okna 5 h Codexa w `[pule]`, inaczej sekwencyjnie | bramka z Fazy 4b; niezależna wobec plików niosących niezmiennik (pisze je Opus); nie zastępuje recenzji fal, także dla plików bez niezmiennika pisanych przez Codex |
+| bramka końcowa — `gpt-6.2-sol` `max` (od 2026-10-05, zamiast Astry) | cały feature high-stakes po recenzjach fal; przy dużym diffie osobno FE i BE — równolegle przy zapasie okna 5 h Codexa w `[pule]`, inaczej sekwencyjnie | bramka z Fazy 4b; niezależna wobec plików niosących niezmiennik (pisze je Opus); nie zastępuje recenzji fal, także dla plików bez niezmiennika pisanych przez Codex |
 
 **Preferencje jakościowe — nie hard gates.** Dotychczasowe wyniki recenzji
 Spark/Gemini, researchu Sola i audytu SCSS Sparka (zmierzone na Sparku 1.3,
@@ -1003,7 +1003,7 @@ uzasadnienie, pewność, alternatywy i status dostępności zapisujesz
 w briefie recenzenckim. Sol jest kandydatem bez czekania na limit, ale
 nie recenzuje kodu rodziny Codexa; Muse nie recenzuje Muse, Gemini
 Gemini (konta A, B i C to jedna rodzina; Claude przez `agy` to rodzina Claude). Fable nie recenzuje (ta sama rodzina co Sonnet i Opus).
-Przy niskiej stawce preferujesz Sola `high` albo Terrę `max` (oba tylko,
+Przy niskiej stawce preferujesz Sola `high` (tylko,
 gdy `[pule]` pokazuje zapas tygodnia Codexa na bramkę), Gemini 4 Neon `high`
 (konto A) albo Gemini 3.8 Flash `high` (B i C naprzemiennie) przed
 Muse (mniej zawyżonych P0/P1 do obalenia — zmierzone na Sparku 1.3,
@@ -1039,7 +1039,7 @@ raport wykonawcy ani recenzenta nie jest sam w sobie dowodem.
 $env:USERPROFILE\.claude\bin\worker-run.ps1 `
   -Engine codex -Mode review `
   -Repo D:\projects\DTCode\MPLRT_FE `
-  -Model gpt-6.1-sol -Effort high `
+  -Model gpt-6.2-sol -Effort high `
   -Title "Recenzja PBI #<numer>"
 ```
 
@@ -1086,7 +1086,7 @@ albo kwalifikujesz inną linię.
 **Lokalny sygnał jakości** wspiera recenzje Spark/Gemini. To preferencja do
 weryfikowania w rejestrze, nie wyłączność ani warunek limitu dla Sola.
 
-**Bramka końcowa — `gpt-6.1-sol` `max`, raz na feature wysokiej stawki
+**Bramka końcowa — `gpt-6.2-sol` `max`, raz na feature wysokiej stawki
 (od 2026-10-05; wcześniej Astra).** Lista high-stakes MPLRT jest pusta
 (decyzja właściciela, 2026-11-24): logowanie i sesja panelu, przyjmowanie
 plików i migracje danych to zwykłe briefy z recenzją innej rodziny, a zmiana
@@ -1094,7 +1094,7 @@ wprowadzająca płatności, konta użytkowników albo role wraca do właściciel
 przed planowaniem. Gdy właściciel listę przywróci i feature dotyka jej
 pozycji, **po** recenzjach etapów i ich poprawkach, a przed bramą
 potwierdzenia, zlecasz recenzję całego niescommitowanego diffu
-feature'a (ta sama komenda, `-Model gpt-6.1-sol -Effort max`,
+feature'a (ta sama komenda, `-Model gpt-6.2-sol -Effort max`,
 `-Title "Bramka Sol PBI #<numer> FE|BE"`) — osobno na każde repozytorium,
 każde w całości w jednym przebiegu. Oba przebiegi puszczasz **równolegle**,
 gdy `[pule]` pokazuje zapas okna 5 h Codexa na oba (od 2026-11-16). Przy

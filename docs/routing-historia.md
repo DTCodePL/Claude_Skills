@@ -1019,6 +1019,30 @@ Neon ma na każdym poziomie kosztu wyższy indeks niż Hydrogen, Carbon i Argon,
 **Rozkład pracy pomocniczej (właściciel, 2026-11-24, później tego dnia).** Celem jest używanie także innych silników, nie przeniesienie całej pracy z Claude'a. Testy według wzorca dzieli `tester` ze Sparkiem `max` i Neonem (czerwony test Buga zostaje u `tester`), fakty z repo `zwiadowca` z Gemini Flash na B/C, delegowany audyt a11y `audytor-a11y` z Neonem `xhigh`. Odrzucone na razie: Figma MCP w `agy` dla próby CA. Hydrogen, Carbon i Argon zostają poza routingiem: wszystkie modele Gemini konta A biorą z jednej puli „Gemini”, więc model słabszy przy tym samym koszcie nie dodaje przepustowości (Neon `medium` 54,9 / 1,90 $ wobec Hydrogen `xhigh` 53,9 / 3,16 $). Muse Ember (II 36,0, 0,14 $ po cenie standardowej 0,10 / 0,50 $ za 1M) nie ma wariantu contributor, więc po naszych cenach kosztuje mniej więcej tyle co Spark contributor (0,10 / 0,20 $) przy podobnym indeksie i TB4 0,409; bez próby nie wchodzi.
 
 **Recenzent dodatkowy (właściciel, 2026-11-24).** Gemini 4 Carbon `high` czyta raz cały diff każdego feature'a high-stakes (praca Opusa, Codexa, Wondera), przed bramką Sol, jako dodatkowa opinia najwyższej klasy. Wybór Carbona zamiast Neona nie wynika z przewagi (II 60,0 wobec 61,4 Neona `xhigh`, TB4 0,651 wobec 0,636 — różnice w granicach szumu), tylko z różnorodności: Neon recenzuje już pliki niezmiennika w próbie G4. Ocena po 3 funkcjach: potwierdzone i obalone P0/P1 Carbona wobec bramki Sol.
+
+## Sol 6.2 zamiast 6.1, Terra poza routingiem — 2026-11-25
+
+**Odczyt AA z 2026-11-25** (II / koszt zadania indeksu w $). Cena tokenu obu Solów jest ta sama: 2 / 10 $ za 1M, odczyt cache 0,10 $.
+
+| Effort | GPT-6.1 Sol | GPT-6.2 Sol |
+| --- | --- | --- |
+| `low` | 34,8 / 0,16 | 40,6 / 0,18 |
+| `medium` | 46,3 / 0,36 | 52,4 / 0,41 |
+| `high` | 50,3 / 0,59 | 54,8 / 0,56 |
+| `xhigh` | 52,4 / 0,76 | 55,6 / 0,65 |
+| `max` | 54,7 / 1,27 | 57,3 / 1,01 |
+
+GPT-6.1 Terra `max` / `xhigh` / `high`: 51,4 / 0,96; 45,3 / 0,40; 42,5 / 0,26. Terry 6.2 w AA nie ma. GPT-6.2 Astra `max` / `xhigh` / `high`: 62,2 / 4,00; 61,8 / 2,52; 60,3 / 2,07, czyli 2–4× koszt Sola 6.2 `max`. TB4 GPT-6.2 Sol: 0,601 (odczyt z 2026-11-24).
+
+**Dostępność.** Npm-owe Codex CLI 0.159.2, którego używa wrapper, nie miało `gpt-6.2-sol` w `model/list` z `codex app-server`; klient 0.171.0 (apka) miał. Po `npm install -g @openai/codex@latest` CLI 0.172.0 ma model w katalogu (`low…ultra`), a flagi wrappera się nie zmieniły. Sondy przez wrapper na `low`: `exec` 18 s i `-Mode review` 22 s, exit 0, `model: gpt-6.2-sol` w logu; recenzja trafnie wskazała P1 w podstawionym błędzie.
+
+**Decyzje właściciela (2026-11-25).** Sol 6.2 zastępuje 6.1 wszędzie, także w bramce `max`. Terra wypada z routingu: Sol 6.2 `high` (54,8 / 0,56) i `medium` (52,4 / 0,41) mają wyższy indeks i niższy koszt zadania niż Terra `max` (51,4 / 0,96), więc przesłanka reguły 7 („indeks ≥ Sola `high` przy koszcie ~0,7”) upadła. Nowy model linii Terra wraca do oceny, gdy wyjdzie. Astra 6.2 nie jest bramką z tego samego powodu co Astra 6.
+
+Pewność niska: nie ma lokalnych wyników 6.2, a koszt zadania w AA to nie waga wiadomości w Plusie — tę pokaże `[pule]`. Moment zmiany: próba G4 i recenzent dodatkowy Carbon (od 2026-11-24) nie miały jeszcze żadnej bramki, więc całe ich porównanie pójdzie na bramce 6.2. Próba C2 stoi na 3:3 i zmiana recenzenta Sol `high` jej nie dotyczy.
+
+**Usunięta reguła (CLAUDE.md, reguła 7, do 2026-11-25, dosłownie):**
+
+> **Terra (od 2026-11-04).** `gpt-6.1-terra` `max` jest kandydatem tam, gdzie wybrałbyś Sola `high` albo `medium`: implementacja i testy ≤ 5 plików, research, recenzja niskiej i średniej stawki. Indeks ma ≥ Sola `high`, a koszt ~0,7 (pewność niska). Terra `high`/`xhigh` są słabsze o 5–8 punktów i nie zastępują Sola `high` bez powodu. Terra nie jest bramką i nie recenzuje plików niezmiennika, dopóki rejestr nie ma ≥ 5 zaakceptowanych jej briefów z rundami i znaleziskami nie gorszymi niż Sol `high`. Rodzina Codex.
 ---
 
 ## Część 3 — globalny CLAUDE.md z 2026-11-05 sprzed drugiej diety (dosłownie)
