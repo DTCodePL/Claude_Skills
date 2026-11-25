@@ -15481,6 +15481,60 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Wymagane testy i dowody: zrzuty zestawów i ramek, kontrola liczby instancji po zmianach zestawu (396 połączonych)
 - Uwagi do pakietu: wykonawca przeniósł do zestawu tylko wariant, o który prosił brief, a stare warianty zostały bez instancji. Brief zmiany zestawu powinien kazać policzyć instancje każdego wariantu i usunąć nieużywane.
 
+### MPLRT makieta HTML — strona Sponsorzy, dwa warianty, 41 logotypów i cztery stany (1 brief + 1 korekta) — 2026-11-25
+- Archetyp: makieta HTML do wyboru wyglądu przez właściciela — dwa warianty w jednym pliku, przełączniki ekranu, motywu, stanu, kolumn na telefonie, wyglądu pustej grupy i wstępu
+- Stawka: niska (prototyp jednorazowy, bez kodu produkcyjnego)
+- Niepewność: średnia (41 logotypów o różnych proporcjach, telefon 360 px, motyw ciemny z jasnymi kafelkami)
+- Wykonawca (linia / model / native effort): Gemini A / gemini-4-neon-high (write) — 7,4 min + korekta 5,7 min
+- Recenzent: brak recenzji kodu (prototyp jednorazowy); odbiór architekta: zrzuty headless Chrome 2 warianty × 3 szerokości × 2 motywy, 4 stany, 2 i 3 kolumny na telefonie, nowe przełączniki
+- Dopuszczone alternatywy: Spark 1.3 `max`, Codex Terra `max` (≤ 5 plików), `wykonawca` Sonnet (pula Claude'a, tempo +21 pp)
+- Powód wyboru: brief bez Figmy i bez niezmiennika najpierw poza pulą Claude'a (reguła 3); Neon na koncie A ma dobry lokalny wynik w tym archetypie (strona główna bez plakatu, 0 rund)
+- Sygnał dostępności: Claude ŻÓŁTY, tempo +21 pp; Codex okno i tydzień wolne; Gemini A ok (hook, 2026-11-25 14:00)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zgodny z briefem; drobne usterki: ucięty napis w jednym zastępniku, dane przykładowe w stopce zamiast prawdziwych z Figmy (brief tego nie podał)
+- Rundy korekt: 1 (usterki + dwa przełączniki dodane na prośbę właściciela, by wybór pustej grupy i wstępu był na podglądzie, nie z opisu); architekt sam zmienił jeden podpis przełącznika, który dublował nazwę stanu
+- Czas do akceptacji: ok. 35 min do pokazania właścicielowi (przebiegi 13 min, zrzuty i arkusze architekta)
+- Znaleziska recenzji: nie dotyczy. Sekcja „Co uważasz za błędne” wykonawcy trafna: baza nie ma znacznika aktywnej pozycji, obrys kafelka nie podlega 3:1 (element nieinteraktywny), pas wariantu B w motywie ciemnym prawie zlewa się z tłem, 3 kolumny na 360 px zmniejszają szerokie logo do ok. 73×18 px, dubel podpisu „Pusta grupa”
+- Defekty po odbiorze: brak; Playwright MCP Gemini dalej odrzuca `file:`, zrzuty zrobił architekt
+- Wymagane testy i dowody: arkusze zrzutów wariantów, stanów i przełączników
+- Uwagi do pakietu: brief makiety podstrony powinien podawać prawdziwe dane stopki i wskazywać, że baza (makieta strony głównej) jest starsza niż opis layoutu. Wybór wyglądu stanu pokazuje się przełącznikiem w makiecie, a nie pytaniem tekstowym (właściciel, 2026-11-25).
+
+### MPLRT dokumentacja — strona Sponsorzy: decyzja przeniesiona do 10 dokumentów (1 brief + poprawki architekta) — 2026-11-25
+- Archetyp: dokumentacja — propagacja decyzji (karta decyzji napisana przez architekta) do interfejsów, reguły, projektu graficznego, modelu, zasobów i karty kwestii otwartej
+- Stawka: niska–średnia
+- Niepewność: niska (zmiany per plik w briefie)
+- Wykonawca (linia / model / native effort): Muse Spark 1.3 `max` contributor (write, host wsl) — 5,4 min, 10 plików
+- Recenzent: Gemini C / gemini-3.8-flash-high (read, 555 s) — cały diff + karta decyzji
+- Dopuszczone alternatywy: Gemini 4 Neon A (wykonawca); Gemini B, Terra `max` (recenzja)
+- Powód wyboru: archetyp dokumentacji Sparka `max` (reguła 8); tempo tygodnia +22 pp — tekst poza pulą Claude'a; recenzja innej rodziny, konto C na zmianę z B
+- Sygnał dostępności: Muse 4 % tygodnia, Gemini C ok (hook, 2026-11-25 14:27)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zgodny z briefem; kontrola linków czysta (181 linków w 11 plikach po odbiorze)
+- Rundy korekt: 0 briefów; architekt sam (reguła 11): przywrócone zdanie o przypisaniu grupy przy wgrywaniu (Spark je usunął przy przepisywaniu „Warunków”), interpunkcja po cytacie, etykieta linku „Panel: Sponsorzy” (P3 recenzji)
+- Czas do akceptacji: ok. 25 min (z recenzją)
+- Znaleziska recenzji: potwierdzone — 1 × P3 (stara etykieta linku, sprzed zmiany); obalone — uwaga, że architekt „gruntownie przekształcił” regułę (diff zawierał też zmiany Sparka); P0/P1 brak
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: kontrola linków i kotwic, wyszukanie słów, kontrast par tekstu na pasie i kafelkach (recenzent: od 12,4:1)
+- Uwagi do pakietu: recenzent słusznie wytknął briefom „karta decyzji jest źródłem prawdy” — wg INSTRUKCJA-DLA-AI decyzja nie zastępuje normatywnego źródła; w kolejnych briefach pisać „decyzja jest źródłem dla tego zadania, normatywny opis trafia do dokumentów domenowych”. Spark przy przepisywaniu sekcji gubi zdania spoza briefu — brief ma mówić „zachowaj pozostałe zdania sekcji”.
+
+### MPLRT Figma — strona Sponsorzy: 4 stany × 6 ramek, zestaw kafelka logotypu na Components (1 brief + poprawka architekta) — 2026-11-25
+- Archetyp: makieta w Figmie — nowa strona publiczna z layoutu i biblioteki, nowy wariant komponentu współdzielonego ze stroną główną
+- Stawka: średnia (komponent kafelka używany w 306 instancjach strony głównej)
+- Niepewność: średnia (pas bez roli w bibliotece, wariant z nazwą zamiast logo)
+- Wykonawca (linia / model / native effort): `wykonawca` — Sonnet 5.5 `high` (Figma MCP) — 137 wywołań, ok. 330 tys. tokenów, 22,6 min
+- Recenzent: Gemini B / gemini-3.8-flash-high (read, 647 s) — 24 zrzuty w pełnej skali + odczyt architekta wobec dokumentów
+- Dopuszczone alternatywy: Codex z potwierdzonym Figma MCP (wykonawca); Gemini C, Terra `max` (recenzja). Muse i Gemini jako wykonawca odpadają (bramka Figmy)
+- Powód wyboru: bramka Figmy — wykonawca musi mieć Figma MCP; zostaje `wykonawca` Sonnet `high` (próba Figmy zamknięta); recenzja innej rodziny, konto B na zmianę z C
+- Sygnał dostępności: Claude ŻÓŁTY, tydzień 72 % przy 50 % czasu (tempo +22 pp), Gemini B ok (hook, 2026-11-25)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: struktura, stany, warianty i rozmiary kafelków zgodne; w 5 z 6 ramek stanu „Niedostępny obraz” nazwa „Sponsor Specjalny 3” ucięta (pole nazwy 24 px zamiast dwóch wierszy — wykonawca poprawił tylko Mobile/Light)
+- Rundy korekt: 0 briefów; architekt sam (reguła 11): 18 kafelków `Name` — resetOverrides, ponowne ustawienie nazwy i rozmiaru; zrzuty `obraz-*` pobrane od nowa
+- Czas do akceptacji: przebieg 22,6 min; z poprawką i recenzją ok. 45–50 min (szacunek)
+- Znaleziska recenzji: potwierdzone — brak; obalone — 1 × P2 (brak dwóch wierszy w głównym komponencie — tekst 115:27602 ma stałe 48 px, resetOverrides je przywrócił); werdykt: zgodna, 0,96
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: odczyt struktury (Registration, motyw, Page, warianty i liczby kafelków per stan), zrzuty 24 ramek po poprawce, 306 instancji strony głównej nadal połączonych
+- Uwagi do pakietu: (1) resize podwarstwy w instancji Figma ignoruje — brief ma żądać zmiany wysokości przez właściwość komponentu albo w głównym komponencie i sprawdzenia we wszystkich ramkach, nie w jednej; (2) brief nazwał zasoby organizatorów „prawdziwymi logotypami”, a to zastępniki z nazwą — opisywać stan zasobów z odczytu; (3) szablon Harmonogramu ma etykietę „ZAWODY”, której Sponsorzy nie mają — brief ma mówić, co z szablonu pominąć; (4) wykonawca zgłosił braki biblioteki: mały półgruby styl tekstu zastępczego, h2 26 px, token zaokrąglenia kafelka, myląca nazwa `Semantic/surfaces/band` (zapisane w karcie braków)
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
