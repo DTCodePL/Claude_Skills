@@ -15824,6 +15824,48 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Wymagane testy i dowody: `npm run lint`, `prettier --check .`, `ng test` 3752 + 2 oczekiwane porażki, `ng build` (znane ostrzeżenie budżetu SCSS konfiguratora)
 - Uwagi do pakietu: (1) pętla recenzji fokusu: każda ponowna recenzja Sparka znajdowała kolejną ścieżkę — brief fokusu ma od razu wyliczać wszystkie ścieżki (sukces, 409 z udanym i nieudanym odświeżeniem, inny błąd, użytkownik gdzie indziej); (2) ngx-mask: nasłuch `(input)` hosta biegnie przed nasłuchem szablonu — normalizacja przed maską tylko w fazie przechwytywania; (3) Neon trafnie zatrzymał się na błędnym założeniu briefu K3
 
+### MPLRT wyniki — research, makiety HTML czytnika i listy, pomiary automatycznego spisu protokołów (7 briefów) — 2026-11-26
+- Archetyp: research zewnętrzny i pomiar na danych (pobieranie PDF-ów, prototyp w Pythonie, prawda ręczna) + makieta HTML z wariantami wyglądu
+- Stawka: średnia (obietnica bezobsługowego spisu dla właściciela; błędny spis na stronie publicznej), makiety niska
+- Niepewność: wysoka (formaty PDF od sędziów zmieniają się co 1–2 lata, czasem co rundę)
+- Wykonawcy (linia / model / native effort):
+  - research pplrs.pl i techniki czytnika: Gemini 4 Neon `high` (A, write, Playwright MCP) — 742 s;
+  - badanie archiwum 49 PDF-ów i prototyp wykrywacza A/B/C: Gemini 4 Neon `xhigh` (A, write) — 2872 s;
+  - test wykrywacza na 14 nowych PDF-ach (prawda ręczna): Muse Spark 1.3 contributor `max` (Windows, write) — 1476 s;
+  - pomiar bramki jakości spisu na 63 plikach: Spark `max` (Windows, write) — 925 s;
+  - makieta HTML 4 wariantów czytnika: Codex `gpt-6.2-sol` `high` (write) — 1067 s;
+  - lista z terminami, 3 warianty: Sol `high` — 580 s; wiersz rundy, 3 warianty: Sol `medium` — 188 s
+- Recenzent: brak osobnej recenzji (research i pomiary bez kodu produkcyjnego); niezależność dała zmiana rodziny między krokami — wynik Gemini (wykrywacz dostrajany in-sample) zweryfikował Spark na plikach spoza próby, bramkę zmierzył Spark z regułami ustalonymi przez architekta przed pomiarem; architekt sprawdził po 3 pliki z każdego pomiaru (liczby zgodne)
+- Dopuszczone alternatywy: research — Spark `max`, Sol `medium`; pomiary — Gemini 4 Hydrogen `xhigh` (B/C, tylko odczyt, bez powłoki — odpada przy pobieraniu i Pythonie); makiety — Gemini 4 Neon `high` (A), Spark `max`
+- Powód wyboru: briefy bez Figmy i bez niezmiennika poza pulą Claude'a (reguła 3), tempo tygodnia +31 pp i CZERWONY w trakcie; Gemini A ma powłokę, sieć i Playwright MCP; Codex jako autor pierwszej makiety dostał jej kolejne zmiany
+- Sygnał dostępności: Codex tydzień 23–25 %, Muse 16 %, Gemini A/B/C ok (hook, 2026-11-26)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wszystkie 7 przyjęte bez korekt; makieta wymagała 2 drobnych poprawek architekta (niespójna liczba stron listy i czytnika, kolejność linii bieżącego protokołu w W4)
+- Rundy korekt: 0 (kolejne briefy makiety to nowe wybory właściciela, nie korekty)
+- Czas do akceptacji: ok. 3 h od pierwszego przebiegu do wyboru W3 + L1 + D3
+- Znaleziska: najważniejsze — wykrywacz Gemini 895/895 in-sample spadł na nowych plikach do 94/198 (precyzja 61 %); bramka R1–R5 przepuściła 0 z 10 błędnych spisów na nowych plikach, 1 z 3 na archiwum (domknięta R6 ustaloną po obejrzeniu plików), 1 fałszywy alarm (limit długości tytułu)
+- Defekty po odbiorze: brak znanych
+- Wymagane dowody: prawda ręczna bez danych osobowych, przebieg wykrywacza bez zmian, rozdzielenie reguł a priori i a posteriori, zrzuty 1280/360 w obu motywach, brak „—” i strzałek w tekstach UI
+- Uwagi do pakietu: wynik in-sample od wykonawcy, który jednocześnie stroi prototyp, trzeba od razu potwierdzać testem innej rodziny na plikach spoza próby — tani (Spark `max` ≈ 0,05 % tygodnia), a zmienił odpowiedź dla właściciela z „100 %” na „spis tylko przy znanym układzie, z bramką”. Spark w sekcji „Co uważasz za błędne” trafnie wskazał słabość definicji trafienia i jednego sędziego prawdy.
+
+### MPLRT wyniki — dokumentacja decyzji: czytnik, lista z terminami, automatyczny spis (1 brief + 3 rundy korekt, 2 recenzje) — 2026-11-26
+- Archetyp: dokumentacja produktowa wielu plików według listy decyzji architekta (rekord decyzji, źródło z pomiarami, widok, panel, reguła, wymaganie, integracja, model, kwestie otwarte)
+- Stawka: średnia (programista i tester budują z tego bez dopytywania)
+- Niepewność: średnia (decyzje właściciela jasne, propozycje architekta liczne)
+- Wykonawca (linia / model / native effort): Muse Spark 1.3 contributor `max` (Windows, write) — 4 przebiegi: 705 s, 319 s (K1), 679 s (K2), 356 s (K3); pliki 19 / 19
+- Recenzent: Gemini 4 Hydrogen `xhigh` (read) — konto C 538 s, konto B (ponowna, cały diff) ok. 7 min
+- Dopuszczone alternatywy: wykonawca — Gemini 4 Neon `high` (A); recenzent — Codex Sol `high` (pula Codexa 30 % tygodnia)
+- Powód wyboru: tekst bez Figmy i bez niezmiennika poza pulą Claude'a przy CZERWONYM (tydzień 95–96 %); Hydrogen `xhigh` jako recenzent średniej stawki na B/C naprzemiennie
+- Sygnał dostępności: Muse 16 % tygodnia, Gemini B/C ok (hook, 2026-11-26)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: wierne liście decyzji; K1 z własnej uwagi Sparka (tytuły składane przez system wbrew decyzji o dosłownych tytułach)
+- Rundy korekt: K1 (tytuły dosłowne + 3 luki), K2 (13 znalezisk recenzji 1), K3 (3 P1 recenzji 2, wszystkie z rozstrzygnięć architekta w K2: imię i nazwisko redaktora, którego konto nie ma; reguła kart sprzeczna z własnym przykładem; rozjazd list „do potwierdzenia”) + drobna korekta architekta (usunięta sekcja „Późniejsze zmiany” z nowego rekordu)
+- Czas do akceptacji: ok. 1 h 15 min od pierwszego przebiegu
+- Znaleziska recenzji: R1 10 P1 + 3 P2 (potwierdzone wszystkie, głównie luki zakresu briefu: integracja e-maili, model systemu, konflikt z decyzją galerii, adresy); R2 3 P1 + 3 P2 + 1 P3 (potwierdzone wszystkie)
+- Defekty po odbiorze: brak znanych; 329 odnośników w 19 plikach działa, statusy i `id` bez zmian, zatwierdzone decyzje tylko w „Późniejszych zmianach”
+- Wymagane dowody: kontrola odnośników i kotwic, wyszukanie zakazanych fraz, statusy w diffie, brak danych osobowych z PDF-ów
+- Uwagi do pakietu: najdroższe były luki zakresu briefu (brief nie wymienił integracji e-maili, modelu systemu, layoutu i decyzji galerii) oraz pośpieszne rozstrzygnięcia architekta w K2 sprawdzone dopiero w recenzji. Przed briefem dokumentacji z wieloma propozycjami warto, żeby `zwiadowca`/Hydrogen zebrał listę dokumentów zależnych (integracje, model, layout, decyzje sąsiednie) i fakty o istniejących encjach (np. pola konta redaktora).
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
@@ -16026,3 +16068,57 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
   - `external-workers` (cennik, limit Wondera w poleceniu tempa).
 
 **Następny przegląd:** po 10–15 istotnych briefach Muse w tym podziale albo po kolejnym limicie tygodniowym przed piątkiem. Miary: czy tydzień dociąga do niedzieli, liczba przebiegów Wondera wobec limitu 6, rundy z wykonania Sparka `max` w dawnych archetypach Wondera 1.0, potwierdzone i obalone P0/P1 Sparka `max` w recenzjach średniej stawki.
+
+### pasu.je Tricount koszt wysyłki BE — pliki niezmiennika: cena etykiety w dzienniku zakupu, wycena kosztu, cykl i stawki (T1, T2, T3, T3-K1) — 2026-11-26
+- Archetyp: BE high-stakes — naliczanie wartości (kwota wpisu wysyłki w saldzie wspólników), dziennik zamiaru zakupu etykiety, spójny odczyt zadania i dziennika pod READ COMMITTED, migracje DbUp
+- Stawka: wysoka (zła kwota wpisu w saldzie albo nadpisana cena zakupu)
+- Niepewność: średnia (znany cykl, nowy model kosztu; okno odczytu między zakupem a zakończeniem zadania)
+- Wykonawca (linia / model / native effort): `wykonawca-opus` — Opus 5.5 `xhigh` (T1, T2, T3, T3-K1); czasy w logach agentów
+- Recenzent (linia / model / native effort): próba G4 — Gemini 4 Neon `xhigh` (A, read: R-T1, R-T3); R-T2 — Sol `high` zamiast Wondera (limit 3/3 dnia); recenzent dodatkowy: Gemini 4 Carbon `high` (A) — 429 po 13,0 min bez raportu, na prośbę właściciela zastąpiony przez Gemini 4 Hydrogen `xhigh` (B, read, 9,3 min); bramka Sol `max` BE (11,9 min)
+- Dopuszczone alternatywy: brak dla wykonawcy (pliki niezmiennika tylko `wykonawca-opus`); recenzja — Wonder Full `max` po resecie limitu dnia
+- Powód wyboru: twarda bramka high-stakes; recenzenci według próby G4 i reguły 13
+- Sygnał dostępności: Claude tydzień 90 → 95 % (CZERWONY), tempo +31 pp; Codex 5 h 18 → 44 %, tydzień 26 → 30 %; Muse tydzień 16 %; Gemini A 429 13:54Z, B i C ok; Wonder 3/3 dnia (hook, wrapper, 2026-11-26)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: T1 i T2 przyjęte (T2 zepsuł 2 testy cyklu — przepisane w T3 zgodnie z planem); T3 wymagał korekty T3-K1 po R-T3
+- Rundy korekt: T3-K1 (Opus); testy po R-T3 w BE-K2 (Spark, osobny wpis); po bramce — drobna korekta testu przez architekta (reguła 11)
+- Czas do akceptacji: ok. 2,5 h od pierwszego briefu do bramki BE (szacunek)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-T1 (Neon) — brak defektów; R-T2 (Sol `high`) — P1 i P2 odrzucone; R-T3 (Neon) — potwierdzone, poprawione w T3-K1 i BE-K2; Hydrogen (dodatkowy) — 0 znalezisk, werdykt poprawny 0,95; bramka Sol `max` — P1 (spóźniony zapis numeru etykiety po przejęciu zadania przy dzierżawie 180 s) przyjęte jako ryzyko w specyfikacji, P2 (kolejność sprzątania testów alertu) potwierdzone i poprawione, P3 (spacje końcowe w CHECK) nieosiągalne z aplikacji — przyjęte (D-229)
+- Defekty po odbiorze: brak znanych na chwilę wdrożenia
+- Wymagane testy i dowody: `dotnet build` bez ostrzeżeń; pełny `dotnet test` 9145 / 1 pominięty po poprawce bramki; `CrmOpsHealthTests` 23/23
+- Uwagi do pakietu: (1) Carbon na całym diffie z testami (≈ 6,2 tys. linii) wyczerpał okno 5 h konta A w 13 min, bez raportu, i uruchomił własnego subagenta — recenzent dodatkowy dostaje diff kodu produkcyjnego bez testów i zakaz `manage_subagents`; (2) zastępczy Hydrogen biegł równolegle z bramką zamiast przed nią — kolejność z reguły 13 złamana na prośbę właściciela; (3) Hydrogen nie widział P2 bramki, bo z briefu nie czytał testów; (4) Neon `xhigh` w trybie read bez zakazu powłoki kończy się kodem 3 po odrzuconym `run_command` — briefy recenzji Gemini muszą mówić „Nie masz powłoki”
+
+### pasu.je Tricount koszt wysyłki BE — bez niezmiennika: API stawek, lista braków, alert pulpitu, korekty testów (T4, BE-K2, BE-K3) — 2026-11-26
+- Archetyp: BE CRUD i odczyty CRM, alert pulpitu, testy integracyjne SQL Server
+- Stawka: średnia (ustawienia i widoki funkcji high-stakes, bez naliczania)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse Spark 1.3 `max` contributor (write, host windows) — T4, BE-K2, BE-K3
+- Recenzent (linia / model / native effort): Gemini 4 Hydrogen `xhigh` (C, read: R-T4); dalej Hydrogen dodatkowy (B) i bramka Sol `max` na całym BE
+- Dopuszczone alternatywy: `wykonawca` Sonnet `high` (zablokowany przy CZERWONYM), Gemini 4 Neon (A), Codex ≤ 5 plików
+- Powód wyboru: brief bez Figmy i bez niezmiennika najpierw poza pulą Claude'a (reguła 3); Spark `max` według reguły 8
+- Sygnał dostępności: Muse tydzień 16 % (hook, 2026-11-26)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: T4 zgodny z kontraktem; R-T4 zgłosił koszt pulpitu (czytanie wszystkich stron), brakujące testy walidacji i listy braków — poprawione w BE-K3
+- Rundy korekt: 1 (BE-K3); BE-K2 to testy do zmian Opusa po R-T3; ręczne uproszczenie `HasMissingAsync` do `AnyAsync` przez architekta
+- Czas do akceptacji: ok. 1 h (szacunek)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-T4 — potwierdzone, poprawione w BE-K3; bramka Sol `max` — P2 w teście z BE-K3 (sprzątanie zamówień przed zadaniami), poprawione przez architekta
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `dotnet build` bez ostrzeżeń, filtr CrmTricountSettings/CrmOpsHealth/TricountSyncCycle/TricountCandidateRepository/Architecture, pełny zestaw architekta 9145 / 1 pominięty
+- Uwagi do pakietu: Spark przy S1751 napisał ręczny enumerator zamiast `AnyAsync` z .NET 10 — brief z zapytaniem „kończy na pierwszym” może od razu wskazać `AnyAsync` na `IAsyncEnumerable`
+
+### pasu.je Tricount koszt wysyłki FE — zakładka stałych stawek, braki stawek, źródło kosztu, alert (T5, T6, FE-K1, FE-K2) — 2026-11-26
+- Archetyp: FE ekrany CRM bez Figmy (Signal Forms, PrimeNG 22), i18n tylko PL
+- Stawka: średnia (ekran funkcji high-stakes bez pliku niezmiennika)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Gemini 4 Neon `high` (A, write) — T5, T6, FE-K1, FE-K2 (4,8 min)
+- Recenzent (linia / model / native effort): Muse Spark 1.3 `max` (read: R-FE); bramka Sol `max` FE
+- Dopuszczone alternatywy: `wykonawca` Sonnet `high` (zablokowany przy CZERWONYM), Spark `max` (write), Codex ≤ 5 plików
+- Powód wyboru: brief bez Figmy i bez niezmiennika poza pulą Claude'a (reguła 3); recenzja innej rodziny niż Gemini
+- Sygnał dostępności: Gemini A ok do 13:54Z (wrapper); Muse tydzień 16 % (hook, 2026-11-26)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zakładka zgodna z kontraktem; R-FE — korekty (enumy zamiast unii, szerokość formularza, tekst) w FE-K1; bramka FE „niepoprawny”: 3 × P2 + 4 × P3
+- Rundy korekt: 2 (FE-K1, FE-K2)
+- Czas do akceptacji: ok. 1,5 h (szacunek)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): bramka FE — 3 × P2 potwierdzone i poprawione (brak widocznej informacji o brutto, lista braków nieodświeżana po zapisie stawek, pusty stan razem z błędem), P3: przeniesienie plików jedynego konsumenta poprawione, fokus po ponowieniu pominięty (żadna sekcja komponentu tego nie robi), anulowanie odczytu (`rxResource`) i porządek speca pominięte jako niewiążące
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `npm run lint`, `prettier --check`, i18n `--check`, `ng test` 3761 + 2 oczekiwane porażki (298 plików), `ng build` (znane ostrzeżenie budżetu SCSS konfiguratora)
+- Uwagi do pakietu: Neon trafnie wskazał w FE-K2 błędne założenie briefu (istniejące sekcje celowo zostawiają starą tabelę przy błędzie) i pominął punkt fokusu zgodnie z warunkiem briefu
