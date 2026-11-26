@@ -15716,6 +15716,42 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Wymagane testy i dowody: tabela statusu każdego znaleziska w kolejnej recenzji, scenariusze na konkretnych danych, kontrola linków i kotwic, brak „—” i strzałek w tekstach interfejsu
 - Uwagi do pakietu: koszt dominowały rundy wynikające ze specyfikacji, nie z wykonania — Spark w każdej rundzie trafnie zgłaszał luki w sekcji „Co uważasz za błędne”. Przy algorytmicznych regułach warto przed pierwszym briefem dokumentacji dać specyfikację do recenzji innej rodziny (tańsze niż recenzja całej dokumentacji). Trzecia recenzja zawężona do diffu rundy była krótsza i wystarczyła.
 
+### MPLRT galeria — makieta Figmy: 4 komponenty, 3 ekrany i 9 stanów, 70 ramek (7 briefów, 2 pary równoległe, 4 przebiegi recenzji) — 2026-11-25/26
+- Archetyp: makieta w Figmie — nowa strona publiczna z komponentami pliku (kafel ze stanami, mozaika, wybrane kadry, przeglądarka zdjęć) i stanami w 3 szerokościach i 2 motywach
+- Stawka: średnia (normatywny wygląd dla FE, bez niezmiennika)
+- Niepewność: średnia (brak SelectButton i roli tła przeglądarki w bibliotece, algorytm rzędów wyrównanych)
+- Wykonawca (linia / model / native effort): `wykonawca` — Sonnet 5.5 `high` (Figma MCP). G1 107 wywołań / 313 tys. / 16,8 min; G1K 90 / 207 tys. / 10,5 min (z jednym wznowieniem); G2a 65 / 193 tys. / 5,9 min i G2b 74 / 203 tys. / 8,7 min równolegle; G2K 55 / 137 tys. / 4,1 min; G3a 96 / 222 tys. / 9,2 min i G3b 45 / 153 tys. / 4,7 min równolegle
+- Recenzent: Codex / gpt-6.2-sol `high` (read) — 4 przebiegi: 65 s i 111 s zatrzymane na briefie, 484 s pełna recenzja 70 zrzutów, 504 s ponowne sprawdzenie poprawek
+- Dopuszczone alternatywy: Codex z potwierdzonym Figma MCP (wykonawca); Gemini 4 Neon `high` (A) albo Hydrogen `xhigh` (B/C) do recenzji zrzutów. Muse i Gemini jako wykonawca odpadają (bramka Figmy)
+- Powód wyboru: bramka Figmy — zostaje `wykonawca` Sonnet `high`; recenzja innej rodziny, Codex z dużym zapasem tygodnia
+- Sygnał dostępności: Claude ŻÓŁTY, tydzień 84–86 %, tempo +29–30 pp; Codex 5 h 0–10 %, tydzień 9–11 % (hook, 2026-11-26)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: G1 — komponenty i ekrany zgodne co do struktury; rzędy „Wszystkie zdjęcia” wychodziły poza kolumnę (ucięte wąskie kafle), nagłówki listy na telefonie niespójne, fokus kafla cienki (przycięty przez zestaw komponentu). G2a i G2b bez defektów stanów; bieżąca miniatura przeglądarki z pierścieniem fokusu (z G1) zamiast białej ramki z makiety HTML
+- Rundy korekt: 4 briefy korekt — G1K (+ wznowienie: podwójny odstęp w slocie layoutu), G2K (miniatura, „×” w komunikacie, zrzuty tabletów), G3a i G3b po recenzji
+- Czas do akceptacji: przebiegi ok. 60 min łącznie; z odbiorami i recenzjami ok. 3 h (szacunek)
+- Znaleziska recenzji: potwierdzone 2 × P1 (kafle w rzędach w innych proporcjach niż zdjęcie, czyli przycięte; kontrast tekstu niedostępnego kafla 4,05:1 w motywie ciemnym), 3 × P2 (inne kadry w mozaice listy i w „Wybranych kadrach”; „12 z 245” pokazywał 5. zdjęcie; miniatury 42 px < 44 px); odrzucone 1 × P3 (komunikat nad zdjęciem, przejściowy); przyjęty bez poprawki 1 × P3 (płaski klon strony albumu pod przeglądarką sprzed przeliczenia rzędów, przykryty tłem 96 %). Dwa pierwsze przebiegi zatrzymały się na zasadnych lukach briefu i dokumentacji: brak zrzutów tabletu stanów, „jeden rząd” małego albumu w regule, algorytm rzędów nieopisany, pełny ekran przeglądarki na telefonie wbrew zasadzie arkusza. Ponowne sprawdzenie: 5/5 poprawione, werdykt bez nowych P0–P2
+- Defekty po odbiorze: znany P3 (klon pod przeglądarką)
+- Wymagane testy i dowody: 70 zrzutów (stany × 3 szerokości × 2 motywy), arkusze kontrolne architekta, skrypt rzędów (44 ramki, 372 rzędy, odchylenie sumy 0 px, proporcji ≤ 0,75 %), kontrasty tekstu i ikony, wymiary kontrolek przeglądarki ≥ 44 px
+- Uwagi do pakietu: (1) klauzula „ZATRZYMAJ SIĘ” w briefie recenzji zatrzymała Sola dwa razy na drobnych lukach — brief recenzji mówi teraz „zgłoś lukę i recenzuj dalej; zatrzymaj się tylko, gdy recenzja jest niemożliwa”; (2) brief makiety ma podawać proporcje plików przykładowych i wymagać kafli w proporcjach zdjęć; (3) brief ma wymagać spójności treści przykładowej między ekranami (te same kadry w mozaikach, licznik przeglądarki = n-te zdjęcie albumu) — wyłapał to dopiero recenzent; (4) wygląd elementu z zaakceptowanej makiety HTML (bieżąca miniatura) trzeba przepisać do briefu dosłownie, bo wykonawca dobrał najbliższy wariant komponentu (Focus); (5) stany budowane z klonów ramek dziedziczą defekty bazowe — poprawka rzędów objęła 44 ramki w 8 sekcjach; płaskie klony pod przeglądarką brief ma wymieniać z decyzją, czy je odświeżać; (6) zrzuty tabletu stanów brief ma żądać od razu, bo recenzja ich potrzebuje
+
+### MPLRT ADO galeria — Feature, 3 PBI z opisami dla testera, 20 zrzutami i 18 taskami (1 brief + architekt) — 2026-11-25/26
+- Archetyp: pozycje ADO z dokumentacji: struktura Feature, PBI i taski oraz opisy i kryteria dla testera, zrzuty Figmy i linki
+- Stawka: niska–średnia (tekst dla testera, bez kodu)
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse Spark 1.3 `max` contributor (opisy i kryteria 3 PBI, 6,0 min) + architekt (struktura przez MCP, korekty treści, złożenie zrzutów, wgranie przez REST, linki)
+- Recenzent: architekt (rodzina Claude, inna niż autor) — odczyt `ado-wi.py` i porównanie z dokumentacją
+- Dopuszczone alternatywy: Gemini 4 Neon (A) do opisów; Codex krótki brief
+- Powód wyboru: brief tekstowy bez Figmy i bez niezmiennika — najpierw poza pulą Claude'a (reguła 3); Spark `max` według reguły 8
+- Sygnał dostępności: Claude ŻÓŁTY, tydzień 84 %; Muse tydzień 7–8 % (hook, 2026-11-25)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: opisy zgodne z dokumentacją; zdanie spoza zakresu (logowanie testera do panelu), brak zdania o pasku strony głównej dla małego albumu, odwołania między PBI bez numerów. Spark uznał, że PBI 1 „nie ma makiety Figmy” — zgodnie ze stanem dokumentacji w chwili briefu
+- Rundy korekt: 0 briefów; architekt sam 5 poprawek treści przed wgraniem i 3 po recenzji Figmy (mały album w rzędach, linia nad „Wszystkie zdjęcia”, wygląd bieżącej miniatury)
+- Czas do akceptacji: #3048 i #3049 w ok. 30 min od briefu; #3047 po odbiorze Figmy (ok. 3 h później)
+- Znaleziska recenzji: n/d (odbiór architekta)
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: odczyt `ado-wi.py` #3046–#3067 (rodzic, iteracja, przypisania), #3047: opis 15 006 znaków z 20 obrazami, 13 linkami Figmy i 4 do dokumentacji, kryteria 4 008 znaków
+- Uwagi do pakietu: (1) `update_batch` MCP dla 18 tasków przekroczył limit odpowiedzi — weryfikacja przez `ado-wi.py`; (2) opis PBI z makietą wgrywać po recenzji makiety: recenzja zmieniła zrzuty i 3 zdania opisu; (3) zrzuty osadzone jako adresy załączników w opisie, bez relacji AttachedFile — jak w #3025 i #3016
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
