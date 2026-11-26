@@ -16176,3 +16176,21 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: brak znanych; braki biblioteki (3 style tekstu, rola podświetlenia trafienia) zgłoszone do dokumentu braków
 - Wymagane testy i dowody: zrzuty wszystkich ramek (F1 31, F2 53, F3 53), skryptowy audyt zmiennych (0 lokalnych kolorów, 0 niezwiązanych), wyrywkowy przegląd zrzutów telefonu przez architekta
 - Uwagi do pakietu: dwa błędy wyszły z briefów architekta (stany tylko w komponentach, „przejścia między stronami” zamiast protokołów) — wspólny brief Figmy musi cytować zasady `praca-w-figmie.md` o sekcjach stanów i tablecie; recenzję F2 uruchomiono z wadliwym briefem i zatrzymano dwa razy (rekordy `running` w `worker-status` to te przerwane przebiegi)
+
+### MPLRT wyniki — dokumentacja makiety, opisy PBI dla testera i elementy ADO: Feature, 3 PBI, 18 tasków, 28 zrzutów (3 briefy + 2 nieudane przebiegi) — 2026-11-26
+- Archetyp: dokumentacja makiety + opisy PBI dla testera + operacyjne pozycje ADO
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): dokumentacja makiety i opisy PBI — Muse Spark 1.3 contributor `max` (Windows, write, równolegle); utworzenie w ADO — najpierw Spark `high` (2 × nieudany start), potem Gemini 4 Neon `high` (A, write)
+- Recenzent (linia / model / native effort): architekt (diff, kontrola odnośników, odczyt ADO przez `ado-wi.py` i REST: rodzice, dzieci, 28 obrazów, 32 kryteria)
+- Dopuszczone alternatywy: Codex ≤ 5 plików; `wykonawca` zablokowany przy CZERWONYM
+- Powód wyboru: briefy bez Figmy i bez niezmiennika poza pulą Claude'a (reguła 3); po błędzie Muse ponowna kwalifikacja do Gemini A, które ma MCP ADO
+- Sygnał dostępności: Muse tydzień 17 % (`[pule]`); Gemini A ok (`[pule]`, 2026-11-26)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: dokumentacja makiety zaakceptowana, trzy rozbieżności z opisem widoku (pionowe przyciski w karcie, 30 px od paska mediów, dwie linie paska czytnika na tablecie) dopisane przez architekta do tabeli układu jako propozycja 7; opisy PBI — PBI 2 miał zamianę pliku i usuwanie pozycji, których dokumentacja panelu nie opisuje (błąd briefu architekta), usunięte przez architekta; Spark postawił `{{LINKI}}` na końcu zdania, skrypt składania poprawiony
+- Rundy korekt: 0 przez workera; drobne korekty architekta (reguła 11); `PBI 1/2` w #3071 zamienione na numery przez REST
+- Czas do akceptacji: ok. 40 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: kontrola odnośników (2 zgłoszenia `zasady-użycia-1` to fałszywy alarm sprawdzacza przy powtórzonym nagłówku), odczyt ADO
+- Uwagi do pakietu: Muse na Windows od ok. 17:55 pada przy starcie z `API error 400: Recursive JSON schemas are not currently supported` niezależnie od repo, prawdopodobnie po aktualizacji któregoś serwera MCP z `npx …@latest`; Muse bez ustalenia serwera jest niedostępny dla briefów z MCP. Wartość `PERSONAL_ACCESS_TOKEN` w `~/.claude.json` jest już zakodowana do nagłówka `Basic` (jak w `ado-wi.py`), a podwójne kodowanie daje 203. Skill ADO MPLRT ma nieaktualne nazwy narzędzi MCP (`wit_create_work_item` i inne zamiast `wit_work_item_write`)
