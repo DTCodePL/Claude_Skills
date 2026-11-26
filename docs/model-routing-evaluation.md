@@ -15752,6 +15752,78 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Wymagane testy i dowody: odczyt `ado-wi.py` #3046–#3067 (rodzic, iteracja, przypisania), #3047: opis 15 006 znaków z 20 obrazami, 13 linkami Figmy i 4 do dokumentacji, kryteria 4 008 znaków
 - Uwagi do pakietu: (1) `update_batch` MCP dla 18 tasków przekroczył limit odpowiedzi — weryfikacja przez `ado-wi.py`; (2) opis PBI z makietą wgrywać po recenzji makiety: recenzja zmieniła zrzuty i 3 zdania opisu; (3) zrzuty osadzone jako adresy załączników w opisie, bez relacji AttachedFile — jak w #3025 i #3016
 
+### pasu.je Tricount — przygotowanie: zwiad, kontrola wykonalności, sondy API, dokumentacja (8 przebiegów) — 2026-11-25
+- Archetyp: research i fakty z repo (FE i BE), kontrola wykonalności planu, sonda nieoficjalnego API na grupie testowej, dokumentacja decyzji i konfiguracji
+- Stawka: średnia (fakty pod plan funkcji high-stakes; sonda na prawdziwej grupie testowej, bez danych partnerów)
+- Niepewność: wysoka (nieoficjalne API bez dokumentacji, model rejestracji urządzenia i podziału kwot)
+- Wykonawca (linia / model / native effort): zwiad faktów Gemini 3.8 Flash `high` (B, 22,4 min); zwiad FE i BE Gemini 4 Hydrogen `high` (B 2,3 min, C 4,0 min); kontrola wykonalności Muse Spark 1.3 `max` (read, 7,9 min; Neon `high` padł po 1,2 min); sondy T0 i T0b Spark `max` (write, 12,9 i 41,1 min); dokumentacja T3 Spark `max` (2,2 min); zwiad zamówienia testowego PreProd Hydrogen `high` (C, 4,4 min)
+- Recenzent (linia / model / native effort): dokumentacja — Gemini 4 Hydrogen `high` (B, 2,0 min); fakty i sondy — architekt (rodzina Claude)
+- Dopuszczone alternatywy: `zwiadowca` (fakty), Codex research bez powłoki, Neon (A) do kontroli wykonalności
+- Powód wyboru: praca bez niezmiennika poza pulą Claude'a (reguła 3); B i C naprzemiennie do odczytu
+- Sygnał dostępności: Claude ŻÓŁTY, tydzień ok. 85–88 %; Muse tydzień ok. 10 %; Gemini A/B/C ok (hook, 2026-11-25)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zwiady i kontrola wykonalności użyteczne; T0 dał niepełny obraz rejestracji urządzenia, T0b go domknął; plan miał błędne założenie o zamówieniu ręcznym na PreProd (zwiad PreProd je obalił — zastąpione lokalnym e2e)
+- Rundy korekt: 1 (T0b)
+- Czas do akceptacji: ok. 2 h od zwiadu do planu (szacunek)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): dokumentacja — drobne uwagi treści, poprawione; liczby w logach przebiegów
+- Defekty po odbiorze: brak
+- Wymagane testy i dowody: zapis sond (bez poświadczeń w repo), notatki API, plan zaakceptowany przez właściciela
+- Uwagi do pakietu: (1) link zaproszenia do grupy testowej trzymany wyłącznie w pliku roboczym, nigdy w briefie ani logu; (2) sondę nieoficjalnego API warto od razu dzielić na rejestrację i odczyt/zapis — T0 i T0b to jedna jednostka w dwóch przebiegach
+
+### pasu.je Tricount BE — pliki niezmiennika: klient i połączenie, kandydaci, cykl wysyłki, poprawki po recenzjach i bramce (13 briefów) — 2026-11-25/26
+- Archetyp: BE high-stakes — naliczanie wartości (wpisy przychodu i wysyłki w saldzie wspólników), idempotencja wpisów, blokady SQL Server, cykl w tle, migracje DbUp
+- Stawka: wysoka (zła kwota albo podwójny/zgubiony wpis w saldzie)
+- Niepewność: wysoka (nieoficjalne API, współbieżność cyklu i CRM, przełączanie grupy)
+- Wykonawca (linia / model / native effort): `wykonawca-opus` — Opus 5.5 `xhigh`. T1 44,5 min / 123 wyw. / 339 tys.; T2 25,4 / 66 / 193 tys.; T6a 18,3 / 62 / 257 tys.; T6b 14,8 / 68 / 246 tys.; T6K 9,6 / 65 / 211 tys.; T7a 11,6 / 54 / 195 tys.; T7b 24,4 / 82 / 317 tys. (próg miękki); T7K 8,3 / 67 / 191 tys.; K-gate 17,2 / 82 / 273 tys.; G1 13,0 / 105 / 260 tys.; G2 13,8 / 116 / 227 tys.; G3 13,9 / 83 / 230 tys.; G4K 5,2 / 36 / 134 tys.
+- Recenzent (linia / model / native effort): próba G4 naprzemiennie — Muse Wonder Full `max` (R1 17,6 min, R6 42,2 min, R7b 27,9 min, R-G3 9,8 min) i Gemini 4 Neon `xhigh` (A, read: R2 9,9 min, R7a 12,6 min, R-G12 13,7 min); recenzent dodatkowy Gemini 4 Carbon `high` (cały BE, 25,2 min); bramka Sol `max` (16,7 min) i zawężona bramka poprawek (12,5 min)
+- Dopuszczone alternatywy: brak dla wykonawcy (pliki niezmiennika tylko `wykonawca-opus`; C2 nieużyte); recenzja — Sol `high` po limicie Wondera
+- Powód wyboru: twarda bramka high-stakes; recenzenci według próby G4 i reguły 13
+- Sygnał dostępności: Claude ŻÓŁTY, tydzień 86 → 90 %, tempo +29 → +33 pp; Codex 5 h 0 → 59 %, tydzień 9 → 18 %; Wonder 5/10 w tygodniu, 3/3 dzień 26.11 (hook, wrapper, 2026-11-25/26)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: T1/T2/T6/T7 przyjęte po korektach recenzji (T6K, T7K); bramka Sol znalazła 5 defektów wysokiej stawki (anulowanie po pobraniu kandydatów, wpis do poprzedniej grupy, ukryta korekta przez nieaktualną kartę, kwota z dwóch wersji kosztów, trwały brak sesji niewidoczny) — poprawione w G1–G3 (D-227)
+- Rundy korekt: T6K, T7K, K-gate (po Carbonie i bramce FE), G1–G3 (po bramce), G4K (po R-G12); G5K bez niezmiennika (osobny wpis)
+- Czas do akceptacji: ok. 8 h aktywnej pracy od T1 do zawężonej bramki (szacunek)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-G12 (Neon) — 1 × P2 i 1 × P3 potwierdzone (G4K), 1 × P3 przyjęte; R-G3 (Wonder) — 0 × P0–P2, 2 × P3 poprawione (G5K), 1 × P3 przyjęte; zawężona bramka Sol — 5 × P2 + 1 × P3: 2 odrzucone (Allegro bez wiersza importu — ścieżka nieosiągalna; szybkie przełączenie wyłącz/włącz — awaria prawdziwa), 4 przyjęte jako znane ryzyko (D-227). Wcześniejsze recenzje fal (R1, R2, R6, R7a, R7b) — liczby w logach przebiegów
+- Defekty po odbiorze: brak znanych na chwilę wdrożenia
+- Wymagane testy i dowody: `dotnet build` bez ostrzeżeń; pełny `dotnet test` 9084 / 1 pominięty (przed pushem); testy filtrów Tricount/OpsHealth 350; czerwone testy G4K bez poprawki (3/4); lokalne e2e z prawdziwą grupą testową (rezerwacja, wysyłka, anulowanie, potwierdzenie, 409)
+- Uwagi do pakietu: (1) G4: po plikach recenzowanych przez Neona (G1/G2) zawężona bramka zgłosiła 5 × P2 (żadne nie wymagało poprawki), po plikach Wondera (G3) — 0; jeden punkt danych, bez wniosku; (2) T1 44,5 min i T7b przy progu miękkim — następny plan dzieli cykl i klienta drobniej; (3) brief bramki zawężonej musi wymieniać przyjęte okna D-227, inaczej wraca z nimi jako P2
+
+### pasu.je Tricount BE — briefy bez niezmiennika: ustawienia i koszty wysyłki, dziennik wpisów i alerty, korekty (5 briefów) — 2026-11-25/26
+- Archetyp: BE CRUD i odczyty CRM, alerty pulpitu, testy integracyjne SQL Server; korekta testów, komentarzy i `ToString()`
+- Stawka: średnia (ustawienia i widoki, bez naliczania)
+- Niepewność: średnia
+- Wykonawca (linia / model / native effort): Muse Spark 1.3 `max` contributor (write, host windows) — T5 24,1 min, T5-K 6,2 min, T9 12,1 min, T9-K 5,9 min, G5K 2,9 min
+- Recenzent (linia / model / native effort): Gemini 4 Hydrogen `xhigh` (R5 — C, 6,5 min; R9 — B, 6,5 min); G5K — architekt (rodzina Claude) i zawężona bramka Sol `max`
+- Dopuszczone alternatywy: `wykonawca` Sonnet `high`, Gemini 4 Neon (A), Codex krótki brief
+- Powód wyboru: brief bez Figmy i bez niezmiennika — najpierw poza pulą Claude'a (reguła 3); Spark `max` według reguły 8
+- Sygnał dostępności: Muse tydzień 10–16 %, okno 5 h do 23 % (hook, 2026-11-25/26)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: T5 i T9 przyjęte po jednej korekcie każdy; G5K bez korekt
+- Rundy korekt: 1 (T5-K), 1 (T9-K), 0 (G5K)
+- Czas do akceptacji: T5 ok. 40 min, T9 ok. 30 min, G5K ok. 5 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R5 i R9 — potwierdzone poprawione w korektach; liczby w logach przebiegów
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `dotnet build` bez ostrzeżeń, filtr Tricount 336 bez pominiętych (G5K), pełny zestaw architekta po fali
+- Uwagi do pakietu: (1) Spark `max` z `dotnet test` na hoście windows działa stabilnie; (2) G5K: brief „tylko X, Y, Z” w `ToString()` — Spark słusznie zapytał o konwencję maskowania pól
+
+### pasu.je Tricount FE — zakładka CRM (ustawienia, koszty, połączenie, wpisy, problemy), poprawki po bramce i recenzjach (12 briefów) — 2026-11-25/26
+- Archetyp: FE ekrany CRM bez Figmy (Signal Forms, PrimeNG 22, ngx-mask), fokus i dostępność, i18n; wspólne pole liczbowe
+- Stawka: średnia (ekran funkcji high-stakes bez pliku niezmiennika; kontrakt potwierdzenia korekty)
+- Niepewność: średnia (kolejność nasłuchów ngx-mask, fokus po akcjach asynchronicznych)
+- Wykonawca (linia / model / native effort): Gemini 4 Neon `high` (A, write) — T4 11,2 min, T4-K 13,0, T8 11,5, T8-K 5,4, T4/8-K 9,1, T8-K2 5,6, K-gate 22,0, D-226 6,7, K3 4,8 (zatrzymany na błędnym założeniu briefu), K4 8,6, K5 7,0, K6 4,7, K7 3,5
+- Recenzent (linia / model / native effort): Muse Spark 1.3 `max` (read) — R4 11,3 min, R4+8 8,9, R-FE-K 17,6, R-FE-K34 17,4, R-FE-K5 7,3, R-FE-K6 6,6; bramka Sol `max` FE (14,0 min); K7 — architekt. Carbon nie czytał FE (reguła 13: nie recenzuje pracy Gemini)
+- Dopuszczone alternatywy: `wykonawca` Sonnet `high` (kontekst sesji), Spark `max` (write), Codex ≤ 5 plików; recenzja — Sol `high`, Hydrogen `xhigh`
+- Powód wyboru: brief bez Figmy i bez niezmiennika poza pulą Claude'a (reguła 3); recenzja innej rodziny niż Gemini
+- Sygnał dostępności: Gemini A ok (wrapper); Muse tydzień 10–16 % (hook, 2026-11-25/26)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: zakładka zgodna z planem; bramka FE i recenzje znalazły m.in. 415 przy akcjach bez treści, kontrakt D-226, kropkę z klawiatury ekranowej wycinaną przez maskę (błąd sprzed funkcji, w całym CRM), „5.5” → 55 w procentach całkowitych, fokus po 409 i po błędach
+- Rundy korekt: 9 briefów korekt (T4-K, T8-K, T4/8-K, T8-K2, K-gate, D-226, K4, K5, K6, K7; K3 zastąpiony przez K4)
+- Czas do akceptacji: ok. 6 h aktywnej pracy (szacunek)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): R-FE-K34 — 3 potwierdzone (fokus po 409, procenty, test sekcji anulowanych); R-FE-K5 — P2 + P3 potwierdzone; R-FE-K6 — P2 (zabieranie fokusu) + P3 (test) potwierdzone; wcześniejsze — liczby w logach przebiegów
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: `npm run lint`, `prettier --check .`, `ng test` 3752 + 2 oczekiwane porażki, `ng build` (znane ostrzeżenie budżetu SCSS konfiguratora)
+- Uwagi do pakietu: (1) pętla recenzji fokusu: każda ponowna recenzja Sparka znajdowała kolejną ścieżkę — brief fokusu ma od razu wyliczać wszystkie ścieżki (sukces, 409 z udanym i nieudanym odświeżeniem, inny błąd, użytkownik gdzie indziej); (2) ngx-mask: nasłuch `(input)` hosta biegnie przed nasłuchem szablonu — normalizacja przed maską tylko w fazie przechwytywania; (3) Neon trafnie zatrzymał się na błędnym założeniu briefu K3
+
 ### Zapisy przeglądów
 
 #### Przegląd 1 — 2026-10-12
