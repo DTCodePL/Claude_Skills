@@ -16122,3 +16122,57 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: brak znanych
 - Wymagane testy i dowody: `npm run lint`, `prettier --check`, i18n `--check`, `ng test` 3761 + 2 oczekiwane porażki (298 plików), `ng build` (znane ostrzeżenie budżetu SCSS konfiguratora)
 - Uwagi do pakietu: Neon trafnie wskazał w FE-K2 błędne założenie briefu (istniejące sekcje celowo zostawiają starą tabelę przy błędzie) i pominął punkt fokusu zgodnie z warunkiem briefu
+
+### MPLRT wyniki — dokumentacja: implementacja spisu wyłącznie w .NET, kryterium odbioru na 63 PDF-ach (1 brief) — 2026-11-26
+- Archetyp: dokumentacja decyzji (aktualizacja istniejącej decyzji, bez nowego widoku)
+- Stawka: niska
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Muse Spark 1.3 contributor `max` (Windows, write)
+- Recenzent (linia / model / native effort): brak osobnej recenzji; odbiór architekta (diff, kontrola odnośników), zmiana mieściła się w już zrecenzowanej decyzji
+- Dopuszczone alternatywy: Gemini 4 Neon (A), Codex ≤ 5 plików; `wykonawca` zablokowany przy CZERWONYM
+- Powód wyboru: brief bez Figmy i bez niezmiennika poza pulą Claude'a (reguła 3), Spark `max` według reguły 8
+- Sygnał dostępności: Claude CZERWONY (tydzień 96 %, hook); Muse bez 429 (wrapper, 2026-11-26)
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: zaakceptowany (decyzja 11, kryterium odbioru, propozycje 15 i 16, rozstrzygnięta KO)
+- Rundy korekt: 0
+- Czas do akceptacji: ok. 20 min
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: kontrola względnych odnośników i kotwic, przegląd diffu
+- Uwagi do pakietu: brak
+
+### Routing — Figma dla Codexa i Gemini A: sondy MCP i propagacja do plików pochodnych (6 sond + 1 brief) — 2026-11-26
+- Archetyp: sonda dostępu narzędzi + mechaniczna propagacja zmiany routingu
+- Stawka: niska
+- Niepewność: wysoka przed sondami (dostęp MCP nieznany)
+- Wykonawca (linia / model / native effort): sondy — Codex `gpt-6.2-sol` `low` (4 przebiegi), Gemini 4 Neon `low` (A, 2 przebiegi); propagacja — Muse Spark 1.3 contributor `max` (write)
+- Recenzent (linia / model / native effort): architekt (diff skilli i `AGENTS.md`, `sync-routing.py --check`)
+- Dopuszczone alternatywy: brak dla sond (każdy silnik sprawdza własny dostęp)
+- Powód wyboru: decyzja właściciela 2026-11-26, że Codex i Gemini A mogą robić Figmę; Muse odpada
+- Sygnał dostępności: Codex 5 h 81 % (`[pule]`), Gemini A bez 429 w sondach
+- Pewność decyzji: wysoka
+- Wynik pierwszego podejścia: Codex — MCP po `codex mcp login figma`, `use_figma` dopiero z `approval_mode = "approve"` w `config.toml`; curl w piaskownicy Codexa pada na TLS, więc zrzuty pobiera ktoś inny. Gemini A — `figma_figma` po logowaniu właściciela, działa tylko z `-Access write` (tryb bez okna odrzuca MCP przy `read`). Muse — zdalny serwer odrzuca logowanie (brak dynamicznej rejestracji klienta), serwer aplikacji Figma tylko odczyt
+- Rundy korekt: 1 (dwie pozostałości „Muse i Gemini nie” w skillach poprawione przez architekta)
+- Czas do akceptacji: ok. 1 h
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): nie dotyczy
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: sondy `get_metadata` i `use_figma` (odczyt), `sync-routing.py --check`, rozmiar `AGENTS.md` MPLRT_FE ≤ 64 000 B (63 978 B po skróceniu akapitu)
+- Uwagi do pakietu: skrócenie wspólnego akapitu Figmy było konieczne, bo MPLRT_FE przekroczył limit Sparka
+
+### MPLRT wyniki — makieta Figmy: lista wyników, ekran dokumentu, czytnik i stany brzegowe (F1 Codex, F2 i F3 Gemini, 3 korekty, 3 recenzje) — 2026-11-26
+- Archetyp: makieta w Figmie przez `use_figma` (ekrany i stany elementów według `praca-w-figmie.md`), pierwsze briefy Figmy Codexa i Gemini
+- Stawka: niska (makieta, bez niezmiennika)
+- Niepewność: średnia (nowa linia wykonawcza dla Figmy)
+- Wykonawca (linia / model / native effort): F1 i F1-K1 — Codex `gpt-6.2-sol` `high` (write); F2, F2-K1, F3, F3-K1 — Gemini 4 Neon `high` (A, write); pobranie zrzutów F1 i odczyt zmiennych — Gemini 4 Neon `low` (A, write)
+- Recenzent (linia / model / native effort): F1 — Gemini 4 Hydrogen `xhigh` (B, read, zrzuty); F2 i F3 — Codex `gpt-6.2-sol` `medium` (read, zrzuty); zmienne i wyrywkowe zrzuty — architekt
+- Dopuszczone alternatywy: `wykonawca` Sonnet `high` z Figma MCP (zablokowany przy CZERWONYM); Muse odpada (brak Figma MCP)
+- Powód wyboru: Claude CZERWONY; F1 na Codexie przed decyzją o Gemini, F2 i F3 na Gemini A, żeby oszczędzić pulę Codexa na bramkę; recenzja zawsze z innej rodziny niż autor
+- Sygnał dostępności: Codex 5 h 81 %, tydzień 36 % (`[pule]`); Gemini A — 429 przy pierwszej próbie F2 (okno 5 h, wrapper), potem bez blokad
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: F1 — brak stanów interakcji jako osobnych sekcji (błąd briefu architekta); F2 — jeden dokument z kartami i listą naraz, ikony pod pływającym paskiem, fokus bez przerwy; F3 — niespójna tabela strony 9, ucięty arkusz na telefonie, brak skrajnych protokołów, tablet nie sprawdzony
+- Rundy korekt: 3 (F1-K1, F2-K1, F3-K1), każda zaakceptowana bez kolejnej rundy
+- Czas do akceptacji: ok. 3 h dla całej makiety (14:47–17:47)
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): Hydrogen F1 — werdykt zgodna 0,9, uwaga o nieaktualnym zdaniu w `praca-w-figmie.md`; Codex F2 i F3 — błędy danych przykładowych, stany i tablet potwierdzone i poprawione w K1
+- Defekty po odbiorze: brak znanych; braki biblioteki (3 style tekstu, rola podświetlenia trafienia) zgłoszone do dokumentu braków
+- Wymagane testy i dowody: zrzuty wszystkich ramek (F1 31, F2 53, F3 53), skryptowy audyt zmiennych (0 lokalnych kolorów, 0 niezwiązanych), wyrywkowy przegląd zrzutów telefonu przez architekta
+- Uwagi do pakietu: dwa błędy wyszły z briefów architekta (stany tylko w komponentach, „przejścia między stronami” zamiast protokołów) — wspólny brief Figmy musi cytować zasady `praca-w-figmie.md` o sekcjach stanów i tablecie; recenzję F2 uruchomiono z wadliwym briefem i zatrzymano dwa razy (rekordy `running` w `worker-status` to te przerwane przebiegi)
