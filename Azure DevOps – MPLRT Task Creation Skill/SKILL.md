@@ -7,7 +7,7 @@ description: >
   Wymusza weryfikację hierarchii Epic→Feature przed utworzeniem PBI,
   pilnuje przypisań i sprintów, treści pisze po polsku, czerpie opisy
   z zatwierdzonej dokumentacji produktowej i linkuje do dokumentacji interfejsów lub Figmy.
-version: '1.0'
+version: '1.1'
 language: pl
 project: MPLRT
 organization: DTCode
@@ -306,36 +306,88 @@ Powód: Figma zawiera zaakceptowane mockupy, które tester ma weryfikować. Scre
 
 **Krok 1 — Pobierz screenshot z Figmy (gdy ekran ma makietę)**
 
-Używając `get_screenshot` lub `use_figma` z Figma MCP pobierz PNG dla odpowiedniego node-id z pliku MPLRT.
+Używając `get_screenshot` lub `use_figma` z Figma MCP pobierz adres zrzutu PNG dla odpowiedniego node-id z pliku MPLRT.
 
 ```
 get_screenshot(fileKey: "4wlzvrRUg5fr89LjGDS5Bd", nodeId: "<node-id>")
 ```
 
-Wynik to plik PNG (binarny lub base64). Zapisz go lokalnie do pliku tymczasowego.
+`get_screenshot` zwraca **krótkotrwały adres URL** do wyrenderowanego PNG — **nie zapisuj tego adresu w plikach ani w opisach ADO**. Od razu pobierz z niego plik PNG lokalnie do katalogu tymczasowego:
+
+```powershell
+Invoke-WebRequest -Uri "<krótkotrwały_url_z_get_screenshot>" -OutFile "C:\tmp\screen.png" -UseBasicParsing
+```
 
 **Krok 2 — Wgraj PNG jako załącznik do ADO**
 
-Użyj ADO REST API (nie MCP — MCP nie obsługuje uploadu binarnych plików). Endpoint przyjmuje
-**nazwę projektu** zamiast GUID — działa tak samo:
+**Sposób 1 (preferowany) — MCP `wit_work_item_attachment_upload`:**
+
+Serwer MCP obsługuje upload plików binarnych zakodowanych w Base64. Zakoduj bajty pobranego PNG do czystego ciągu Base64 (bez prefiksu `data:image/png;base64,` i bez znaków nowej linii):
 
 ```powershell
-$PAT   = "<token>"
-$B64   = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(":$PAT"))
-$hdrs  = @{ Authorization = "Basic $B64"; "Content-Type" = "application/octet-stream" }
-$bytes = [IO.File]::ReadAllBytes("C:\tmp\screen.png")
-$resp  = Invoke-WebRequest `
-  -Uri "https://dev.azure.com/DTCode/MPLRT/_apis/wit/attachments?fileName=screen.png&api-version=7.1" `
-  -Method Post -Headers $hdrs -Body $bytes -UseBasicParsing
-$url = ($resp.Content | ConvertFrom-Json).url
+$content = [Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\tmp\screen.png"))
 ```
 
-`$url` to czysty URL załącznika — np. `https://dev.azure.com/DTCode/MPLRT/_apis/wit/attachments/{guid}?fileName=screen.png`.
+Przekaż zakodowany ciąg jako `content`:
 
-> 🔑 PAT znajdziesz w pliku konfiguracyjnym MCP (`~/.claude.json` pod kluczem `mcpServers.azure-devops.env.PERSONAL_ACCESS_TOKEN`).
+```
+wit_work_item_attachment_upload(
+  project:  "MPLRT",
+  fileName: "screen.png",
+  content:  "<czysty_base64_z_$content>"
+)
+→ zwrócony JSON zawiera pole `url`, np. https://dev.azure.com/DTCode/MPLRT/_apis/wit/attachments/{guid}?fileName=screen.png
+```
+
+Jeśli chcesz dodatkowo przypiąć plik w zakładce Attachments work itema (poza samym `<img>` w opisie), użyj `wit_work_item_attachment_link(project: "MPLRT", workItemId: <ID>, attachmentUrl: "<url>")`.
+
+**Sposób 2 (zapasowy, np. dla dużych plików PNG z dysku) — ADO REST API:**
+
+Endpoint przyjmuje **nazwę projektu** zamiast GUID — działa tak samo. Wartość `PERSONAL_ACCESS_TOKEN` w konfiguracji MCP jest **już zakodowana Base64 do nagłówka `Basic`**, więc odczytaj ją w tym samym skrypcie z `~/.claude.json` do zmiennej i przekaż bezpośrednio jako `"Basic " + wartość` — **bez wklejania tokenu do polecenia, bez wypisywania i bez ponownego kodowania Base64**. Przed parsowaniem odpowiedzi sprawdź status HTTP:
+
+```powershell
+$cfgPath = Join-Path $HOME ".claude.json"
+$cfg     = Get-Content -Raw -Path $cfgPath | ConvertFrom-Json
+$b64     = $cfg.mcpServers.'azure-devops'.env.PERSONAL_ACCESS_TOKEN
+if ([string]::IsNullOrWhiteSpace($b64)) {
+  throw "Brak wartości mcpServers.azure-devops.env.PERSONAL_ACCESS_TOKEN w ~/.claude.json"
+}
+
+$hdrs  = @{ Authorization = "Basic $b64"; "Content-Type" = "application/octet-stream" }
+$bytes = [IO.File]::ReadAllBytes("C:\tmp\screen.png")
+
+try {
+  $resp = Invoke-WebRequest `
+    -Uri "https://dev.azure.com/DTCode/MPLRT/_apis/wit/attachments?fileName=screen.png&api-version=7.1" `
+    -Method Post -Headers $hdrs -Body $bytes -UseBasicParsing
+  $status = [int]$resp.StatusCode
+} catch {
+  if ($_.Exception.Response) {
+    $status = [int]$_.Exception.Response.StatusCode
+  } else {
+    throw
+  }
+}
+
+if ($status -in 203, 401) {
+  throw "Błąd uwierzytelnienia ADO (HTTP $status) — wygasły token PAT albo błędny nagłówek Authorization."
+}
+if ($status -ne 201) {
+  throw "Nieoczekiwany status ADO przy wgrywaniu załącznika: HTTP $status"
+}
+
+$url = ($resp.Content | ConvertFrom-Json).url
+if ([string]::IsNullOrWhiteSpace($url)) {
+  throw "Odpowiedź 201 Created nie zawiera pola url."
+}
+```
+
+Dopiero po potwierdzeniu statusu `201 Created` i niepustego `$url` (np. `https://dev.azure.com/DTCode/MPLRT/_apis/wit/attachments/{guid}?fileName=screen.png`) podpinaj załącznik przez `wit_work_item_attachment_link` albo wstawiaj obraz do opisu.
+
+> 🔑 Skrypt odczytuje token z `~/.claude.json` (`mcpServers.azure-devops.env.PERSONAL_ACCESS_TOKEN`). W środowiskach korzystających z innej ścieżki konfiguracji MCP (np. `~/.gemini/config/mcp_config.json`) podmień `$cfgPath`.
 >
-> ⚠️ Jeśli upload lub wywołanie MCP kończy się `203` (zwrócona strona logowania) albo `401`, **nie kombinuj z innymi tokenami** — to znaczy, że PAT wygasł; zgłoś użytkownikowi konieczność odnowienia.
-> Nigdy nie wypisuj wartości tokenu w odpowiedzi ani w logach.
+> ⚠️ Odpowiedź `203` (zwrócona strona logowania) lub `401` oznacza **wygasły token PAT albo błędnie zbudowany nagłówek `Authorization`** (np. ponowne kodowanie Base64 już zakodowanej wartości). Najpierw sprawdź budowę nagłówka (`"Basic " + wartość` bez ponownego Base64); jeśli nagłówek jest poprawny albo `203`/`401` zwraca samo wywołanie MCP, **nie kombinuj z innymi tokenami** — PAT wygasł, zgłoś użytkownikowi konieczność odnowienia.
+> Nigdy nie wypisuj wartości tokenu ani nagłówka w odpowiedzi ani w logach.
 
 **Krok 3 — Wstaw URL do opisu (czysty, bez enkodowania)**
 
@@ -352,7 +404,7 @@ W HTML opisu używaj bezpośrednio zwróconego URL-a w atrybucie `src`. **Nigdy 
 <img src="%22https%3a//dev.azure.com/...%22" />
 ```
 
-**Krok 4 — Dodaj opis z obrazkami przez `wit_update_work_item`**
+**Krok 4 — Dodaj opis z obrazkami przez `wit_work_item_write` (`action: "update"`)**
 
 Przekaż HTML z czystymi URL-ami (Wzorzec 3). Sprawdź wynik — jeśli obrazki nie są widoczne, to URL jest nieprawidłowy.
 
@@ -403,22 +455,24 @@ Przekaż HTML z czystymi URL-ami (Wzorzec 3). Sprawdź wynik — jeśli obrazki 
 
 ### Narzędzia i kiedy ich używać
 
-| Narzędzie                    | Do czego                                                                                     | Uwagi                                                                                                             |
-| ---------------------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `wit_create_work_item`       | Tworzenie Feature / PBI / Bug (tytuł + pola podstawowe)                                       | **Nigdy nie przekazuj opisu tu — zrób to osobno przez update**                                                     |
-| `wit_add_child_work_items`   | Tworzenie 6 tasków pod jednym PBI — tworzy I linkuje w jednym wywołaniu                        | ⚠️ **NIE obsługuje `assignedTo` per item** — po wywołaniu ZAWSZE wykonaj batch update assignee (patrz Wzorzec 5)   |
-| `wit_work_items_link`        | Przypięcie rodzica (Epic→Feature, Feature→PBI)                                                 | Działa batchowo — do 6+ linków naraz                                                                               |
-| `wit_update_work_item`       | Dodanie opisu HTML i kryteriów akceptacji do PBI                                               | Osobne wywołanie po utworzeniu                                                                                     |
-| `wit_update_work_items_batch` | Masowa aktualizacja pól wielu elementów naraz — używane do ustawienia assignee na taskach      | Wymaga niepustej tablicy `updates`                                                                                 |
+| Narzędzie i akcja                                   | Do czego                                                                                     | Uwagi                                                                                                             |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `wit_work_item_write` (`action: "create"`)          | Tworzenie Feature / PBI / Bug / Task (tytuł + pola podstawowe)                               | **Nie przekazuj opisu tu — dodaj go osobno przez `action: "update"`**                                             |
+| `wit_work_item_write` (`action: "add_child"`)       | Tworzenie 6 tasków pod jednym PBI — tworzy I linkuje w jednym wywołaniu                      | ⚠️ **NIE obsługuje `assignedTo` per item** — po wywołaniu ZAWSZE wykonaj `update_batch` dla assignee (Wzorzec 5)  |
+| `wit_work_item_link_write` (`action: "link"`)       | Przypięcie rodzica (Epic→Feature, Feature→PBI)                                               | Działa batchowo — do 6+ linków naraz                                                                              |
+| `wit_work_item_write` (`action: "update"`)          | Dodanie opisu HTML i kryteriów akceptacji do pojedynczego elementu                           | Przyjmuje `updates` (`op`, `path`, `value`; **bez pola `format`**)                                                |
+| `wit_work_item_write` (`action: "update_batch"`)    | Masowa aktualizacja pól wielu elementów naraz — m.in. ustawienie assignee na taskach         | Wymaga niepustej tablicy `batchUpdates` (tu dostępne jest pole `format: "Html" \| "Markdown"`)                    |
+| `wit_work_item_attachment_upload`                   | Wgranie załącznika (np. PNG z Figmy jako czysty Base64)                                      | Zwraca `url` do użycia w `<img src="...">`; opcjonalnie podpięcie przez `wit_work_item_attachment_link`           |
 
 ---
 
 ### Wzorzec 1 — Tworzenie Feature / PBI / Task
 
-Wywołaj `wit_create_work_item` z wypełnioną tablicą `fields`. **Tablica nigdy nie może być pusta** — minimum to `System.Title`.
+Wywołaj `wit_work_item_write` z `action: "create"` i wypełnioną tablicą `fields`. **Tablica nigdy nie może być pusta** — minimum to `System.Title`.
 
 ```
-wit_create_work_item(
+wit_work_item_write(
+  action: "create",
   project: "MPLRT",
   workItemType: "Feature",          // lub "Product Backlog Item" / "Task" / "Bug"
   fields: [
@@ -430,16 +484,17 @@ wit_create_work_item(
 → zanotuj id z odpowiedzi
 ```
 
-> ⚠️ **NIE DODAWAJ** `System.Description` ani `Microsoft.VSTS.Common.AcceptanceCriteria` w tym kroku — ADO je zignoruje lub zwróci błąd. Opis dodaj osobno (Wzorzec 3).
+> ⚠️ **NIE DODAWAJ** `System.Description` ani `Microsoft.VSTS.Common.AcceptanceCriteria` w tym kroku — opis i kryteria dodaj osobno (Wzorzec 3).
 
 ---
 
 ### Wzorzec 2 — Linkowanie rodzica
 
-Po utworzeniu elementu (lub grupy elementów) przypnij go do rodzica przez `wit_work_items_link`. Działa batchowo — możesz podać do kilkunastu par naraz.
+Po utworzeniu elementu (lub grupy elementów) przypnij go do rodzica przez `wit_work_item_link_write` z `action: "link"`. Działa batchowo — możesz podać do kilkunastu par naraz.
 
 ```
-wit_work_items_link(
+wit_work_item_link_write(
+  action: "link",
   project: "MPLRT",
   updates: [
     { id: <ID_dziecka_1>, linkToId: <ID_rodzica>, type: "parent" },
@@ -459,25 +514,28 @@ wit_work_items_link(
 
 ### Wzorzec 3 — Dodanie opisu i kryteriów akceptacji (HTML)
 
-Po utworzeniu i zlinkowaniu elementu zaktualizuj opis i AC przez `wit_update_work_item`. Format musi być `Html` — ustaw go **na poziomie każdego obiektu update**, nie globalnie.
+Po utworzeniu i zlinkowaniu elementu zaktualizuj opis i AC przez `wit_work_item_write` z `action: "update"`. Schemat `updates` akceptuje wyłącznie `op`, `path`, `value` (**bez pola `format`** — jego dodanie powoduje błąd walidacji). Dla świeżo utworzonego elementu zapisuj HTML wprost do `/fields/System.Description` i `/fields/Microsoft.VSTS.Common.AcceptanceCriteria` — nowe pola wieloliniowe są domyślnie w formacie HTML. Pole raz przełączone na Markdown nie wraca do HTML.
 
 ```
-wit_update_work_item(
+wit_work_item_write(
+  action: "update",
   id: <ID_elementu>,
   updates: [
     {
-      path:   "/fields/System.Description",
-      value:  "<h3>User Story</h3><p>Jako ... chcę ... żeby ...</p><h3>Opis</h3><ul><li>...</li></ul>",
-      format: "Html"
+      op:    "add",
+      path:  "/fields/System.Description",
+      value: "<h3>User Story</h3><p>Jako ... chcę ... żeby ...</p><h3>Opis</h3><ul><li>...</li></ul>"
     },
     {
-      path:   "/fields/Microsoft.VSTS.Common.AcceptanceCriteria",
-      value:  "<ul><li>Kryterium 1</li><li>Kryterium 2</li></ul>",
-      format: "Html"
+      op:    "add",
+      path:  "/fields/Microsoft.VSTS.Common.AcceptanceCriteria",
+      value: "<ul><li>Kryterium 1</li><li>Kryterium 2</li></ul>"
     }
   ]
 )
 ```
+
+> 🛈 Jeśli aktualizujesz opisy wielu nowych elementów naraz przez `wit_work_item_write` z `action: "update_batch"` (struktura `batchUpdates` jak w Wzorcu 5, Krok B), możesz podać we wpisach `format: "Html"` (parametr `format` istnieje w `batchUpdates`, `fields` przy `create` oraz `items` przy `add_child`, gdzie domyślnie ma wartość `"Markdown"`).
 
 **Zasady HTML w opisach ADO:**
 
@@ -490,35 +548,39 @@ wit_update_work_item(
 
 ### Wzorzec 4 — Optymalny przepływ dla wielu PBI naraz
 
-Gdy tworzysz np. 6 PBI pod jednym Feature, nie twórz → linkuj → opisuj → twórz taski każdego osobno. Zrób to w 5 etapach:
+Gdy tworzysz np. 6 PBI pod jednym Feature, nie twórz → linkuj → opisuj → twórz taski każdego osobno. Zrób to w 5 etapach (pełne parametry wywołań w Wzorcach 1, 2, 3 i 5):
 
 ```
 ETAP 1 — Utwórz wszystkie PBI (sam tytuł + podstawowe pola)
-  wit_create_work_item(PBI #1) → ID: 331
-  ...
-  wit_create_work_item(PBI #6) → ID: 336
+  Dla każdego PBI (#1…#6) wywołaj wit_work_item_write z action: "create"
+  według Wzorca 1 (project: "MPLRT", workItemType: "Product Backlog Item",
+  fields z System.Title, System.AssignedTo, System.IterationPath)
+  → zanotuj ID zwrócone z odpowiedzi (np. 331…336).
 
-ETAP 2 — Zlinkuj wszystkie PBI naraz (jeden batch call)
-  wit_work_items_link(updates: [
+ETAP 2 — Zlinkuj wszystkie PBI naraz (jeden batch call według Wzorca 2)
+  wit_work_item_link_write(action: "link", project: "MPLRT", updates: [
     { id: 331, linkToId: <featureId>, type: "parent" },
     ...
     { id: 336, linkToId: <featureId>, type: "parent" }
   ])
 
 ETAP 3 — Zaktualizuj opisy i AC jeden po jednym
-  wit_update_work_item(331, description + AC)
-  ...
-  wit_update_work_item(336, description + AC)
+  Dla każdego PBI (331…336) wywołaj wit_work_item_write z action: "update"
+  według Wzorca 3 (id + updates z HTML dla /fields/System.Description
+  i /fields/Microsoft.VSTS.Common.AcceptanceCriteria).
 
-ETAP 4 — Utwórz 6 tasków pod każdym PBI (wit_add_child_work_items)
-  wit_add_child_work_items(parentId: 331, items: [FE, BE, DB, Figma, Manual tests, E2e tests])
-  ...
+ETAP 4 — Utwórz 6 tasków pod każdym PBI
+  Dla każdego PBI (331…336) wywołaj wit_work_item_write z action: "add_child"
+  według Wzorca 5 (Krok A): podaj parentId, workItemType: "Task",
+  project: "MPLRT" oraz items jako obiekty z polami title, description,
+  iterationPath i format: "Html".
   → zanotuj ID wszystkich zwróconych tasków (kolejność: FE, BE, DB, Figma, Manual, E2e)
 
-ETAP 5 — Ustaw assignee na WSZYSTKICH taskach (wit_update_work_items_batch)
-  ⚠️ wit_add_child_work_items NIE ustawia assignedTo — ten etap jest OBOWIĄZKOWY
-  → batch update FE/BE/DB (pozycje 1-3 każdego PBI) → kontakt@DTCode.pl
-  → batch update Figma/Manual/E2e (pozycje 4-6 każdego PBI) → Piotr.Tunski@DTCode.pl
+ETAP 5 — Ustaw assignee na WSZYSTKICH taskach
+  ⚠️ action: "add_child" NIE ustawia assignedTo — ten etap jest OBOWIĄZKOWY.
+  Wywołaj wit_work_item_write z action: "update_batch" według Wzorca 5 (Krok B):
+  → batchUpdates dla FE/BE/DB (pozycje 1-3 każdego PBI) → kontakt@DTCode.pl
+  → batchUpdates dla Figma/Manual/E2e (pozycje 4-6 każdego PBI) → Piotr.Tunski@DTCode.pl
 ```
 
 > ⛔ **STOP po Etapie 3 = błąd.** PBI bez tasków to niekompletna praca. Etapy 4 i 5 są obowiązkowe i nierozłączne.
@@ -527,22 +589,23 @@ ETAP 5 — Ustaw assignee na WSZYSTKICH taskach (wit_update_work_items_batch)
 
 ### Wzorzec 5 — Tworzenie tasków pod PBI i ustawianie assignee
 
-Używaj `wit_add_child_work_items` per PBI (tworzy i linkuje jednym wywołaniem), a następnie `wit_update_work_items_batch` dla assignee. To jedyna poprawna kolejność — narzędzie nie obsługuje `assignedTo` per item.
+Używaj `wit_work_item_write` z `action: "add_child"` per PBI (tworzy i linkuje jednym wywołaniem), a następnie `wit_work_item_write` z `action: "update_batch"` (`batchUpdates`) dla assignee. To jedyna poprawna kolejność — `add_child` nie obsługuje `assignedTo` per item.
 
 ```
 // KROK A — Utwórz 6 tasków pod PBI (auto-linkuje do rodzica)
 // W MPLRT brak osobnej iteracji E2e — wszystkie taski, w tym E2e tests, trafiają do sprintu PBI (Sprint 1)
-wit_add_child_work_items(
+wit_work_item_write(
+  action: "add_child",
   parentId: <pbiId>,
   workItemType: "Task",
   project: "MPLRT",
   items: [
-    { title: "FE",           iterationPath: "MPLRT\\Sprint 1", description: "" },
-    { title: "BE",           iterationPath: "MPLRT\\Sprint 1", description: "" },
-    { title: "DB",           iterationPath: "MPLRT\\Sprint 1", description: "" },
-    { title: "Figma",        iterationPath: "MPLRT\\Sprint 1", description: "" },
-    { title: "Manual tests", iterationPath: "MPLRT\\Sprint 1", description: "" },
-    { title: "E2e tests",    iterationPath: "MPLRT\\Sprint 1", description: "" }
+    { title: "FE",           iterationPath: "MPLRT\\Sprint 1", description: "", format: "Html" },
+    { title: "BE",           iterationPath: "MPLRT\\Sprint 1", description: "", format: "Html" },
+    { title: "DB",           iterationPath: "MPLRT\\Sprint 1", description: "", format: "Html" },
+    { title: "Figma",        iterationPath: "MPLRT\\Sprint 1", description: "", format: "Html" },
+    { title: "Manual tests", iterationPath: "MPLRT\\Sprint 1", description: "", format: "Html" },
+    { title: "E2e tests",    iterationPath: "MPLRT\\Sprint 1", description: "", format: "Html" }
   ]
 )
 → Odpowiedź zwraca IDs w tej samej kolejności: [FE_id, BE_id, DB_id, Figma_id, Manual_id, E2e_id]
@@ -550,15 +613,18 @@ wit_add_child_work_items(
 
 ```
 // KROK B — Ustaw assignee w batch (kontakt dla FE/BE/DB, Piotr dla Figma/Manual/E2e)
-wit_update_work_items_batch(updates: [
-  { id: <FE_331>, path: "/fields/System.AssignedTo", value: "kontakt@DTCode.pl" },
-  { id: <BE_331>, path: "/fields/System.AssignedTo", value: "kontakt@DTCode.pl" },
-  { id: <DB_331>, path: "/fields/System.AssignedTo", value: "kontakt@DTCode.pl" },
-  { id: <Figma_331>,  path: "/fields/System.AssignedTo", value: "Piotr.Tunski@DTCode.pl" },
-  { id: <Manual_331>, path: "/fields/System.AssignedTo", value: "Piotr.Tunski@DTCode.pl" },
-  { id: <E2e_331>,    path: "/fields/System.AssignedTo", value: "Piotr.Tunski@DTCode.pl" }
-  ... (analogicznie dla pozostałych PBI)
-])
+wit_work_item_write(
+  action: "update_batch",
+  batchUpdates: [
+    { id: <FE_331>,     op: "Add", path: "/fields/System.AssignedTo", value: "kontakt@DTCode.pl" },
+    { id: <BE_331>,     op: "Add", path: "/fields/System.AssignedTo", value: "kontakt@DTCode.pl" },
+    { id: <DB_331>,     op: "Add", path: "/fields/System.AssignedTo", value: "kontakt@DTCode.pl" },
+    { id: <Figma_331>,  op: "Add", path: "/fields/System.AssignedTo", value: "Piotr.Tunski@DTCode.pl" },
+    { id: <Manual_331>, op: "Add", path: "/fields/System.AssignedTo", value: "Piotr.Tunski@DTCode.pl" },
+    { id: <E2e_331>,    op: "Add", path: "/fields/System.AssignedTo", value: "Piotr.Tunski@DTCode.pl" }
+    ... (analogicznie dla pozostałych PBI)
+  ]
+)
 ```
 
 > ⚠️ Można zrobić wszystkie przypisania w jednym wywołaniu batch (dla 6 PBI = 36 wpisów).
@@ -569,31 +635,32 @@ wit_update_work_items_batch(updates: [
 
 Przed zakończeniem sprawdź, że każde PBI ma wszystkie poniższe elementy. **Brak któregokolwiek = praca niekompletna.**
 
-| Element                                                  | Pole/narzędzie                                       |
-| -------------------------------------------------------- | ---------------------------------------------------- |
-| ✅ Tytuł                                                  | `System.Title`                                       |
-| ✅ Przypisany do: kontakt@DTCode.pl                       | `System.AssignedTo`                                  |
-| ✅ Sprint 1 (`MPLRT\Sprint 1`)                            | `System.IterationPath`                               |
-| ✅ Rodzic (Feature)                                       | `wit_work_items_link`                                |
-| ✅ Opis HTML (User Story + szczegóły + link do interfejsu / Figmy) | `System.Description` via `wit_update_work_item`      |
-| ✅ Kryteria akceptacji HTML                               | `AcceptanceCriteria` via `wit_update_work_item`      |
-| ✅ 6 tasków: FE, BE, DB, Figma, Manual tests, E2e tests   | `wit_add_child_work_items`                           |
-| ✅ FE/BE/DB → kontakt@DTCode.pl, Sprint 1                 | `wit_update_work_items_batch`                        |
-| ✅ Figma/Manual → Piotr.Tunski@DTCode.pl, Sprint 1        | `wit_update_work_items_batch`                        |
-| ✅ E2e tests → Piotr.Tunski@DTCode.pl, Sprint 1          | `wit_update_work_items_batch`                        |
+| Element                                                           | Pole/narzędzie                                                   |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------- |
+| ✅ Tytuł                                                           | `System.Title`                                                   |
+| ✅ Przypisany do: kontakt@DTCode.pl                                | `System.AssignedTo`                                              |
+| ✅ Sprint 1 (`MPLRT\Sprint 1`)                                     | `System.IterationPath`                                           |
+| ✅ Rodzic (Feature)                                                | `wit_work_item_link_write` (`action: "link"`)                    |
+| ✅ Opis HTML (User Story + szczegóły + link do interfejsu / Figmy) | `System.Description` via `wit_work_item_write` (`action: "update"`) |
+| ✅ Kryteria akceptacji HTML                                        | `AcceptanceCriteria` via `wit_work_item_write` (`action: "update"`) |
+| ✅ 6 tasków: FE, BE, DB, Figma, Manual tests, E2e tests            | `wit_work_item_write` (`action: "add_child"`)                    |
+| ✅ FE/BE/DB → kontakt@DTCode.pl, Sprint 1                          | `wit_work_item_write` (`action: "update_batch"`)                 |
+| ✅ Figma/Manual → Piotr.Tunski@DTCode.pl, Sprint 1                 | `wit_work_item_write` (`action: "update_batch"`)                 |
+| ✅ E2e tests → Piotr.Tunski@DTCode.pl, Sprint 1                    | `wit_work_item_write` (`action: "update_batch"`)                 |
 
 ---
 
 ### Częste błędy i jak ich uniknąć
 
-| Błąd                                              | Przyczyna                                                 | Rozwiązanie                                                                                          |
-| ------------------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `Cannot convert undefined or null to object`      | Przekazano pustą tablicę `[]` do `fields` lub `items`      | Zawsze podaj co najmniej `System.Title` w tablicy                                                     |
-| Opis nie pojawia się w ADO                        | Próba dodania `System.Description` w `wit_create_work_item` | Twórz najpierw bez opisu, potem `wit_update_work_item`                                                |
-| HTML renderuje się jako plain text                | Brak `format: "Html"` przy update                          | Dodaj `format: "Html"` do każdego obiektu w `updates`                                                 |
-| Link rodzic-dziecko nie działa                    | Użyto złego `type`                                         | Dla hierarchii zawsze `type: "parent"` (nie `"child"`)                                                |
-| `&` w URL uszkadza HTML                           | Dosłowny `&` w atrybucie href                              | Zamień na `&amp;` w wartości pola HTML                                                                |
-| FE/BE/DB bez assignee po `wit_add_child_work_items` | Narzędzie nie obsługuje `assignedTo` per item             | Po każdym wywołaniu obowiązkowo `wit_update_work_items_batch` dla FE/BE/DB → kontakt@DTCode.pl        |
-| PBI bez tasków po zakończeniu bulk-flow           | Bot zatrzymał się na opisach, nie wykonał Etapów 4-5       | Wzorzec 4 ma 5 etapów — Etapy 4 i 5 (taski + assignee) są obowiązkowe, nie opcjonalne                 |
-| Błąd przy `System.IterationPath`                  | Nazwa iteracji inna niż przyjęta w tym skillu              | Wylistuj realne iteracje projektu i **zapytaj użytkownika** — nie zgaduj wariantów (patrz „Weryfikacja stałych") |
-| ADO zwraca `203` / stronę logowania               | PAT wygasł                                                 | Zgłoś użytkownikowi konieczność odnowienia tokenu; nie próbuj obejść                                  |
+| Błąd                                                              | Przyczyna                                                                   | Rozwiązanie                                                                                                                 |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `Cannot convert undefined or null to object`                      | Przekazano pustą tablicę `[]` do `fields`, `items`, `updates` lub `batchUpdates` | Zawsze podaj niepustą tablicę (dla `create` minimum `System.Title`)                                                         |
+| Opis nie pojawia się w ADO                                        | Próba dodania `System.Description` w `wit_work_item_write(action: "create")` | Twórz najpierw bez opisu, potem `wit_work_item_write(action: "update")`                                                     |
+| Błąd walidacji `format` przy `action: "update"` lub HTML jako plain text | `updates` w `action: "update"` nie przyjmuje pola `format` (`additionalProperties: false`), a pole raz przełączone na Markdown nie wraca do HTML | Dla świeżo utworzonych elementów zapisuj HTML wprost w `/fields/System.Description` i `/fields/Microsoft.VSTS.Common.AcceptanceCriteria` (domyślnie HTML), bez pola `format`; w `add_child` podawaj `format: "Html"` (domyślnie jest `"Markdown"`) |
+| Błąd w `action: "update_batch"` (`batchUpdates is required`)      | Przekazano parametr `updates` zamiast `batchUpdates`                        | Dla `action: "update_batch"` użyj tablicy `batchUpdates` (z `op: "Add" \| "Replace" \| "Remove"`)                           |
+| Link rodzic-dziecko nie działa                                    | Użyto złego `type` w `wit_work_item_link_write`                             | Dla hierarchii zawsze `type: "parent"` (nie `"child"`)                                                                      |
+| `&` w URL uszkadza HTML                                           | Dosłowny `&` w atrybucie href                                               | Zamień na `&amp;` w wartości pola HTML                                                                                      |
+| FE/BE/DB bez assignee po `wit_work_item_write(action: "add_child")` | Akcja `add_child` nie obsługuje `assignedTo` per item                       | Po każdym wywołaniu obowiązkowo `wit_work_item_write(action: "update_batch")` dla FE/BE/DB → kontakt@DTCode.pl              |
+| PBI bez tasków po zakończeniu bulk-flow                           | Bot zatrzymał się na opisach, nie wykonał Etapów 4-5                        | Wzorzec 4 ma 5 etapów — Etapy 4 i 5 (taski + assignee) są obowiązkowe, nie opcjonalne                                       |
+| Błąd przy `System.IterationPath`                                  | Nazwa iteracji inna niż przyjęta w tym skillu                               | Wylistuj realne iteracje projektu i **zapytaj użytkownika** — nie zgaduj wariantów (patrz „Weryfikacja stałych")            |
+| ADO zwraca `203` / `401` lub stronę logowania                     | Wygasły PAT albo błędnie zbudowany nagłówek `Authorization` (np. podwójny Base64) | Dla REST sprawdź status przed parsowaniem i budowę nagłówka (`"Basic " + wartość` bez ponownego kodowania Base64); jeśli nagłówek jest poprawny lub błąd zwraca MCP, zgłoś użytkownikowi konieczność odnowienia tokenu |
