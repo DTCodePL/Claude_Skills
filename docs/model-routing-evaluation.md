@@ -16212,3 +16212,21 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: brak znanych
 - Wymagane testy i dowody: kontrola odnośników (376 linków), liczby oznaczeń propozycji przed i po, odczyt PBI w ADO przez REST
 - Uwagi do pakietu: pytanie do właściciela o terminy archiwum było źle postawione (MPLRT to nowe zawody), wyszło dopiero z jego odpowiedzi; brief zgody powinien od razu wymieniać wyjątki dla zatwierdzonych dokumentów, w tym sekcje „Późniejsze zmiany”
+
+### Routing — Muse bez MCP: decyzja właściciela i propagacja do plików pochodnych — 2026-11-26
+- Archetyp: Konfiguracja / DevOps (usunięcie MCP z linii) + mechaniczna propagacja zmiany routingu.
+- Stawka: średnia (zmiana kwalifikacji każdego briefu Muse; błędna propagacja = briefy wymagające MCP trafiają do linii bez narzędzi).
+- Niepewność: niska (decyzja właściciela rozstrzyga; przyczyna techniczna zmierzona sondami).
+- Wykonawca (linia / model / native effort): właściciel (decyzja i wyczyszczenie konfiguracji Muse na obu hostach); architekt (poprawka normatywnego `CLAUDE.md`); Muse / `muse-spark-1.3-contributor` / `max` (propagacja do plików pochodnych, przebieg `spark-20261126-210858-24856`, 363 s).
+- Recenzent (linia / model / native effort): Codex / `gpt-6.2-sol` / `medium`, tylko odczyt (`codex-20261126-211535-54128`).
+- Dopuszczone alternatywy: brak (decyzja właściciela).
+- Powód wyboru: decyzja właściciela 2026-11-26: „Muse nie ma MCP i nie będzie miał” — API Muse odrzuca schematy narzędzi z `$ref` („Recursive JSON schemas are not currently supported”), a takie ma `wit_work_item_write` z `@azure-devops/mcp` 2.11.0; sondy z 26.11: przebieg bez narzędzi i z QA Sphere działał, z ADO padał.
+- Sygnał dostępności: nie dotyczy (decyzja, nie brief wykonawczy).
+- Pewność decyzji: wysoka.
+- Wynik pierwszego podejścia: wymagane korekty (K1) — serwery MCP usunięte z konfiguracji Muse na obu hostach (kopie `settings.json.bak-2026-11-26` z tokenami zostają na miejscu, bez kopiowania); normatywny `CLAUDE.md` poprawiony przez architekta (bramka Figma, wiersz Muse, reguła 8); pliki pochodne wyrównane: `AGENTS.md` (źródło ZebraniFE), skille ADO MPLRT i Zebrani, `qasphere-test-generator`, `external-workers`.
+- Rundy korekt: 1 (K1: Spark `max`, przebieg `spark-20261126-211925-59920`, 204 s; poprawki przyjęte bez ponownej recenzji).
+- Czas do akceptacji: decyzja zapadła tego samego dnia co sondy.
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): werdykt niezgodna 0,98; P0/P1: 0, P2: 3, P3: 2, wszystkie przyjęte (jedno P2 o ścieżce `pwcli` istniało przed zmianą).
+- Defekty po odbiorze: brak znanych.
+- Wymagane testy i dowody: sondy Muse z 2026-11-26 (bez narzędzi OK, QA Sphere OK, ADO 400); diff plików pochodnych.
+- Uwagi do pakietu: skutek dla routingu — Muse bez MCP na stałe: brief wymagający MCP (ADO, Figma, Playwright MCP, QA Sphere, Mikrus) kwalifikujesz do innej linii; Figma nadal wymaga faktycznego dostępu (Claude, Codex, Gemini konto A); odczyt ADO dla Muse przez `ado-wi.py`, przeglądarka przez `pwcli`. Kopie sekcji routingu do innych repozytoriów robi architekt skryptem (`sync-routing.py`).

@@ -124,8 +124,8 @@ Twarde:
 
 - **Wysyłki nie robi żaden model.** Nie sesja; nie `wykonawca` (Sonnet przy przepisywaniu 45 przypadków do wywołań
   narzędzi wprowadził 7 literówek, 2026-09-27); nie `mechanik` (Haiku utworzył 20 poprawnych i 15 zmyślonych
-  przypadków); nie Muse (jego most MCP gubi parametry-tablice najwyższego poziomu — `upsert_folders`,
-  `create_test_case` padają). `qas.py` wysyła treść bajt w bajt z pliku, zapisuje `seq` po każdym przypadku
+  przypadków); nie Muse (nie ma żadnego MCP — właściciel, 2026-11-26). `qas.py` wysyła treść bajt w bajt
+  z pliku, zapisuje `seq` po każdym przypadku
   i wznawia się po przerwie.
 - **`push` nie tworzy duplikatów.** Przed każdym `create_test_case` uzgadnia stan z serwerem: przypadek o tym samym
   tytule w docelowym folderze z identyczną treścią przejmuje (`seq` z serwera), z inną treścią albo w dwóch
@@ -135,8 +135,10 @@ Twarde:
 - **Korzeń projektu** (`ROOT` z Kroku 4b) `qas.py` ustala po tytule projektu z `get_project` — inne foldery najwyższego
   poziomu (w ZEB: „Programy klienta”) korzeniem nie są i ścieżka od nich jest odrzucana w `lint --context`
   i w `folders`. Brak korzenia → `folders` przerywa, chyba że podasz `--create-root`.
-- Worker generujący **nie woła narzędzi zapisu** QA Sphere; kontekst bierze z `context.json` (odczyty MCP ze
-  skalarnymi parametrami — `list_test_cases(search)`, `get_test_case` — wolno mu uzupełniać).
+- Worker generujący **nie woła narzędzi zapisu** QA Sphere; kontekst bierze z `context.json` (Gemini wolno go
+  uzupełniać odczytami MCP ze skalarnymi parametrami — `list_test_cases(search)`, `get_test_case`; Muse nie ma
+  MCP, więc dane z QA Sphere — foldery, istniejące przypadki — których nie ma w `context.json`, dostarcza mu
+  w briefie architekt).
 - **Katalog roboczy zestawu**: `D:\projects\DTCode\_robocze\<nr work itemu>-qasphere\` — poza repo i poza
   scratchpadem (scratchpad ginie z sesją, a `agy` czyta tylko `D:\projects\DTCode`): brief, `context.json`, plik
   payloadów, raporty. Nigdy osobny folder w korzeniu `D:\projects\DTCode` — wspólny katalog `_robocze` sprząta
@@ -147,7 +149,11 @@ Twarde:
   `QASPHERE_API_KEY` albo wpis `qasphere` w `~/.claude.json`. Opis podkomend: `python qas.py --help`.
 - **claude.ai** (bez workerów i bez skryptu): dotychczasowy przebieg Kroków 0–7 w jednym agencie, transport wg Kroku 0.
 - Gdy skill czyta **worker jako specyfikację**: ta sekcja dotyczy go tylko zakazem zapisu — wykonuje Kroki 2–4c
-  i zapisuje plik podglądu we wskazanej ścieżce, z `context.json` zamiast Kroków 1 i 4a.
+  i zapisuje plik podglądu we wskazanej ścieżce, z `context.json` zamiast Kroków 1 i 4a. **Muse Spark (bez MCP)**
+  przygotowuje wyłącznie plik podglądu JSON z `context.json` i danych, które architekt dał w briefie (foldery,
+  istniejące przypadki); w pliku ustawia `transport: "mcp"` i treść w Markdown, bo publikuje architekt przez
+  `qas.py`; docelową ścieżkę folderu zapisuje w pliku (Krok 5), a folder tworzy architekt skryptem po akceptacji
+  podglądu. **Gemini A (ma MCP)** — bez zmian: wolno mu uzupełniać kontekst odczytami MCP z Kroku 4a.
 
 ### Szablon briefu generatora
 
@@ -157,6 +163,8 @@ JESTEŚ WYKONAWCĄ. Piszesz manualne przypadki testowe QA Sphere do pliku JSON. 
 nie wołaj `create_test_case`, `update_test_case` ani `upsert_folders`.
 Specyfikacja formatu i treści: <ścieżka SKILL.md> — przeczytaj w całości Kroki 2–5.
 Kontekst projektu (custom fieldy, drzewo folderów, istniejące przypadki): <katalog>/context.json.
+Muse Spark (bez MCP) nie dociąga danych z QA Sphere sam — brakujące foldery i istniejące przypadki są w tym
+briefie (foldery w Decyzjach, przypadki w zakresie przeglądu).
 Repozytoria i dokumentacja tylko do odczytu: <ścieżki>. Bez gita zmieniającego stan, bez npm i dotnet.
 
 ## Zadanie
@@ -174,6 +182,8 @@ dostaje werdykt w `review[]`. Zmiany zachowania, które mogą unieważnić istni
 
 ## Wynik
 <katalog>/qasphere-payloads-<PROJECT>-<slug>.json w kształcie z Kroku 5, z `key` przy każdym przypadku.
+W pliku ustaw `transport: "mcp"` i treść w Markdown — publikuje architekt przez `qas.py`; docelową ścieżkę
+folderu zapisz w pliku, folderu nie twórz.
 Przed oddaniem: `python3 <ścieżka qas.py> lint <plik> --context <katalog>/context.json` — zero błędów.
 Raport: przegląd (zostają / aktualizacja / `[Removed]` — liczby), liczba nowych przypadków wg priorytetu i kategorii, pominięte kategorie z powodem, fakty niepotwierdzone w kodzie
 (i co przyjęto). Bez wklejania treści przypadków.
@@ -325,6 +335,9 @@ Wykonalne przez osobę, która **pierwszy raz widzi aplikację**. Wszystko po **
    ```
    Istniejące segmenty są reużywane po dokładnym tytule. `comment` pomiń (lub `null`) dla folderów już istniejących, żeby nie nadpisać ich opisu.
    > Pominięcie `ROOT` na początku `path` (np. `path: ["Klienci właściciela"]`) utworzy folder na najwyższym poziomie, **obok** projektu — **to błąd**. Zawsze prefiksuj ścieżkę tytułem `ROOT`.
+   W podziale pracy (sekcja „Podział pracy”): generator zapisuje docelową ścieżkę folderu w pliku podglądu
+   (Krok 5), a folder tworzy architekt przez `qas.py folders` po akceptacji podglądu — generator nie woła
+   `upsert_folders` (ani przez MCP, ani przez REST).
 
 #### 4c. Payload `create_test_case`
 
