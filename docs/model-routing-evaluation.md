@@ -16194,3 +16194,21 @@ Okresowa analiza wpisów w rejestrze prowadzona jest w następującym rytmie ope
 - Defekty po odbiorze: brak znanych
 - Wymagane testy i dowody: kontrola odnośników (2 zgłoszenia `zasady-użycia-1` to fałszywy alarm sprawdzacza przy powtórzonym nagłówku), odczyt ADO
 - Uwagi do pakietu: Muse na Windows od ok. 17:55 pada przy starcie z `API error 400: Recursive JSON schemas are not currently supported` niezależnie od repo, prawdopodobnie po aktualizacji któregoś serwera MCP z `npx …@latest`; Muse bez ustalenia serwera jest niedostępny dla briefów z MCP. Wartość `PERSONAL_ACCESS_TOKEN` w `~/.claude.json` jest już zakodowana do nagłówka `Basic` (jak w `ado-wi.py`), a podwójne kodowanie daje 203. Skill ADO MPLRT ma nieaktualne nazwy narzędzi MCP (`wit_create_work_item` i inne zamiast `wit_work_item_write`)
+
+### MPLRT wyniki — zapis zgody właściciela w dokumentacji (1 brief + 4 korekty, 2 recenzje) i skille ADO z aktualnymi narzędziami MCP (1 brief + 1 korekta, 1 recenzja) — 2026-11-26
+- Archetyp: dokumentacja decyzji (przeniesienie zgody właściciela do 18 dokumentów) + poprawka czterech skilli ADO
+- Stawka: niska (dokumentacja), średnia dla skilli używanych przez wszystkie projekty
+- Niepewność: niska
+- Wykonawca (linia / model / native effort): Gemini 4 Neon `high` (A, write) — wszystkie briefy i korekty; Muse niedostępny (błąd startu MCP)
+- Recenzent (linia / model / native effort): Codex `gpt-6.2-sol` `medium` (read) — skille raz, dokumentacja dwa razy (pełna i zawężona do poprawek)
+- Dopuszczone alternatywy: Spark `max` (niedostępny), Codex jako wykonawca ≤ 5 plików (odrzucony, bo zmiana objęła 18 plików)
+- Powód wyboru: Claude CZERWONY, Muse pada na starcie, Gemini A ma zapis i MCP ADO (potrzebne do odczytu schematów narzędzi)
+- Sygnał dostępności: Gemini A ok, Codex 5 h 0–14 % (`[pule]`, 2026-11-26)
+- Pewność decyzji: średnia
+- Wynik pierwszego podejścia: dokumentacja — zgoda zapisana poprawnie; korekty wynikły z nowych odpowiedzi właściciela (brak archiwum, błąd e-maila, brak starych zdjęć) i z recenzji (P1: zakres automatycznego przypisania). Skille — nazwy i kształty wywołań poprawne, recenzja dała 4 × P2 i 1 × P3
+- Rundy korekt: dokumentacja 4 (K1 spójność, K2 decyzje właściciela, K3 po recenzji, K4 po ponownej recenzji); skille 1
+- Czas do akceptacji: ok. 2 h dla całości
+- Znaleziska recenzji (potwierdzone/odrzucone, priorytet): dokumentacja — P1 potwierdzone, P2 × 3 (1 odrzucone: zmiana w decyzji z 23.11 objęta zgodą na propozycję 1; 1 zapisane jako kwestia otwarta), P3 potwierdzone; ponowna recenzja — P2 × 2 i P3 potwierdzone (P3: dni tygodnia po zmianie roku w przykładzie przez Gemini); skille — 4 × P2 i P3 potwierdzone
+- Defekty po odbiorze: brak znanych
+- Wymagane testy i dowody: kontrola odnośników (376 linków), liczby oznaczeń propozycji przed i po, odczyt PBI w ADO przez REST
+- Uwagi do pakietu: pytanie do właściciela o terminy archiwum było źle postawione (MPLRT to nowe zawody), wyszło dopiero z jego odpowiedzi; brief zgody powinien od razu wymieniać wyjątki dla zatwierdzonych dokumentów, w tym sekcje „Późniejsze zmiany”
